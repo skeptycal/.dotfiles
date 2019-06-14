@@ -12,5 +12,9 @@ done
 unset file
 
 #* #############################################################################
+#* list current versions of common utilities
+versions
+
+#* #############################################################################
 #* Bam ... make the magic
 # source "$ZSH/oh-my-zsh.sh"

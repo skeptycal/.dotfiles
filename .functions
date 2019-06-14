@@ -9,6 +9,15 @@ function pyver() {
 	python -c "print('.'.join(str(i) for i in __import__('sys').version_info[:3]))"
 }
 
+function versions() {
+	git_ver="$(git --version 2>/dev/null | awk '{print $3}')"
+	EXPORT git_ver
+	echo "git: $git_ver"
+	echo "$(python --version)"
+	echo "PYTHONPATH = $PYTHONPATH"
+	echo "node: $(node -v)"
+}
+
 function nonzero_return() {
 	RETVAL=$?
 	[ $RETVAL -ne 0 ] && echo "$RETVAL"
