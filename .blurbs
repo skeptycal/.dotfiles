@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+# Text blurbs and blobs for zsh functions
+#   Helpful to keep scripts clean ...
+#   and for localization if needed
+
+version_blurb="
+$vc_name (skeptycal utilities) $vc_version
+Copyright (C) 2019 Michael Treanor <http://www.skeptycal.com>
+License MIT <https://opensource.org/licenses/MIT>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+Written by Michael Treanor.
+If you wish to support the development,
+    go to:     skeptycal.com <https://www.github.com/skeptycal>
+    or email:  Michael Treanor <skeptycal@gmail.com>
+"
+
+dc_version="DirtyClean Version 0.0.2"
+
+dc_usage="NAME\n\tdc - use paramter expansion for pattern matching\n\nSYNOPSIS\n\tdc PARAMETER [PATTERN] [STRING]\n\nDESCRIPTION\n\n\t"'"DirtyClean" uses parameter expansion to perform command line pattern\nmatching. The basic pattern used is:'"\n\n\t\t"'${parameter/pattern/string}'"\n\n\tWhile this can be done on the command line easily, (e.g.)\n\n\t\t"'$ dirty="Ã‚10.41.89.50 "\n\t\t$ clean=${dirty//[^[:digit:].-]/}\n\t\t$ echo "$clean"\n\t\t10.41.89.50\n\n\tIt is handy to have a way to save presets, pipe outputs, or call from\nscripts without the overhead of manipulating variables directly.'
