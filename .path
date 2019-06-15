@@ -16,9 +16,8 @@
 #
 ###############################################################################
 export PYTHONPATH="\
-/Volumes/Data/skeptycal/bin/utilities/python:\
-/Volumes/Data/skeptycal/anaconda3/lib/python3.7/site-packages:\
-"
+/Volumes/Data/skeptycal/bin/utilities/python:/Volumes/Data/skeptycal/anaconda3/lib/python3.7/site-packages"
+
 
 export PATH="\
 $HOME/bin:\
