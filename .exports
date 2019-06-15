@@ -46,7 +46,6 @@ export RESET
 export PYTHONIOENCODING='UTF-8'
 #       python sucks ... virtual environments suck ...
 #       someone should find a better way to do this ... it's so stupid
-export PYTHONPATH="$PYTHONPATH:/Volumes/Data/skeptycal/anaconda3/lib/python3.7/site-packages"
 
 # Java
 JAVA_HOME=$(/usr/libexec/java_home)
