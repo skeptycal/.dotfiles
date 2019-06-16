@@ -21,11 +21,13 @@ export PYTHONPATH="\
 
 export PATH="\
 $HOME/bin:\
+$HOME./node_modules/.bin:\
 $HOME/bin/utilities:\
 $HOME/bin/utilities/python:\
 $HOME/bin/utilities/php:\
 $HOME/bin/utilities/php/includes:\
 $HOME/bin/utilities/scripts:\
+$HOME/Library/Python/3.7/bin:\
 $HOME/.composer/vendor/bin:\
 $HOME/.composer/vendor/squizlabs/php_codesniffer/bin:\
 $HOME/node-v8.16.0-darwin-x64/bin:\
