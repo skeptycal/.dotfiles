@@ -15,7 +15,7 @@ Click==7.0
 colorama==0.3.9
 coverage==4.5.3
 decorator==4.4.0
-Django==2.2.1
+Django==2.2.2
 djangorestframework==3.9.4
 docutils==0.14
 entrypoints==0.3
