@@ -9,12 +9,23 @@ function pyver() {
 	python -c "print('.'.join(str(i) for i in __import__('sys').version_info[:3]))"
 }
 
+function setup_tools() {
+	# https://www.createdbypete.com/ruby-on-rails-development-setup-for-macos/
+	echo "Setup for Homebrew, Node.js, Python, etc."
+	# echo ''
+	# echo "Homebrew ..."
+	# /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+	# brew update &>/dev/null && brew cleanup &>/dev/null && brew doctor &>/dev/null
+	# brew reinstall node &&	echo -e "==> Installation successful! node.js $(node -v) installed.""
+}
+
 function versions() {
 	git_ver="$(git --version 2>/dev/null | awk '{print $3}')"
 	EXPORT git_ver
 	echo "git: $git_ver"
+	echo "ruby: "
 	echo "$(python --version)"
-	echo "PYTHONPATH = $PYTHONPATH"
+	# echo "PYTHONPATH = $PYTHONPATH"
 	echo "node: $(node -v)"
 }
 
