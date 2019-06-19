@@ -46,7 +46,9 @@ export RESET
 export PYTHONIOENCODING='UTF-8'
 #       python sucks ... virtual environments suck ...
 #       someone should find a better way to do this ... it's so stupid
-
+export WORKON_HOME=$HOME/.virtualenvs
+export PROJECT_HOME=$HOME/Documents/coding/
+source /usr/local/bin/virtualenvwrapper.sh
 # Java
 JAVA_HOME=$(/usr/libexec/java_home)
 export JAVA_HOME
