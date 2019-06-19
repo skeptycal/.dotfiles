@@ -2,7 +2,15 @@
 source "$HOME/.dotfiles/.blurbs"
 
 function clip() {
-    echo "$@" | pbcopy
+	echo "$@" | pbcopy
+}
+
+function find_broken() {
+	# Find and delete all broken symbolic links
+	[[ "$1" == "-d" ]] && echo "Deleting Broken Symlinks ..." || echo "Listing Broken Symlinks ..."
+	[[ "$1" == "-d" ]] && find -L * -type l -exec rm -- {} + ||
+		find -L * -type l -echo {} +
+
 }
 
 function pyver() {
@@ -20,11 +28,13 @@ function setup_tools() {
 }
 
 function versions() {
-	git_ver="$(git --version 2>/dev/null | awk '{print $3}')"
-	EXPORT git_ver
-	echo "git: $git_ver"
-	echo "ruby: "
-	echo "$(python --version)"
+	GIT_VER="$(git --version 2>/dev/null | awk '{print $3}')"
+	RUBY_VER="$(ruby -v 2>/dev/null | awk '{print $2}')"
+	PY_VER="$(python --version 2>/dev/null | awk '{print $2}')"
+	EXPORT $GIT_VER
+	echo "git: $GIT_VER"
+	echo "ruby: $RUBY_VER"
+	echo "python: $PY_VER"
 	# echo "PYTHONPATH = $PYTHONPATH"
 	echo "node: $(node -v)"
 }
@@ -34,24 +44,41 @@ function nonzero_return() {
 	[ $RETVAL -ne 0 ] && echo "$RETVAL"
 }
 function parse_git_branch() {
-	BRANCH=`git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/'`
-	if [ ! "${BRANCH}" == "" ]
-	then
-		STAT=`parse_git_dirty`
+	BRANCH=$(git branch 2>/dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')
+	if [ ! "${BRANCH}" == "" ]; then
+		STAT=$(parse_git_dirty)
 		echo "[${BRANCH}${STAT}]"
 	else
 		echo ""
 	fi
 }
 
-function parse_git_dirty {
-	status=`git status 2>&1 | tee`
-	dirty=`echo -n "${status}" 2> /dev/null | grep "modified:" &> /dev/null; echo "$?"`
-	untracked=`echo -n "${status}" 2> /dev/null | grep "Untracked files" &> /dev/null; echo "$?"`
-	ahead=`echo -n "${status}" 2> /dev/null | grep "Your branch is ahead of" &> /dev/null; echo "$?"`
-	newfile=`echo -n "${status}" 2> /dev/null | grep "new file:" &> /dev/null; echo "$?"`
-	renamed=`echo -n "${status}" 2> /dev/null | grep "renamed:" &> /dev/null; echo "$?"`
-	deleted=`echo -n "${status}" 2> /dev/null | grep "deleted:" &> /dev/null; echo "$?"`
+function parse_git_dirty() {
+	status=$(git status 2>&1 | tee)
+	dirty=$(
+		echo -n "${status}" 2>/dev/null | grep "modified:" &>/dev/null
+		echo "$?"
+	)
+	untracked=$(
+		echo -n "${status}" 2>/dev/null | grep "Untracked files" &>/dev/null
+		echo "$?"
+	)
+	ahead=$(
+		echo -n "${status}" 2>/dev/null | grep "Your branch is ahead of" &>/dev/null
+		echo "$?"
+	)
+	newfile=$(
+		echo -n "${status}" 2>/dev/null | grep "new file:" &>/dev/null
+		echo "$?"
+	)
+	renamed=$(
+		echo -n "${status}" 2>/dev/null | grep "renamed:" &>/dev/null
+		echo "$?"
+	)
+	deleted=$(
+		echo -n "${status}" 2>/dev/null | grep "deleted:" &>/dev/null
+		echo "$?"
+	)
 	bits=''
 	if [ "${renamed}" == "0" ]; then
 		bits=">${bits}"
@@ -83,12 +110,12 @@ function a() { alias | grep "$1"; }
 function lt() { ls -ltrsA "$@" | tail; }
 function anybar() { echo -n "$1" | nc -4u -w0 localhost "${2:-1738}"; }
 function azure_agent() {
-	if [ -n "${1}" ] && [ -d "${1}" ] && [ -f "${1}/svc.sh" ] ; then
+	if [ -n "${1}" ] && [ -d "${1}" ] && [ -f "${1}/svc.sh" ]; then
 		working_dir="${1}/"
 	else
 		working_dir="$HOME/myagent/"
 	fi
-	if [ -z "${2}" ] ; then
+	if [ -z "${2}" ]; then
 		param="status"
 	else
 		param="${2}"
@@ -258,13 +285,13 @@ function o() {
 
 function tre() { tree -aC -I '.git|node_modules|bower_components' --dirsfirst "$@" | less -FRNX; }
 
-if which brew &> /dev/null && [ -f "$(brew --prefix)/share/bash-completion/bash_completion" ]; then
-	source "$(brew --prefix)/share/bash-completion/bash_completion";
+if which brew &>/dev/null && [ -f "$(brew --prefix)/share/bash-completion/bash_completion" ]; then
+	source "$(brew --prefix)/share/bash-completion/bash_completion"
 elif [ -f /etc/bash_completion ]; then
-	source /etc/bash_completion;
-fi;
+	source /etc/bash_completion
+fi
 
 [[ -r "/usr/local/etc/profile.d/bash_completion.sh" ]] && . "/usr/local/etc/profile.d/bash_completion.sh"
-	if type _git &> /dev/null && [ -f /usr/local/etc/bash_completion.d/git-completion.bash ]; then
-	complete -o default -o nospace -F _git g;
-fi;
+if type _git &>/dev/null && [ -f /usr/local/etc/bash_completion.d/git-completion.bash ]; then
+	complete -o default -o nospace -F _git g
+fi
