@@ -18,10 +18,12 @@
 export PYTHONPATH="\
 /Volumes/Data/skeptycal/bin/utilities/python:/Volumes/Data/skeptycal/anaconda3/lib/python3.7/site-packages"
 
+# node v8.16.0
+# $HOME/node-v8.16.0-darwin-x64/bin:\
+
 
 export PATH="\
 $HOME/bin:\
-$HOME./node_modules/.bin:\
 $HOME/bin/utilities:\
 $HOME/bin/utilities/python:\
 $HOME/bin/utilities/php:\
@@ -30,7 +32,6 @@ $HOME/bin/utilities/scripts:\
 $HOME/Library/Python/3.7/bin:\
 $HOME/.composer/vendor/bin:\
 $HOME/.composer/vendor/squizlabs/php_codesniffer/bin:\
-$HOME/node-v8.16.0-darwin-x64/bin:\
 $HOME/.local:\
 $HOME/.local/bin:\
 $HOME/.dotfiles:\
