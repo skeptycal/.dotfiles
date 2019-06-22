@@ -29,12 +29,13 @@ $HOME/bin/utilities/python:\
 $HOME/bin/utilities/php:\
 $HOME/bin/utilities/php/includes:\
 $HOME/bin/utilities/scripts:\
-$HOME/Library/Python/3.7/bin:\
+$HOME/bin/utilities/apps:\
 $HOME/.composer/vendor/bin:\
 $HOME/.composer/vendor/squizlabs/php_codesniffer/bin:\
 $HOME/.local:\
 $HOME/.local/bin:\
 $HOME/.dotfiles:\
+/usr/local/lib/node_modules:\
 /usr/local/opt/coreutils/libexec/gnubin:\
 /usr/local/Cellar/python/3.7.3/Frameworks/Python.framework/Versions/3.7/Resources/Python.app/Contents/MacOS:\
 /Applications/Postgres.app/Contents/Versions/latest/bin:\

@@ -5,16 +5,55 @@ function clip() {
 	echo "$@" | pbcopy
 }
 
-function find_broken() {
-	# Find and delete all broken symbolic links
-	[[ "$1" == "-d" ]] && echo "Deleting Broken Symlinks ..." || echo "Listing Broken Symlinks ..."
-	[[ "$1" == "-d" ]] && find -L * -type l -exec rm -- {} + ||
-		find -L * -type l -echo {} +
-
+function bak() {
+	FILES="$@"
+	for file in $FILES; do
+		[[ -d "$file" ]] && continue
+		printf "Backup file %s " $file
+		[[ -f "$file" ]] && cp -f "$file" "bak/${file}.bak" || echo -e "${WARN}unsuccessful!${RESET}"
+		echo ''
+	done
 }
 
+function web_chmod() {
+	# Set default permissions for a folder that will be uploaded to the web.
+	# most files = 644; directories = 755
+	find . -f -name '*' -print0 | xargs -0 chmod 644
+	find . -d -name '*' -print0 | xargs -0 chmod 755
+
+}
+function find_broken() {
+	# Find and delete all broken symbolic links
+	# use safety feature $1 == '-d' to actually delete them
+	if [[ "$1" == "-d" ]]; then
+		echo "Deleting Broken Symlinks ..."
+		find -L * -type l -exec rm -- {} +
+	else
+		echo "Listing Broken Symlinks ..."
+		find . -L -type l -echo {}+
+	fi
+}
+
+function pretty() {
+	# Use prettier to format all compatible selected files
+	# Use $1 for pattern, -g (github diff) or default is '*'
+	# /usr/local/lib/node_modules
+	if [[ -z "$1" ]]; then
+		ls -R * | xargs prettier --write
+	elif [[ "$1" == '-g' ]]; then
+		FILES=$(git diff --cached --name-only --diff-filter=ACM "*.js" "*.jsx" | sed 's| |\\ |g')
+		# Prettify all selected files
+		echo "$FILES" | xargs prettier --write
+		# Add back the modified/prettified files to staging
+		echo "$FILES" | xargs git add
+	else
+		echo "$1" | xargs prettier --write
+	fi
+}
+
+
 function pyver() {
-	python -c "print('.'.join(str(i) for i in __import__('sys').version_info[:3]))"
+	python -c "print('.'.join(str(i) for i in __import__('sys').version_info[:3].strip()))"
 }
 
 function setup_tools() {
@@ -130,12 +169,15 @@ function azure_agent() {
 }
 
 function datelog() {
-	file_name="$1$(date "+%m_%d_%y").log"
-	printf "\nOutput logged to file: %s\n\n""$file_name"
-	printf "\n===================================" >>"$file_name"
-	printf "\n= Log for %s\n\n""$(date "+%m/%d/%Y")" >>"$file_name"
-	echo "$ $*" >>"$file_name"
-	"$*" >>"$file_name"
+	# create a logfile with the date as part of the file_name
+	[[ -z $1 ]] && exit 1
+	command_text="$@"
+	file_name="${PWD}/datelog_$(date "+%m_%d_%y").log"
+	printf "\nOutput logged to file: %s\n${file_name}\n"
+	printf "\n===================================\n" | tee -a "$file_name"
+	printf "Log for %s\n\n" $(date "+%m/%d/%Y") | tee -a "$file_name"
+	exec "$command_text" | tee -a "$file_name"
+	$("$@") | tee -a "$file_name"
 }
 
 function mkd() {

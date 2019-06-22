@@ -1,7 +1,8 @@
-#!/usr/bin/env bash
+#!/bin/false
 #* #############################################################################
 #* Theme settings and resources
-[ -r "~/bin/symlinks/scripts/basic_text_colors.sh" ] && source "$HOME/bin/symlinks/scripts/basic_text_colors.sh"
+# [ -r "~/bin/utilities/scripts/basic_text_colors.sh" ] && source "$HOME/bin/utilities/scripts/basic_text_colors.sh"
+source /Volumes/Data/skeptycal/bin/utilities/scripts/basic_text_colors.sh
 
 #* #############################################################################
 #* Cycle through main sections sourced in resource documents
@@ -13,8 +14,10 @@ unset file
 
 #* #############################################################################
 #* list current versions of common utilities
-versions
+# versions
 
 #* #############################################################################
 #* Bam ... make the magic
 # source "$ZSH/oh-my-zsh.sh"
+
+export PATH="$HOME/.cargo/bin:$PATH"
