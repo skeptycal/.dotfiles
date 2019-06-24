@@ -168,7 +168,7 @@ get_current_os_name() {
         return 0
     elif [ "$uname" = "FreeBSD" ]; then
         echo "freebsd"
-        return 0        
+        return 0
     elif [ "$uname" = "Linux" ]; then
         local linux_platform_name
         linux_platform_name="$(get_linux_platform_name)" || { echo "linux" && return 0 ; }
