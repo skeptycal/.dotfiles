@@ -39,9 +39,9 @@ preg_match_all(
     $gpg_out
 );
 
-// convert $gpg_out[1] to string $gpg_code 
+// convert $gpg_out[1] to string $gpg_code
 // ? (this variable is used in some modules that include this script)
-$gpg_code = implode("", $gpg_out[1]);
+$gpg_code = implode('', $gpg_out[1]);
 
 // return private key
 echo $gpg_code;
