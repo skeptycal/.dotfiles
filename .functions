@@ -1,8 +1,171 @@
 #!/usr/bin/env bash
+# *############################################################################
+# echo "sourcing script .functions"
+# run <fix_list> to update this header list
+# 	or fix_list -o [TARGET] to output to a file
+# 	the keyword 'function' is required for this method
+
+# References:
+# 	<find> 'types' https://www.gnu.org/software/findutils/manual/html_mono/find.html#Type
+# find . -name '*.[ch]' -print0 | xargs -r -0 grep -l thing
+
+<<-function_list
+
+function_list
+
+cat <<-fix_list_header
+#!/usr/bin/env bash
+# *############################################################################
+# echo "sourcing script .functions"
+# run <fix_list> to update this header list
+# 	or fix_list -o [TARGET] to output to a file
+# 	the keyword 'function' is required for this method
+
+<<-function_list_heredoc
+
+function_list_heredoc
+
+<<-fix_list_header
+fix_list_header
+
+echo $function_list_heredoc
+echo
+echo $fix_list_header
+
 source "$HOME/.dotfiles/.blurbs"
+
+bin_path="$HOME/bin/utilities/pc_bak"
+
+function fix_list() {
+	# run <fix_list> to update this files's header list
+	# 	or fix_list -o [TARGET] to output to a file
+	# References: https://stackoverflow.com/questions/9081/grep-a-file-but-show-several-surrounding-lines?rq=1
+	# grep -A 2 -B 2 -m 2 function .functions
+	[[ $1='-o' ]] && tmpFile="$2" || tmpFile="/tmp/fix_list.tmp"
+	echo " command: fix_list $1 $2"
+
+	# echo "#!/usr/bin/env bash" >|tmpFile
+	# echo "# *############################################################################" >>tmpFile
+	# list of functions
+	function_list=$(grep '^function ' .functions | awk '{ print $2 }')
+}
 
 function clip() {
 	echo "$@" | pbcopy
+}
+
+function pretty_git() {
+	echo "Making your git staged files pretty ..."
+	#  --parser <flow|babel|babel-flow|typescript|css|less|scss|json|json5|json-stringify|graphql|markdown|mdx|vue|yaml|html|angular|lwc>
+	FILES=$(git diff --cached --name-only | sed 's| |\\ |g')
+	git reset
+	for file in $FILES; do
+		echo "Making $file pretty ..."
+		prettier $file >/dev/null
+		git add $file && git commit -m 'formatting' || echo "$file not committed."
+	done
+}
+function pretty() {
+	# Use prettier to format all compatible selected files
+	# Use $1 for pattern, -g (github diff) or default is '*'
+	if [[ -n "$1" ]]; then
+		echo "Making $1 pretty ..."
+		find -LX $PWD -name "$1" -type f -print0 | xargs -0 prettier --write
+		# find -L $PWD -name "$1" -type f -exec echo -- {} + | xargs prettier --write
+	elif [[ "$1" == '-g' ]]; then
+		echo "Making your git staged file pretty ..."
+		# FILES=$(git diff --cached --name-only --diff-filter=ACM "*.js" "*.jsx" | sed 's| |\\ |g')
+		FILES=$(git diff --cached --name-only | sed 's| |\\ |g')
+		echo $FILES
+		# Prettify all selected files
+		echo "$FILES" | xargs prettier --write
+		# Add back the modified/prettified files to staging
+		echo "$FILES" | xargs git add
+	else
+		echo "Making all the things pretty!"
+		find -LX $PWD -type f -print0 | xargs -0 prettier --write | grep -v '[error]'
+		# find -LX $PWD -type f -print0 | xargs -0 prettier --write | grep -v '[error]'
+		#! grep -v '[error]' isn't working ...
+	fi
+}
+
+function get_template() {
+	## copy template file <$1> to current directory
+	## use $2 == '-f' to force overwrite
+	local get_template_usage=<<get_template_usage
+	NAME
+		get_template
+
+	SYNOPSIS
+		get_template SOURCE [-f]
+
+	DESCRIPTION
+		copy SOURCE from $bin_path to current directory.
+
+		SOURCE - file that exists in the template directory
+
+		-f
+			force overwrite of existing file.
+
+get_template_usage
+	local SOURCE="$bin_path"'/'"$1"
+	if [[ -f $SOURCE ]]; then
+		if [[ -f "$1" ]]; then
+			if [[ "$2" == '-f' ]]; then
+				cp -f "${bin_path}/${1}" .
+			else
+				echo -e "File already exists in current directory. \n\n$get_template_usage"
+			fi
+		else
+			cp "${bin_path}/${1}" .
+		fi
+	else
+		echo -e "SOURCE file does not found.\n\n$get_template_usage"
+	fi
+}
+
+function web_chmod() {
+	# Set default permissions for a folder that will be uploaded to the web.
+	# default directory is PWD
+	# most files = 644; directories = 755
+	[[ -d "$1" ]] && dir="$1" || dir=$PWD
+	find -LX "$dir" -type f -print0 | xargs -0 chmod 644
+	find -LX "$dir" -type d -print0 | xargs -0 chmod 755
+	ls "$dir" -ARlh
+}
+
+function find_broken() {
+	# Find and delete all broken symbolic links in current directiry
+	# use safety feature $1 == '-d' to actually delete them
+	if [[ "$1" == "-d" ]]; then
+		echo "Deleting Broken Symlinks ..."
+		find -L $PWD -type l -exec rm -- {} +
+	else
+		echo "Listing Broken Symlinks (use -d to delete links)..."
+		find -LX $PWD -type l -print;
+	fi
+}
+
+tr_ws() {
+	# trim leading and trailing whitespace
+    local var="$*"
+    var="${var#"${var%%[![:space:]]*}"}"
+    var="${var%"${var##*[![:space:]]}"}"
+    echo -n "$var"
+}
+
+trim() {
+
+}
+
+function git_one() {
+	# to keep from delaying a commit due to one file that won't pass pre-commit
+	FILES=$(gaa -n)
+	FILES=${FILES[@]/5/-1}
+	for file in $FILES; do
+		fixed_file=${file/5/-1}
+		echo "$fixed_file"
+	done
 }
 
 function bak() {
@@ -14,43 +177,6 @@ function bak() {
 		echo ''
 	done
 }
-
-function web_chmod() {
-	# Set default permissions for a folder that will be uploaded to the web.
-	# most files = 644; directories = 755
-	find . -f -name '*' -print0 | xargs -0 chmod 644
-	find . -d -name '*' -print0 | xargs -0 chmod 755
-
-}
-function find_broken() {
-	# Find and delete all broken symbolic links
-	# use safety feature $1 == '-d' to actually delete them
-	if [[ "$1" == "-d" ]]; then
-		echo "Deleting Broken Symlinks ..."
-		find -L * -type l -exec rm -- {} +
-	else
-		echo "Listing Broken Symlinks ..."
-		find . -L -type l -echo {}+
-	fi
-}
-
-function pretty() {
-	# Use prettier to format all compatible selected files
-	# Use $1 for pattern, -g (github diff) or default is '*'
-	# /usr/local/lib/node_modules
-	if [[ -z "$1" ]]; then
-		ls -R * | xargs prettier --write
-	elif [[ "$1" == '-g' ]]; then
-		FILES=$(git diff --cached --name-only --diff-filter=ACM "*.js" "*.jsx" | sed 's| |\\ |g')
-		# Prettify all selected files
-		echo "$FILES" | xargs prettier --write
-		# Add back the modified/prettified files to staging
-		echo "$FILES" | xargs git add
-	else
-		echo "$1" | xargs prettier --write
-	fi
-}
-
 
 function pyver() {
 	python -c "print('.'.join(str(i) for i in __import__('sys').version_info[:3].strip()))"
