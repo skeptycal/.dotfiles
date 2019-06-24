@@ -1,27 +1,26 @@
 #!/usr/bin/env bash
-###############################################################################
-# .path
-#
-# Setup an initial path on a new or refreshed MacOS computer.
-#
-# Current as of macOS version ... Mac OS X version 10.14.3 (18D42)
-#
-# (part of Setup_macOS.sh)
-#
-# @author    Michael Treanor  <skeptycal@gmail.com>
-# @copyright 2018 (c) Michael Treanor <https://www.skeptycal.com>
-# @license   MIT <https://opensource.org/licenses/MIT>
-# @version   1.3
-# @link      http://www.github.com/skeptycal
-#
-###############################################################################
-export PYTHONPATH="\
-/Volumes/Data/skeptycal/bin/utilities/python:/Volumes/Data/skeptycal/anaconda3/lib/python3.7/site-packages"
+# *#############################################################################
+# echo "sourcing script .path"
 
+# *## PYTHONPATH ###############################################################
+export PYTHONPATH="\
+/usr/local/Cellar/python/3.7.3/Frameworks/Python.framework/Versions/3.7/Resources/Python.app/Contents/MacOS/python:\
+/Volumes/Data/skeptycal/anaconda3/lib/python3.7/site-packages:\
+/Volumes/Data/skeptycal/bin/utilities/python:\
+/Volumes/Data/skeptycal/bin/utilities/apps/python:\
+/usr/bin/python:\
+$PYTHONPATH"
+
+export MANPATH="\
+/usr/local/opt/coreutils/libexec/gnuman:\
+/usr/local/man:\
+$MANPATH"
+
+# *## shims ####################################################################
 # node v8.16.0
 # $HOME/node-v8.16.0-darwin-x64/bin:\
 
-
+# *## path #####################################################################
 export PATH="\
 $HOME/bin:\
 $HOME/bin/utilities:\
@@ -55,7 +54,9 @@ $HOME/.dotfiles:\
 /usr/sbin:\
 /sbin:\
 /usr/libexec:\
-$HOME/Documents/skeptycal.github.io/git-achievements\
+$HOME/.cargo/bin:$PATH:\
+$HOME/Documents/skeptycal.github.io/git-achievements:\
+$PATH
 "
 # ! If needed, add RVM to PATH for scripting. Make sure this is the\
 # ! last PATH variable change.   $HOME/.rvm/bin:\
