@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# *############################################################################
+# echo "sourcing script .extra"
 
 # https://rick.cogley.info/post/use-homebrew-zsh-instead-of-the-osx-default/
 # unalias run-help
