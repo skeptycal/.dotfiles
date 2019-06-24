@@ -1,12 +1,16 @@
 #!/usr/bin/env bash
+# *############################################################################
+# echo "sourcing script .exports"
+
 # shellcheck disable=SC1090,SC1091,SC2034,SC2154 #
 umask 022
 
 # TODO
 # alias t='./todo.sh -d /path/to/your/todo.cfg'
-export TODOTXT_DEFAULT_ACTION=ls
-export TODOTXT_SORT_COMMAND='env LC_COLLATE=C sort -k 2,2 -k 1,1n'
-
+TODOTXT_DEFAULT_ACTION=ls
+export TODOTXT_DEFAULT_ACTION
+TODOTXT_SORT_COMMAND='env LC_COLLATE=C sort -k 2,2 -k 1,1n'
+export TODOTXT_SORT_COMMAND
 # System
 export LANG='en_US.UTF-8'
 export LC_ALL='en_US.UTF-8'
@@ -20,8 +24,6 @@ export PKG_CONFIG_PATH="/usr/local/opt/zlib/lib/pkgconfig"
 export HISTSIZE='32768'
 export HISTFILESIZE="${HISTSIZE}"
 export HISTCONTROL='ignoreboth'
-export MANPATH="/usr/local/man:$MANPATH"
-export MANPATH="/usr/local/opt/coreutils/libexec/gnuman:$MANPATH"
 
 # Git
 #* brew install bash-git-prompt
@@ -32,7 +34,7 @@ fi
 
 # Appearance
 #   iterm2 bash shell integration
-test -e "${HOME}/.iterm2_shell_integration.bash" && source "${HOME}/.iterm2_shell_integration.bash"
+test -e "$HOME/.iterm2_shell_integration.bash" && source "$HOME/.iterm2_shell_integration.bash"
 export CLICOLOR=1
 export colorflag='--color=always'
 #   https://www.gnu.org/software/coreutils/manual/html_node/dircolors-invocation.html#dircolors-invocation
@@ -46,9 +48,11 @@ export RESET
 export PYTHONIOENCODING='UTF-8'
 #       python sucks ... virtual environments suck ...
 #       someone should find a better way to do this ... it's so stupid
-export WORKON_HOME=$HOME/.virtualenvs
-export PROJECT_HOME=$HOME/Documents/coding/
-source /usr/local/bin/virtualenvwrapper.sh
+# WORKON_HOME="$HOME/.virtualenvs"
+# export $WORKON_HOME
+# PROJECT_HOME="$HOME/Documents/coding/"
+# export $PROJECT_HOME
+# source /usr/local/bin/virtualenvwrapper.sh
 # Java
 JAVA_HOME=$(/usr/libexec/java_home)
 export JAVA_HOME
