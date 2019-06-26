@@ -18,3 +18,5 @@
 -   Updated Ruby and Gem
 
 ## Software
+
+Elm (via elm-format), Java, PHP, PostgreSQL, Ruby, Swift, TOML, Markdown, CommonMark, GitHub-Flavored Markdown, MDX, YAML, CSS, Less, SCSS, styled-components 💅, styled-jsx, GraphQL, GraphQL Schemas, JavaScript, JSX, Flow, TypeScript, JSON, HTML, Vue, Angular
