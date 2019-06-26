@@ -1,7 +1,7 @@
 {
     "name": "skeptycal",
     "version": "1.0.0",
-    "description": "global",
+    "description": "global npm repo",
     "main": "index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1"
