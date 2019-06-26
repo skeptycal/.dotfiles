@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
 treehere (){
-	[ ! "$1" ] && echo "$1" || echo "no"
-	if !$1 then $1 = 1;
-	tree -a -F -C -L $1 --dirsfirst --si;
-	unset -f f;
-}; f'
+	[[ -z "$1" ]] && level=1 || level="$1"
+	tree $tree_path -aFCL $level --dirsfirst --si
+}
+
+treehere
+echo "shell level \$SHLVL: $SHLVL"
