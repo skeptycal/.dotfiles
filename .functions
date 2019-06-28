@@ -123,6 +123,7 @@ function load_functions() {
 
     function bak() {
         FILES="$@"
+        [[ -d "$PWD/bak" ]] || mkdir bak
         for file in $FILES; do
             [[ -d "$file" ]] && continue
             printf "Backup file %s " $file
