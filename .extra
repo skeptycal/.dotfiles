@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # *############################################################################
-# echo "sourcing script .extra"
+[ ! $DEBUG = '1' ] || ce "Script source:$MAIN $BASH_SOURCE$RESET"
 
 # https://rick.cogley.info/post/use-homebrew-zsh-instead-of-the-osx-default/
 # unalias run-help
