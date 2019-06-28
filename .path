@@ -1,110 +1,161 @@
-#!/usr/bin/env bash
+#!/usr/bin/env false bash
 # *#############################################################################
-# echo "sourcing script .path"
+# ${PATH//:/\\n}
+# ${PATH// /}
+function set_paths() {
+    # *## PYTHONPATH ###########################################################
+    PYTHONPATH="\
+    /usr/local/Cellar/python/3.7.3/Frameworks/Python.framework/Versions/3.7/Resources/Python.app/Contents/MacOS/python:\
+    /Volumes/Data/skeptycal/anaconda3/lib/python3.7/site-packages:\
+    /Volumes/Data/skeptycal/bin/utilities/python:\
+    /Volumes/Data/skeptycal/bin/utilities/apps/python:\
+    /usr/bin/python:\
+    $PYTHONPATH"
 
-# *## PYTHONPATH ###############################################################
-export PYTHONPATH="\
-/usr/local/Cellar/python/3.7.3/Frameworks/Python.framework/Versions/3.7/Resources/Python.app/Contents/MacOS/python:\
-/Volumes/Data/skeptycal/anaconda3/lib/python3.7/site-packages:\
-/Volumes/Data/skeptycal/bin/utilities/python:\
-/Volumes/Data/skeptycal/bin/utilities/apps/python:\
-/usr/bin/python:\
-$PYTHONPATH"
+    PYTHONPATH=${PYTHONPATH// /}
+    export PYTHONPATH
 
-export MANPATH="\
-/usr/local/opt/coreutils/libexec/gnuman:\
-/usr/local/man:\
-$MANPATH"
+    MANPATH="\
+    /usr/local/opt/coreutils/libexec/gnuman:\
+    /usr/local/man:\
+    $MANPATH"
 
-# *## shims ####################################################################
-# node v8.16.0
-# $HOME/node-v8.16.0-darwin-x64/bin:\
+    MANPATH=${MANPATH// /}
+    export MANPATH
 
-# *## path #####################################################################
-export PATH="\
-$HOME/bin:\
-$HOME/bin/utilities:\
-$HOME/bin/utilities/python:\
-$HOME/bin/utilities/php:\
-$HOME/bin/utilities/php/includes:\
-$HOME/bin/utilities/scripts:\
-$HOME/bin/utilities/apps:\
-$HOME/.composer/vendor/bin:\
-$HOME/.composer/vendor/squizlabs/php_codesniffer/bin:\
-$HOME/.local:\
-$HOME/.local/bin:\
-$HOME/.dotfiles:\
-/usr/local/lib/node_modules:\
-/usr/local/opt/coreutils/libexec/gnubin:\
-/usr/local/Cellar/python/3.7.3/Frameworks/Python.framework/Versions/3.7/Resources/Python.app/Contents/MacOS:\
-/Applications/Postgres.app/Contents/Versions/latest/bin:\
-/Applications/Visual Studio Code.app/Contents/Resources/app/bin:\
-/usr/local/anaconda3/bin:\
-/usr/local/opt/ruby/bin:\
-/usr/local/lib/ruby/gems/2.6.0/bin:\
-/usr/local/go/bin:\
-/usr/local/bin:\
-/usr/bin:\
-/bin:\
-/usr/local/opt:\
-/opt/local/bin:\
-/opt/local/sbin:\
-/usr/local:\
-/usr/local/sbin:\
-/usr/sbin:\
-/sbin:\
-/usr/libexec:\
-$HOME/.cargo/bin:$PATH:\
-$HOME/Documents/skeptycal.github.io/git-achievements:\
-$PATH
-"
-# ! If needed, add RVM to PATH for scripting. Make sure this is the\
-# ! last PATH variable change.   $HOME/.rvm/bin:\
+    # *## shims ################################################################
+    # node v8.16.0
+    # $HOME/node-v8.16.0-darwin-x64/bin:\
 
+    # *## path #################################################################
+    PATH="\
+    $HOME/bin:\
+    /usr/local/opt/coreutils/libexec/gnubin:\
+    $HOME/bin/utilities:\
+    $HOME/bin/utilities/python:\
+    $HOME/bin/utilities/php:\
+    $HOME/bin/utilities/php/includes:\
+    $HOME/bin/utilities/scripts:\
+    $HOME/bin/utilities/apps:\
+    $HOME/.composer/vendor/bin:\
+    $HOME/.composer/vendor/squizlabs/php_codesniffer/bin:\
+    $HOME/.local:\
+    $HOME/.local/bin:\
+    $HOME/.dotfiles:\
+    /usr/local/lib/node_modules:\
+    /usr/local/Cellar/python/3.7.3/Frameworks/Python.framework/Versions/3.7/Resources/Python.app/Contents/MacOS:\
+    /Applications/Postgres.app/Contents/Versions/latest/bin:\
+    /Applications/Visual Studio Code.app/Contents/Resources/app/bin:\
+    /usr/local/anaconda3/bin:\
+    /usr/local/opt/ruby/bin:\
+    /usr/local/lib/ruby/gems/2.6.0/bin:\
+    /usr/local/go/bin:\
+    /usr/local/bin:\
+    /usr/bin:\
+    /bin:\
+    /usr/local/opt:\
+    /opt/local/bin:\
+    /opt/local/sbin:\
+    /usr/local:\
+    /usr/local/sbin:\
+    /usr/sbin:\
+    /sbin:\
+    /usr/libexec:\
+    /Library/TeX/texbin:\
+    /usr/local/share/dotnet:\
+    /opt/X11/bin:\
+    $HOME/.dotnet/tools:\
+    /Library/Frameworks/Mono.framework/Versions/Current/Commands:\
+    /Applications/Postgres.app/Contents/Versions/latest/bin:\
+    /Applications/Xamarin Workbooks.app/Contents/SharedSupport/path-bin:\
+    /Volumes/Data/skeptycal/perl5/bin:\
+    $HOME/.cargo/bin:\
+    $HOME/bin/utilities/git-achievements:\
+    "
 
+    PATH=${PATH// /}
+    export PATH
+
+    # ! If needed, add RVM to PATH for scripting. Make sure this is the\
+    # ! last PATH variable change.   $HOME/.rvm/bin:\
+    }
+
+function run_debug_paths() {
+    # list current versions of common utilities
+    ce "Script source:$MAIN $BASH_SOURCE$RESET"
+	ge "\$PATH is set. Type <path> to list elements."
+    # ${PATH//:/\\n}
+    # ${PATH// /}
+}
+
+# *############################################################################
+# * Bam ... make the magic
+function main_paths() {
+	set_paths
+	[ ! $DEBUG = '1' ] || run_debug_paths
+}
+
+main_paths
 ###############################################################################
 # Notes:
-#   ! This should be either first or last ... it is up for debate
-#   I put mine first and curate what I place in here ...
-#   I put my ~/.dotfiles directory at the end of the path ... it is handy ...
-#   I put my /usr/libexec directory at the end ... sometimes handy
-#        * $HOME/bin:\ (and several utilities directories)
 
-#   Path entries that should be before all others, if possible:
-#
-#     1. gnubin - GNU replacements for macOS shell functions
-#        * /usr/local/opt/coreutils/libexec/gnubin:\
+    # This is what was there before I added mine (6/27/19)
+    # /usr/local/bin
+    # /usr/bin
+    # /bin
+    # /usr/sbin
+    # /sbin
+    # /Library/TeX/texbin
+    # /usr/local/share/dotnet
+    # /opt/X11/bin
+    # ~/.dotnet/tools
+    # /Library/Frameworks/Mono.framework/Versions/Current/Commands
+    # /Applications/Postgres.app/Contents/Versions/latest/bin
+    # /Applications/Xamarin Workbooks.app/Contents/SharedSupport/path-bin
+    # /Volumes/Data/skeptycal/perl5/bin
 
-#   Path entries that should be first - ish (before system paths):
-#     2. Programming languages
-#        * .dotnet
-#        * Python / pip / pipenv / virtualenv
-#        * anaconda / conda
-#        * PHP (path to brew version! *probably* /usr/local/bin/php)
-#        * Ruby / gems
-#        * Go
-#        * other languages or priority (non-Apple) applications
-#        * /usr/local/bin ... this seems to be the devault Brew
-#        *    symlink home and *should* catch everything else
-#        * especially programs that update an apple functionality!
 
-#     3. PHP tools: If you use composer, phpunit, php_codesniffer, etc
-#        * $HOME/.composer/vendor/bin:\
-#        * $HOME/.composer/vendor/squizlabs/php_codesniffer/bin:\
-#     3a.
-#        * httpd seems to have issues with Mojave
-#        * use path to brew version: /usr/local/bin/httpd
-#    Path entries that should be after specific app paths
-#     4. System bin paths (Homebrew compatible - 'local' first)
-#        * /usr/local/bin:\
-#        * /usr/bin:\
-#        * /bin:\
+    #   ! This should be either first or last ... it is up for debate
+    #   I put mine first and curate what I place in here ...
+    #   I put my ~/.dotfiles directory at the end of the path ... it is handy ...
+    #   I put my /usr/libexec directory at the end ... sometimes handy
+    #        * $HOME/bin:\ (and several utilities directories)
 
-#     5. opt's and lib's (only if needed - I symlink to 'bins' instead)
-#        * /usr/local/opt:/opt/local/sbin:\
-#        * /usr/local:\
+    #   Path entries that should be before all others, if possible:
+    #
+    #     1. gnubin - GNU replacements for macOS shell functions
+    #        * /usr/local/opt/coreutils/libexec/gnubin:\
 
-#     6. System sbin paths
-#        * /usr/local/sbin:\
-#        * /usr/sbin:\
-###############################################################################
+    #   Path entries that should be first - ish (before system paths):
+    #     2. Programming languages
+    #        * .dotnet
+    #        * Python / pip / pipenv / virtualenv
+    #        * anaconda / conda
+    #        * PHP (path to brew version! *probably* /usr/local/bin/php)
+    #        * Ruby / gems
+    #        * Go
+    #        * other languages or priority (non-Apple) applications
+    #        * /usr/local/bin ... this seems to be the devault Brew
+    #        *    symlink home and *should* catch everything else
+    #        * especially programs that update an apple functionality!
+
+    #     3. PHP tools: If you use composer, phpunit, php_codesniffer, etc
+    #        * $HOME/.composer/vendor/bin:\
+    #        * $HOME/.composer/vendor/squizlabs/php_codesniffer/bin:\
+    #     3a.
+    #        * httpd seems to have issues with Mojave
+    #        * use path to brew version: /usr/local/bin/httpd
+    #    Path entries that should be after specific app paths
+    #     4. System bin paths (Homebrew compatible - 'local' first)
+    #        * /usr/local/bin:\
+    #        * /usr/bin:\
+    #        * /bin:\
+
+    #     5. opt's and lib's (only if needed - I symlink to 'bins' instead)
+    #        * /usr/local/opt:/opt/local/sbin:\
+    #        * /usr/local:\
+
+    #     6. System sbin paths
+    #        * /usr/local/sbin:\
+    #        * /usr/sbin:\
+    ###############################################################################
