@@ -10,23 +10,37 @@ function load_functions() {
         # echo $function_list >function_list.txt
     }
 
-    function versions() {
-        GIT_VER="$(git --version | awk '{print $3}')"
-        RUBY_VER="$(ruby -v 2>/dev/null | awk '{print $2}')"
-        PY_VER="$(python --version 2>/dev/null | awk '{print $2}')"
-        echo "BASH $BASH_VERSION"
-        echo "hub $(hub --version | grep hub | awk '{print $3}')"
-        echo "git $(git --version | awk '{print $3}')"
-        echo "Homebrew is too slow. Use <brew -v> if you are curious."
-        # echo "$(brew -v | grep 'Homebrew ')"
-        # echo "git: $GIT_VER"
-        echo "ruby $RUBY_VER"
-        echo "python $PY_VER"
-        echo "php $(php -v | grep '(cli)' | awk '{print $2}')"
-        # echo "PYTHONPATH = $PYTHONPATH"
-        echo "node $(node -v)"
-        echo "$(pipenv --version)"
+    function cut_prefix() {
+        # cut $1 off of the left side of $2
+        echo "cut \$1: $1"
+        echo "from \$2: $2"
+        echo "put in ${!2}"
+
     }
+
+    function versions() {
+        ge "BASH $BASH_VERSION"
+        oe "$(hub --version)"
+        he "ruby   v$(ruby -v 2>/dev/null | awk '{print $2}')"
+        pe "php v$(php -v | grep '(cli)' | awk '{print $2}')"
+
+        printf "${COOL}"
+        python <<-python_version
+import sys
+version = 'python v' + ".".join(map(str, sys.version_info[:3]))
+sys.stdout.write(version)
+sys.stdout.flush()
+python_version
+        printf "$RESET\n"
+
+        ye "node   $(node -v)"
+        we "npm     v$(npm -v)"
+        # ye "eslint $(eslint -v)"
+        # echo "$(pipenv --version)"
+        # oe "prettier v$(prettier -v)"
+    }
+
+    function readlinkf(){ perl -MCwd -e 'print Cwd::abs_path shift' "$1";}
 
     function pretty() {
         # Use prettier to format all compatible selected files
@@ -419,6 +433,7 @@ function main_functions() {
     here=$PWD
 
 	load_functions
+    versions
 	[ $DEBUG = '1' ] && run_debug_functions
 }
 

@@ -10,6 +10,7 @@ function set_paths() {
     /Volumes/Data/skeptycal/bin/utilities/python:\
     /Volumes/Data/skeptycal/bin/utilities/apps/python:\
     /usr/bin/python:\
+    /usr/local/bin/python:\
     $PYTHONPATH"
 
     PYTHONPATH=${PYTHONPATH// /}
@@ -27,8 +28,14 @@ function set_paths() {
     # node v8.16.0
     # $HOME/node-v8.16.0-darwin-x64/bin:\
 
+    # python 2.7.16 (from brew install python@2)
+    # /usr/local/bin/python2
+    # /usr/local/bin/pip2
+    # * move up /usr/local/bin ... python is symlinked to python2 already
+
     # *## path #################################################################
     PATH="\
+    /usr/local/bin:\
     $HOME/bin:\
     /usr/local/opt/coreutils/libexec/gnubin:\
     $HOME/bin/utilities:\
@@ -50,7 +57,6 @@ function set_paths() {
     /usr/local/opt/ruby/bin:\
     /usr/local/lib/ruby/gems/2.6.0/bin:\
     /usr/local/go/bin:\
-    /usr/local/bin:\
     /usr/bin:\
     /bin:\
     /usr/local/opt:\
