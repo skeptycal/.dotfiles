@@ -4,7 +4,7 @@
 #* Universal BASH debug flag
 export DEBUG='0'
 
-function load_themes () {
+function load_themes() {
     colors_file="/Volumes/Data/skeptycal/bin/utilities/scripts/basic_text_colors.sh"
     [[ -r "$colors_file" ]] && source "$colors_file"
 
@@ -21,25 +21,25 @@ function load_themes () {
         echo -e "Several basic colors have been implemented:"
         echo -e "${MAIN}MAIN   ${WARN}WARN   ${COOL}COOL   ${GO}GO   ${CHERRY}CHERRY   ${CANARY}CANARY   ${ATTN}ATTN   ${PURPLE}PURPLE   ${RESET}RESET"
     fi
-    }
+}
 function load_resources() {
     for file in ~/.dotfiles/.{path,exports,aliases,functions,extra,git_alias}; do
         source "$file" # &>/dev/null # used to test for errors
     done
     unset file
-    }
+}
 
 function run_debug() {
     we "BASH Debug Mode Enabled (DEBUG=1)"
     ce "Script source:$MAIN $BASH_SOURCE$RESET"
     ge "Use <versions> to see common program versions."
-    }
+}
 
 function main() {
     clear
     load_themes
     load_resources
     [ ! $DEBUG = '1' ] || run_debug
-    }
+}
 
 main
