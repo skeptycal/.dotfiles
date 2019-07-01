@@ -1,22 +1,45 @@
-#!/usr/bin/env bash
+#!/bin/false
+#cannot be run directly
 
 function load_functions() {
     source "$HOME/.dotfiles/.blurbs"
 
     function fix_list() {
-        function_list=$(cat ~/.dotfiles/.functions | grep -e " function " | awk '{ print $2 }')
-        # echo $function_list
+        function_list=$(cat ~/.dotfiles/.functions | grep -e 'function () { ' | awk '{ printf "%s\\n",$2 }')
+
+        me "\nAvailable BASH functions (function_list):\n"
+        oe $function_list
         # cat ~/.dotfiles/.functions | grep -e " function " | awk '{ print $2 }'
         # echo $function_list >function_list.txt
     }
 
-    function cut_prefix() {
-        # cut $1 off of the left side of $2
-        echo "cut \$1: $1"
-        echo "from \$2: $2"
-        echo "put in ${!2}"
+# You can do this using the Travis CLI. As described in the documentation, first install the CLI tool, then:
 
-    }
+# travis login --org --auto
+# travis token
+# You can keep this token in an environment variable TRAVIS_TOKEN, as long as the file you keep it in is not version-controlled somewhere public.
+
+# I use this function to submit triggers:
+
+function travis_trigger() {
+     local org=$1 && shift
+     local repo=$1 && shift
+     local branch=${1:-master} && shift
+
+     body="{
+             \"request\": {
+               \"branch\": \"${branch}\"
+              }
+           }"
+
+     curl -s -X POST \
+          -H "Content-Type: application/json" \
+          -H "Accept: application/json" \
+          -H "Travis-API-Version: 3" \
+          -H "Authorization: token $TRAVIS_TOKEN" \
+          -d "$body" \
+          "https://api.travis-ci.org/repo/${org}%2F${repo}/requests"
+ }
 
     function versions() {
         ge "BASH $BASH_VERSION"
@@ -25,12 +48,7 @@ function load_functions() {
         pe "php v$(php -v | grep '(cli)' | awk '{print $2}')"
 
         printf "${COOL}"
-        python <<-python_version
-import sys
-version = 'python v' + ".".join(map(str, sys.version_info[:3]))
-sys.stdout.write(version)
-sys.stdout.flush()
-python_version
+        python -c 'import sys; sys.stdout.write("python v" + ".".join(map(str, sys.version_info[:3]))); sys.stdout.flush()'
         printf "$RESET\n"
 
         ye "node   $(node -v)"
@@ -45,29 +63,74 @@ python_version
     function pretty() {
         # Use prettier to format all compatible selected files
         # Use $1 for pattern, -g (github diff) or default is '*'
-        if [[ "$1" == '-h' ]]; then
-            echo -e $pretty_usage
-        elif [[ -n "$1" ]]; then
-            echo "Making $1 pretty ..."
-            find -LX $PWD -name "$1" -type f -print0 | xargs -0 prettier --write |& grep -e '[[:space:]]\?[[:digit:]]\+ms'
-        elif [[ "$1" == '-g' ]]; then
-            echo "Making your git staged file pretty ..."
-            # select stated files
-            FILES=$(git diff --cached --name-only | sed 's| |\\ |g')
-            # Prettify all selected files
-            echo "$FILES" | xargs prettier --write |& grep -e '[[:space:]]\?[[:digit:]]\+ms'
-            # Add back the modified/prettified files to staging
-            echo "$FILES" | xargs git add
-            echo "Ready to Push 'n Pull!"
-        else
+        if [[ -z "$1" ]]; then
             echo "Making all the things pretty! (use pretty -h for help)"
-            find -LX $PWD -type f -print0 | xargs -0 prettier --write |& grep -e '[[:space:]]\?[[:digit:]]\+ms'
+            find -L $PWD -type f -print0 | xargs -0 prettier --write |& grep -e '[[:space:]]\?[[:digit:]]\+ms'
+        else
+            case "$1" in
+                '-h'|'--help'|'help')
+                    echo -e $pretty_usage
+                    ;;
+                '-m' | '--commit-message' | 'commit')
+                    echo "Making your git staged file pretty ..."
+                    # select stated files
+                    FILES=$(git diff --cached --name-only | sed 's| |\\ |g')
+                    # Prettify all selected files
+                    echo "$FILES" | xargs prettier --write |& grep -e '[[:space:]]\?[[:digit:]]\+ms'
+                    # Add back the modified/prettified files to staging
+                    echo "$FILES" | xargs git add
+                    git commit -m "gitbot: $2"
+                    git status
+                    ;;
+                *)
+                    echo "Making $1 pretty ..."
+                    find -L $PWD -name "$1" -type f -print0 | xargs -0 prettier --write |& grep -e '[[:space:]]\?[[:digit:]]\+ms'
+                    ;;
+            esac
         fi
-    }
+        }
+
+    function fileop() {
+        # Check 3 arguments are given #
+        if [ "$#" -lt 3 ]
+        then
+            echo "Usage : $0 option pattern filename"
+            return 1
+        fi
+
+        # Check the given file is exist #
+        if [ ! -f "$3" ]
+        then
+            echo "Filename given \"$3\" doesn't exist"
+            return 1
+        fi
+
+        case "$1" in
+
+            # Count number of lines matches
+            -i) echo "Number of lines matches with the pattern $2 :"
+                fgrep -c -i $2 $3
+                ;;
+            # Count number of words matches
+            -c) echo "Number of words matches with the pattern $2 :"
+                fgrep -o -i $2 $3 | wc -l
+                ;;
+            # print all the matched lines
+            -p) echo "Lines matches with the pattern $2 :"
+                fgrep -i $2 $3
+                ;;
+            # Delete all the lines matches with the pattern
+            -d) echo "After deleting the lines matches with the pattern $2 :"
+                sed -n "/$2/!p" $3
+                ;;
+            *) echo "Invalid option"
+                ;;
+        esac
+        }
 
     function clip() {
         echo "$("$@")" | pbcopy
-    }
+        }
 
     function get_template() {
         ## copy template file <$1> to current directory
@@ -87,7 +150,7 @@ python_version
         else
             printf "SOURCE file not found.\n\n"
         fi
-    }
+        }
 
     function web_chmod() {
         # Set default permissions for a folder that will be uploaded to the web.
@@ -99,7 +162,7 @@ python_version
         find -LX "$dir" -type d -print0 | xargs -0 chmod 755
         echo "Changing permissions of all regular directories to 0755."
         # ls "$dir" -ARlh
-    }
+        }
 
     function find_broken() {
         # Find and delete all broken symbolic links in current directiry
@@ -109,21 +172,30 @@ python_version
             find -L $PWD -type l -exec rm -- {} +
         else
             echo "Listing Broken Symlinks (use -d to delete links)..."
-            find -LX $PWD -type l -print;
-        fi
-    }
 
-    function tr_ws() {
+            find -L $PWD -type l -print 2>&1
+
+            # for shorter names (basenames) + error messages
+            # find -LX $PWD -type l -print 2>&1 |awk -F"/" '{print $NF}'        # interesting method:
+            # https://stackoverflow.com/a/26887762/9878098
+            # find -LX $PWD -type l -print 2>&1 | rev | cut -d '/' -f1 | rev | cut -d ' ' -f1
+
+            # color errors:
+            # fgrep illegal --color=always
+        fi
+        }
+
+    function trw() {
         # trim leading and trailing whitespace
         local var="$*"
         var="${var#"${var%%[![:space:]]*}"}"
+
+        var="${var#"${var&&[!'/']*}"}"
         var="${var%"${var##*[![:space:]]}"}"
         echo -n "$var"
-    }
+        }
 
-    # function trim() {
-    # 	echo ''
-    # }
+
 
     function git_one() {
         # to keep from delaying a commit due to one file that won't pass pre-commit
@@ -133,7 +205,7 @@ python_version
             fixed_file=${file/5/-1}
             echo "$fixed_file"
         done
-    }
+        }
 
     function bak() {
         FILES="$@"
@@ -144,11 +216,11 @@ python_version
             [[ -f "$file" ]] && cp -f "$file" "bak/${file}.bak" || echo -e "${WARN}unsuccessful!${RESET}"
             echo ''
         done
-    }
+        }
 
     function pyver() {
         python -c "print('.'.join(str(i).strip() for i in __import__('sys').version_info[:3]))"
-    }
+        }
 
     function setup_tools() {
         # https://www.createdbypete.com/ruby-on-rails-development-setup-for-macos/
@@ -158,12 +230,12 @@ python_version
         # /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
         # brew update &>/dev/null && brew cleanup &>/dev/null && brew doctor &>/dev/null
         # brew reinstall node &&	echo -e "==> Installation successful! node.js $(node -v) installed.""
-    }
+        }
 
     function nonzero_return() {
         RETVAL=$?
         [ $RETVAL -ne 0 ] && echo "$RETVAL"
-    }
+        }
     function parse_git_branch() {
         BRANCH=$(git branch 2>/dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')
         if [ ! "${BRANCH}" == "" ]; then
@@ -172,7 +244,7 @@ python_version
         else
             echo ""
         fi
-    }
+        }
 
     function parse_git_dirty() {
         status=$(git status 2>&1 | tee)
@@ -224,7 +296,7 @@ python_version
         else
             echo ""
         fi
-    }
+        }
 
     function allopen() { sudo lsof -i -P | grep "$1"; }
     function a() { alias | grep "$1"; }
@@ -248,7 +320,7 @@ python_version
         echo "result $result"
         cd "$temp_pwd" || return
         return "$result"
-    }
+        }
 
     function datelog() {
         # create a logfile with the date as part of the file_name
@@ -260,15 +332,15 @@ python_version
         printf "Log for %s\n\n" $(date "+%m/%d/%Y") | tee -a "$file_name"
         exec "$command_text" | tee -a "$file_name"
         $("$@") | tee -a "$file_name"
-    }
+        }
 
     function mkd() {
         mkdir -p "$@" && cd "$_" || return
-    }
+        }
 
     function cdf() {
         cd "$(osascript -e 'tell app "Finder" to POSIX path of (insertion location as alias)')" || return 1
-    }
+        }
 
     function targz() {
         local tmpFile="${*%/}.tar"
@@ -300,7 +372,7 @@ python_version
         )
 
         echo "${tmpFile}.gz ($((zippedSize / 1000)) kB) created successfully."
-    }
+        }
 
     function fs() {
         if du -b /dev/null >/dev/null 2>&1; then
@@ -313,13 +385,8 @@ python_version
         else
             du $arg .[^.]* ./*
         fi
-    }
-
-    if [[ "$(hash git &>/dev/null)" -eq 0 ]]; then
-        function diff() {
-            git diff --no-index --color-words "$@"
         }
-    fi
+
 
     function dataurl() {
         local mimeType
@@ -425,17 +492,26 @@ python_version
 
 function run_debug_functions() {
     ce "Script source:$MAIN $BASH_SOURCE$RESET"
-}
+    }
 
 function main_functions() {
     script_source="$(dirname "${BASH_SOURCE}")"
     bin_path="$HOME/bin/utilities/pc_bak"
     here=$PWD
-
+    if [[ "$(hash git &>/dev/null)" -eq 0 ]]; then
+        function diff() {
+            git diff --no-index --color-words "$@"
+        }
+    fi
 	load_functions
     versions
+    source /Volumes/Data/skeptycal/.dotfiles/travis_private.sh
+    travis login -g "$TRAVIS_TOKEN"
+    echo ''
+    me "Travis CI:"
+    oe "$(travis accounts)"
 	[ $DEBUG = '1' ] && run_debug_functions
-}
+    }
 
 main_functions
 
@@ -443,3 +519,235 @@ main_functions
 # 	'find types' https://www.gnu.org/software/findutils/manual/html_mono/find.html#Type
 # find . -name '*.[ch]' -print0 | xargs -r -0 grep -l thing
 # pipe $2 with $1 using |&  https://unix.stackexchange.com/questions/128975/why-doesnt-grep-using-pipe-work-here
+
+# https://gist.github.com/datchley/f7619bd32213af648885
+# <<snippets
+
+#     # disable builtin echo so we can use '-en'
+#     enable -n echo
+
+#     SCRIPT=$(basename "$0")
+#     SCRIPT_DIR=$(dirname "$0")
+#     echo "$SCRIPT running from $SCRIPT_DIR"
+
+#     # Determine if we're interactive or not
+#     # is_interactive() { test -t 0; }
+#     use_ansi() { test -t 1; }
+
+
+#     # only output colors if our output is to terminal
+#     if use_ansi ; then
+#         GREEN="\033[0;32m"
+#         RED="\033[0;31m"
+#         YELLOW="\033[0;33m"
+#         BOLD_WHITE="\033[1;37m"
+#         CLEAR="\033[0m"
+#     else
+#         GREEN=""
+#         RED=""
+#         YELLOW=""
+#         BOLD_WHITE=""
+#         CLEAR=""
+#     fi
+
+#     # ANSI color output helpers
+#     green() { echo -en "${GREEN}"$@"${CLEAR}"; }
+#     red() { echo -en "${RED}"$@"${CLEAR}"; }
+#     yellow() { echo -en "${YELLOW}"$@"${CLEAR}"; }
+#     hl() { echo -en "${BOLD_WHITE}"$@"${CLEAR}"; }
+
+#     # output stuff to terminal
+#     log() { echo -en "$@"; }
+#     logfmt() { printf "$@"; }
+
+#     # Extended RegExp matching on arguments
+#     # $1 = regex pattern
+#     # $@... = remaining args as string to match against
+#     matches() {
+#         local pat=$1; shift
+#         echo "$@" | grep -qEi "$pat" >/dev/null 2>&1
+#     }
+
+#     pass() {
+#         local check="✔"
+#         green $check
+#     }
+
+#     fail() {
+#         local x="✘"
+#         red $x
+#     }
+
+#     # trim leading/trailing whitespace in string
+#     trim() {
+#         echo "$@" | awk '{ gsub(/^ +| +$/,"") }{ print $0 }'
+#     }
+
+#     # repeat character $1 for $2 times
+#     repeat() {
+#     echo $(printf "%${2}s" |tr " " "$1")
+#     }
+
+#     # is_available COMMAND [TEST]
+#     # Check if 'command' is available and if passed
+#     # execute TEST as well
+#     # returns command line status of both
+#     is_available() {
+#         local cmd=$1; shift
+#         local res=0
+#         hash $cmd >/dev/null 2>&1 || { local res=1; }
+#         if [ $# -ge 1 ]; then
+#             $@ >/dev/null 2>&1 || { local res=2; }
+#         fi
+#         # echo -n $res
+#         return $res
+#     }
+
+#     filesize() {
+#         local filename=$1; shift
+#         echo $(du -k "$filename" | cut -f1)
+#     }
+
+#     truncate() {
+#         local len=$1; shift;
+#         echo "$*" | awk -v len=$len '{ if (length($0) > len) print substr($0, 1, len-3) "..."; else print; }'
+#     }
+
+#     escape() {
+#         echo "$1" | sed 's/\([\.\$\*]\)/\\\1/g'
+#     }
+
+#     escapeSlashes() {
+#         echo "$@" | sed 's/\\/\\\\/g'
+#     }
+
+#     # Convert UCS-2/UTF-16 with BOM file encoding to UTF-8 w/o BOM
+#     # ucs2utf8 DIR FILE_PATTERN
+#     # where
+#     #   - DIR is the root directory to find files for conversion
+#     #   - FILE_PATTERN is `find` pattern to match file names
+#     ucs2utf8() {
+#         local count=0
+#         local converted=0
+#         local DIR=$1
+#         local FILE_PAT=$2
+
+#         # Ensure we can handle filenames w/ spaces in them
+#         local oldIFS=$IFS
+#         IFS=$(echo -en "\n\b")
+
+#         for file in $(find $DIR -name $FILE_PAT 2>/dev/null); do
+#             count=$((count + 1))
+#             # If it has a BOM and first character after is nul (00), convert it
+#             if od -x "$file" | head -1 | cut -d' ' -f 2,3 | grep "feff 00" >/dev/null 2>&1; then
+#                 log "Converting $(hl ${file}) to UTF-8........"
+#                 converted=$((converted + 1))
+#                 local tmp="${file}.tmp"
+#                 mv "${file}" "${tmp}"
+#                 iconv -c -f UCS-2 -t UTF-8 "${tmp}" > "${file}"
+#                 rm "${tmp}"
+#                 log "$(pass)\n"
+#             fi
+#         done
+#         IFS=$oldIFS
+#         echo "$converted/$count"
+#     }
+
+
+#     while IFS= read -r line
+#     do
+#         if matches "^if\s+" $line; then
+#             log $(hl "found: ") $(green $line) "\n"
+#             log $(yellow "A warning line...")"\n"
+#             log $(red "An error line...")"\n"
+#         fi
+#     done < t.sh
+
+#     logfmt "%20.20b %20.20b" $(green "test") $(yellow "again")
+# snippets
+# <<precommit
+#     #
+#     # @file pre-commit
+#     # @author David Atchley, <david.atchley@answers.com>
+#     # @date Wed Dec 18 14:02:39 CST 2013
+#     #
+#     # Pre Commit checks for various syntax and cleaning prio
+#     # to committing.  Exits with non-zero to stop commit
+#     #
+#     #----------------------------------------------------------------------
+
+#     # Handle any options via environment
+#     if [ "$GIT_HOOK_PRECOMMIT_IGNORE" = "yes" ]; then
+#         exit 0;
+#     fi
+
+#     # pluralize a word based on a count
+#     s() {
+#         local word=$1
+#         local count=$2
+#         if [ $count -eq 1 ]; then
+#             echo $word
+#         else
+#             if 	  echo "$word" | egrep "([sxz]|[cs]h)$" 2>&1 >/dev/null ; then
+#                 echo $word"es";
+#             elif  echo "$word" | egrep "y$" 2>&1 >/dev/null ; then
+#                 echo $word"ies";
+#             else
+#                 echo $word"s"
+#             fi
+#         fi
+#     }
+
+
+#     if git rev-parse --verify HEAD >/dev/null 2>&1
+#     then
+#         against=HEAD
+#     else
+#         # Initial commit: diff against an empty tree object
+#         against=4b825dc642cb6eb9a060e54bf8d69288fbee4904
+#     fi
+
+
+#     # Redirect output to stderr.
+#     exec 1>&2
+
+#     # track number of pre-commit errors found
+#     errors=0
+
+#     echo "> Pre Commit Hook running"
+#     echo "> You can by-pass this hook by running: export GIT_HOOK_PRECOMMIT_IGNORE=yes"
+#     for file in `git diff-index --name-status $against -- | cut -c3-`
+#     do
+
+#         # Javascript pre-commit checks
+#         if echo "$file" | egrep '\.(p?html|js)$' 2>&1 >/dev/null
+#         then
+#             # Make sure no 'console.*' calls are in any HTML/JS files
+#             if  egrep "(debugger;|console\.)" $file | egrep -v "(\/\/|\/\*|#).*(debugger;|console\.)" 2>&1 >/dev/null
+#             then
+#                 echo "==> warning: $file contains 'console' or 'debugger' calls!!";
+#                 errors=$((errors+1))
+#             fi
+#         fi
+
+#         # PHP pre-commit checks
+#         if echo "$file" | egrep '\.php$' 2>&1 >/dev/null
+#         then
+#             # Make sure no 'console.*' calls are in any HTML/JS files
+#             if  egrep "util::debug" $file | egrep -v "(\/\/|\/\*|#).*util::debug" 2>&1 >/dev/null
+#             then
+#                 echo "==> warning: $file contains 'util::debug' calls!!";
+#                 errors=$((errors+1))
+#             fi
+#         fi
+
+#     done
+
+#     if [ $errors -gt 0 ]; then
+#         echo "=== fail. $errors "$(s 'error' $errors)" found"
+#         exit 1
+#     else
+#         echo "=== ok."
+#         exit 0
+#     fi
+# precommit
