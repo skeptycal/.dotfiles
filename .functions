@@ -1,9 +1,65 @@
-#!/bin/false
-#cannot be run directly
+#!/usr/bin/env false bash
+# -*- coding: utf-8 -*-
+# cannot be run directly
 
-function load_functions() {
-    source "$HOME/.dotfiles/.blurbs"
+# identify this actual script name and current directory path
+# _self=${0##*/}
+# parameter expansion to remove trailing /filename
+# _path="${0%/*}"
 
+function source_file() {
+    if [[ -f "$1" ]]; then
+        if [[ -r "$1" ]]; then
+            source "$1"
+        else
+            db_echo "source file ${1} is not readable."
+        fi
+    else
+        db_echo "source file ${1} not found."
+    fi
+    }
+
+function _initialize_functions() {
+    script_source="$(dirname "${BASH_SOURCE}")"
+    bin_path="${HOME}/bin/utilities/pc_bak"
+    here=$PWD
+
+    source_file "${HOME}/.dotfiles/.blurbs"
+    # source_file "${HOME}/.dotfiles/.travis_token_private.sh"
+
+    if [ ! "$(uname -s)" = 'Darwin' ]; then
+        if grep -q Microsoft /proc/version; then
+            alias open='explorer.exe'
+        else
+            alias open='xdg-open'
+        fi
+    fi
+
+    if [[ "$(hash git &>/dev/null)" -eq 0 ]]; then
+        function diff() {
+            git diff --no-index --color-words "$@"
+        }
+    fi
+
+    if which brew &>/dev/null && [ -f "$(brew --prefix)/share/bash-completion/bash_completion" ]; then
+        source "$(brew --prefix)/share/bash-completion/bash_completion"
+    elif [ -f /etc/bash_completion ]; then
+        source /etc/bash_completion
+    fi
+
+    if type _git &>/dev/null && [ -f /usr/local/etc/bash_completion.d/git-completion.bash ]; then
+        complete -o default -o nospace -F _git g
+    fi
+
+    if [ -d "/usr/local/etc/bash_completion.d" ]; then
+        for file in $(ls -A /usr/local/etc/bash_completion.d); do
+            oe "loading $file"
+            source_file "$file" # &>/dev/null # used to test for errors
+        done
+        unset file
+    fi
+    }
+function _load_functions() {
     function fix_list() {
         function_list=$(cat ~/.dotfiles/.functions | grep -e 'function () { ' | awk '{ printf "%s\\n",$2 }')
 
@@ -11,61 +67,96 @@ function load_functions() {
         oe $function_list
         # cat ~/.dotfiles/.functions | grep -e " function " | awk '{ print $2 }'
         # echo $function_list >function_list.txt
-    }
+        }
 
-# You can do this using the Travis CLI. As described in the documentation, first install the CLI tool, then:
+    function travis_trigger() {
+        # Travis CI CLI API
+        # Travis CI Client (CLI and Ruby library)
+        # https://github.com/travis-ci/travis.rb#mac-os-x-via-homebrew
 
-# travis login --org --auto
-# travis token
-# You can keep this token in an environment variable TRAVIS_TOKEN, as long as the file you keep it in is not version-controlled somewhere public.
+        # macOS:
+        # brew install ruby
+        # gem update --system
+        #
 
-# I use this function to submit triggers:
+        # Using the CLI
 
-function travis_trigger() {
-     local org=$1 && shift
-     local repo=$1 && shift
-     local branch=${1:-master} && shift
+        # travis login --org --auto
+        # travis token
+        # You can keep this token in an environment variable TRAVIS_TOKEN, as long as the file you keep it in is not version-controlled somewhere public.
 
-     body="{
-             \"request\": {
-               \"branch\": \"${branch}\"
-              }
-           }"
+        # I use this function to submit triggers:
 
-     curl -s -X POST \
-          -H "Content-Type: application/json" \
-          -H "Accept: application/json" \
-          -H "Travis-API-Version: 3" \
-          -H "Authorization: token $TRAVIS_TOKEN" \
-          -d "$body" \
-          "https://api.travis-ci.org/repo/${org}%2F${repo}/requests"
- }
+        local org=$1 && shift
+        local repo=$1 && shift
+        local branch=${1:-master} && shift
+
+        body="{
+                \"request\": {
+                \"branch\": \"${branch}\"
+                }
+            }"
+
+        curl -s -X POST \
+            -H "Content-Type: application/json" \
+            -H "Accept: application/json" \
+            -H "Travis-API-Version: 3" \
+            -H "Authorization: token $TRAVIS_TOKEN" \
+            -d "$body" \
+            "https://api.travis-ci.org/repo/${org}%2F${repo}/requests"
+        }
+
+    function tree_html() {
+        tree -ahlsAFRHD --prune --du --si --dirsfirst >tree.html
+        }
 
     function versions() {
         ge "BASH $BASH_VERSION"
         oe "$(hub --version)"
-        he "ruby   v$(ruby -v 2>/dev/null | awk '{print $2}')"
-        pe "php v$(php -v | grep '(cli)' | awk '{print $2}')"
+        he "ruby        v$(ruby -v 2>/dev/null | awk '{print $2}')"
+        pe "php         v$(php -v | grep '(cli)' | awk '{print $2}')"
 
         printf "${COOL}"
-        python -c 'import sys; sys.stdout.write("python v" + ".".join(map(str, sys.version_info[:3]))); sys.stdout.flush()'
+        python -c 'import sys; sys.stdout.write("python      v" + ".".join(map(str, sys.version_info[:3]))); sys.stdout.flush()'
         printf "$RESET\n"
 
-        ye "node   $(node -v)"
-        we "npm     v$(npm -v)"
+        ye "node        $(node -v)"
+        we "npm         v$(npm -v)"
+        br
+        # me "Travis CI   v$(travis version)"
+
         # ye "eslint $(eslint -v)"
         # echo "$(pipenv --version)"
         # oe "prettier v$(prettier -v)"
-    }
+        }
 
     function readlinkf(){ perl -MCwd -e 'print Cwd::abs_path shift' "$1";}
-
+    function check_file() {
+        local name=${1##*/}
+        local path=${1%/*}
+        echo "name: $name"
+        echo "path: $path"
+        local tmp_chk=''
+        [[ -e "$path" ]] && tmp_chk="${tmp_chk} exists" || tmp_chk="${tmp_chk} does-not-exist"
+        [[ -f "$path" ]] && tmp_chk="${tmp_chk} regular"
+        [[ -L "$path" ]] && tmp_chk="${tmp_chk} link"
+        [[ -d "$path" ]] && tmp_chk="${tmp_chk} directory"
+        [[ -r "$path" ]] && tmp_chk="${tmp_chk} readable"
+        [[ -s "$path" ]] && tmp_chk="${tmp_chk} size>0"
+        [[ -w "$path" ]] && tmp_chk="${tmp_chk} writable"
+        [[ -x "$path" ]] && tmp_chk="${tmp_chk} executable"
+        [[ -O "$path" ]] && tmp_chk="${tmp_chk} owned-by-me"
+        [[ -N "$path" ]] && tmp_chk="${tmp_chk} dirty"
+        [[ -k "$path" ]] && tmp_chk="${tmp_chk} sticky"
+        echo " ->$tmp_chk"
+        echo ''
+        }
     function pretty() {
         # Use prettier to format all compatible selected files
         # Use $1 for pattern, -g (github diff) or default is '*'
         if [[ -z "$1" ]]; then
             echo "Making all the things pretty! (use pretty -h for help)"
-            find -L $PWD -type f -print0 | xargs -0 prettier --write |& grep -e '[[:space:]]\?[[:digit:]]\+ms'
+            find -L "$PWD" -type f -print0 | xargs -0 prettier --write |& grep -e '[[:space:]]\?[[:digit:]]\+ms'
         else
             case "$1" in
                 '-h'|'--help'|'help')
@@ -84,7 +175,7 @@ function travis_trigger() {
                     ;;
                 *)
                     echo "Making $1 pretty ..."
-                    find -L $PWD -name "$1" -type f -print0 | xargs -0 prettier --write |& grep -e '[[:space:]]\?[[:digit:]]\+ms'
+                    find -L "$PWD" -name "$1" -type f -print0 | xargs -0 prettier --write |& grep -e '[[:space:]]\?[[:digit:]]\+ms'
                     ;;
             esac
         fi
@@ -195,9 +286,8 @@ function travis_trigger() {
         echo -n "$var"
         }
 
-
-
     function git_one() {
+        # TODO work in progress
         # to keep from delaying a commit due to one file that won't pass pre-commit
         FILES=$(gaa -n)
         FILES=${FILES[@]/5/-1}
@@ -219,10 +309,13 @@ function travis_trigger() {
         }
 
     function pyver() {
+        # silly function to address the lack of correct output from
+        #   python 2.7 executable in this sitation 'python --version'
         python -c "print('.'.join(str(i).strip() for i in __import__('sys').version_info[:3]))"
         }
 
     function setup_tools() {
+        # TODO Work in progress
         # https://www.createdbypete.com/ruby-on-rails-development-setup-for-macos/
         echo "Setup for Homebrew, Node.js, Python, etc."
         # echo ''
@@ -395,13 +488,13 @@ function travis_trigger() {
             mimeType="${mimeType};charset=utf-8"
         fi
         echo "data:${mimeType};base64,$(openssl base64 -in "$1" | tr -d '\n')"
-    }
+        }
 
     function server() {
         local port="${1:-8000}"
         sleep 1 && open "http://localhost:${port}/" &
         python2 -c 'import SimpleHTTPServer;\nmap = SimpleHTTPServer.SimpleHTTPRequestHandler.extensions_map;\nmap[""] = "text/plain";\nfor key, value in map.items():\n\tmap[key] = value + ";charset=UTF-8";\nSimpleHTTPServer.test();' "$port"
-    }
+        }
 
     function phpserver() {
         local port
@@ -410,7 +503,7 @@ function travis_trigger() {
         ip=$(ipconfig getifaddr en0)
         sleep 1 && open "http://${ip}:${port}/" &
         php -S -c "$PWD" "${ip}:${port}" -
-    }
+        }
 
     function gz() {
         local origsize
@@ -421,9 +514,11 @@ function travis_trigger() {
         ratio=$(echo "$gzipsize * 100 / $origsize" | bc -l)
         printf "orig: %d bytes\n" "$origsize"
         printf "gzip: %d bytes (%2.2f%%)\n" "$gzipsize" "$ratio"
-    }
+        }
 
-    function digga() { dig +nocmd "$1" any +multiline +noall +answer; }
+    function digga() {
+        dig +nocmd "$1" any +multiline +noall +answer
+        }
 
     function getcertnames() {
         if [ -z "${1}" ]; then
@@ -456,61 +551,33 @@ function travis_trigger() {
             echo "ERROR: Certificate not found."
             return 1
         fi
-    }
+        }
 
-    if [ ! "$(uname -s)" = 'Darwin' ]; then
-        if grep -q Microsoft /proc/version; then
-            alias open='explorer.exe'
-        else
-            alias open='xdg-open'
-        fi
-    fi
+
     function o() {
         if [ $# -eq 0 ]; then
             open .
         else
             open "$@"
         fi
-    }
+        }
 
     function tre() {
         tree -aC -I '.git|node_modules|bower_components' --dirsfirst "$@" | less -FRNX
+        }
     }
 
-    if which brew &>/dev/null && [ -f "$(brew --prefix)/share/bash-completion/bash_completion" ]; then
-        source "$(brew --prefix)/share/bash-completion/bash_completion"
-    elif [ -f /etc/bash_completion ]; then
-        source /etc/bash_completion
-    fi
-
-    [[ -r "/usr/local/etc/profile.d/bash_completion.sh" ]] && . "/usr/local/etc/profile.d/bash_completion.sh"
-
-    if type _git &>/dev/null && [ -f /usr/local/etc/bash_completion.d/git-completion.bash ]; then
-        complete -o default -o nospace -F _git g
-    fi
-}
-
-function run_debug_functions() {
-    ce "Script source:$MAIN $BASH_SOURCE$RESET"
+function _run_debug_functions() {
+    db_echo "Script source:${MAIN} ${BASH_SOURCE}${RESET}"
     }
 
 function main_functions() {
-    script_source="$(dirname "${BASH_SOURCE}")"
-    bin_path="$HOME/bin/utilities/pc_bak"
-    here=$PWD
-    if [[ "$(hash git &>/dev/null)" -eq 0 ]]; then
-        function diff() {
-            git diff --no-index --color-words "$@"
-        }
-    fi
-	load_functions
+    _initialize_functions
+	_load_functions
     versions
-    source /Volumes/Data/skeptycal/.dotfiles/travis_private.sh
-    travis login -g "$TRAVIS_TOKEN"
-    echo ''
-    me "Travis CI:"
-    oe "$(travis accounts)"
-	[ $DEBUG = '1' ] && run_debug_functions
+    # echo "Travis test: $TRAVIS_TOKEN"
+    # travis login --github-token "$TRAVIS_TOKEN"
+	# [ $DEBUG = '1' ] && _run_debug_functions
     }
 
 main_functions
