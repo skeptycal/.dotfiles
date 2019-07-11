@@ -10,6 +10,9 @@ export debug_log_file="${HOME}/.bash_profile_error.log"
 # max filesize for debug_log_file
 export debug_log_max_size=32768
 
+# Homebrew GitHub public repo access + gists
+source "$HOME/.dotfiles/.homebrew_github_private.sh"
+
 function db_echo() {
     if [ $DEBUG = '1' ]; then
         if [ $DEBUG_LOG = '1' ]; then
