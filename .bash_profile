@@ -10,6 +10,9 @@ export debug_log_file="${HOME}/.bash_profile_error.log"
 # max filesize for debug_log_file
 export debug_log_max_size=32768
 
+# added by travis gem
+[ -f /Volumes/Data/skeptycal/.travis/travis.sh ] && source /Volumes/Data/skeptycal/.travis/travis.sh
+
 # Homebrew GitHub public repo access + gists
 source "$HOME/.dotfiles/.homebrew_github_private.sh"
 

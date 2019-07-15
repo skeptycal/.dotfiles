@@ -36,7 +36,7 @@
 
 we $USE_COLOR
 
-[[ -z "${script_path}/file_utils.sh" ]] &&source "${script_path}/file_utils.sh" &>/dev/null
+[[ -z "${script_path}/file_utils.sh" ]] && source "${script_path}/file_utils.sh" &>/dev/null
 
 ###############################################################################
 # project_defaults
@@ -97,7 +97,7 @@ function initialize() {
 }
 
 bak() { # backup $1 to bak/$1.bak
-        #    add extension .bak
+    #    add extension .bak
     bak_file="$here/$1"
     if [[ -z "$backup_dir" ]]; then
         we "Error: backup directory not available for ${bak_file}."
@@ -109,10 +109,9 @@ bak() { # backup $1 to bak/$1.bak
     fi
 }
 
-
 ###############################################################################
 # cli check
-fd=0   # stdin
+fd=0 # stdin
 if [ -t "$fd" ]; then
     # interactive
     echo "This script was not intended to be run directly."

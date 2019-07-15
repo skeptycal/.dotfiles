@@ -48,12 +48,10 @@ function set_exports() {
     # Python
     export PYTHONIOENCODING='UTF-8'
     # python sucks ... virtual environments suck ...
-        # someone should find a better way to do this ... it's so stupid
-        # WORKON_HOME="$HOME/.virtualenvs"
-        # export $WORKON_HOME
-        # PROJECT_HOME="$HOME/Documents/coding/"
-        # export $PROJECT_HOME
-        # source /usr/local/bin/virtualenvwrapper.sh
+    # someone should find a better way to do this ... it's so stupid
+    export WORKON_HOME=$HOME/.virtualenvs
+    export PROJECT_HOME=$HOME/Documents/coding/
+    source /usr/local/bin/virtualenvwrapper.sh
 
     # Java
     JAVA_HOME=$(/usr/libexec/java_home)
@@ -83,17 +81,17 @@ function set_exports() {
     for option in nocaseglob histappend cdspell autocd globstar; do
         shopt -s "$option" &>/dev/null
     done
-    }
+}
 
 function run_debug_exports() {
     # list current versions of common utilities
     ce "Script source:$MAIN $BASH_SOURCE$RESET"
-	ge "\$LOCAL_IP is set to $LOCAL_IP."
-    }
+    ge "\$LOCAL_IP is set to $LOCAL_IP."
+}
 function main_exports() {
-	set_exports
-	[ ! $DEBUG = '1' ] || run_debug_exports
-    }
+    set_exports
+    [ ! $DEBUG = '1' ] || run_debug_exports
+}
 
 main_exports
 ################################################################################

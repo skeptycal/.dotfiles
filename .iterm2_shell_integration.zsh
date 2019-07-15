@@ -30,7 +30,7 @@ if [[ -o interactive ]]; then
     # e.g., iterm2_set_user_var currentDirectory $PWD
     # Accessible in iTerm2 (in a badge now, elsewhere in the future) as
     # \(user.currentDirectory).
-    whence -v iterm2_print_user_vars > /dev/null 2>&1
+    whence -v iterm2_print_user_vars >/dev/null 2>&1
     if [ $? -ne 0 ]; then
       iterm2_print_user_vars() {
         echo "$SetUserVar"
@@ -104,8 +104,7 @@ if [[ -o interactive ]]; then
       ITERM2_SHOULD_DECORATE_PROMPT=""
 
       # Add our escape sequences just before the prompt is shown.
-      if [[ $PS1 == *"$(iterm2_prompt_mark)"* ]]
-      then
+      if [[ $PS1 == *"$(iterm2_prompt_mark)"* ]]; then
         PS1="$PS1%{$(iterm2_prompt_end)%}"
       else
         PS1="%{$(iterm2_prompt_mark)%}$PS1%{$(iterm2_prompt_end)%}"
@@ -135,10 +134,10 @@ if [[ -o interactive ]]; then
     }
 
     # If hostname -f is slow on your system, set iterm2_hostname prior to sourcing this script.
-    [[ -z "$iterm2_hostname" ]] && iterm2_hostname=`hostname -f 2>/dev/null`
+    [[ -z "$iterm2_hostname" ]] && iterm2_hostname=$(hostname -f 2>/dev/null)
     # some flavors of BSD (i.e. NetBSD and OpenBSD) don't have the -f option
     if [ $? -ne 0 ]; then
-      iterm2_hostname=`hostname`
+      iterm2_hostname=$(hostname)
     fi
 
     [[ -z $precmd_functions ]] && precmd_functions=()
@@ -151,4 +150,14 @@ if [[ -o interactive ]]; then
     printf "\033]1337;ShellIntegrationVersion=8;shell=zsh\007"
   fi
 fi
-alias imgcat=~/.iterm2/imgcat;alias imgls=~/.iterm2/imgls;alias it2attention=~/.iterm2/it2attention;alias it2check=~/.iterm2/it2check;alias it2copy=~/.iterm2/it2copy;alias it2dl=~/.iterm2/it2dl;alias it2getvar=~/.iterm2/it2getvar;alias it2setcolor=~/.iterm2/it2setcolor;alias it2setkeylabel=~/.iterm2/it2setkeylabel;alias it2ul=~/.iterm2/it2ul;alias it2universion=~/.iterm2/it2universion
+alias imgcat=~/.iterm2/imgcat
+alias imgls=~/.iterm2/imgls
+alias it2attention=~/.iterm2/it2attention
+alias it2check=~/.iterm2/it2check
+alias it2copy=~/.iterm2/it2copy
+alias it2dl=~/.iterm2/it2dl
+alias it2getvar=~/.iterm2/it2getvar
+alias it2setcolor=~/.iterm2/it2setcolor
+alias it2setkeylabel=~/.iterm2/it2setkeylabel
+alias it2ul=~/.iterm2/it2ul
+alias it2universion=~/.iterm2/it2universion

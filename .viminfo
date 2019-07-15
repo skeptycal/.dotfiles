@@ -11,8 +11,12 @@
 # hlsearch on (H) or off (h):
 ~h
 # Command Line History (newest to oldest):
-:wq
-|2,0,1545683188,,"wq"
+:q!
+|2,0,1560826269,,"q!"
+:!1
+|2,0,1560826243,,"!1"
+:'<,'>q!
+|2,0,1560826240,,"'<,'>q!"
 
 # Search String History (newest to oldest):
 
@@ -25,19 +29,43 @@
 # Registers:
 
 # File marks:
-'0  1  6  ~/dotfiles/dotfiles/.git/COMMIT_EDITMSG
-|4,48,1,6,1545683188,"~/dotfiles/dotfiles/.git/COMMIT_EDITMSG"
+'0  17  25  ~/Documents/work/_gitcoin.co/status-react/.git/MERGE_MSG
+|4,48,17,25,1561398968,"~/Documents/work/_gitcoin.co/status-react/.git/MERGE_MSG"
+'1  1  0  ~/Documents/coding/0_learning/images/crayon-syntax-highlighter/.git/modules/langs/vbnet/COMMIT_EDITMSG
+|4,49,1,0,1560826269,"~/Documents/coding/0_learning/images/crayon-syntax-highlighter/.git/modules/langs/vbnet/COMMIT_EDITMSG"
 
 # Jumplist (newest first):
--'  1  6  ~/dotfiles/dotfiles/.git/COMMIT_EDITMSG
-|4,39,1,6,1545683188,"~/dotfiles/dotfiles/.git/COMMIT_EDITMSG"
+-'  17  25  ~/Documents/work/_gitcoin.co/status-react/.git/MERGE_MSG
+|4,39,17,25,1561398968,"~/Documents/work/_gitcoin.co/status-react/.git/MERGE_MSG"
+-'  1  0  ~/Documents/work/_gitcoin.co/status-react/.git/MERGE_MSG
+|4,39,1,0,1561398950,"~/Documents/work/_gitcoin.co/status-react/.git/MERGE_MSG"
+-'  1  0  ~/Documents/coding/0_learning/images/crayon-syntax-highlighter/.git/modules/langs/vbnet/COMMIT_EDITMSG
+|4,39,1,0,1560826269,"~/Documents/coding/0_learning/images/crayon-syntax-highlighter/.git/modules/langs/vbnet/COMMIT_EDITMSG"
+-'  1  0  ~/Documents/coding/0_learning/images/crayon-syntax-highlighter/.git/modules/langs/vbnet/COMMIT_EDITMSG
+|4,39,1,0,1560826269,"~/Documents/coding/0_learning/images/crayon-syntax-highlighter/.git/modules/langs/vbnet/COMMIT_EDITMSG"
+-'  1  0  ~/Documents/work/workspace-nohoist/.git/PULLREQ_EDITMSG
+|4,39,1,0,1560486820,"~/Documents/work/workspace-nohoist/.git/PULLREQ_EDITMSG"
+-'  1  0  ~/Documents/work/workspace-nohoist/.git/PULLREQ_EDITMSG
+|4,39,1,0,1560486820,"~/Documents/work/workspace-nohoist/.git/PULLREQ_EDITMSG"
+-'  1  0  ~/Documents/work/workspace-nohoist/.git/PULLREQ_EDITMSG
+|4,39,1,0,1560486820,"~/Documents/work/workspace-nohoist/.git/PULLREQ_EDITMSG"
+-'  1  0  ~/Documents/work/workspace-nohoist/.git/PULLREQ_EDITMSG
+|4,39,1,0,1560486820,"~/Documents/work/workspace-nohoist/.git/PULLREQ_EDITMSG"
 
 # History of marks within files (newest to oldest):
 
-> ~/dotfiles/dotfiles/.git/COMMIT_EDITMSG
-	*	1545683184	0
-	"	1	6
-	^	1	0
-	.	1	0
-	+	1	0
-	i	1	0
+> ~/Documents/work/_gitcoin.co/status-react/.git/MERGE_MSG
+	*	1561398963	0
+	"	17	25
+
+> ~/Documents/coding/0_learning/images/crayon-syntax-highlighter/.git/modules/langs/vbnet/COMMIT_EDITMSG
+	*	1560826267	0
+	"	1	0
+
+> ~/Documents/work/workspace-nohoist/.git/PULLREQ_EDITMSG
+	*	1560487095	0
+	"	12	0
+	^	12	0
+	.	12	0
+	+	9	8
+	+	12	0
