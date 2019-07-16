@@ -7,6 +7,8 @@
 # parameter expansion to remove trailing /filename
 # _path="${0%/*}"
 
+source $(which brew_fix.sh)
+
 function source_file() {
     if [[ -f "$1" ]]; then
         if [[ -r "$1" ]]; then
