@@ -1,5 +1,5 @@
-#!/bin/false
-#cannot be run directly
+#!/usr/bin/env bash
+# -*- coding: utf-8 -*-
 #* #############################################################################
 #* Universal BASH debug flag
 export DEBUG='0'
@@ -10,26 +10,53 @@ export debug_log_file="${HOME}/.bash_profile_error.log"
 # max filesize for debug_log_file
 export debug_log_max_size=32768
 
-# added by travis gem
-[ -f /Volumes/Data/skeptycal/.travis/travis.sh ] && source /Volumes/Data/skeptycal/.travis/travis.sh
-
-# Homebrew GitHub public repo access + gists
-source "$HOME/.dotfiles/.homebrew_github_private.sh"
-
-function db_echo() {
-    if [ $DEBUG = '1' ]; then
-        if [ $DEBUG_LOG = '1' ]; then
-            ce "$(date "+%D %T") $@" 2>&1 | tee -a $debug_log_file
-            # TODO check filesize and chop off first half if needed
-        else
-            we "$(date "+%D %T") $@" 2>&1
-        fi
+function source_file() {
+    if [[ -s "$1" ]]; then
+        source "$1"
+    elif [[ -L "$1" ]]; then
+        source "$1"
+    elif [[ -s "${HOME}/bin/$1" ]]; then
+        source "${HOME}/bin/$1"
+    elif [[ -s "$(which $1)" ]]; then
+        source "$(which $1)"
+    elif [[ -s "${PWD}/$1" ]]; then
+        source "${PWD}/$1"
+        db_echo "The source file ($1) loaded in script ($BASH_SOURCE) should include the path $PWD"
+        db_echo "Script source: ($BASH_SOURCE)"
+    elif [[ -s "$(which ${1}.sh)" ]]; then
+        source "$(which ${1}.sh)"
+        db_echo "The source file ($1) loaded in script ($BASH_SOURCE) should include the extension .sh"
+        db_echo "Script source: ($BASH_SOURCE)"
+    elif [[ -s "$(which ${1}.py)" ]]; then
+        source "$(which ${1}.py)"
+        db_echo "The source file ($1) loaded in script ($BASH_SOURCE) was not found, but was replaced with the python script (${1}.py)."
+        db_echo "Script source: ($BASH_SOURCE)"
+    else
+        db_echo "The source file ($1) listed in script ($BASH_SOURCE) could not be found. A search was made for items in the path, ${1}.sh, and ${1}.py without results."
+        db_echo "Script source: ($BASH_SOURCE)"
     fi
 }
 
 function load_themes() {
-    colors_file="/Volumes/Data/skeptycal/bin/utilities/scripts/basic_text_colors.sh"
-    [[ -r "$colors_file" ]] && source "$colors_file"
+    # Brew install bash-git-prompt
+    if [ -f "/usr/local/opt/bash-git-prompt/share/gitprompt.sh" ]; then
+        __GIT_PROMPT_DIR="/usr/local/opt/bash-git-prompt/share"
+        source "/usr/local/opt/bash-git-prompt/share/gitprompt.sh"
+    fi
+    # ANSI color
+    export CLICOLOR=1
+    export colorflag='--color=always'
+
+    # iterm2 bash shell integration
+    source_file "${HOME}/.iterm2_shell_integration.bash"
+
+    #   https://www.gnu.org/software/coreutils/manual/html_node/dircolors-invocation.html#dircolors-invocation
+    /usr/local/opt/coreutils/libexec/gnubin/dircolors -b &>/dev/null
+    # GIT colors
+    WS="$(git config --get-color color.diff.whitespace "blue reverse")"
+    RESET="$(git config --get-color "" "reset")"
+    export WS
+    export RESET
 
     # minimum colors if main file isn't available
     if [ ! "$TEXT_COLORS_LOADED" = '1' ]; then
@@ -50,13 +77,6 @@ function load_resources() {
         source "$file" # &>/dev/null # used to test for errors
     done
     unset file
-    # NVM: Add the following to ~/.bash_profile or your desired shell configuration file:
-
-    export NVM_DIR="$HOME/.nvm"
-    [ -s "/usr/local/opt/nvm/nvm.sh" ] && . "/usr/local/opt/nvm/nvm.sh"
-    # This loads nvm
-    [ -s "/usr/local/opt/nvm/etc/bash_completion" ] && . "/usr/local/opt/nvm/etc/bash_completion"
-    # This loads nvm bash_completion
 }
 
 function run_debug() {
@@ -66,10 +86,14 @@ function run_debug() {
 }
 
 function main() {
+    source_file "standard_script_modules.sh"
+
+    # Homebrew GitHub public repo access + gists
+    source_file "$HOME/.dotfiles/.homebrew_github_private.sh"
     clear
     load_themes
     load_resources
-    [ ! $DEBUG = '1' ] || run_debug
+    [[ $DEBUG == '1' ]] && run_debug
 }
 
 main

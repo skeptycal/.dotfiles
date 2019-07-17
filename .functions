@@ -6,28 +6,15 @@
 # _self=${0##*/}
 # parameter expansion to remove trailing /filename
 # _path="${0%/*}"
-
-source $(which brew_fix.sh)
-
-function source_file() {
-    if [[ -f "$1" ]]; then
-        if [[ -r "$1" ]]; then
-            source "$1"
-        else
-            db_echo "source file ${1} is not readable."
-        fi
-    else
-        db_echo "source file ${1} not found."
-    fi
-    }
+source_file brew_fix.sh
 
 function _initialize_functions() {
     script_source="$(dirname "${BASH_SOURCE}")"
     bin_path="${HOME}/bin/utilities/pc_bak"
     here=$PWD
 
-    source_file "${HOME}/.dotfiles/.blurbs"
-    # source_file "${HOME}/.dotfiles/.travis_token_private.sh"
+    # source_file "${HOME}/.dotfiles/.blurbs"
+    source_file "${HOME}/.dotfiles/.travis_token_private.sh"
 
     if [ ! "$(uname -s)" = 'Darwin' ]; then
         if grep -q Microsoft /proc/version; then
@@ -42,24 +29,20 @@ function _initialize_functions() {
             git diff --no-index --color-words "$@"
         }
     fi
+    }
+function _load_tab_completions() {
+    # Brew install bash-completion bash-completion@2
+    export BASH_COMPLETION_COMPAT_DIR="/usr/local/etc/bash_completion.d"
+    source_file "/usr/local/etc/profile.d/bash_completion.sh"
 
-    if which brew &>/dev/null && [ -f "$(brew --prefix)/share/bash-completion/bash_completion" ]; then
-        source "$(brew --prefix)/share/bash-completion/bash_completion"
-    elif [ -f /etc/bash_completion ]; then
-        source /etc/bash_completion
-    fi
+    # NVM: Add the following to ~/.bash_profile
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "/usr/local/opt/nvm/nvm.sh" ] && . "/usr/local/opt/nvm/nvm.sh"  # This loads nvm
+    [ -s "/usr/local/opt/nvm/etc/bash_completion" ] && . "/usr/local/opt/nvm/etc/bash_completion"  # This loads nvm bash_completion
 
-    if type _git &>/dev/null && [ -f /usr/local/etc/bash_completion.d/git-completion.bash ]; then
-        complete -o default -o nospace -F _git g
-    fi
 
-    if [ -d "/usr/local/etc/bash_completion.d" ]; then
-        for file in $(ls -A /usr/local/etc/bash_completion.d); do
-            oe "loading $file"
-            source_file "$file" # &>/dev/null # used to test for errors
-        done
-        unset file
-    fi
+    # travis tab completion
+    source_file "/Volumes/Data/skeptycal/.travis/travis.sh"
     }
 function _load_functions() {
     function fix_list() {
@@ -113,17 +96,17 @@ function _load_functions() {
         }
 
     function versions() {
-        ge "BASH $BASH_VERSION"
-        oe "$(hub --version)"
-        he "ruby        v$(ruby -v 2>/dev/null | awk '{print $2}')"
-        pe "php         v$(php -v | grep '(cli)' | awk '{print $2}')"
+        green "BASH $BASH_VERSION"
+        attn "$(hub --version)"
+        cherry "ruby        v$(ruby -v 2>/dev/null | awk '{print $2}')"
+        purple "php         v$(php -v | grep '(cli)' | awk '{print $2}')"
 
         printf "${COOL}"
         python -c 'import sys; sys.stdout.write("python      v" + ".".join(map(str, sys.version_info[:3]))); sys.stdout.flush()'
         printf "$RESET\n"
 
-        ye "node        $(node -v)"
-        we "npm         v$(npm -v)"
+        canary "node        $(node -v)"
+        warn "npm         v$(npm -v)"
         br
         # me "Travis CI   v$(travis version)"
 
@@ -570,19 +553,22 @@ function _load_functions() {
     }
 
 function _run_debug_functions() {
-    db_echo "Script source:${MAIN} ${BASH_SOURCE}${RESET}"
+    attn "Functions test"
+    ce "Script source:$MAIN $BASH_SOURCE$RESET"
     }
 
-function main_functions() {
+function _main_functions() {
     _initialize_functions
+    _load_tab_completions
 	_load_functions
     versions
     # echo "Travis test: $TRAVIS_TOKEN"
     # travis login --github-token "$TRAVIS_TOKEN"
-	# [ $DEBUG = '1' ] && _run_debug_functions
+
+	[[ $DEBUG == '1' ]] && _run_debug_functions
     }
 
-main_functions
+_main_functions
 
 # References:
 # 	'find types' https://www.gnu.org/software/findutils/manual/html_mono/find.html#Type

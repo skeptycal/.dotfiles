@@ -1,8 +1,8 @@
-#!/usr/bin/env false bash
+#!/usr/bin/env bash
 # *#############################################################################
 # ${PATH//:/\\n}
 # ${PATH// /}
-function set_paths() {
+function _set_paths() {
     # *## PYTHONPATH ###########################################################
     PYTHONPATH="\
     /usr/local/Cellar/python/3.7.3/Frameworks/Python.framework/Versions/3.7/Resources/Python.app/Contents/MacOS/python:\
@@ -35,7 +35,6 @@ function set_paths() {
 
     # *## path #################################################################
     PATH="\
-    /usr/local/bin:\
     $HOME/bin:\
     /usr/local/opt/coreutils/libexec/gnubin:\
     $HOME/bin/utilities:\
@@ -57,6 +56,7 @@ function set_paths() {
     /usr/local/opt/ruby/bin:\
     /usr/local/lib/ruby/gems/2.6.0/bin:\
     /usr/local/go/bin:\
+    /usr/local/bin:\
     /usr/bin:\
     /bin:\
     /usr/local/opt:\
@@ -74,8 +74,9 @@ function set_paths() {
     /Library/Frameworks/Mono.framework/Versions/Current/Commands:\
     /Applications/Postgres.app/Contents/Versions/latest/bin:\
     /Applications/Xamarin Workbooks.app/Contents/SharedSupport/path-bin:\
-    /Volumes/Data/skeptycal/perl5/bin:\
+    $HOME/perl5/bin:\
     $HOME/.cargo/bin:\
+    $HOME/.rvm/bin:\
     $HOME/bin/utilities/git-achievements:\
     "
 
@@ -86,22 +87,23 @@ function set_paths() {
     # ! last PATH variable change.   $HOME/.rvm/bin:\
 }
 
-function run_debug_paths() {
+function _run_debug_paths() {
     # list current versions of common utilities
     ce "Script source:$MAIN $BASH_SOURCE$RESET"
-    ge "\$PATH is set. Type <path> to list elements."
+    green "\$PATH is set. Type <path> to list elements."
     # ${PATH//:/\\n}
     # ${PATH// /}
 }
 
 # *############################################################################
 # * Bam ... make the magic
-function main_paths() {
-    set_paths
-    [ ! $DEBUG = '1' ] || run_debug_paths
+function _main_paths() {
+    _set_paths
+    # DEBUG=''
+    [[ $DEBUG == '1' ]] && _run_debug_paths
 }
 
-main_paths
+_main_paths
 ###############################################################################
 # Notes:
 
