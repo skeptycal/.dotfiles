@@ -19,6 +19,7 @@
 # ce                - $@ (color echo - generic color as $1, etc.)
 # various           - $@ (color echo - specific color)
 ###############################################################################
+# DEBUG='1'
 
 function fn_exists() {
     declare -f $1 >/dev/null

@@ -10,77 +10,137 @@
 # license   - MIT <https://opensource.org/licenses/MIT>
 # github    - https://www.github.com/skeptycal
 ###############################################################################
+source "/Volumes/Data/skeptycal/bin/basic_text_colors.sh"
 # DEBUG='1'
-_script_source="$(dirname "${BASH_SOURCE}")"
-_script_name=$(basename $0)
-_bin_path="$HOME/bin/utilities/pc_bak"
 
-# sample usage text
-_EXIT_USAGE_TEXT="${MAIN}NAME${WHITE}
-    $_script_name - macOS script"
+function log_toggle() {
+    #   usage: log_toggle [filename]
+    #   toggle on and off logging to file
+    #       parameter
+    #           filename    - name of new logfile (default LOGFILE)
+    #       variable $LOG stores state
+    #       variable $LOGFILE stores filename
+    #   reference: https://unix.stackexchange.com/questions/80988/how-to-stop-redirection-in-bash
 
-source_file "basic_text_colors.sh"
-
-function _define_standard_functions() {
-    function urlencode() {
-        python -c "import sys, urllib as ul; print ul.quote_plus('$1');"
-    }
-    function db_echo() {
-        # report and/or log data and errors in scripting
-        #    - DEBUG is set to '1' to report errors
-        #    - DEBUG_LOG is set to '1' to log errors (if DEBUG = '1')
-        if [[ $DEBUG == '1' ]]; then
-            # ce "Script source:$MAIN $BASH_SOURCE$RESET"
-            warn "$(date "+%D %T") $@" 2>&1
-            if [[ $DEBUG_LOG == '1' ]]; then
-                echo -e "$(date "+%D %T")" 2>&1 >>$debug_log_file
-                echo -e "$@\n" 2>&1 >>$debug_log_file
-                # TODO check filesize and chop off first half if needed
-            fi
-        fi
-    }
-    function usage() {
-        # Print script usage test
-        # Parameters:
-        #   $1 - specific message (e.g. 'file not found')
-        #   $2 - optional usage text
-        [[ -n "$1" ]] && warn "$1"
-        if [[ -z "$2" ]]; then
-            me "$_EXIT_USAGE_TEXT"
-        else
-            shift
-            me "$@"
-        fi
-        br
-    }
-    function exit_usage() {
-        usage "$@"
-        exit 1
-    }
-    function _alt_colors() {
-        MAIN=$(echo -en '\001\033[38;5;229m')
-        WARN=$(echo -en '\001\033[38;5;203m')
-        BLUE=$(echo -en '\001\033[38;5;38m')
-        WHITE=$(echo -en '\001\033[37m')
-        PURPLE=$(echo -en '\001\033[38;5;93m')
-        RESET=$(echo -en '\001\033[0m\002')
-    }
-    function _test_standard_script_modules() {
-        ce "Script source:$MAIN $BASH_SOURCE$RESET"
-        # _SAMPLE_USAGE_TEXT='Sample Usage Text'
-        db_echo "Testing db_echo. (red text if \$DEBUG='1') - currently '$DEBUG'"
-
-        # usage test
-        usage
-        # usage 'usage $1 only'
-        # usage 'usage $1' 'usage $2'
-        # usage 'alternate $2 (_SAMPLE_USAGE_TEXT)' $_SAMPLE_USAGE_TEXT
-
-        # exit test
-        # exit_usage "Testing exit_usage. (normal text)"
-    }
+    # set log filename
+    [[ -n "$1" ]] && LOG_FILE_NAME="${1}"
+    # set default log filename if not set
+    [[ -z "$1" ]] && LOG_FILE_NAME='LOGFILE'
+    # if log is on, turn it off
+    if [[ "$LOG" == '1' ]]; then
+        LOG='0'
+        exec >&3 2>&4
+        attn "logging off ..."
+    else # if it is off ... turn it on
+        LOG='1'
+        exec 3>&1 4>&2
+        # log to the filename stored in $LOG_FILE_NAME
+        exec > >(tee -a -i "${!LOG_FILE_NAME}") 2>&1
+        attn "logging on ..."
+    fi
 }
+function parse_filename() {
+    #   usage: parse_filename [filename]
+    #   parameter
+    #       filename    - $1 or global $filename used
+    #   returns
+    #       base_name   - file name only (no path)
+    #       dir         - path only
+    #       name_only   - name without extension
+    #       extension   - file extension or '' if none
+
+    # set filename
+    [[ -n "$1" ]] && filename="$1"
+    # if no filename, error & exit
+    [[ -z "$filename" ]] && exit_usage "\$filename not available or specified ..." "${MAIN}parse_filename ${WHITE}[filename]"
+    base_name="${filename##*/}"
+    # Strip longest match of */ from start
+    dir="${filename:0:${#filename}-${#base_name}}"
+    # Substring from 0 thru pos of filename
+    name_only="${base_name%.[^.]*}"
+    # Strip shortest match of . plus at least one non-dot char from end
+    extension="${base_name:${#name_only}+1}"
+    # Substring from len of base thru end
+    if [[ -z "$name_only" && -n "$extension" ]]; then
+        # If we have an extension and no base, it's really the base
+        name_only="$extension"
+        extension=""
+    fi
+}
+function get_safe_new_filename() {
+    # usage: get_safe_new_filename filename /path/to/file [extension]
+    #   returns
+    #       $new_safe_name      - new file name WITH path and extension
+    #       $new_safe_name_only - new file name (no path / ext)
+    #   eliminates duplicates by adding integers to filename as needed
+    #   (e.g. file_2, file_3 ...)
+    if [[ "$#" > 1 ]]; then
+        safe_name="$1"
+        safe_path="$2"
+        [[ -z "$3" ]] && safe_ext='' || safe_ext=".$3"
+        new_safe_name="${safe_path}/${safe_name}${safe_ext}"
+        declare -i i=2
+        while [ -f "$new_safe_name" ]; do
+            new_safe_name="${safe_path}/${safe_name}_${i}${safe_ext}"
+            i=$((i + 1))
+        done
+        new_safe_name_only="${safe_name}_${i}"
+    else
+        exit_usage "Invalid parameters ..." "usage: ${MAIN}get_safe_new_filename ${WHITE}filename /path/to/file [extension]"
+    fi
+}
+function urlencode() {
+    python -c "import sys, urllib as ul; print ul.quote_plus('$1');"
+}
+function db_echo() {
+    # report data and errors in scripting
+    #    - DEBUG is set to '1' to report errors
+    #    - use log_toggle() to include file logging
+    [[ $DEBUG == '1' ]] && warn "$(date "+%D %T") $@"
+}
+function usage() {
+    # Print script usage test
+    # Parameters:
+    #   $1 - specific message (e.g. 'file not found')
+    #   $2 - optional usage text
+    [[ -n "$1" ]] && warn "$1"
+    if [[ -z "$2" ]]; then
+        ce "$_EXIT_USAGE_TEXT"
+    else
+        shift
+        ce "$@"
+    fi
+    br
+}
+function exit_usage() {
+    usage "$@"
+    exit 1
+}
+function _alt_colors() {
+    MAIN=$(echo -en '\001\033[38;5;229m')
+    WARN=$(echo -en '\001\033[38;5;203m')
+    BLUE=$(echo -en '\001\033[38;5;38m')
+    WHITE=$(echo -en '\001\033[37m')
+    PURPLE=$(echo -en '\001\033[38;5;93m')
+    RESET=$(echo -en '\001\033[0m\002')
+}
+function _test_standard_script_modules() {
+    # add tests for these functions as needed
+    ce "Script source:$MAIN $BASH_SOURCE$RESET"
+    # _SAMPLE_USAGE_TEXT='Sample Usage Text'
+    db_echo "Testing db_echo. (red text if \$DEBUG='1') - currently '$DEBUG'"
+    usage
+}
+
 function _main_standard_script_modules() {
+    filename="$BASH_SOURCE"
+    parse_filename
+    _script_source="$dir"
+    _script_name="$base_name"
+    _bin_path="$HOME/bin/utilities/pc_bak"
+
+    # sample usage text
+    _EXIT_USAGE_TEXT="${MAIN}${_script_name}${WHITE} - macOS script"
     _define_standard_functions
     [[ $DEBUG == '1' ]] && _test_standard_script_modules
 }
@@ -100,6 +160,32 @@ _main_standard_script_modules
 # db_echo $@        - (if DEBUG='1') echo $@ in red
 # usage $1 $2       - echo $1 and $2 (default _EXIT_USAGE_TEXT)
 # exit_usage $1 $2  - call <usage> then exit 1
+
+# function log_toggle()
+#   usage: log_toggle [filename]
+#   toggle on and off logging to file
+#       parameter
+#           filename    - name of new logfile (default LOGFILE)
+#       variable $LOG stores state
+#       variable $LOGFILE stores filename
+#
+# function parse_filename()
+#   usage: parse_filename [filename]
+#   parameter
+#       filename    - $1 or global $filename used
+#   returns
+#       base_name   - file name only (no path)
+#       dir         - path only
+#       name_only   - name without extension
+#       extension   - file extension or '' if none
+#
+# function get_safe_new_filename()
+#   usage: get_safe_new_filename filename /path/to/file [extension]
+#       returns
+#           $new_safe_name      - new file name WITH path and extension
+#           $new_safe_name_only - new file name (no path / ext)
+#       eliminates duplicates by adding integers to filename as needed
+#       (e.g. file_2, file_3 ...)
 
 <<-sample_usage_text
 
