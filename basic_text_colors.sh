@@ -21,10 +21,17 @@
 ###############################################################################
 # DEBUG='1'
 
+VERSION='0.9.5'
+
+# TODO testing these two
 function fn_exists() {
     declare -f $1 >/dev/null
 }
-is_function() { declare -F "$1" >/dev/null; }
+
+# TODO testing these two
+is_function() {
+    declare -F "$1" >/dev/null
+}
 
 function set_colors() {
 
@@ -99,13 +106,37 @@ function _test_color_output() {
     echo -e "${MAIN}C ${WARN}O ${COOL}L ${GO}O ${CHERRY}R   ${CANARY}T ${ATTN}E ${PURPLE}S ${RESET}T"
     echo -e "${MAIN}MAIN   ${WARN}WARN   ${COOL}COOL   ${GO}GO   ${CHERRY}CHERRY   ${CANARY}CANARY   ${ATTN}ATTN   ${PURPLE}PURPLE   ${RESET}RESET"
 }
+
+function set_usage() {
+    read $name
+    read $version
+    read $desc
+    read $usage
+    read $parameters
+    read $license
+    read $USAGE_TEXT
+}
+
+function _bt_usage() {
+    set_usage <<-bt_usage_text
+    ${BASH_SOURCE[1]}
+    ce "${WHITE} selected ansi text color shortcuts for macOS"
+    ce "${MAIN}usage:
+    source \"$(which basic_text_colors.sh)\"
+    OR source /path/to/script/basic_text_colors.sh"
+bt_usage_text
+}
+
 function _main_text_colors() {
     set_colors
     export TEXT_COLORS_LOADED='1'
-    [[ $DEBUG == '1' ]] && _test_color_output
+    [[ "$1" == 'version' ]] && _bt_usage
+    if [[ "$DEBUG" == '1' ]] || [[ "$1" == 'test' ]]; then
+        _test_color_output
+    fi
 }
 
-_main_text_colors
+_main_text_colors "$@"
 
 ###############################################################################
 # basic_text_colors info
