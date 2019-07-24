@@ -12,6 +12,16 @@
 ###############################################################################
 source "/Volumes/Data/skeptycal/bin/basic_text_colors.sh"
 # DEBUG='1'
+VERSION='0.8.0'
+
+function die() {
+    # https://stackoverflow.com/questions/7868818/in-bash-is-there-an-equivalent-of-die-error-msg/7869065
+    local message=$1
+    [ -z "$message" ] && message="Died"
+    ce "${WARN}${message}" >&2
+    ce "${MAIN}line ${BLUE}${BASH_LINENO[0]}${MAIN} in ${BASH_SOURCE[1]}:${ATTN}${FUNCNAME[1]}${MAIN}." >&2
+    exit 1
+}
 
 function log_toggle() {
     #   usage: log_toggle [filename]
@@ -141,11 +151,12 @@ function _main_standard_script_modules() {
 
     # sample usage text
     _EXIT_USAGE_TEXT="${MAIN}${_script_name}${WHITE} - macOS script"
-    _define_standard_functions
-    [[ $DEBUG == '1' ]] && _test_standard_script_modules
+    if [[ "$DEBUG" == '1' ]] || [[ "$1" == 'test' ]]; then
+        _test_standard_script_modules
+    fi
 }
 
-_main_standard_script_modules
+_main_standard_script_modules "$@"
 
 ###### basic_text_colors.sh #############################################
 # FUNCTIONS         PARAMETERS and OPTIONS
