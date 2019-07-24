@@ -37,7 +37,10 @@ function _set_paths() {
     PATH="\
     $HOME/bin:\
     /usr/local/opt/coreutils/libexec/gnubin:\
+    /usr/local/opt/ccache/libexec:\
     /usr/local/opt/sqlite/bin:\
+    /usr/local/opt/libpq/bin:\
+    /usr/local/opt/cython/bin:\
     $HOME/bin/utilities:\
     $HOME/bin/utilities/python:\
     $HOME/bin/utilities/php:\

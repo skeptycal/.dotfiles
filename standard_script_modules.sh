@@ -10,8 +10,8 @@
 # license   - MIT <https://opensource.org/licenses/MIT>
 # github    - https://www.github.com/skeptycal
 ###############################################################################
-source "/Volumes/Data/skeptycal/bin/basic_text_colors.sh"
-# DEBUG='1'
+source "$(which bt)" || source "$src/bt" # basic_text_colors.sh
+[[ -z "$DEBUG" ]] && DEBUG='0'           # set to 1 for debug and verbose testing
 VERSION='0.8.0'
 
 function die() {
@@ -32,10 +32,8 @@ function log_toggle() {
     #       variable $LOGFILE stores filename
     #   reference: https://unix.stackexchange.com/questions/80988/how-to-stop-redirection-in-bash
 
-    # set log filename
-    [[ -n "$1" ]] && LOG_FILE_NAME="${1}"
-    # set default log filename if not set
-    [[ -z "$1" ]] && LOG_FILE_NAME='LOGFILE'
+    # set default log filename or $1
+    [[ -z "$1" ]] && LOG_FILE_NAME='LOGFILE.log' || LOG_FILE_NAME="${1}"
     # if log is on, turn it off
     if [[ "$LOG" == '1' ]]; then
         LOG='0'
@@ -45,7 +43,8 @@ function log_toggle() {
         LOG='1'
         exec 3>&1 4>&2
         # log to the filename stored in $LOG_FILE_NAME
-        exec > >(tee -a -i "${!LOG_FILE_NAME}") 2>&1
+        db_echo "\${LOG_FILE_NAME}: ${LOG_FILE_NAME}"
+        exec > >(tee -a -i "${LOG_FILE_NAME}") 2>&1
         attn "logging on ..."
     fi
 }

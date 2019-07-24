@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 ###############################################################################
-# basic_text_colors : selected ansi text color shortcuts for macOS
-# version 0.9.5
-# usage:
-#           source "$(which basic_text_colors.sh)"
-#           OR source "/path/to/script/basic_text_colors.sh"
-#
-# author    - Michael Treanor  <skeptycal@gmail.com>
-# copyright - 2019 (c) Michael Treanor
-# license   - MIT <https://opensource.org/licenses/MIT>
-# github    - https://www.github.com/skeptycal
-###### basic_text_colors.sh #############################################
+NAME="${BASH_SOURCE##*/}"
+VERSION='0.9.5'
+DESC='obligatory ansi text color module for macOS'
+USAGE="source ${NAME} [test|version]"
+AUTHOR="Michael Treanor  <skeptycal@gmail.com>"
+COPYRIGHT="2019 (c) Michael Treanor"
+LICENSE="MIT <https://opensource.org/licenses/MIT>"
+GITHUB="https://www.github.com/skeptycal"
+
+###### basic_text_colors.sh contents #########################################
+# TODO automate creation of TOC
 # FUNCTIONS         PARAMETERS and OPTIONS
 # fn_exists         - test if a function exists already
 # text colors       - MAIN, WARN, COOL, BLUE, GO, CHERRY, CANARY, ATTN,
@@ -18,10 +18,37 @@
 # br                - print blank line (CLI \n)
 # ce                - $@ (color echo - generic color as $1, etc.)
 # various           - $@ (color echo - specific color)
+# usage             - print script usage details
 ###############################################################################
-# DEBUG='1'
+[[ -z "$DEBUG" ]] && DEBUG='0' # set to 1 for debug and verbose testing
 
-VERSION='0.9.5'
+load_error_msgs() {
+    # C++ style error messages
+    # reference: Advanced Bash-Scripting Guide
+    #   <http://tldp.org/LDP/abs/html/exitcodes.html#EXITCODESREF>
+
+    # from /usr/include/sysexits.h
+    # Copyright (c) 1987, 1993
+    # The Regents of the University of California.  All rights reserved.
+    export EX_OK=0          # successful termination
+    export EX__BASE=64      # base value for error messages
+    export EX_USAGE=64      # command line usage error
+    export EX_DATAERR=65    # data format error
+    export EX_NOINPUT=66    # cannot open input
+    export EX_NOUSER=67     # addressee unknown
+    export EX_NOHOST=68     # host name unknown
+    export EX_UNAVAILABL=69 # service unavailable
+    export EX_SOFTWARE=70   # internal software error
+    export EX_OSERR=71      # system error (e.g., can't fork)
+    export EX_OSFILE=72     # critical OS file missing
+    export EX_CANTCREAT=73  # can't create (user) output file
+    export EX_IOERR=74      # input/output error
+    export EX_TEMPFAIL=75   # temp failure; user is invited to retry
+    export EX_PROTOCOL=76   # remote error in protocol
+    export EX_NOPERM=77     # permission denied
+    export EX_CONFIG=78     # configuration error
+    export EX__MAX=78       # maximum listed value
+}
 
 # TODO testing these two
 function fn_exists() {
@@ -108,27 +135,74 @@ function _test_color_output() {
 }
 
 function set_usage() {
-    read $name
-    read $version
-    read $desc
-    read $usage
-    read $parameters
-    read $license
-    read $USAGE_TEXT
-}
 
-function _bt_usage() {
-    set_usage <<-bt_usage_text
-    ${BASH_SOURCE[1]}
-    ce "${WHITE} selected ansi text color shortcuts for macOS"
-    ce "${MAIN}usage:
-    source \"$(which basic_text_colors.sh)\"
-    OR source /path/to/script/basic_text_colors.sh"
-bt_usage_text
+    EXIT_STATUS_TEXT=$(
+        cat <<-EOF
+        ${WHITE}The ${MAIN}${NAME} utility uses (mostly) C++ style exit codes:
+        \t0     - success; no errors detected
+        \t1     - general errors (division by zero, etc.)
+        \t2     - missing keyword or shell command (possible permission problem)
+        \t64-78 - EX__BASE=64, EX_USAGE=64, EX_DATAERR=65, EX_NOINPUT=66, EX_NOUSER=67, EX_NOHOST=68, EX_UNAVAILABL=69, EX_SOFTWARE=70, EX_OSERR=71, EX_OSFILE=72, EX_CANTCREAT=73, EX_IOERR=74, EX_TEMPFAIL=75, EX_PROTOCOL=76, EX_NOPERM=77, EX_CONFIG=78, EX__MAX=78
+EOF
+    )
+    sample_long_desc=$(
+        cat <<sample_long_desc
+        ${MAIN}NAME${WHITE} sets and exports color constants and functions
+        to make their use easier. In addition, there are several debugging
+        and general functions included for quality of life. These are the
+        main colors
+
+        ${MAIN}NAME${WHITE} also exports a function for each color. Most of
+        the functions are the same as the color names, except for the \$MAIN
+        function having a name of 'me' to avoid using the common 'main' name.
+
+        Functions set the echo color for that printed line. If they are not overridden by another ANSI code, the entire line will be printed in
+        in that color. The color is reset at the end of each line.
+
+sample_long_desc
+    )
+    sample_parameters=$(
+        cat <<sample_parameters
+    ${MAIN}OPTIONS${WHITE}
+        \ttest      - display ANSI color tests
+        \tversion   - display version information
+        \thelp      - display complete usage information (this!)
+sample_parameters
+    )
+    sample_usage_text=$(
+        cat <<-sample_usage_text
+
+        ${MAIN}NAME${WHITE}
+            \t$NAME (version $VERSION) - $DESC
+
+        ${MAIN}SYNOPSIS${WHITE}
+            \t$USAGE
+
+        ${MAIN}DESCRIPTION${WHITE}
+            \t$sample_long_desc
+
+            \t$sample_parameters
+
+        ${MAIN}EXIT STATUS${WHITE}
+            \t$EXIT_STATUS_TEXT
+
+        ${MAIN}CONTRIBUTING${WHITE}
+            \TGitHub: $GITHUB
+
+        ${MAIN}LICENSE${WHITE}
+            \t$LICENSE
+            \t$COPYRIGHT
+            \t$AUTHOR
+
+sample_usage_text
+    )
 }
 
 function _main_text_colors() {
-    set_colors
+    load_error_msgs
+    set_colors "$@"
+    set_usage
+    echo
     export TEXT_COLORS_LOADED='1'
     [[ "$1" == 'version' ]] && _bt_usage
     if [[ "$DEBUG" == '1' ]] || [[ "$1" == 'test' ]]; then
