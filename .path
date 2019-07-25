@@ -82,6 +82,7 @@ function _set_paths() {
     $HOME/.cargo/bin:\
     $HOME/.rvm/bin:\
     $HOME/bin/utilities/git-achievements:\
+    $PWD:\
     "
 
     PATH=${PATH// /}
