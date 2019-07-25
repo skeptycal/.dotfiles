@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # -*- coding: utf-8 -*-
 #* #############################################################################
-#* Universal BASH debug flag
-export DEBUG='0'
+#* ### Universal BASH debug flag
+#* #############################################################################
+export DEBUG='0' # set to 1 for verbose messages and debugging logs
 # log errors to text file; only functional if $DEBUG='1'
 export DEBUG_LOG='1'
 # log file for debug logs
@@ -82,6 +83,7 @@ function load_resources() {
 function run_debug() {
     db_echo "${WARN}BASH Debug Mode Enabled (DEBUG=1)${RESET}"
     db_echo "Script source:${MAIN} ${BASH_SOURCE}${RESET}"
+    db_echo "Logging to $"
     db_echo "${GO}Use <versions> to see common program versions.${RESET}"
 }
 
@@ -97,3 +99,7 @@ function main() {
 }
 
 main
+
+#* #############################################################################
+#* ### End of standard .bash_profile
+#* #############################################################################

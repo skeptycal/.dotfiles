@@ -53,7 +53,6 @@ function _load_functions() {
         # cat ~/.dotfiles/.functions | grep -e " function " | awk '{ print $2 }'
         # echo $function_list >function_list.txt
         }
-
     function travis_trigger() {
         # Travis CI CLI API
         # Travis CI Client (CLI and Ruby library)
@@ -91,9 +90,7 @@ function _load_functions() {
             "https://api.travis-ci.org/repo/${org}%2F${repo}/requests"
         }
 
-    function tree_html() {
-        tree -ahlsAFRHD --prune --du --si --dirsfirst >tree.html
-        }
+
 
     function versions() {
         green "BASH $BASH_VERSION"
@@ -548,7 +545,17 @@ function _load_functions() {
         }
 
     function tre() {
-        tree -aC -I '.git|node_modules|bower_components' --dirsfirst "$@" | less -FRNX
+        tree --dirsfirst -alqxAC -I '.git|node_modules|bower_components' "$@" -- | less -FRNX
+        # tree -aC -I '.git|node_modules|bower_components' --dirsfirst "$@" | less -FRNX
+        }
+
+    tt () {
+        # alias treetop='tree -L 1'
+        treetop -L 1 -- "$@"
+    }
+
+    function tree_html() {
+        tree -ahlsAFRHD --prune --du --si --dirsfirst >tree.html
         }
     }
 
