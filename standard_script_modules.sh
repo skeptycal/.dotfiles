@@ -1,28 +1,43 @@
 #!/usr/bin/env bash
 # -*- coding: utf-8 -*-
-###############################################################################
-# standard_script_modules : selected functions for macOS bash scripts
-#   (function list at the end)
-# version 0.8.0
-#
-# author    - Michael Treanor  <skeptycal@gmail.com>
-# copyright - 2019 (c) Michael Treanor
-# license   - MIT <https://opensource.org/licenses/MIT>
-# github    - https://www.github.com/skeptycal
-###############################################################################
 source "$(which bt)" || source "$src/bt" # basic_text_colors.sh
-[[ -z "$DEBUG" ]] && DEBUG='0'           # set to 1 for debug and verbose testing
+#? ############################# skeptycal.com ################################
+NAME="${BASH_SOURCE##*/}"
 VERSION='0.8.0'
+DESC='standard script modules for macOS bash scripts'
+USAGE="source ${NAME} [help|test|usage|version]"
+AUTHOR="Michael Treanor  <skeptycal@gmail.com>"
+COPYRIGHT="Copyright (c) 2019 Michael Treanor"
+LICENSE="MIT <https://opensource.org/licenses/MIT>"
+GITHUB="https://www.github.com/skeptycal"
+#? #### standard_script_modules.sh contents ###################################
+#? ############################################################################
+DEBUG='1'                                # set to 1 for verbose testing
 
-function die() {
-    # https://stackoverflow.com/questions/7868818/in-bash-is-there-an-equivalent-of-die-error-msg/7869065
-    local message=$1
-    [ -z "$message" ] && message="Died"
-    ce "${WARN}${message}" >&2
-    ce "${MAIN}line ${BLUE}${BASH_LINENO[0]}${MAIN} in ${BASH_SOURCE[1]}:${ATTN}${FUNCNAME[1]}${MAIN}." >&2
-    exit 1
+_ssm_initialize() {
+    # setup global functions and variables
+    # functions beginning with _ are only called 'by the script'
+    # others are reusable in any script as needed
+    filename="$BASH_SOURCE"
+    parse_filename
+    _script_source="$dir"
+    src="${dir}src"
+    _script_name="$base_name"
+    _bin_path="$HOME/bin/utilities/pc_bak"
 }
+function die() {
+    # exit program with $exit_code ($1) and optional $message ($2)
+    # https://stackoverflow.com/questions/7868818/in-bash-is-there-an-equivalent-of-die-error-msg/7869065
+    exit_code=${1:-1}
+    message=${2:-'Script died...'}
 
+    ce "${WARN}${message}" >&2
+    ce "${MAIN}line ${BLUE}${BASH_LINENO[0]}${MAIN} of ${ATTN}${FUNCNAME[1]}${MAIN} in ${BASH_SOURCE[1]}${MAIN}." >&2
+    [[ "$DONT_DIE" == '1']] || exit "$exit_code"
+}
+function hex_dump() {
+    [[ -r "$1" ]] && od -A x -t x1z -v "$1"
+}
 function log_toggle() {
     #   usage: log_toggle [filename]
     #   toggle on and off logging to file
@@ -33,7 +48,14 @@ function log_toggle() {
     #   reference: https://unix.stackexchange.com/questions/80988/how-to-stop-redirection-in-bash
 
     # set default log filename or $1
-    [[ -z "$1" ]] && LOG_FILE_NAME='LOGFILE.log' || LOG_FILE_NAME="${1}"
+    if [[ -z "$1" ]]; then
+        if [[ -z "$LOG_FILE_NAME" ]]; then
+            LOG_FILE_NAME='${_script_source}LOGFILE.log'
+        fi
+    else
+        LOG_FILE_NAME="${1}"
+        touch "$LOG_FILE_NAME"
+    fi
     # if log is on, turn it off
     if [[ "$LOG" == '1' ]]; then
         LOG='0'
@@ -42,6 +64,8 @@ function log_toggle() {
     else # if it is off ... turn it on
         LOG='1'
         exec 3>&1 4>&2
+        exec 3>&- 4>&-
+
         # log to the filename stored in $LOG_FILE_NAME
         db_echo "\${LOG_FILE_NAME}: ${LOG_FILE_NAME}"
         exec > >(tee -a -i "${LOG_FILE_NAME}") 2>&1
@@ -107,6 +131,34 @@ function db_echo() {
     #    - use log_toggle() to include file logging
     [[ $DEBUG == '1' ]] && warn "$(date "+%D %T") $@"
 }
+function test_echo() {
+    # usage: test_echo <test name> <test code>
+    # report test results
+    #    - DEBUG is set to '1' or cli [test] option set
+    #    - use log_toggle() to include file logging
+    if [[ $DEBUG == '1' ]]; then
+        printf "%bFunction Test -> %bPID %s %b" "$MAIN" "$CANARY" "$$" "$GO"
+        printf '%(%Y-%m-%d)T' -1
+        printf "%b test name: %s\n%b" "$ATTN" "$1" "$RESET"
+        shift
+        eval "$@"
+        printf "%bResult = %s%b\n" "$COOL" "$?" "${RESET}"
+    fi
+}
+function test_var() {
+    # usage: test_echo <test name> <test code>
+    # report test results
+    #    - DEBUG is set to '1' or cli [test] option set
+    #    - use log_toggle() to include file logging
+    # reference:
+    #   indirect variables: https://wiki.bash-hackers.org/syntax/pe#indirection
+    #   bash printf: https://www.linuxjournal.com/content/bashs-built-printf-function
+    if [[ $DEBUG == '1' ]]; then
+        printf "%bVariable Test -> %bPID %s %b" "$MAIN" "$CANARY" "$$" "$GO"
+        printf '%(%Y-%m-%d)T' -1
+        printf "%b %15s -%b %s %b\n" "$ATTN" "$1" "$WARN" "${!1}" "$RESET"
+    fi
+}
 function usage() {
     # Print script usage test
     # Parameters:
@@ -122,49 +174,81 @@ function usage() {
     br
 }
 function exit_usage() {
-    usage "$@"
+    set_man_page
+    echo "$MAN_PAGE"
     exit 1
 }
-function _alt_colors() {
-    MAIN=$(echo -en '\001\033[38;5;229m')
-    WARN=$(echo -en '\001\033[38;5;203m')
-    BLUE=$(echo -en '\001\033[38;5;38m')
-    WHITE=$(echo -en '\001\033[37m')
-    PURPLE=$(echo -en '\001\033[38;5;93m')
-    RESET=$(echo -en '\001\033[0m\002')
-}
 function _test_standard_script_modules() {
-    # add tests for these functions as needed
-    ce "Script source:$MAIN $BASH_SOURCE$RESET"
-    # _SAMPLE_USAGE_TEXT='Sample Usage Text'
-    db_echo "Testing db_echo. (red text if \$DEBUG='1') - currently '$DEBUG'"
-    usage
-}
-
-function _main_standard_script_modules() {
-    filename="$BASH_SOURCE"
-    parse_filename
-    _script_source="$dir"
-    _script_name="$base_name"
-    _bin_path="$HOME/bin/utilities/pc_bak"
 
     # sample usage text
     _EXIT_USAGE_TEXT="${MAIN}${_script_name}${WHITE} - macOS script"
-    if [[ "$DEBUG" == '1' ]] || [[ "$1" == 'test' ]]; then
-        _test_standard_script_modules
-    fi
+    LOG_FILE_NAME="${_script_source}ssm_debug_test.log"
+    DONT_DIE='1'
+    log_toggle
+    ce "${COOL}BASH_SOURCE:$MAIN $BASH_SOURCE$RESET"
+    test_var "_script_name"
+    test_var "_script_source"
+    test_var "DEBUG"
+    test_var "DONT_DIE"
+    test_var "LOG"
+    test_var "LOG_FILE_NAME"
+
+    # TODO add tests for these functions as needed
+    test_echo "die() test" "die 'die test!'"
+    test_echo "db_echo() test" "db_echo 'This is the test argument'"
+    test_echo "urlencode() test" "urlencode 'http://www.github.com/skeptycal'"
+    # _SAMPLE_USAGE_TEXT='Sample Usage Text'
+    # db_echo "Testing db_echo. (red text if \$DEBUG='1') - currently '$DEBUG'"
+    usage
+    # test_echo "hex_dump() test" "hex_dump \"$BASH_SOURCE\" | head -n5"
+    log_toggle
+    unset DONT_DIE
+    unset LOG_FILE_NAME
+    unset _EXIT_USAGE_TEXT
+    unset LOG
 }
+function _main_standard_script_modules() {
+    # [[ "$1" == 'test' ]] && DEBUG='1'
+    _ssm_initialize
+    [[ "$DEBUG" == '1' ]] && _test_standard_script_modules
+}
+
+#* ############################################################################
+#* ### Stuff to keep out of the way ...
+usage_long_desc="$(
+    cat <<usage_long_desc
+    ${MAIN}$NAME${WHITE} sets and exports constants and functions that give access to
+    novel and useful features simply by loading the module through a one line
+    command: 'source ssm'
+
+usage_long_desc
+)"
+usage_parameters="$(
+    cat <<usage_parameters
+    help      - display complete usage information (this!)
+    test      - perform tests
+    usage     - short usage instructions
+    version   - display version information
+usage_parameters
+)"
 
 _main_standard_script_modules "$@"
 
-###### basic_text_colors.sh #############################################
+#? #### basic_text_colors.sh contents #########################################
+# TODO automate creation of TOC
 # FUNCTIONS         PARAMETERS and OPTIONS
-# text colors       - MAIN, WARN, COOL, BLUE, GO, CHERRY, CANARY, ATTN,
-#                   - PURPLE, WHITE, RESTORE, RESET
+# color constants   - ANSI constants for common colors
+#                       MAIN, WARN, COOL, BLUE, GO, CHERRY, CANARY, ATTN,
+#                       PURPLE, RAIN, WHITE, RESTORE, RESET
+# color functions   - functions for printing lines in common colors
+#                       me (for main), warn, blue, green, cherry, canary,
+#                       attn, purple, rain, white
+# error messages    - C++ style error messages
 # br                - print blank line (CLI \n)
 # ce                - $@ (color echo - generic color as $1, etc.)
-# me, we, he, be,   - $@ (color echo - specific color)
-#   ge, oe, pe, ye
+# set_man_page      - set $MAN_PAGE based on docblock variables
+# parse_options     - parse basic options [test|usage|version|help] & DEBUG
+#? ############################################################################
 ###### standard_script_modules.sh #############################################
 # FUNCTIONS         PARAMETERS and OPTIONS
 # db_echo $@        - (if DEBUG='1') echo $@ in red
