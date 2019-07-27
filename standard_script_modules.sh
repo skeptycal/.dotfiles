@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # -*- coding: utf-8 -*-
-source "$(which bt)" || source "$src/bt" # basic_text_colors.sh
+source "$(which bt)" || source "${PWD}/src/bt" # basic_text_colors.sh
 #? ############################# skeptycal.com ################################
 NAME="${BASH_SOURCE##*/}"
 VERSION='0.8.0'
@@ -12,15 +12,17 @@ LICENSE="MIT <https://opensource.org/licenses/MIT>"
 GITHUB="https://www.github.com/skeptycal"
 #? #### standard_script_modules.sh contents ###################################
 #? ############################################################################
-DEBUG='1'                                # set to 1 for verbose testing
+DEBUG='1' # set to 1 for verbose testing
+# [[ "$DEBUG" == '1' ]] && set -v
 
 _ssm_initialize() {
     # setup global functions and variables
     # functions beginning with _ are only called 'by the script'
     # others are reusable in any script as needed
     filename="$BASH_SOURCE"
-    parse_filename
+    parse_filename "$filename"
     _script_source="$dir"
+    echo "\$dir: $dir"
     src="${dir}src"
     _script_name="$base_name"
     _bin_path="$HOME/bin/utilities/pc_bak"
@@ -29,15 +31,45 @@ function die() {
     # exit program with $exit_code ($1) and optional $message ($2)
     # https://stackoverflow.com/questions/7868818/in-bash-is-there-an-equivalent-of-die-error-msg/7869065
     exit_code=${1:-1}
-    message=${2:-'Script died...'}
+    message=${2:-"Script died...$USAGE"}
 
     ce "${WARN}${message}" >&2
     ce "${MAIN}line ${BLUE}${BASH_LINENO[0]}${MAIN} of ${ATTN}${FUNCNAME[1]}${MAIN} in ${BASH_SOURCE[1]}${MAIN}." >&2
-    [[ "$DONT_DIE" == '1']] || exit "$exit_code"
+    [[ ! "$DONT_DIE" == '1' ]] && exit "$exit_code"
 }
-function hex_dump() {
-    [[ -r "$1" ]] && od -A x -t x1z -v "$1"
+yes_no() {
+    # Accept a Yes/no (default Yes) user response to prompt ($1 or default)
+    echo -n "${1:-'[Yes/no]: '}"
+    read yno
+    case $yno in
+    # [yY] | [yY][Ee][Ss])
+    #     return 0
+    #     ;;
+    [nN] | [n | N][O | o])
+        return 1
+        ;;
+    *) # default 'Yes' ... see function no_yes for default 'No'
+        return 0
+        ;;
+    esac
 }
+no_yes() {
+    # Accept a yes/No (default No) user response to prompt ($1 or default)
+    echo -n "${1:-'[No/yes]: '}"
+    read yno
+    case $yno in
+    [yY] | [yY][Ee][Ss])
+        return 1
+        ;;
+    # [nN] | [n | N][O | o])
+    #     return 1
+    #     ;;
+    *) # default 'No' ... see function yes_no for default 'Yes'
+        return 0
+        ;;
+    esac
+}
+function hex_dump() { [[ -r "$1" ]] && od -A x -t x1z -v "$1"; }
 function log_toggle() {
     #   usage: log_toggle [filename]
     #   toggle on and off logging to file
@@ -72,6 +104,15 @@ function log_toggle() {
         attn "logging on ..."
     fi
 }
+
+function real_name() {
+    # test_var "$1"
+    # log_flag
+    filename="${!1}"
+    echo $filename
+    filename="${1##*/}"
+}
+
 function parse_filename() {
     #   usage: parse_filename [filename]
     #   parameter
@@ -86,6 +127,9 @@ function parse_filename() {
     [[ -n "$1" ]] && filename="$1"
     # if no filename, error & exit
     [[ -z "$filename" ]] && exit_usage "\$filename not available or specified ..." "${MAIN}parse_filename ${WHITE}[filename]"
+    test_var "$filename"
+    log_flag
+    [[ -r "$filename" ]] && exit_usage "\$filename not readable ..." "${MAIN}parse_filename ${WHITE}[filename]"
     base_name="${filename##*/}"
     # Strip longest match of */ from start
     dir="${filename:0:${#filename}-${#base_name}}"
@@ -122,8 +166,13 @@ function get_safe_new_filename() {
         exit_usage "Invalid parameters ..." "usage: ${MAIN}get_safe_new_filename ${WHITE}filename /path/to/file [extension]"
     fi
 }
-function urlencode() {
-    python -c "import sys, urllib as ul; print ul.quote_plus('$1');"
+function url_encode() {
+    [[ -z "$1" ]] && return 1
+    encoded=$(php -r "echo rawurlencode('$1');") && return 0 || return "$EX_DATAERR"
+}
+function url_decode() {
+    [[ -z "$1" ]] && return 1
+    decoded=$(php -r "echo rawurldecode('$1');") && return 0 || return "$EX_DATAERR"
 }
 function db_echo() {
     # report data and errors in scripting
@@ -132,75 +181,100 @@ function db_echo() {
     [[ $DEBUG == '1' ]] && warn "$(date "+%D %T") $@"
 }
 function test_echo() {
+    # log the current value of a given variable ($1)
     # usage: test_echo <test name> <test code>
-    # report test results
+    # report test results if:
     #    - DEBUG is set to '1' or cli [test] option set
     #    - use log_toggle() to include file logging
-    if [[ $DEBUG == '1' ]]; then
+    if [[ $DEBUG == '1' ]] && [[ -n "$1" ]]; then
         printf "%bFunction Test -> %bPID %s %b" "$MAIN" "$CANARY" "$$" "$GO"
         printf '%(%Y-%m-%d)T' -1
         printf "%b test name: %s\n%b" "$ATTN" "$1" "$RESET"
         shift
+        local
         eval "$@"
         printf "%bResult = %s%b\n" "$COOL" "$?" "${RESET}"
     fi
 }
 function test_var() {
-    # usage: test_echo <test name> <test code>
-    # report test results
+    # usage: test_var <test variable>
+    # report test results if:
     #    - DEBUG is set to '1' or cli [test] option set
     #    - use log_toggle() to include file logging
     # reference:
     #   indirect variables: https://wiki.bash-hackers.org/syntax/pe#indirection
     #   bash printf: https://www.linuxjournal.com/content/bashs-built-printf-function
-    if [[ $DEBUG == '1' ]]; then
+    if [[ $DEBUG == '1' ]] && [[ -n "$1" ]]; then
+        local testvar="${1}"
+        echo "\$testvar: $testvar"
+        echo "testvar: " ${!testvar}
+        echo ''
+        echo ''
         printf "%bVariable Test -> %bPID %s %b" "$MAIN" "$CANARY" "$$" "$GO"
         printf '%(%Y-%m-%d)T' -1
-        printf "%b %15s -%b %s %b\n" "$ATTN" "$1" "$WARN" "${!1}" "$RESET"
+        printf "%b %15s -%b %s %b\n" "$ATTN" "\$$testvar" "$WARN" "$testvar" "$RESET"
     fi
 }
-function usage() {
+function exit_usage() {
     # Print script usage test
     # Parameters:
     #   $1 - specific message (e.g. 'file not found')
     #   $2 - optional usage text
     [[ -n "$1" ]] && warn "$1"
     if [[ -z "$2" ]]; then
-        ce "$_EXIT_USAGE_TEXT"
+        ce "$USAGE"
     else
         shift
         ce "$@"
     fi
     br
+
 }
-function exit_usage() {
+function print_usage() {
     set_man_page
     echo "$MAN_PAGE"
     exit 1
+}
+log_flag() {
+    rain "#? ############################################################################"
 }
 function _test_standard_script_modules() {
 
     # sample usage text
     _EXIT_USAGE_TEXT="${MAIN}${_script_name}${WHITE} - macOS script"
+    # log file for test sesssion
     LOG_FILE_NAME="${_script_source}ssm_debug_test.log"
+    # functions that include an 'exit' will skip it so tests can continue
     DONT_DIE='1'
+    # log everything to LOG_FILE_NAME
     log_toggle
+
     ce "${COOL}BASH_SOURCE:$MAIN $BASH_SOURCE$RESET"
-    test_var "_script_name"
-    test_var "_script_source"
-    test_var "DEBUG"
-    test_var "DONT_DIE"
-    test_var "LOG"
-    test_var "LOG_FILE_NAME"
+    log_flag
+
+    test_var "$_script_name"
+    test_var "$_script_source"
+    test_var "$DEBUG"
+    test_var "$DONT_DIE"
+    test_var "$LOG"
+    test_var "$LOG_FILE_NAME"
 
     # TODO add tests for these functions as needed
     test_echo "die() test" "die 'die test!'"
     test_echo "db_echo() test" "db_echo 'This is the test argument'"
-    test_echo "urlencode() test" "urlencode 'http://www.github.com/skeptycal'"
-    # _SAMPLE_USAGE_TEXT='Sample Usage Text'
-    # db_echo "Testing db_echo. (red text if \$DEBUG='1') - currently '$DEBUG'"
-    usage
-    # test_echo "hex_dump() test" "hex_dump \"$BASH_SOURCE\" | head -n5"
+    test_echo "urlencode() test" "url_encode 'http://www.github.com/skeptycal'"
+    db_echo "$encoded"
+    test_echo "urlencode() test" "url_decode 'http%3A%2F%2Fwww.github.com%2Fskeptycal'"
+    db_echo "$decoded"
+    fake_filename="$LOG_FILE_NAME"
+    test_var "$fake_filename"
+    test_echo "real_name() test" "real_name $fake_filename"
+
+    log_flag
+    result="${fake_filename##*/}"
+    test_var "$result"
+
+    # cleanup test environment
     log_toggle
     unset DONT_DIE
     unset LOG_FILE_NAME
@@ -211,6 +285,7 @@ function _main_standard_script_modules() {
     # [[ "$1" == 'test' ]] && DEBUG='1'
     _ssm_initialize
     [[ "$DEBUG" == '1' ]] && _test_standard_script_modules
+    return 0
 }
 
 #* ############################################################################
@@ -308,3 +383,4 @@ sample_usage_text
 
 # References
 # https://stackoverflow.com/questions/85880/determine-if-a-function-exists-in-bash
+# encoding urls: https://stackoverflow.com/questions/296536/how-to-urlencode-data-for-curl-command

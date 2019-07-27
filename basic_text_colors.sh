@@ -24,7 +24,8 @@ GITHUB="https://www.github.com/skeptycal"
 # set_man_page      - set $MAN_PAGE based on docblock variables
 # parse_options     - parse basic options [test|usage|version|help] & DEBUG
 #? ############################################################################
-DEBUG='0' # set to 1 for debug and verbose testing
+DEBUG='1' # set to 1 for debug and verbose testing
+# [[ "$DEBUG" == '1' ]] && set -v
 
 bt_source_initialize() {
     # setup global functions and variables
@@ -103,6 +104,13 @@ _run_tests() {
     }
     _bt_color_sample_test
     # TODO add other tests as needed
+    getopt hl "$@"
+    return 0
+}
+
+parse_cli_options() {
+    set -- $(getopt hl "$@" 2>/dev/null) || Usage
+    [ $# -lt 1 ] && me "$USAGE" # "getopt" detected an error
 }
 parse_options() {
     # parse basic options [test|usage|version|help] & DEBUG
@@ -112,26 +120,30 @@ parse_options() {
     -h | --help | help)
         set_man_page
         echo "$MAN_PAGE"
-        exit 0
+        # exit 0
         ;;
     -t | --test | test)
         _run_tests
-        exit 0
+        # exit 0
         ;;
     -u | --usage | usage)
         me "$USAGE"
-        exit 0
+        # exit 0
         ;;
     -v | --version | version)
         ce "${MAIN}${NAME}${WHITE} (version ${VERSION})${RESET}"
-        exit 0
+        # exit 0
         ;;
+        # *) ;;
     esac
+    echo "parse: $?"
     [[ "$DEBUG" == '1' ]] && _run_tests
+    echo "parse: $?"
 }
 _main_loop() {
     bt_source_initialize
     parse_options "$@"
+    return 0
 }
 
 #* ############################################################################
