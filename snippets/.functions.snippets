@@ -1,0 +1,235 @@
+#!/usr/bin/env false bash
+# -*- coding: utf-8 -*-
+# cannot be run directly
+
+# https://gist.github.com/datchley/f7619bd32213af648885
+# <<snippets
+
+#     # disable builtin echo so we can use '-en'
+#     enable -n echo
+
+#     SCRIPT=$(basename "$0")
+#     SCRIPT_DIR=$(dirname "$0")
+#     echo "$SCRIPT running from $SCRIPT_DIR"
+
+#     # Determine if we're interactive or not
+#     # is_interactive() { test -t 0; }
+#     use_ansi() { test -t 1; }
+
+
+#     # only output colors if our output is to terminal
+#     if use_ansi ; then
+#         GREEN="\033[0;32m"
+#         RED="\033[0;31m"
+#         YELLOW="\033[0;33m"
+#         BOLD_WHITE="\033[1;37m"
+#         CLEAR="\033[0m"
+#     else
+#         GREEN=""
+#         RED=""
+#         YELLOW=""
+#         BOLD_WHITE=""
+#         CLEAR=""
+#     fi
+
+#     # ANSI color output helpers
+#     green() { echo -en "${GREEN}"$@"${CLEAR}"; }
+#     red() { echo -en "${RED}"$@"${CLEAR}"; }
+#     yellow() { echo -en "${YELLOW}"$@"${CLEAR}"; }
+#     hl() { echo -en "${BOLD_WHITE}"$@"${CLEAR}"; }
+
+#     # output stuff to terminal
+#     log() { echo -en "$@"; }
+#     logfmt() { printf "$@"; }
+
+#     # Extended RegExp matching on arguments
+#     # $1 = regex pattern
+#     # $@... = remaining args as string to match against
+#     matches() {
+#         local pat=$1; shift
+#         echo "$@" | grep -qEi "$pat" >/dev/null 2>&1
+#     }
+
+#     pass() {
+#         local check="âœ”"
+#         green $check
+#     }
+
+#     fail() {
+#         local x="âœ˜"
+#         red $x
+#     }
+
+#     # trim leading/trailing whitespace in string
+#     trim() {
+#         echo "$@" | awk '{ gsub(/^ +| +$/,"") }{ print $0 }'
+#     }
+
+#     # repeat character $1 for $2 times
+#     repeat() {
+#     echo $(printf "%${2}s" |tr " " "$1")
+#     }
+
+#     # is_available COMMAND [TEST]
+#     # Check if 'command' is available and if passed
+#     # execute TEST as well
+#     # returns command line status of both
+#     is_available() {
+#         local cmd=$1; shift
+#         local res=0
+#         hash $cmd >/dev/null 2>&1 || { local res=1; }
+#         if [ $# -ge 1 ]; then
+#             $@ >/dev/null 2>&1 || { local res=2; }
+#         fi
+#         # echo -n $res
+#         return $res
+#     }
+
+#     filesize() {
+#         local filename=$1; shift
+#         echo $(du -k "$filename" | cut -f1)
+#     }
+
+#     truncate() {
+#         local len=$1; shift;
+#         echo "$*" | awk -v len=$len '{ if (length($0) > len) print substr($0, 1, len-3) "..."; else print; }'
+#     }
+
+#     escape() {
+#         echo "$1" | sed 's/\([\.\$\*]\)/\\\1/g'
+#     }
+
+#     escapeSlashes() {
+#         echo "$@" | sed 's/\\/\\\\/g'
+#     }
+
+#     # Convert UCS-2/UTF-16 with BOM file encoding to UTF-8 w/o BOM
+#     # ucs2utf8 DIR FILE_PATTERN
+#     # where
+#     #   - DIR is the root directory to find files for conversion
+#     #   - FILE_PATTERN is `find` pattern to match file names
+#     ucs2utf8() {
+#         local count=0
+#         local converted=0
+#         local DIR=$1
+#         local FILE_PAT=$2
+
+#         # Ensure we can handle filenames w/ spaces in them
+#         local oldIFS=$IFS
+#         IFS=$(echo -en "\n\b")
+
+#         for file in $(find $DIR -name $FILE_PAT 2>/dev/null); do
+#             count=$((count + 1))
+#             # If it has a BOM and first character after is nul (00), convert it
+#             if od -x "$file" | head -1 | cut -d' ' -f 2,3 | grep "feff 00" >/dev/null 2>&1; then
+#                 log "Converting $(hl ${file}) to UTF-8........"
+#                 converted=$((converted + 1))
+#                 local tmp="${file}.tmp"
+#                 mv "${file}" "${tmp}"
+#                 iconv -c -f UCS-2 -t UTF-8 "${tmp}" > "${file}"
+#                 rm "${tmp}"
+#                 log "$(pass)\n"
+#             fi
+#         done
+#         IFS=$oldIFS
+#         echo "$converted/$count"
+#     }
+
+
+#     while IFS= read -r line
+#     do
+#         if matches "^if\s+" $line; then
+#             log $(hl "found: ") $(green $line) "\n"
+#             log $(yellow "A warning line...")"\n"
+#             log $(red "An error line...")"\n"
+#         fi
+#     done < t.sh
+
+#     logfmt "%20.20b %20.20b" $(green "test") $(yellow "again")
+# snippets
+# <<precommit
+#     #
+#     # @file pre-commit
+#     # @author David Atchley, <david.atchley@answers.com>
+#     # @date Wed Dec 18 14:02:39 CST 2013
+#     #
+#     # Pre Commit checks for various syntax and cleaning prio
+#     # to committing.  Exits with non-zero to stop commit
+#     #
+#     #----------------------------------------------------------------------
+
+#     # Handle any options via environment
+#     if [ "$GIT_HOOK_PRECOMMIT_IGNORE" = "yes" ]; then
+#         exit 0;
+#     fi
+
+#     # pluralize a word based on a count
+#     s() {
+#         local word=$1
+#         local count=$2
+#         if [ $count -eq 1 ]; then
+#             echo $word
+#         else
+#             if 	  echo "$word" | egrep "([sxz]|[cs]h)$" 2>&1 >/dev/null ; then
+#                 echo $word"es";
+#             elif  echo "$word" | egrep "y$" 2>&1 >/dev/null ; then
+#                 echo $word"ies";
+#             else
+#                 echo $word"s"
+#             fi
+#         fi
+#     }
+
+
+#     if git rev-parse --verify HEAD >/dev/null 2>&1
+#     then
+#         against=HEAD
+#     else
+#         # Initial commit: diff against an empty tree object
+#         against=4b825dc642cb6eb9a060e54bf8d69288fbee4904
+#     fi
+
+
+#     # Redirect output to stderr.
+#     exec 1>&2
+
+#     # track number of pre-commit errors found
+#     errors=0
+
+#     echo "> Pre Commit Hook running"
+#     echo "> You can by-pass this hook by running: export GIT_HOOK_PRECOMMIT_IGNORE=yes"
+#     for file in `git diff-index --name-status $against -- | cut -c3-`
+#     do
+
+#         # Javascript pre-commit checks
+#         if echo "$file" | egrep '\.(p?html|js)$' 2>&1 >/dev/null
+#         then
+#             # Make sure no 'console.*' calls are in any HTML/JS files
+#             if  egrep "(debugger;|console\.)" $file | egrep -v "(\/\/|\/\*|#).*(debugger;|console\.)" 2>&1 >/dev/null
+#             then
+#                 echo "==> warning: $file contains 'console' or 'debugger' calls!!";
+#                 errors=$((errors+1))
+#             fi
+#         fi
+
+#         # PHP pre-commit checks
+#         if echo "$file" | egrep '\.php$' 2>&1 >/dev/null
+#         then
+#             # Make sure no 'console.*' calls are in any HTML/JS files
+#             if  egrep "util::debug" $file | egrep -v "(\/\/|\/\*|#).*util::debug" 2>&1 >/dev/null
+#             then
+#                 echo "==> warning: $file contains 'util::debug' calls!!";
+#                 errors=$((errors+1))
+#             fi
+#         fi
+
+#     done
+
+#     if [ $errors -gt 0 ]; then
+#         echo "=== fail. $errors "$(s 'error' $errors)" found"
+#         exit 1
+#     else
+#         echo "=== ok."
+#         exit 0
+#     fi
+# precommit
