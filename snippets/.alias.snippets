@@ -1,0 +1,18 @@
+#!/usr/bin/env false bash
+
+# kill another users processes
+#   alias hockey="pkill -9 -u \$(id -u $1)"
+#   used function instead:
+#   function pk(){ pkill -9 -u \$(id -u $1); }
+
+# changed to function urlencode in standard_script_modules.sh
+# alias urlencode='python -c "import sys, urllib as ul; print ul.quote_plus(sys.argv[1]);"'
+
+# alias hide="defaults write com.apple.finder AppleShowAllFiles -bool false && killall Finder"
+# alias show="defaults write com.apple.finder AppleShowAllFiles -bool true && killall Finder"
+# alias hidedesktop="defaults write com.apple.finder CreateDesktop -bool false && killall Finder"
+# alias showdesktop="defaults write com.apple.finder CreateDesktop -bool true && killall Finder"
+# alias spotoff="sudo mdutil -a -i off"
+# alias spoton="sudo mdutil -a -i on"
+# alias stfu="osascript -e 'set volume output muted true'"
+# alias pumpitup="osascript -e 'set volume output volume 100'"
