@@ -9,25 +9,10 @@ AUTHOR="Michael Treanor  <skeptycal@gmail.com>"
 COPYRIGHT="Copyright (c) 2019 Michael Treanor"
 LICENSE="MIT <https://opensource.org/licenses/MIT>"
 GITHUB="https://www.github.com/skeptycal"
-#? #### basic_text_colors.sh contents #########################################
-# TODO automate creation of TOC
-# FUNCTIONS         PARAMETERS and OPTIONS
-# color constants   - ANSI constants for common colors
-#                       MAIN, WARN, COOL, BLUE, GO, CHERRY, CANARY, ATTN,
-#                       PURPLE, RAIN, WHITE, RESTORE, RESET
-# color functions   - functions for printing lines in common colors
-#                       me (for main), warn, blue, green, cherry, canary,
-#                       attn, purple, rain, white
-# error messages    - C++ style error messages
-# br                - print blank line (CLI \n)
-# ce                - $@ (color echo - generic color as $1, etc.)
-# set_man_page      - set $MAN_PAGE based on docblock variables
-# parse_options     - parse basic options [test|usage|version|help] & DEBUG
 #? ############################################################################
-DEBUG='1' # set to 1 for debug and verbose testing
-# [[ "$DEBUG" == '1' ]] && set -v
+# DEBUG='1' # set to 1 for debug and verbose testing
 
-bt_source_initialize() {
+_bt_source_initialize() {
     # setup global functions and variables
     # functions beginning with _ are only called 'by the script'
     # others are reusable in any script as needed
@@ -95,22 +80,13 @@ bt_source_initialize() {
     _set_color_functions
 }
 _run_tests() {
-    # calls script tests
     _bt_color_sample_test() {
-        # specific script test - print samples of available colors
         echo -e "Script source:$MAIN $BASH_SOURCE$RESET"
         echo -e "${MAIN}C ${WARN}O ${COOL}L ${GO}O ${CHERRY}R   ${CANARY}T ${ATTN}E ${PURPLE}S ${RESET}T"
         echo -e "${MAIN}MAIN   ${WARN}WARN   ${COOL}COOL   ${GO}GO   ${CHERRY}CHERRY   ${CANARY}CANARY   ${ATTN}ATTN   ${RAIN}RAIN   ${RESET}RESET"
     }
     _bt_color_sample_test
-    # TODO add other tests as needed
-    getopt hl "$@"
     return 0
-}
-
-parse_cli_options() {
-    set -- $(getopt hl "$@" 2>/dev/null) || Usage
-    [ $# -lt 1 ] && me "$USAGE" # "getopt" detected an error
 }
 parse_options() {
     # parse basic options [test|usage|version|help] & DEBUG
@@ -123,7 +99,7 @@ parse_options() {
         # exit 0
         ;;
     -t | --test | test)
-        _run_tests
+        _run_tests "$@"
         # exit 0
         ;;
     -u | --usage | usage)
@@ -136,17 +112,14 @@ parse_options() {
         ;;
         # *) ;;
     esac
-    echo "parse: $?"
-    [[ "$DEBUG" == '1' ]] && _run_tests
-    echo "parse: $?"
 }
 _main_loop() {
-    bt_source_initialize
+    _bt_source_initialize
     parse_options "$@"
+    [[ "$DEBUG" == '1' ]] && _run_tests "$@"
     return 0
 }
-
-#* ############################################################################
+#? ############################################################################
 #* ### Stuff to keep out of the way ...
 usage_long_desc="$(
     cat <<usage_long_desc
@@ -201,7 +174,24 @@ ${MAIN}LICENSE${WHITE}
 MAN_PAGE
     )"
 }
+#? ############################################################################
+# [[ -z "$WARN" ]] &&
 _main_loop "$@"
+
+#? #### basic_text_colors.sh contents #########################################
+# TODO automate creation of TOC
+# FUNCTIONS         PARAMETERS and OPTIONS
+# color constants   - ANSI constants for common colors
+#                       MAIN, WARN, COOL, BLUE, GO, CHERRY, CANARY, ATTN,
+#                       PURPLE, RAIN, WHITE, RESTORE, RESET
+# color functions   - functions for printing lines in common colors
+#                       me (for main), warn, blue, green, cherry, canary,
+#                       attn, purple, rain, white
+# error messages    - C++ style error messages
+# br                - print blank line (CLI \n)
+# ce                - $@ (color echo - generic color as $1, etc.)
+# set_man_page      - set $MAN_PAGE based on docblock variables
+# parse_options     - parse basic options [test|usage|version|help] & DEBUG
 
 #? ############################################################################
 # References:
