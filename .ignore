@@ -1,0 +1,19 @@
+# Files to ignore in main document tree
+
+.node_history
+.python_history
+.wget-hsts
+.zsh_history
+.bash_history
+.Xauthority
+.profile
+.zprofile
+.waka*
+.wakatime.db
+.hushlogin
+.zcompdump*
+.zprofile
+'Google Drive'
+Downloads
+**/.ssh*
+*ssh*
