@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # -*- coding: utf-8 -*-
-source "$(which bt)" || source "${PWD}/src/bt" # basic_text_colors.sh
+source "${HOME}/.dotfiles/.config_macos" # basic constants and functions
 #? ############################# skeptycal.com ################################
-NAME="${BASH_SOURCE##*/}"
+NAME="$script_name"
 VERSION='0.8.0'
 DESC='standard script modules for macOS bash scripts'
 USAGE="source ${NAME} [help|test|usage|version]"
@@ -10,24 +10,10 @@ AUTHOR="Michael Treanor  <skeptycal@gmail.com>"
 COPYRIGHT="Copyright (c) 2019 Michael Treanor"
 LICENSE="MIT <https://opensource.org/licenses/MIT>"
 GITHUB="https://www.github.com/skeptycal"
-#? #### standard_script_modules.sh contents ###################################
 #? ############################################################################
-DEBUG='1' # set to 1 for verbose testing
-# [[ "$DEBUG" == '1' ]] && set -v
+# DEBUG='1' # set to 1 for verbose testing
 
-_ssm_initialize() {
-    # setup global functions and variables
-    # functions beginning with _ are only called 'by the script'
-    # others are reusable in any script as needed
-    filename="$BASH_SOURCE"
-    parse_filename "$filename"
-    _script_source="$dir"
-    echo "\$dir: $dir"
-    src="${dir}src"
-    _script_name="$base_name"
-    _bin_path="$HOME/bin/utilities/pc_bak"
-}
-function die() {
+die() {
     # exit program with $exit_code ($1) and optional $message ($2)
     # https://stackoverflow.com/questions/7868818/in-bash-is-there-an-equivalent-of-die-error-msg/7869065
     exit_code=${1:-1}
@@ -69,8 +55,8 @@ no_yes() {
         ;;
     esac
 }
-function hex_dump() { [[ -r "$1" ]] && od -A x -t x1z -v "$1"; }
-function log_toggle() {
+hex_dump() { [[ -r "$1" ]] && od -A x -t x1z -v "$1"; }
+log_toggle() {
     #   usage: log_toggle [filename]
     #   toggle on and off logging to file
     #       parameter
@@ -82,16 +68,16 @@ function log_toggle() {
     # set default log filename or $1
     if [[ -z "$1" ]]; then
         if [[ -z "$LOG_FILE_NAME" ]]; then
-            LOG_FILE_NAME='${_script_source}LOGFILE.log'
+            LOG_FILE_NAME="${script_source}LOGFILE.log"
         fi
     else
         LOG_FILE_NAME="${1}"
-        touch "$LOG_FILE_NAME"
     fi
+    touch "$LOG_FILE_NAME"
     # if log is on, turn it off
     if [[ "$LOG" == '1' ]]; then
         LOG='0'
-        exec >&3 2>&4
+        exec 1>&3 2>&4
         attn "logging off ..."
     else # if it is off ... turn it on
         LOG='1'
@@ -105,7 +91,7 @@ function log_toggle() {
     fi
 }
 
-function real_name() {
+real_name() {
     # test_var "$1"
     # log_flag
     filename="${!1}"
@@ -113,7 +99,7 @@ function real_name() {
     filename="${1##*/}"
 }
 
-function parse_filename() {
+parse_filename() {
     #   usage: parse_filename [filename]
     #   parameter
     #       filename    - $1 or global $filename used
@@ -144,7 +130,7 @@ function parse_filename() {
         extension=""
     fi
 }
-function get_safe_new_filename() {
+get_safe_new_filename() {
     # usage: get_safe_new_filename filename /path/to/file [extension]
     #   returns
     #       $new_safe_name      - new file name WITH path and extension
@@ -166,21 +152,16 @@ function get_safe_new_filename() {
         exit_usage "Invalid parameters ..." "usage: ${MAIN}get_safe_new_filename ${WHITE}filename /path/to/file [extension]"
     fi
 }
-function url_encode() {
+url_encode() {
     [[ -z "$1" ]] && return 1
     encoded=$(php -r "echo rawurlencode('$1');") && return 0 || return "$EX_DATAERR"
 }
-function url_decode() {
+url_decode() {
     [[ -z "$1" ]] && return 1
     decoded=$(php -r "echo rawurldecode('$1');") && return 0 || return "$EX_DATAERR"
 }
-function db_echo() {
-    # report data and errors in scripting
-    #    - DEBUG is set to '1' to report errors
-    #    - use log_toggle() to include file logging
-    [[ $DEBUG == '1' ]] && warn "$(date "+%D %T") $@"
-}
-function test_echo() {
+
+test_echo() {
     # log the current value of a given variable ($1)
     # usage: test_echo <test name> <test code>
     # report test results if:
@@ -196,7 +177,7 @@ function test_echo() {
         printf "%bResult = %s%b\n" "$COOL" "$?" "${RESET}"
     fi
 }
-function test_var() {
+test_var() {
     # usage: test_var <test variable>
     # report test results if:
     #    - DEBUG is set to '1' or cli [test] option set
@@ -215,7 +196,7 @@ function test_var() {
         printf "%b %15s -%b %s %b\n" "$ATTN" "\$$testvar" "$WARN" "$testvar" "$RESET"
     fi
 }
-function exit_usage() {
+exit_usage() {
     # Print script usage test
     # Parameters:
     #   $1 - specific message (e.g. 'file not found')
@@ -230,7 +211,7 @@ function exit_usage() {
     br
 
 }
-function print_usage() {
+print_usage() {
     set_man_page
     echo "$MAN_PAGE"
     exit 1
@@ -238,12 +219,10 @@ function print_usage() {
 log_flag() {
     rain "#? ############################################################################"
 }
-function _test_standard_script_modules() {
-
-    # sample usage text
-    _EXIT_USAGE_TEXT="${MAIN}${_script_name}${WHITE} - macOS script"
+_test_standard_script_modules() {
+    _EXIT_USAGE_TEXT="${MAIN}${script_name}${WHITE} - macOS script"
     # log file for test sesssion
-    LOG_FILE_NAME="${_script_source}ssm_debug_test.log"
+    LOG_FILE_NAME="${script_source}ssm_debug_test.log"
     # functions that include an 'exit' will skip it so tests can continue
     DONT_DIE='1'
     # log everything to LOG_FILE_NAME
@@ -252,8 +231,8 @@ function _test_standard_script_modules() {
     ce "${COOL}BASH_SOURCE:$MAIN $BASH_SOURCE$RESET"
     log_flag
 
-    test_var "$_script_name"
-    test_var "$_script_source"
+    test_var "$script_name"
+    test_var "$script_source"
     test_var "$DEBUG"
     test_var "$DONT_DIE"
     test_var "$LOG"
@@ -281,10 +260,9 @@ function _test_standard_script_modules() {
     unset _EXIT_USAGE_TEXT
     unset LOG
 }
-function _main_standard_script_modules() {
+_main_standard_script_modules() {
     # [[ "$1" == 'test' ]] && DEBUG='1'
-    _ssm_initialize
-    [[ "$DEBUG" == '1' ]] && _test_standard_script_modules
+    # [[ "$DEBUG" == '1' ]] && _test_standard_script_modules
     return 0
 }
 
@@ -309,6 +287,7 @@ usage_parameters
 
 _main_standard_script_modules "$@"
 
+#? ############################################################################
 #? #### basic_text_colors.sh contents #########################################
 # TODO automate creation of TOC
 # FUNCTIONS         PARAMETERS and OPTIONS
