@@ -88,6 +88,8 @@ _run_tests() {
     _bt_color_sample_test
     return 0
 }
+#? ############################################################################
+
 parse_options() {
     # parse basic options [test|usage|version|help] & DEBUG
     # TODO the 'exits' and lack of shifts make this function
@@ -133,8 +135,8 @@ usage_long_desc
 usage_parameters="$(
     cat <<usage_parameters
     help      - display complete usage information (this!)
-    test      - display ANSI color tests
-    usage     - short usage instructions
+    test      - perform script tests
+    usage     - display short usage instructions
     version   - display version information
 usage_parameters
 )"
@@ -175,7 +177,6 @@ MAN_PAGE
     )"
 }
 #? ############################################################################
-# [[ -z "$WARN" ]] &&
 _main_loop "$@"
 
 #? #### basic_text_colors.sh contents #########################################

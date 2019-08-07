@@ -21,6 +21,7 @@ function load_themes() {
         __GIT_PROMPT_DIR="/usr/local/opt/bash-git-prompt/share"
         source "/usr/local/opt/bash-git-prompt/share/gitprompt.sh"
     fi
+
     source "${HOME}/.dotfiles/basic_text_colors.sh" # basic_text_colors.sh
 
     # ANSI color
@@ -30,7 +31,7 @@ function load_themes() {
     # iterm2 bash shell integration
     source_file "${HOME}/.iterm2_shell_integration.bash"
 
-    #   https://www.gnu.org/software/coreutils/manual/html_node/dircolors-invocation.html#dircolors-invocation
+    # https://www.gnu.org/software/coreutils/manual/html_node/dircolors-invocation.html#dircolors-invocation
     # /usr/local/opt/coreutils/libexec/gnubin/dircolors -b &>/dev/null
     # GIT colors
     WS="$(git config --get-color color.diff.whitespace "blue reverse")"
@@ -49,7 +50,9 @@ function load_themes() {
     #     echo -e "${WARN}basic_text_colors is not available."
     #     echo -e "Check path: $colors_file${RESET}"
     #     echo -e "Several basic colors have been implemented:"
-    #     echo -e "${MAIN}MAIN   ${WARN}WARN   ${COOL}COOL   ${GO}GO   ${CHERRY}CHERRY   ${CANARY}CANARY   ${ATTN}ATTN   ${PURPLE}PURPLE   ${RESET}RESET"
+    #     echo -e "${MAIN}MAIN   ${WARN}WARN   ${COOL}COOL   ${GO}GO
+    #              ${CHERRY}CHERRY   ${CANARY}CANARY   ${ATTN}ATTN
+    #              ${PURPLE}PURPLE   ${RESET}RESET"
     # fi
 }
 function load_resources() {
@@ -78,3 +81,34 @@ main "$@"
 #* #############################################################################
 #* ### End of standard .bash_profile
 #* #############################################################################
+if which pyenv-virtualenv-init >/dev/null; then
+    eval "$(pyenv virtualenv-init -)"
+fi
+export PATH="/usr/local/opt/sqlite/bin:$PATH"
+export PATH="/usr/local/opt/perl@5.18/bin:$PATH"
+export PATH="/usr/local/opt/llvm/bin:$PATH"
+export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
+
+LDFLAGS="-L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib"
+
+# openssl is keg-only, which means it was not symlinked into /usr/local,
+# because Apple has deprecated use of OpenSSL in favor of its own TLS and
+# crypto libraries.
+export PATH="/usr/local/opt/openssl/bin:$PATH"
+
+#
+# A CA file has been bootstrapped using certificates from the SystemRoots
+# keychain. To add additional certificates (e.g. the certificates added in
+# the System keychain), place .pem files in
+#   /usr/local/etc/openssl/certs
+#
+# and run
+#   /usr/local/opt/openssl/bin/c_rehash
+export PATH="/usr/local/opt/ruby/bin:$PATH"
+export PATH="/usr/local/opt/apr-util/bin:$PATH"
+export PATH="/usr/local/opt/apr/bin:$PATH"
+export PATH="/usr/local/opt/apr-util/bin:$PATH"
+export PATH="/usr/local/opt/openldap/bin:$PATH"
+export PATH="/usr/local/opt/openldap/sbin:$PATH"
+export PATH="/usr/local/opt/curl-openssl/bin:$PATH"
+export PATH="/usr/local/opt/libpq/bin:$PATH"

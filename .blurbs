@@ -1,4 +1,7 @@
-#!/usr/bin/env bash
+#!/usr/bin/env false bash
+# -*- coding: utf-8 -*-
+# cannot be run directly
+#? ############################# skeptycal.com ################################
 
 exit 0
 

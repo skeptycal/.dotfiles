@@ -4,7 +4,7 @@
 #? ############################# skeptycal.com ################################
 NAME="${BASH_SOURCE##*/}"
 VERSION='0.2.0'
-DESC='personalized Bash config (Bash 5.0 on macOS)'
+DESC='personalized Bash config ((Bash 5.0 on macOS with GNU coreutils)'
 USAGE="source ${NAME} [help|test|usage|version]"
 AUTHOR="Michael Treanor  <skeptycal@gmail.com>"
 COPYRIGHT="Copyright (c) 2019 Michael Treanor"
@@ -15,6 +15,13 @@ GITHUB="https://www.github.com/skeptycal"
 
 # Paths
 _set_config_paths() {
+    export script_name="${BASH_SOURCE##*/}"
+    export script_path="${BASH_SOURCE%/*}"
+    export src_path="${script_path}/src"
+    export bak_path="${script_path}/bak"
+    export bin_path="${HOME}/bin/utilities/pc_bak"
+    export dotfiles_path="${HOME}/.dotfiles"
+    export here="$PWD"
 
     db_echo() {
         # report data and errors in scripting
@@ -49,20 +56,12 @@ _set_config_paths() {
             db_echo "Script source: ($BASH_SOURCE)"
         fi
     }
-    script_path="${BASH_SOURCE%/*}"
-    script_name="${BASH_SOURCE##*/}"
-    src_path="${script_path}/src"
-    bak_path="${script_path}/bak"
-    bin_path="${HOME}/bin/utilities/pc_bak"
-    dotfiles_path="${HOME}/.dotfiles"
-    here="$PWD"
 }
 
 _run_debug_config() {
-    # list current versions of common utilities
     ce "Script source:$MAIN $BASH_SOURCE$RESET"
     green "\$dotfiles_path is set to $dotfiles_path."
-    green "\$here is set to and exported as $here."
+    green "\$here is set to as $here."
 }
 main_config() {
     # [[ -z "$WARN" ]] &&
