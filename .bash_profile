@@ -3,12 +3,12 @@
 #* #############################################################################
 #* ### Universal BASH debug flag
 #* #############################################################################
-source "${HOME}/.dotfiles/.config_macos"
+source "$(which ssm)"
 # set -am
 umask 022
 
-export DEBUG='0' # set to 1 for verbose messages and debugging logs
-# log errors to text file; only functional if $DEBUG='1'
+export SET_DEBUG='0' # set to 1 for verbose messages and debugging logs
+# log errors to text file; only functional if $SET_DEBUG='1'
 export DEBUG_LOG='1'
 # log file for debug logs
 export debug_log_file="${HOME}/.bash_profile_error.log"
@@ -17,12 +17,10 @@ export debug_log_max_size=32768
 
 function load_themes() {
     # Brew install bash-git-prompt
-    if [ -f "/usr/local/opt/bash-git-prompt/share/gitprompt.sh" ]; then
-        __GIT_PROMPT_DIR="/usr/local/opt/bash-git-prompt/share"
-        source "/usr/local/opt/bash-git-prompt/share/gitprompt.sh"
-    fi
-
-    source "${HOME}/.dotfiles/basic_text_colors.sh" # basic_text_colors.sh
+    # if [ -f "/usr/local/opt/bash-git-prompt/share/gitprompt.sh" ]; then
+    #     __GIT_PROMPT_DIR="/usr/local/opt/bash-git-prompt/share"
+    #     source "${__GIT_PROMPT_DIR}/gitprompt.sh"
+    # fi
 
     # ANSI color
     export CLICOLOR=1
@@ -56,14 +54,15 @@ function load_themes() {
     # fi
 }
 function load_resources() {
+    _debug_function_header
     for file in ~/.dotfiles/.{path,exports,aliases,functions,extra,git_alias}; do
-        source_file "$file" # &>/dev/null # used to test for errors
+        source "$file" # &>/dev/null # used to test for errors
     done
     unset file
 }
 
 function _profile_run_debug() {
-    db_echo "${WARN}BASH Debug Mode Enabled (DEBUG=1)${RESET}"
+    db_echo "${WARN}BASH Debug Mode Enabled (SET_DEBUG=${SET_DEBUG})${RESET}"
     db_echo "Script source:${MAIN} ${BASH_SOURCE}${RESET}"
     db_echo "Logging to $debug_log_file"
     db_echo "${GO}Use <versions> to see common program versions.${RESET}"
@@ -73,7 +72,7 @@ function main() {
     clear
     load_themes
     load_resources
-    [[ $DEBUG == '1' ]] && _profile_run_debug
+    [[ $SET_DEBUG == '1' ]] && _profile_run_debug
 }
 
 main "$@"
@@ -81,34 +80,3 @@ main "$@"
 #* #############################################################################
 #* ### End of standard .bash_profile
 #* #############################################################################
-if which pyenv-virtualenv-init >/dev/null; then
-    eval "$(pyenv virtualenv-init -)"
-fi
-export PATH="/usr/local/opt/sqlite/bin:$PATH"
-export PATH="/usr/local/opt/perl@5.18/bin:$PATH"
-export PATH="/usr/local/opt/llvm/bin:$PATH"
-export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
-
-LDFLAGS="-L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib"
-
-# openssl is keg-only, which means it was not symlinked into /usr/local,
-# because Apple has deprecated use of OpenSSL in favor of its own TLS and
-# crypto libraries.
-export PATH="/usr/local/opt/openssl/bin:$PATH"
-
-#
-# A CA file has been bootstrapped using certificates from the SystemRoots
-# keychain. To add additional certificates (e.g. the certificates added in
-# the System keychain), place .pem files in
-#   /usr/local/etc/openssl/certs
-#
-# and run
-#   /usr/local/opt/openssl/bin/c_rehash
-export PATH="/usr/local/opt/ruby/bin:$PATH"
-export PATH="/usr/local/opt/apr-util/bin:$PATH"
-export PATH="/usr/local/opt/apr/bin:$PATH"
-export PATH="/usr/local/opt/apr-util/bin:$PATH"
-export PATH="/usr/local/opt/openldap/bin:$PATH"
-export PATH="/usr/local/opt/openldap/sbin:$PATH"
-export PATH="/usr/local/opt/curl-openssl/bin:$PATH"
-export PATH="/usr/local/opt/libpq/bin:$PATH"
