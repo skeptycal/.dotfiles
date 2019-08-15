@@ -11,7 +11,6 @@
 # github    - https://www.github.com/skeptycal
 ###############################################################################
 
-source_file "$(which standard_script_modules.sh)"
 # DEBUG='' # set to 1 for debug output
 version='1.1.0'
 DEBUG='0'
