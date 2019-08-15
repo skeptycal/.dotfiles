@@ -11,7 +11,8 @@ COPYRIGHT="Copyright (c) 2019 Michael Treanor"
 LICENSE="MIT <https://opensource.org/licenses/MIT>"
 GITHUB="https://www.github.com/skeptycal"
 #? ############################################################################
-# DEBUG='0' # set to 1 for verbose testing
+# SET_DEBUG='0' # set to 1 for verbose testing
+source "$(which ssm)"
 
 function _initialize_functions() {
     if [ ! "$(uname -s)" = 'Darwin' ]; then
@@ -27,556 +28,609 @@ function _initialize_functions() {
             git diff --no-index --color-words "$@"
         }
     fi
-    }
+}
 function _load_tab_completions() {
     # Brew install bash-completion bash-completion@2
-    export BASH_COMPLETION_COMPAT_DIR="/usr/local/etc/bash_completion.d"
-    source_file "/usr/local/etc/profile.d/bash_completion.sh"
+    # export BASH_COMPLETION_COMPAT_DIR="/usr/local/etc/bash_completion.d"
+    # source_file "/usr/local/etc/profile.d/bash_completion.sh"
 
     # NVM: Add the following to ~/.bash_profile
-    export NVM_DIR="$HOME/.nvm"
-    [ -s "/usr/local/opt/nvm/nvm.sh" ] && . "/usr/local/opt/nvm/nvm.sh"  # This loads nvm
-    [ -s "/usr/local/opt/nvm/etc/bash_completion" ] && . "/usr/local/opt/nvm/etc/bash_completion"  # This loads nvm bash_completion
+    # export NVM_DIR="$HOME/.nvm"
+    # [ -s "/usr/local/opt/nvm/nvm.sh" ] && . "/usr/local/opt/nvm/nvm.sh"                           # This loads nvm
+    # [ -s "/usr/local/opt/nvm/etc/bash_completion" ] && . "/usr/local/opt/nvm/etc/bash_completion" # This loads nvm bash_completion
 
+    # # travis tab completion
+    # source_file "/Volumes/Data/skeptycal/.travis/travis.sh"
+    return 0
+}
 
-    # travis tab completion
-    source_file "/Volumes/Data/skeptycal/.travis/travis.sh"
-    }
-function _load_functions() {
-    function new() { echo -e ${1//:/\\n}; }
-    function fix_list() {
-        function_list=$(cat ~/.dotfiles/.functions | grep -e 'function () { ' | awk '{ printf "%s\\n",$2 }')
+function new() { echo -e ${1//:/\\n}; }
+function fix_list() {
+    # TODO work in progress
+    return 0
+    # https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html#Command-Substitution
+    # function_list=$(<~/.dotfiles/.functions | grep -e 'function () { ' | awk '{ printf "%s\\n",$2 }')
 
-        me "\nAvailable BASH functions (function_list):\n"
-        oe $function_list
-        # cat ~/.dotfiles/.functions | grep -e " function " | awk '{ print $2 }'
-        # echo $function_list >function_list.txt
-        }
-    function travis_trigger() {
-        # Travis CI CLI API
-        # Travis CI Client (CLI and Ruby library)
-        # https://github.com/travis-ci/travis.rb#mac-os-x-via-homebrew
+    # me "\nAvailable BASH functions (function_list):\n"
+    # oe $function_list
 
-        # macOS:
-        # brew install ruby
-        # gem update --system
-        #
+    # < ~/.dotfiles/.functions | grep -e " function " | awk '{ print $2 }'
+    # echo $function_list >function_list.txt
+}
+function travis_trigger() {
+    # TODO needs more testing - strange errors
+    return 0
+    # Travis CI CLI API
+    # Travis CI Client (CLI and Ruby library)
+    # https://github.com/travis-ci/travis.rb#mac-os-x-via-homebrew
 
-        # Using the CLI
+    # macOS:
+    # brew install ruby
+    # gem update --system
+    #
 
-        # travis login --org --auto
-        # travis token
-        # You can keep this token in an environment variable TRAVIS_TOKEN, as long as the file you keep it in is not version-controlled somewhere public.
+    # Using the CLI
 
-        # I use this function to submit triggers:
+    # travis login --org --auto
+    # travis token
+    # You can keep this token in an environment variable TRAVIS_TOKEN, as long as the file you keep it in is not version-controlled somewhere public.
 
-        local org=$1 && shift
-        local repo=$1 && shift
-        local branch=${1:-master} && shift
+    # I use this function to submit triggers:
 
-        body="{
-                \"request\": {
-                \"branch\": \"${branch}\"
-                }
-            }"
+    # local org=$1 && shift
+    # local repo=$1 && shift
+    # local branch=${1:-master} && shift
 
-        curl -s -X POST \
-            -H "Content-Type: application/json" \
-            -H "Accept: application/json" \
-            -H "Travis-API-Version: 3" \
-            -H "Authorization: token $TRAVIS_TOKEN" \
-            -d "$body" \
-            "https://api.travis-ci.org/repo/${org}%2F${repo}/requests"
-        }
+    # body="{
+    #         \"request\": {
+    #         \"branch\": \"${branch}\"
+    #         }
+    #     }"
 
+    # curl -s -X POST \
+    #     -H "Content-Type: application/json" \
+    #     -H "Accept: application/json" \
+    #     -H "Travis-API-Version: 3" \
+    #     -H "Authorization: token $TRAVIS_TOKEN" \
+    #     -d "$body" \
+    #     "https://api.travis-ci.org/repo/${org}%2F${repo}/requests"
+}
+function versions() {
+    green "BASH $BASH_VERSION"
+    attn "$(hub --version)"
+    cherry "ruby        v$(ruby -v 2>/dev/null | awk '{print $2}')"
+    purple "php         v$(php -v | grep '(cli)' | awk '{print $2}')"
 
+    printf "${COOL}"
+    python -c 'import sys; sys.stdout.write("python      v" + ".".join(map(str, sys.version_info[:3]))); sys.stdout.flush()'
+    printf "$RESET\n"
 
-    function versions() {
-        green "BASH $BASH_VERSION"
-        attn "$(hub --version)"
-        cherry "ruby        v$(ruby -v 2>/dev/null | awk '{print $2}')"
-        purple "php         v$(php -v | grep '(cli)' | awk '{print $2}')"
+    canary "node        $(node -v)"
+    warn "npm         v$(npm -v)"
+    br
+    # me "Travis CI   v$(travis version)"
 
-        printf "${COOL}"
-        python -c 'import sys; sys.stdout.write("python      v" + ".".join(map(str, sys.version_info[:3]))); sys.stdout.flush()'
-        printf "$RESET\n"
+    # ye "eslint $(eslint -v)"
+    # echo "$(pipenv --version)"
+    # oe "prettier v$(prettier -v)"
+}
+function readlinkf() { perl -MCwd -e 'print Cwd::abs_path shift' "$1"; }
+function pk() { pkill -9 -u "$(id -u $1)"; } # kill another user's processes
+function check_file() {
+    local name="${1##*/}"
+    local path="${1%/*}"
+    echo "name: $name"
+    echo "path: $path"
+    local tmp_chk=''
+    [[ -e "$path" ]] && tmp_chk="${tmp_chk} exists" || tmp_chk="${tmp_chk} does-not-exist"
+    [[ -f "$path" ]] && tmp_chk="${tmp_chk} regular"
+    [[ -L "$path" ]] && tmp_chk="${tmp_chk} link"
+    [[ -d "$path" ]] && tmp_chk="${tmp_chk} directory"
+    [[ -r "$path" ]] && tmp_chk="${tmp_chk} readable"
+    [[ -s "$path" ]] && tmp_chk="${tmp_chk} size>0"
+    [[ -w "$path" ]] && tmp_chk="${tmp_chk} writable"
+    [[ -x "$path" ]] && tmp_chk="${tmp_chk} executable"
+    [[ -O "$path" ]] && tmp_chk="${tmp_chk} owned-by-me"
+    [[ -N "$path" ]] && tmp_chk="${tmp_chk} dirty"
+    [[ -k "$path" ]] && tmp_chk="${tmp_chk} sticky"
+    echo " ->$tmp_chk"
+    echo ''
+}
+dist_hook() {
+    # TODO not yet implemented
+    return 0
+    # https://stackoverflow.com/a/8969875
+    # find -regextype posix-egrep -regex ".*(\.([chyl]|def|cpy|cob|conf|cfg)|(README|ChangeLog|AUTHORS|ABOUT-NLS|NEWS|THANKS|TODO|COPYING.*))$" -exec sed -i -e 's/\r*$/\r/' {} \;
+    # OR
+    # for F in Documents/*.{py,html}; do ...something with each '$F'... ; done
+}
+prettier_here() {
+    # $1 = path (default $PWD); $2 = filenames ( default '*')
+    # OR
+    # $1 = 'git'; $2 = "$files"
+    if [[ "$1" == 'git' ]]; then
+        echo ${2:-$FILES} | xargs prettier --write | grep -e '[[:space:]]\?[[:digit:]]\+ms'
+    else
+        find -L ${1:-$PWD} -name ${2:-'*'} -type f -print0 | xargs -0 prettier --write | grep -e '[[:space:]]\?[[:digit:]]\+ms'
+    fi
+}
+function pretty() {
+    # Use prettier to format all compatible selected files
+    # Use $1 for pattern, -m (github diff) or default is '*'
 
-        canary "node        $(node -v)"
-        warn "npm         v$(npm -v)"
-        br
-        # me "Travis CI   v$(travis version)"
-
-        # ye "eslint $(eslint -v)"
-        # echo "$(pipenv --version)"
-        # oe "prettier v$(prettier -v)"
-        }
-
-    function readlinkf(){ perl -MCwd -e 'print Cwd::abs_path shift' "$1"; }
-    function pk(){ pkill -9 -u "$(id -u $1)" ; } # kill another users processes
-    function check_file() {
-        local name="${1##*/}"
-        local path="${1%/*}"
-        echo "name: $name"
-        echo "path: $path"
-        local tmp_chk=''
-        [[ -e "$path" ]] && tmp_chk="${tmp_chk} exists" || tmp_chk="${tmp_chk} does-not-exist"
-        [[ -f "$path" ]] && tmp_chk="${tmp_chk} regular"
-        [[ -L "$path" ]] && tmp_chk="${tmp_chk} link"
-        [[ -d "$path" ]] && tmp_chk="${tmp_chk} directory"
-        [[ -r "$path" ]] && tmp_chk="${tmp_chk} readable"
-        [[ -s "$path" ]] && tmp_chk="${tmp_chk} size>0"
-        [[ -w "$path" ]] && tmp_chk="${tmp_chk} writable"
-        [[ -x "$path" ]] && tmp_chk="${tmp_chk} executable"
-        [[ -O "$path" ]] && tmp_chk="${tmp_chk} owned-by-me"
-        [[ -N "$path" ]] && tmp_chk="${tmp_chk} dirty"
-        [[ -k "$path" ]] && tmp_chk="${tmp_chk} sticky"
-        echo " ->$tmp_chk"
-        echo ''
-        }
-    function pretty() {
-        # Use prettier to format all compatible selected files
-        # Use $1 for pattern, -g (github diff) or default is '*'
-        if [[ -z "$1" ]]; then
-            echo "Making all the things pretty! (use pretty -h for help)"
-            find -L "$PWD" -type f -print0 | xargs -0 prettier --write |& grep -e '[[:space:]]\?[[:digit:]]\+ms'
+    if [[ -z "$1" ]]; then
+        echo "Making all the things pretty! (use pretty -h for help)"
+        yes_no 'Prettify all files? (Y/n) '
+        if [ ! $? == 0 ]; then
+            ce "$_pretty_usage"
         else
-            case "$1" in
-                '-h'|'--help'|'help')
-                    echo -e $pretty_usage
-                    ;;
-                '-m' | '--commit-message' | 'commit')
-                    echo "Making your git staged file pretty ..."
-                    # select stated files
-                    FILES=$(git diff --cached --name-only | sed 's| |\\ |g')
-                    # Prettify all selected files
-                    echo "$FILES" | xargs prettier --write |& grep -e '[[:space:]]\?[[:digit:]]\+ms'
-                    # Add back the modified/prettified files to staging
-                    echo "$FILES" | xargs git add
-                    git commit -m "gitbot: $2"
-                    git status
-                    ;;
-                *)
-                    echo "Making $1 pretty ..."
-                    find -L "$PWD" -name "$1" -type f -print0 | xargs -0 prettier --write |& grep -e '[[:space:]]\?[[:digit:]]\+ms'
-                    ;;
-            esac
+            prettier_here
         fi
-        }
-
-    function fileop() {
-        # TODO work in progress
-        # Check 3 arguments are given #
-        if [ "$#" -lt 3 ]
-        then
-            echo "Usage : $0 option pattern filename"
-            return 1
-        fi
-
-        # Check the given file is exist #
-        if [ ! -f "$3" ]
-        then
-            echo "Filename given \"$3\" doesn't exist"
-            return 1
-        fi
-
+    else
         case "$1" in
-
-            # Count number of lines matches
-            -i) echo "Number of lines matches with the pattern $2 :"
-                fgrep -c -i $2 $3
-                ;;
-            # Count number of words matches
-            -c) echo "Number of words matches with the pattern $2 :"
-                fgrep -o -i $2 $3 | wc -l
-                ;;
-            # print all the matched lines
-            -p) echo "Lines matches with the pattern $2 :"
-                fgrep -i $2 $3
-                ;;
-            # Delete all the lines matches with the pattern
-            -d) echo "After deleting the lines matches with the pattern $2 :"
-                sed -n "/$2/!p" $3
-                ;;
-            *) echo "Invalid option"
-                ;;
+        '-h' | '--help' | 'help')
+            ce "$_pretty_usage"
+            return $EX_USAGE
+            ;;
+        '-m' | '--commit-message' | 'commit')
+            # echo "Making your git staged file pretty ..."
+            # select stated files
+            FILES=$(git diff --cached --name-only | sed 's| |\\ |g')
+            # Prettify all selected files
+            prettier_here
+            # Add back the modified/prettified files to staging
+            echo "$FILES" | xargs git add
+            git commit -m "prettybot: $2"
+            git status
+            ;;
+        *)
+            prettier_here $PWD $1
+            ;;
         esac
-        }
+    fi
+}
 
-    function clip() { echo $("$@") | pbcopy; }
-    function get_template() {
-        ## copy template file <$1> to current directory
-        ## use $2 == '-f' to force overwrite
-        local template_file="$bin_path//$1"
-        echo "$template_file"
-        if [[ -f "$template_file" ]]; then
-            if [[ -f "$1" ]]; then
-                if [[ "$2" == '-f' ]]; then
-                    cp -f "$template_file" .
-                else
-                    printf "File already exists in current directory. (use -f to force) \n\n"
-                fi
-            else
-                cp "$template_file" .
-            fi
-        else
-            printf "SOURCE file not found.\n\n"
-        fi
-        }
+function fileop() {
+    # TODO work in progress
+    return 0
+    # File counter, filter, and editor for word or line matches
+    # Check 3 arguments are given #
+    # if [ "$#" -lt 3 ]; then
+    #     echo "Usage : $0 option pattern filename"
+    #     return 1
+    # fi
 
-    function web_chmod() {
-        # Set default permissions for a folder that will be uploaded to the web.
-        # default directory is PWD
-        # most files = 644; directories = 755
-        [[ -d "$1" ]] && dir="$1" || dir=$PWD
-        find -LX "$dir" -type f -print0 | xargs -0 chmod 644
-        echo "Changing permissions of all regular files to 0644."
-        find -LX "$dir" -type d -print0 | xargs -0 chmod 755
-        echo "Changing permissions of all regular directories to 0755."
-        # ls "$dir" -ARlh
-        }
+    # # Check the given file is exist #
+    # if [ ! -f "$3" ]; then
+    #     echo "Filename given \"$3\" doesn't exist"
+    #     return 1
+    # fi
 
-    function find_broken() {
-        # Find and delete all broken symbolic links in current directiry
-        # use safety feature $1 == '-d' to actually delete them
-        # interesting method:
-        # https://stackoverflow.com/a/26887762/9878098
-        if [[ "$1" == "-d" ]]; then
-            echo "Deleting Broken Symlinks ..."
-            find -L $PWD -type l -exec rm -- {} +
-        else
-            echo "Listing Broken Symlinks (use -d to delete links)..."
+    # case "$1" in
 
-            find -L $PWD -type l -print 2>&1
-        fi
-        }
+    # # Count number of lines matches
+    # -i)
+    #     echo "Number of lines matches with the pattern $2 :"
+    #     fgrep -c -i $2 $3
+    #     ;;
+    # # Count number of words matches
+    # -c)
+    #     echo "Number of words matches with the pattern $2 :"
+    #     fgrep -o -i $2 $3 | wc -l
+    #     ;;
+    # # print all the matched lines
+    # -p)
+    #     echo "Lines matches with the pattern $2 :"
+    #     fgrep -i $2 $3
+    #     ;;
+    # # Delete all the lines matches with the pattern
+    # -d)
+    #     echo "After deleting the lines matches with the pattern $2 :"
+    #     sed -n "/$2/!p" $3
+    #     ;;
+    # *)
+    #     echo "Invalid option"
+    #     ;;
+    # esac
+}
+function clip() { $("$@") | pbcopy; }
+function get_template() {
+    # TODO work in progress
+    return 0
+    ## copy template file <$1> to current directory
+    ## use $2 == '-f' to force overwrite
+    # local template_file="${bin_path}/$1"
+    # echo "$template_file"
+    # if [[ -f "$template_file" ]]; then
+    #     if [[ -f "$1" ]]; then
+    #         if [[ "$2" == '-f' ]]; then
+    #             cp -f "$template_file" .
+    #         else
+    #             printf "File already exists in current directory. (use -f to force) \n\n"
+    #         fi
+    #     else
+    #         cp "$template_file" .
+    #     fi
+    # else
+    #     printf "SOURCE file not found.\n\n"
+    # fi
+}
+chmod_all() {
+    # chmod matching files to given mode
+    # $1 is path (default $PWD);
+    # $2 is pattern (default '*');
+    # $3 is mode (default '644' for files, '755' for directories)
+    case "$1" in
+    '-h' | '--help' | 'help')
+        echo "Usage : $0 [path($PWD)] [pattern(*)] [mode(644)]"
+        return $EX_USAGE
+        ;;
+    esac
 
-    function trw() {
-        # trim leading and trailing whitespace
-        local var="$*"
-        var="${var#"${var%%[![:space:]]*}"}"
+    # Check the given file is exist #
+    if [ ! -f "$3" ]; then
+        echo "Filename given \"$3\" doesn't exist"
+        return 1
+    fi
 
-        var="${var#"${var&&[!'/']*}"}"
-        var="${var%"${var##*[![:space:]]}"}"
-        echo -n "$var"
-        }
+    find -L ${1:-$PWD} -name ${2:-'*'} -type f -print0 | xargs -0 chmod ${3:-644}
+}
+function web_chmod() {
+    # Set default permissions for a folder that will be uploaded to the web.
+    # default directory is PWD
+    # most files = 644; directories = 755
+    [[ -d "$1" ]] && dir="$1" || dir=$PWD
+    find -LX "$dir" -type f -print0 | xargs -0 chmod 644
+    echo "Changing permissions of all regular files to 0644."
+    find -LX "$dir" -type d -print0 | xargs -0 chmod 755
+    echo "Changing permissions of all regular directories to 0755."
+    # ls "$dir" -ARlh
+}
 
-    function git_one() {
-        # TODO work in progress
-        # to keep from delaying a commit due to one file that won't pass pre-commit
-        FILES=$(gaa -n)
-        FILES=${FILES[@]/5/-1}
-        for file in $FILES; do
-            fixed_file=${file/5/-1}
-            echo "$fixed_file"
-        done
-        }
+function find_broken() {
+    # Find and delete all broken symbolic links in current directiry
+    # use safety feature $1 == '-d' to actually delete them
+    # interesting method:
+    # https://stackoverflow.com/a/26887762/9878098
+    if [[ "$1" == "-d" ]]; then
+        echo "Deleting Broken Symlinks ..."
+        find -L $PWD -type l -exec rm -- {} +
+    else
+        echo "Listing Broken Symlinks (use -d to delete links)..."
 
-    function bak() {
-        FILES="$@"
-        [[ -d "$PWD/bak" ]] || mkdir "$PWD/bak"
-        for file in $FILES; do
-            [[ -d "$file" ]] && bak "$file"
-            printf "Backup file %s " $file
-            [[ -f "$file" ]] && cp -f "$file" "bak/${file}.bak" || echo -e "${WARN}backup unsuccessful - ${MAIN}${file}${RESET}"
-            echo ''
-        done
-        }
-    function pyver() {
-        # silly function to address the lack of correct output from
-        #   python 2.7 executable in this sitation 'python --version'
-        python -c "print('.'.join(str(i).strip() for i in __import__('sys').version_info[:3]))"
-        }
+        find -L $PWD -type l -print 2>&1
+    fi
+}
 
-    function setup_tools() {
-        # TODO Work in progress
-        # https://www.createdbypete.com/ruby-on-rails-development-setup-for-macos/
-        echo "Setup for Homebrew, Node.js, Python, etc."
-        # echo ''
-        # echo "Homebrew ..."
-        # /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-        # brew update &>/dev/null && brew cleanup &>/dev/null && brew doctor &>/dev/null
-        # brew reinstall node &&	echo -e "==> Installation successful! node.js $(node -v) installed.""
-        }
+function trw() {
+    # TODO work in progress
+    return 0
+    #     # trim leading and trailing whitespace
+    #     local var="$*"
+    #     var="${var#"${var%%[![:space:]]*}"}"
 
-    function nonzero_return() {
-        RETVAL=$?
-        [ $RETVAL -ne 0 ] && echo "$RETVAL"
-        }
-    function parse_git_branch() {
-        BRANCH=$(git branch 2>/dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')
-        if [ ! "${BRANCH}" == "" ]; then
-            STAT=$(parse_git_dirty)
-            echo "[${BRANCH}${STAT}]"
-        else
-            echo ""
-        fi
-        }
+    #     var="${var#"${var&&[!'/']*}"}"
+    #     var="${var%"${var##*[![:space:]]}"}"
+    #     echo -n "$var"
+}
 
-    function parse_git_dirty() {
-        status=$(git status 2>&1 | tee)
-        dirty=$(
-            echo -n "${status}" 2>/dev/null | grep "modified:" &>/dev/null
-            echo "$?"
-        )
-        untracked=$(
-            echo -n "${status}" 2>/dev/null | grep "Untracked files" &>/dev/null
-            echo "$?"
-        )
-        ahead=$(
-            echo -n "${status}" 2>/dev/null | grep "Your branch is ahead of" &>/dev/null
-            echo "$?"
-        )
-        newfile=$(
-            echo -n "${status}" 2>/dev/null | grep "new file:" &>/dev/null
-            echo "$?"
-        )
-        renamed=$(
-            echo -n "${status}" 2>/dev/null | grep "renamed:" &>/dev/null
-            echo "$?"
-        )
-        deleted=$(
-            echo -n "${status}" 2>/dev/null | grep "deleted:" &>/dev/null
-            echo "$?"
-        )
-        bits=''
-        if [ "${renamed}" == "0" ]; then
-            bits=">${bits}"
-        fi
-        if [ "${ahead}" == "0" ]; then
-            bits="*${bits}"
-        fi
-        if [ "${newfile}" == "0" ]; then
-            bits="+${bits}"
-        fi
-        if [ "${untracked}" == "0" ]; then
-            bits="?${bits}"
-        fi
-        if [ "${deleted}" == "0" ]; then
-            bits="x${bits}"
-        fi
-        if [ "${dirty}" == "0" ]; then
-            bits="!${bits}"
-        fi
-        if [ ! "${bits}" == "" ]; then
-            echo " ${bits}"
-        else
-            echo ""
-        fi
-        }
+function git_one() {
+    # TODO work in progress
+    # to keep from delaying a commit due to one file that won't pass pre-commit
+    FILES=$(gaa -n)
+    FILES=${FILES[@]/5/-1}
+    for file in $FILES; do
+        fixed_file=${file/5/-1}
+        echo "$fixed_file"
+    done
+}
 
-    function allopen() { sudo lsof -i -P | grep "$1"; }
-    function a() { alias | grep "$1"; }
-    function lt() { ls -ltrsA "$@" | tail; }
-    function anyguard () {
-        ANYBAR_PORT=`jot -r 1 1700 1900`;
-        ANYBAR_PORT=$ANYBAR_PORT open -n /Applications/AnyBar.app;
-        sleep 0.5;
-        anybar orange $ANYBAR_PORT;
-        eval "$@"
-        ret=$?;
+function bak() {
+    FILES="$@"
+    [[ -d "$PWD/bak" ]] || mkdir "$PWD/bak"
+    for file in $FILES; do
+        [[ -d "$file" ]] && bak "$file"
+        printf "Backup file %s " $file
+        [[ -f "$file" ]] && cp -f "$file" "bak/${file}.bak" || echo -e "${WARN}backup unsuccessful - ${MAIN}${file}${RESET}"
+        echo ''
+    done
+}
+function pyver() {
+    # silly function to address the lack of correct output from
+    #   python 2.7 executable in this sitation 'python --version'
+    python -c "print('.'.join(str(i).strip() for i in __import__('sys').version_info[:3]))"
+}
 
-        if [[ ret -eq 0 ]]; then
-            anybar green $ANYBAR_PORT;
-        else
-            anybar red $ANYBAR_PORT;
-        fi
-        echo "Finished. Press [ENTER] to exit.";
-        read ENTER
-        anybar quit $ANYBAR_PORT;
-        return $ret;
-    }
-    function anybar () {
-        echo -n $1 | nc -4u -w0 localhost ${2:-1738};
-    }
-    function azure_agent() {
-        param="$AZURE_WORKING_DIR/svc.sh ${1:-"status"}"
-        temp_pwd="$PWD"
-        cd "$AZURE_WORKING_DIR" || return
-        $param
-        result="$?"
-        cd -
-        return "$result"
-        }
+function setup_tools() {
+    # TODO Work in progress
+    return 0
+    # https://www.createdbypete.com/ruby-on-rails-development-setup-for-macos/
+    echo "Setup for Homebrew, Node.js, Python, etc."
+    # echo ''
+    # echo "Homebrew ..."
+    # /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+    # brew update &>/dev/null && brew cleanup &>/dev/null && brew doctor &>/dev/null
+    # brew reinstall node &&	echo -e "==> Installation successful! node.js $(node -v) installed.""
+}
 
-    function datelog() {
-        # create a logfile with the date as part of the file_name
-        [[ -z $1 ]] && exit 1
-        command_text="$@"
-        file_name="${PWD}/datelog_$(date "+%m_%d_%y").log"
-        printf "\nOutput logged to file: %s\n${file_name}\n"
-        printf "\n===================================\n" | tee -a "$file_name"
-        printf "Log for %s\n\n" $(date "+%m/%d/%Y") | tee -a "$file_name"
-        exec "$command_text" | tee -a "$file_name"
-        $("$@") | tee -a "$file_name"
-        }
-
-    function mkd() {
-        mkdir -p "$@" && cd "$_" || return
-        }
-
-    function cdf() {
-        cd "$(osascript -e 'tell app "Finder" to POSIX path of (insertion location as alias)')" || return 1
-        }
-
-    function targz() {
-        local tmpFile="${*%/}.tar"
-        tar -cvf "${tmpFile}" --exclude=".DS_Store" "${@}" || return 1
-
-        size=$(
-            stat -f"%z" "${tmpFile}" 2>/dev/null
-            stat -c"%s" "${tmpFile}" 2>/dev/null
-        )
-
-        local cmd=""
-        if ((size < 52428800)) && hash zopfli 2>/dev/null; then
-            cmd="zopfli"
-        else
-            if hash pigz 2>/dev/null; then
-                cmd="pigz"
-            else
-                cmd="gzip"
-            fi
-        fi
-
-        echo "Compressing .tar ($((size / 1000)) kB) using \`${cmd}\`…"
-        "${cmd}" -v "${tmpFile}" || return 1
-        [ -f "${tmpFile}" ] && rm "${tmpFile}"
-
-        zippedSize=$(
-            stat -f"%z" "${tmpFile}.gz" 2>/dev/null
-            stat -c"%s" "${tmpFile}.gz" 2>/dev/null
-        )
-
-        echo "${tmpFile}.gz ($((zippedSize / 1000)) kB) created successfully."
-        }
-
-    function fs() {
-        if du -b /dev/null >/dev/null 2>&1; then
-            local arg=-sbh
-        else
-            local arg=-sh
-        fi
-        if [[ -n "$*" ]]; then
-            du $arg -- "$*"
-        else
-            du $arg .[^.]* ./*
-        fi
-        }
-
-
-    function dataurl() {
-        local mimeType
-        mimeType=$(file -b --mime-type "$1")
-        if [[ $mimeType == text/* ]]; then
-            mimeType="${mimeType};charset=utf-8"
-        fi
-        echo "data:${mimeType};base64,$(openssl base64 -in "$1" | tr -d '\n')"
-        }
-
-    function server() {
-        local port="${1:-8000}"
-        sleep 1 && open "http://localhost:${port}/" &
-        python2 -c 'import SimpleHTTPServer;\nmap = SimpleHTTPServer.SimpleHTTPRequestHandler.extensions_map;\nmap[""] = "text/plain";\nfor key, value in map.items():\n\tmap[key] = value + ";charset=UTF-8";\nSimpleHTTPServer.test();' "$port"
-        }
-
-    function phpserver() {
-        local port
-        port="${1:-4000}"
-        local ip
-        ip=$(ipconfig getifaddr en0)
-        sleep 1 && open "http://${ip}:${port}/" &
-        php -S -c "$PWD" "${ip}:${port}" -
-        }
-
-    function gz() {
-        local origsize
-        origsize=$(wc -c <"$1")
-        local gzipsize
-        gzipsize=$(gzip -c "$1" | wc -c)
-        local ratio
-        ratio=$(echo "$gzipsize * 100 / $origsize" | bc -l)
-        printf "orig: %d bytes\n" "$origsize"
-        printf "gzip: %d bytes (%2.2f%%)\n" "$gzipsize" "$ratio"
-        }
-
-    function digga() {
-        dig +nocmd "$1" any +multiline +noall +answer
-        }
-
-    function getcertnames() {
-        if [ -z "${1}" ]; then
-            echo "ERROR: No domain specified."
-            return 1
-        fi
-
-        local domain="${1}"
-        echo "Testing ${domain}…"
+function nonzero_return() {
+    RETVAL=$?
+    [ $RETVAL -ne 0 ] && echo "$RETVAL"
+}
+function parse_git_branch() {
+    BRANCH=$(git branch 2>/dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')
+    if [ ! "${BRANCH}" == "" ]; then
+        STAT=$(parse_git_dirty)
+        echo "[${BRANCH}${STAT}]"
+    else
         echo ""
+    fi
+}
 
-        local tmp
-        local certText
-        tmp=$(echo -e "GET / HTTP/1.0\nEOT" |
-            openssl s_client -connect "${domain}:443" -servername "${domain}" 2>&1)
-        if [[ "${tmp}" == *"-----BEGIN CERTIFICATE-----"* ]]; then
-            certText=$(echo "${tmp}" |
-                openssl x509 -text -certopt "no_aux, no_header, no_issuer, no_pubkey, \
+function parse_git_dirty() {
+    status=$(git status 2>&1 | tee)
+    dirty=$(
+        echo -n "${status}" 2>/dev/null | grep "modified:" &>/dev/null
+        echo "$?"
+    )
+    untracked=$(
+        echo -n "${status}" 2>/dev/null | grep "Untracked files" &>/dev/null
+        echo "$?"
+    )
+    ahead=$(
+        echo -n "${status}" 2>/dev/null | grep "Your branch is ahead of" &>/dev/null
+        echo "$?"
+    )
+    newfile=$(
+        echo -n "${status}" 2>/dev/null | grep "new file:" &>/dev/null
+        echo "$?"
+    )
+    renamed=$(
+        echo -n "${status}" 2>/dev/null | grep "renamed:" &>/dev/null
+        echo "$?"
+    )
+    deleted=$(
+        echo -n "${status}" 2>/dev/null | grep "deleted:" &>/dev/null
+        echo "$?"
+    )
+    bits=''
+    if [ "${renamed}" == "0" ]; then
+        bits=">${bits}"
+    fi
+    if [ "${ahead}" == "0" ]; then
+        bits="*${bits}"
+    fi
+    if [ "${newfile}" == "0" ]; then
+        bits="+${bits}"
+    fi
+    if [ "${untracked}" == "0" ]; then
+        bits="?${bits}"
+    fi
+    if [ "${deleted}" == "0" ]; then
+        bits="x${bits}"
+    fi
+    if [ "${dirty}" == "0" ]; then
+        bits="!${bits}"
+    fi
+    if [ ! "${bits}" == "" ]; then
+        echo " ${bits}"
+    else
+        echo ""
+    fi
+}
+
+function allopen() { sudo lsof -i -P | grep "$1"; }
+function a() { alias | grep "$1"; }
+function lt() { ls -ltrsA "$@" | tail; }
+function anyguard() {
+    ANYBAR_PORT=$(jot -r 1 1700 1900)
+    ANYBAR_PORT=$ANYBAR_PORT open -n /Applications/AnyBar.app
+    sleep 0.5
+    anybar orange $ANYBAR_PORT
+    eval "$@"
+    ret=$?
+
+    if [[ ret -eq 0 ]]; then
+        anybar green $ANYBAR_PORT
+    else
+        anybar red $ANYBAR_PORT
+    fi
+    echo "Finished. Press [ENTER] to exit."
+    read ENTER
+    anybar quit $ANYBAR_PORT
+    return $ret
+}
+function anybar() {
+    echo -n $1 | nc -4u -w0 localhost ${2:-1738}
+}
+function azure_agent() {
+    # svc.sh only seems to work when run from its own directory ...
+    # added default parameter 'status'
+    local temp_pwd="$PWD"
+    cd "$AZURE_WORKING_DIR" || return
+    ${AZURE_WORKING_DIR}/svc.sh ${1:-'status'}
+    result="$?"
+    cd "$temp_pwd"
+    unset temp_pwd
+    return $result
+}
+
+function datelog() {
+    # create a logfile with the date as part of the file_name
+    [[ -z $1 ]] && exit 1
+    command_text="$@"
+    file_name="${PWD}/datelog_$(date "+%m_%d_%y").log"
+    printf "\nOutput logged to file: %s\n${file_name}\n"
+    printf "\n===================================\n" | tee -a "$file_name"
+    printf "Log for %s\n\n" $(date "+%m/%d/%Y") | tee -a "$file_name"
+    exec "$command_text" | tee -a "$file_name"
+    $("$@") | tee -a "$file_name"
+}
+
+function mkd() {
+    mkdir -p "$@" && cd "$_" || return
+}
+
+function cdf() {
+    cd "$(osascript -e 'tell app "Finder" to POSIX path of (insertion location as alias)')" || return 1
+}
+
+function targz() {
+    local tmpFile="${*%/}.tar"
+    tar -cvf "${tmpFile}" --exclude=".DS_Store" "${@}" || return 1
+
+    size=$(
+        stat -f"%z" "${tmpFile}" 2>/dev/null
+        stat -c"%s" "${tmpFile}" 2>/dev/null
+    )
+
+    local cmd=""
+    if ((size < 52428800)) && hash zopfli 2>/dev/null; then
+        cmd="zopfli"
+    else
+        if hash pigz 2>/dev/null; then
+            cmd="pigz"
+        else
+            cmd="gzip"
+        fi
+    fi
+
+    echo "Compressing .tar ($((size / 1000)) kB) using \`${cmd}\`…"
+    "${cmd}" -v "${tmpFile}" || return 1
+    [ -f "${tmpFile}" ] && rm "${tmpFile}"
+
+    zippedSize=$(
+        stat -f"%z" "${tmpFile}.gz" 2>/dev/null
+        stat -c"%s" "${tmpFile}.gz" 2>/dev/null
+    )
+
+    echo "${tmpFile}.gz ($((zippedSize / 1000)) kB) created successfully."
+}
+
+function fs() {
+    if du -b /dev/null >/dev/null 2>&1; then
+        local arg=-sbh
+    else
+        local arg=-sh
+    fi
+    if [[ -n "$*" ]]; then
+        du $arg -- "$*"
+    else
+        du $arg .[^.]* ./*
+    fi
+}
+
+function dataurl() {
+    local mimeType
+    mimeType=$(file -b --mime-type "$1")
+    if [[ $mimeType == text/* ]]; then
+        mimeType="${mimeType};charset=utf-8"
+    fi
+    echo "data:${mimeType};base64,$(openssl base64 -in "$1" | tr -d '\n')"
+}
+
+function server() {
+    local port="${1:-8000}"
+    sleep 1 && open "http://localhost:${port}/" &
+    python2 -c 'import SimpleHTTPServer;\nmap = SimpleHTTPServer.SimpleHTTPRequestHandler.extensions_map;\nmap[""] = "text/plain";\nfor key, value in map.items():\n\tmap[key] = value + ";charset=UTF-8";\nSimpleHTTPServer.test();' "$port"
+}
+
+function phpserver() {
+    local port
+    port="${1:-4000}"
+    local ip
+    ip=$(ipconfig getifaddr en0)
+    sleep 1 && open "http://${ip}:${port}/" &
+    php -S -c "$PWD" "${ip}:${port}" -
+}
+
+function gz() {
+    local origsize
+    origsize=$(wc -c <"$1")
+    local gzipsize
+    gzipsize=$(gzip -c "$1" | wc -c)
+    local ratio
+    ratio=$(echo "$gzipsize * 100 / $origsize" | bc -l)
+    printf "orig: %d bytes\n" "$origsize"
+    printf "gzip: %d bytes (%2.2f%%)\n" "$gzipsize" "$ratio"
+}
+
+function digga() {
+    dig +nocmd "$1" any +multiline +noall +answer
+}
+
+function getcertnames() {
+    if [ -z "${1}" ]; then
+        echo "ERROR: No domain specified."
+        return 1
+    fi
+
+    local domain="${1}"
+    echo "Testing ${domain}…"
+    echo ""
+
+    local tmp
+    local certText
+    tmp=$(echo -e "GET / HTTP/1.0\nEOT" |
+        openssl s_client -connect "${domain}:443" -servername "${domain}" 2>&1)
+    if [[ "${tmp}" == *"-----BEGIN CERTIFICATE-----"* ]]; then
+        certText=$(echo "${tmp}" |
+            openssl x509 -text -certopt "no_aux, no_header, no_issuer, no_pubkey, \
                 no_serial, no_sigdump, no_signame, no_validity, no_version")
-            echo "Common Name:"
-            echo ""
-            echo "${certText}" | grep "Subject:" | sed -e "s/^.*CN=//" | sed -e "s/\/emailAddress=.*//"
-            echo ""
-            echo "Subject Alternative Name(s):"
-            echo ""
-            echo "${certText}" | grep -A 1 "Subject Alternative Name:" |
-                sed -e "2s/DNS://g" -e "s/ //g" | tr "," "\n" | tail -n +2
-            return 0
-        else
-            echo "ERROR: Certificate not found."
-            return 1
-        fi
-        }
+        echo "Common Name:"
+        echo ""
+        echo "${certText}" | grep "Subject:" | sed -e "s/^.*CN=//" | sed -e "s/\/emailAddress=.*//"
+        echo ""
+        echo "Subject Alternative Name(s):"
+        echo ""
+        echo "${certText}" | grep -A 1 "Subject Alternative Name:" |
+            sed -e "2s/DNS://g" -e "s/ //g" | tr "," "\n" | tail -n +2
+        return 0
+    else
+        echo "ERROR: Certificate not found."
+        return 1
+    fi
+}
 
+function o() {
+    if [ $# -eq 0 ]; then
+        open .
+    else
+        open "$@"
+    fi
+}
 
-    function o() {
-        if [ $# -eq 0 ]; then
-            open .
-        else
-            open "$@"
-        fi
-        }
+function tre() {
+    tree --dirsfirst -alqxAC -I '.git|node_modules|bower_components' "$@" -- | less -FRNX
+    # tree -aC -I '.git|node_modules|bower_components' --dirsfirst "$@" | less -FRNX
+}
 
-    function tre() {
-        tree --dirsfirst -alqxAC -I '.git|node_modules|bower_components' "$@" -- | less -FRNX
-        # tree -aC -I '.git|node_modules|bower_components' --dirsfirst "$@" | less -FRNX
-        }
-
-    tt () {
-        # alias treetop='tree -L 1'
-        treetop -L 1 -- "$@"
-    }
-    function tree_html() {
-        tree -ahlsAFRHD --prune --du --si --dirsfirst >tree.html
-        }
-    }
+tt() {
+    # alias treetop='tree -L 1'
+    treetop -L 1 -- "$@"
+}
+function tree_html() {
+    tree -ahlsAFRHD --prune --du --si --dirsfirst >tree.html
+}
 
 function _run_debug_functions() {
     attn "Functions test"
     ce "Script source:$MAIN $BASH_SOURCE$RESET"
-    }
+}
 
 function _main_functions() {
-    source_file "${dotfiles_path}/brew_fix.sh"
     _initialize_functions
-    # _load_tab_completions
-	_load_functions
+    _load_tab_completions
+    source_file "${dotfiles_path}/brew_fix.sh"
+
     versions
     # echo "Travis test: $TRAVIS_TOKEN"
     # travis login --github-token "$TRAVIS_TOKEN"
 
-	[[ $DEBUG == '1' ]] && _run_debug_functions
-    }
+    [[ $SET_DEBUG == '1' ]] && _run_debug_functions
+}
 
-_main_functions
+_main_functions "$@"
 
 # References:
 # 	'find types' https://www.gnu.org/software/findutils/manual/html_mono/find.html#Type
