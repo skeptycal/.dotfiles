@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 # -*- coding: utf-8 -*-
+#? ############################################################################
+echo "basic_text_colors is deprecated. All features are implemented in ssm now."
+echo "use <source ssm> instead."
+exit 78
+#? ############################################################################
+
 #? ############################# skeptycal.com ################################
 NAME="${BASH_SOURCE##*/}"
 VERSION='1.0.0'
@@ -177,7 +183,7 @@ MAN_PAGE
     )"
 }
 #? ############################################################################
-_main_loop "$@"
+# _main_loop "$@"
 
 #? #### basic_text_colors.sh contents #########################################
 # TODO automate creation of TOC
