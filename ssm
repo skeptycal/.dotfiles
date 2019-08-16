@@ -10,33 +10,37 @@ COPYRIGHT="Copyright (c) 2019 Michael Treanor"
 LICENSE="MIT <https://opensource.org/licenses/MIT>"
 GITHUB="https://www.github.com/skeptycal"
 #? ############################################################################
-declare -t SET_DEBUG='0' # set to 1 for verbose testing
+declare -xi SET_DEBUG=0 # set to 1 for verbose testing
 
-exec 6>&1 # non-volatile stdout leaves return values of &1 undesturbed
-set -aET
+exec 6>&1 # non-volatile stdout leaves return values of stdout undesturbed
+# set -aET
 # return 0
 
 # TODO
 #   - automate creation of TOC
+#   - use       declare -F
 #* ############################################################################
 # setup global functions and variables
 #   functions beginning with _ are only called 'by the script'
 #   others are reusable in any script as needed
 #* ######################## path variables
-export script_name="${BASH_SOURCE##*/}"
-export script_path="${BASH_SOURCE%/*}"
-export src_path="${script_path}/src"
-export bak_path="${script_path}/bak"
-export bin_path="${HOME}/bin/utilities/pc_bak"
-export dotfiles_path="${HOME}/.dotfiles"
-export here="$PWD"
-export _pretty_usage="Usage :\n\t${MAIN}pretty${WHITE} [file(s) ...] \t\t- use list of files (default is all files in current directory)\n\t${MAIN}pretty${WHITE} [-m [commit message]] \t- use git staged files and commit with message
+declare -x script_name="${BASH_SOURCE##*/}"
+declare -x script_path="${BASH_SOURCE%/*}"
+declare -x src_path="${script_path}/src"
+declare -x bak_path="${script_path}/bak"
+declare -x bin_path="${HOME}/bin/utilities/pc_bak"
+declare -x dotfiles_path="${HOME}/.dotfiles"
+declare -x here="$PWD"
+
+#* ######################## constants
+
+declare -xr _pretty_usage="Usage :\n\t${MAIN}pretty${WHITE} [file(s) ...] \t\t- use list of files (default is all files in current directory)\n\t${MAIN}pretty${WHITE} [-m [commit message]] \t- use git staged files and commit with message
     \n\t${MAIN}pretty${WHITE} [-h|--help|help] \t- usage help (this!)"
 
-export _debug_function_header_text='_header_test_log "Calling: ${CANARY:-}${FUNCNAME[0]} ${MAIN:-}$*${RESET:-}"'
+declare -xr _debug_function_header_text='_header_test_log "Calling: ${CANARY:-}${FUNCNAME[0]} ${MAIN:-}$*${RESET_FG:-}"'
 
 function _header_test_log() {
-    [[ -z $DEBUG_LOG ]] && return 64
+    (($DEBUG_LOG == 1)) || return 64
     printf "%b " "$@" >&2
     printf "%b" "\n"
 }
@@ -56,96 +60,96 @@ function l() {
 #       from /usr/include/sysexits.h
 #       Copyright (c) 1987, 1993
 #       The Regents of the University of California.  All rights reserved.
-export EX_OK=0          # successful termination
-export EX__BASE=64      # base value for error messages
-export EX_USAGE=64      # command line usage error
-export EX_DATAERR=65    # data format error
-export EX_NOINPUT=66    # cannot open input
-export EX_NOUSER=67     # addressee unknown
-export EX_NOHOST=68     # host name unknown
-export EX_UNAVAILABL=69 # service unavailable
-export EX_SOFTWARE=70   # internal software error
-export EX_OSERR=71      # system error (e.g., can't fork)
-export EX_OSFILE=72     # critical OS file missing
-export EX_CANTCREAT=73  # can't create (user) output file
-export EX_IOERR=74      # input/output error
-export EX_TEMPFAIL=75   # temp failure; user is invited to retry
-export EX_PROTOCOL=76   # remote error in protocol
-export EX_NOPERM=77     # permission denied
-export EX_CONFIG=78     # configuration error
-export EX__MAX=78       # maximum listed value
+declare -xir EX_OK=0          # successful termination
+declare -xir EX__BASE=64      # base value for error messages
+declare -xir EX_USAGE=64      # command line usage error
+declare -xir EX_DATAERR=65    # data format error
+declare -xir EX_NOINPUT=66    # cannot open input
+declare -xir EX_NOUSER=67     # addressee unknown
+declare -xir EX_NOHOST=68     # host name unknown
+declare -xir EX_UNAVAILABL=69 # service unavailable
+declare -xir EX_SOFTWARE=70   # internal software error
+declare -xir EX_OSERR=71      # system error (e.g., can't fork)
+declare -xir EX_OSFILE=72     # critical OS file missing
+declare -xir EX_CANTCREAT=73  # can't create (user) output file
+declare -xir EX_IOERR=74      # input/output error
+declare -xir EX_TEMPFAIL=75   # temp failure; user is invited to retry
+declare -xir EX_PROTOCOL=76   # remote error in protocol
+declare -xir EX_NOPERM=77     # permission denied
+declare -xir EX_CONFIG=78     # configuration error
+declare -xir EX__MAX=78       # maximum listed value
 
 #* ######################## BASH trap signals
 # http://tldp.org/LDP/Bash-Beginners-Guide/html/sect_12_02.html
 # https://www.learnshell.org/en/Bash_trap_command
-export TRAP_SIGHUP=1
-export TRAP_SIGINT=2
-export TRAP_SIGQUIT=3
-export TRAP_SIGILL=4
-export TRAP_SIGTRAP=5
-export TRAP_SIGABRT=6
-export TRAP_SIGEMT=7
-export TRAP_SIGFPE=8
-export TRAP_SIGKILL=9
-export TRAP_SIGBUS=10
-export TRAP_SIGSEGV=11
-export TRAP_SIGSYS=12
-export TRAP_SIGPIPE=13
-export TRAP_SIGALRM=14
-export TRAP_SIGTERM=15
-export TRAP_SIGURG=16
-export TRAP_SIGSTOP=17
-export TRAP_SIGTSTP=18
-export TRAP_SIGCONT=19
-export TRAP_SIGCHLD=20
-export TRAP_SIGTTIN=21
-export TRAP_SIGTTOU=22
-export TRAP_SIGIO=23
-export TRAP_SIGXCPU=24
-export TRAP_SIGXFSZ=25
-export TRAP_SIGVTALRM=26
-export TRAP_SIGPROF=27
-export TRAP_SIGWINCH=28
-export TRAP_SIGINFO=29
-export TRAP_SIGUSR1=30
-export TRAP_SIGUSR2=31
+declare -xir TRAP_SIGHUP=1
+declare -xir TRAP_SIGINT=2
+declare -xir TRAP_SIGQUIT=3
+declare -xir TRAP_SIGILL=4
+declare -xir TRAP_SIGTRAP=5
+declare -xir TRAP_SIGABRT=6
+declare -xir TRAP_SIGEMT=7
+declare -xir TRAP_SIGFPE=8
+declare -xir TRAP_SIGKILL=9
+declare -xir TRAP_SIGBUS=10
+declare -xir TRAP_SIGSEGV=11
+declare -xir TRAP_SIGSYS=12
+declare -xir TRAP_SIGPIPE=13
+declare -xir TRAP_SIGALRM=14
+declare -xir TRAP_SIGTERM=15
+declare -xir TRAP_SIGURG=16
+declare -xir TRAP_SIGSTOP=17
+declare -xir TRAP_SIGTSTP=18
+declare -xir TRAP_SIGCONT=19
+declare -xir TRAP_SIGCHLD=20
+declare -xir TRAP_SIGTTIN=21
+declare -xir TRAP_SIGTTOU=22
+declare -xir TRAP_SIGIO=23
+declare -xir TRAP_SIGXCPU=24
+declare -xir TRAP_SIGXFSZ=25
+declare -xir TRAP_SIGVTALRM=26
+declare -xir TRAP_SIGPROF=27
+declare -xir TRAP_SIGWINCH=28
+declare -xir TRAP_SIGINFO=29
+declare -xir TRAP_SIGUSR1=30
+declare -xir TRAP_SIGUSR2=31
 
 #* ######################## ANSI constants for common colors
-MAIN=$(echo -en '\001\033[38;5;229m') && export MAIN
-WARN=$(echo -en '\001\033[38;5;203m') && export WARN
-COOL=$(echo -en '\001\033[38;5;38m') && export COOL
-BLUE=$(echo -en '\001\033[38;5;38m') && export BLUE
-GO=$(echo -en '\001\033[38;5;28m') && export GO
-CHERRY=$(echo -en '\001\033[38;5;124m') && export CHERRY
-CANARY=$(echo -en '\001\033[38;5;226m') && export CANARY
-ATTN=$(echo -en '\001\033[38;5;178m') && export ATTN
-PURPLE=$(echo -en '\001\033[38;5;93m') && export PURPLE
-RAIN=$(echo -en '\001\033[38;5;93m') && export RAIN
-WHITE=$(echo -en '\001\033[37m') && export WHITE
-RESTORE=$(echo -en '\001\033[0m\002') && export RESTORE
-RESET=$(echo -en '\001\033[0m') && export RESET
+declare -xr MAIN=$(echo -en '\001\033[38;5;229m')
+declare -xr WARN=$(echo -en '\001\033[38;5;203m')
+declare -xr COOL=$(echo -en '\001\033[38;5;38m')
+declare -xr BLUE=$(echo -en '\001\033[38;5;38m')
+declare -xr GO=$(echo -en '\001\033[38;5;28m')
+declare -xr CHERRY=$(echo -en '\001\033[38;5;124m')
+declare -xr CANARY=$(echo -en '\001\033[38;5;226m')
+declare -xr ATTN=$(echo -en '\001\033[38;5;178m')
+declare -xr PURPLE=$(echo -en '\001\033[38;5;93m')
+declare -xr RAIN=$(echo -en '\001\033[38;5;93m')
+declare -xr WHITE=$(echo -en '\001\033[37m')
+declare -xr RESTORE=$(echo -en '\001\033[0m\002')
+declare -xr RESET_FG=$(echo -en '\001\033[0m')
 
 #* ######################## functions for printing lines in common colors
-br() { printf "\n"; } # yes, this is a fake cli version of <br />
+function br() { printf "\n"; } # yes, this is a fake cli version of <br />
 ce() {
     # if [ "$#" -gt 0 ]; then
     #     printf '%b' "$1"
     #     shift
     # fi
     printf '%b ' "$*"
-    printf "$RESET"
+    printf "$RESET_FG"
 }
-me() { printf "%b\n" "${MAIN:-}${@}${RESET:-}"; }
-warn() { printf "%b\n" "${WARN:-:-}${@}${RESET:-}"; }
-blue() { printf "%b\n" "${COOL:-}${@}${RESET:-}"; }
-green() { printf "%b\n" "${GO:-}${@}${RESET:-}"; }
-cherry() { printf "%b\n" "${CHERRY:-}${@}${RESET:-}"; }
-canary() { printf "%b\n" "${CANARY:-}${@}${RESET:-}"; }
-attn() { printf "%b\n" "${ATTN:-}${@}${RESET:-}"; }
-purple() { printf "%b\n" "${PURPLE:-}${@}${RESET:-}"; }
-rain() { printf "%b\n" "${RAIN:-}${@}${RESET:-}"; }
-white() { printf "%b\n" "${WHITE:-}${@}${RESET:-}"; }
-# go() { printf "%b\n" "${FUNCNAME[0]^^:-}${@}${RESET:-}"; }
+me() { printf "%b\n" "${MAIN:-}${@}${RESET_FG:-}"; }
+warn() { printf "%b\n" "${WARN:-:-}${@}${RESET_FG:-}"; }
+blue() { printf "%b\n" "${COOL:-}${@}${RESET_FG:-}"; }
+green() { printf "%b\n" "${GO:-}${@}${RESET_FG:-}"; }
+cherry() { printf "%b\n" "${CHERRY:-}${@}${RESET_FG:-}"; }
+canary() { printf "%b\n" "${CANARY:-}${@}${RESET_FG:-}"; }
+attn() { printf "%b\n" "${ATTN:-}${@}${RESET_FG:-}"; }
+purple() { printf "%b\n" "${PURPLE:-}${@}${RESET_FG:-}"; }
+rain() { printf "%b\n" "${RAIN:-}${@}${RESET_FG:-}"; }
+white() { printf "%b\n" "${WHITE:-}${@}${RESET_FG:-}"; }
+# go() { printf "%b\n" "${FUNCNAME[0]^^:-}${@}${RESET_FG:-}"; }
 
 #* ######################## program usage setup
 usage_long_desc="$(
@@ -203,8 +207,31 @@ MAN_PAGE
     )"
 }
 #* ######################## program configuration
+get_linux_platform_name() {
+    eval $_debug_function_header_text
+
+    if [ -n "$runtime_id" ]; then
+        echo "${runtime_id%-*}"
+        return 0
+    else
+        if [ -e /etc/os-release ]; then
+            . /etc/os-release
+            echo "$ID.$VERSION_ID"
+            return 0
+        elif [ -e /etc/redhat-release ]; then
+            local redhatRelease=$(</etc/redhat-release)
+            if [[ $redhatRelease == "CentOS release 6."* || $redhatRelease == "Red Hat Enterprise Linux Server release 6."* ]]; then
+                echo "rhel.6"
+                return 0
+            fi
+        fi
+    fi
+
+    say_verbose "Linux specific platform name and version could not be detected: UName = $uname"
+    return 1
+}
 get_current_os_name() {
-    eval $debug_status_test
+    eval $_debug_function_header_text
 
     local uname=$(uname)
     if [ "$uname" = "Darwin" ]; then
@@ -333,11 +360,10 @@ test_echo() {
     if [[ $SET_DEBUG == '1' ]] && [[ -n "$1" ]]; then
         printf "%bFunction Test -> %bPID %s %b" "$MAIN" "$CANARY" "$$" "$GO"
         printf '%(%Y-%m-%d)T' -1
-        printf "%b test name: %s\n%b" "$ATTN" "$1" "$RESET"
+        printf "%b test name: %s\n%b" "$ATTN" "$1" "$RESET_FG"
         shift
-        local
         eval "$@"
-        printf "%bResult = %s%b\n" "$COOL" "$?" "${RESET}"
+        printf "%bResult = %s%b\n" "$COOL" "$?" "${RESET_FG}"
     fi
 }
 test_var() {
@@ -353,10 +379,9 @@ test_var() {
         echo "\$testvar: $testvar"
         echo "testvar: " ${!testvar}
         echo ''
-        echo ''
         printf "%bVariable Test -> %bPID %s %b" "$MAIN" "$CANARY" "$$" "$GO"
         printf '%(%Y-%m-%d)T' -1
-        printf "%b %15s -%b %s %b\n" "$ATTN" "\$$testvar" "$WARN" "$testvar" "$RESET"
+        printf "%b %15s -%b %s %b\n" "$ATTN" "\$$testvar" "$WARN" "$testvar" "$RESET_FG"
     fi
 }
 log_flag() {
@@ -383,6 +408,7 @@ parse_filename() {
 
     # set filename
     [[ -n "$1" ]] && filename="$1"
+
     # if no filename, error & exit
     [[ -z "$filename" ]] && exit_usage "\$filename not available or specified ..." "${MAIN}parse_filename ${WHITE}[filename]"
     test_var "$filename"
@@ -485,7 +511,7 @@ parse_options() {
         # exit 0
         ;;
     -v | --version | version)
-        ce "${MAIN}${NAME}${WHITE} (version ${VERSION})${RESET}"
+        ce "${MAIN}${NAME}${WHITE} (version ${VERSION})${RESET_FG}"
         return
         # exit 0
         ;;
@@ -516,7 +542,7 @@ _trap_error() {
 }
 _trap_debug() {
     return 0
-    # ce "Script source:$MAIN $BASH_SOURCE$RESET $@ \n"
+    # ce "Script source:$MAIN $BASH_SOURCE$RESET_FG $@ \n"
     # attn "echo VARIABLE ($VARIABLE) is being used here."
 }
 #* ######################## script tests
@@ -526,8 +552,8 @@ _run_tests() {
         green "\$here is set to as $here."
     }
     _bt_color_sample_test() {
-        echo -e "${MAIN}C ${WARN}O ${COOL}L ${GO}O ${CHERRY}R   ${CANARY}T ${ATTN}E ${PURPLE}S ${RESET}T"
-        echo -e "${MAIN}MAIN   ${WARN}WARN   ${COOL}COOL   ${GO}GO   ${CHERRY}CHERRY   ${CANARY}CANARY   ${ATTN}ATTN   ${RAIN}RAIN   ${RESET}RESET"
+        echo -e "${MAIN}C ${WARN}O ${COOL}L ${GO}O ${CHERRY}R   ${CANARY}T ${ATTN}E ${PURPLE}S ${RESET_FG}T"
+        echo -e "${MAIN}MAIN   ${WARN}WARN   ${COOL}COOL   ${GO}GO   ${CHERRY}CHERRY   ${CANARY}CANARY   ${ATTN}ATTN   ${RAIN}RAIN   ${RESET_FG}RESET_FG"
     }
     _test_standard_script_modules() {
         _EXIT_USAGE_TEXT="${MAIN}${script_name}${WHITE} - macOS script"
@@ -538,7 +564,7 @@ _run_tests() {
         # log everything to LOG_FILE_NAME
         log_toggle
 
-        ce "${COOL}BASH_SOURCE:$MAIN $BASH_SOURCE$RESET"
+        ce "${COOL}BASH_SOURCE:$MAIN $BASH_SOURCE$RESET_FG"
         log_flag
 
         test_var "$script_name"
@@ -570,7 +596,7 @@ _run_tests() {
         unset _EXIT_USAGE_TEXT
         unset LOG
     }
-    ce "Script source:$MAIN $BASH_SOURCE$RESET"
+    ce "Script source:$MAIN $BASH_SOURCE$RESET_FG"
     _run_debug_config
     _bt_color_sample_test
     _test_standard_script_modules
@@ -578,9 +604,9 @@ _run_tests() {
 }
 #* ######################## main loop
 _main_standard_script_modules() {
-    [[ "$SET_DEBUG" == '1' ]] && _set_traps
+    (($DEBUG_LOG == 1)) && _set_traps
     parse_options "$@"
-    [[ "$SET_DEBUG" == '1' ]] && _run_tests
+    (($DEBUG_LOG == 1)) && _run_tests
     # declare -f
     return 0
 }

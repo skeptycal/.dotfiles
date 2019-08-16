@@ -11,8 +11,8 @@ COPYRIGHT="Copyright (c) 2019 Michael Treanor"
 LICENSE="MIT <https://opensource.org/licenses/MIT>"
 GITHUB="https://www.github.com/skeptycal"
 #? ############################################################################
-# SET_DEBUG='0' # set to 1 for verbose testing
-source "$(which ssm)"
+declare -xi SET_DEBUG=0 # set to 1 for verbose testing
+source $(which ssm)
 
 function _initialize_functions() {
     if [ ! "$(uname -s)" = 'Darwin' ]; then
@@ -32,7 +32,7 @@ function _initialize_functions() {
 function _load_tab_completions() {
     # Brew install bash-completion bash-completion@2
     # export BASH_COMPLETION_COMPAT_DIR="/usr/local/etc/bash_completion.d"
-    # source_file "/usr/local/etc/profile.d/bash_completion.sh"
+    # source "/usr/local/etc/profile.d/bash_completion.sh"
 
     # NVM: Add the following to ~/.bash_profile
     # export NVM_DIR="$HOME/.nvm"
@@ -40,7 +40,7 @@ function _load_tab_completions() {
     # [ -s "/usr/local/opt/nvm/etc/bash_completion" ] && . "/usr/local/opt/nvm/etc/bash_completion" # This loads nvm bash_completion
 
     # # travis tab completion
-    # source_file "/Volumes/Data/skeptycal/.travis/travis.sh"
+    # source "/Volumes/Data/skeptycal/.travis/travis.sh"
     return 0
 }
 
@@ -103,7 +103,7 @@ function versions() {
 
     printf "${COOL}"
     python -c 'import sys; sys.stdout.write("python      v" + ".".join(map(str, sys.version_info[:3]))); sys.stdout.flush()'
-    printf "$RESET\n"
+    printf "$RESET_FG\n"
 
     canary "node        $(node -v)"
     warn "npm         v$(npm -v)"
@@ -331,7 +331,7 @@ function bak() {
     for file in $FILES; do
         [[ -d "$file" ]] && bak "$file"
         printf "Backup file %s " $file
-        [[ -f "$file" ]] && cp -f "$file" "bak/${file}.bak" || echo -e "${WARN}backup unsuccessful - ${MAIN}${file}${RESET}"
+        [[ -f "$file" ]] && cp -f "$file" "bak/${file}.bak" || echo -e "${WARN}backup unsuccessful - ${MAIN}${file}${RESET_FG}"
         echo ''
     done
 }
@@ -601,13 +601,12 @@ function o() {
 }
 
 function tre() {
-    tree --dirsfirst -alqxAC -I '.git|node_modules|bower_components' "$@" -- | less -FRNX
-    # tree -aC -I '.git|node_modules|bower_components' --dirsfirst "$@" | less -FRNX
+    tree -axC -I '.git|node_modules|bower_components' --dirsfirst "$@" -- | less -FRNX
 }
 
 tt() {
     # alias treetop='tree -L 1'
-    treetop -L 1 -- "$@"
+    tree -L 1 -- "$@"
 }
 function tree_html() {
     tree -ahlsAFRHD --prune --du --si --dirsfirst >tree.html
@@ -615,13 +614,13 @@ function tree_html() {
 
 function _run_debug_functions() {
     attn "Functions test"
-    ce "Script source:$MAIN $BASH_SOURCE$RESET"
+    ce "Script source:$MAIN $BASH_SOURCE$RESET_FG"
 }
 
 function _main_functions() {
     _initialize_functions
     _load_tab_completions
-    source_file "${dotfiles_path}/brew_fix.sh"
+    source "${dotfiles_path}/brew_fix.sh"
 
     versions
     # echo "Travis test: $TRAVIS_TOKEN"
