@@ -1,6 +1,7 @@
 # Macbook Pro Setup
 
-[![Build Status][1]]([2]) [![Coverage Status][3]]([4]) [![License][5]]([6])
+[![Build Status][1]]([2]) [![Coverage][3]]([4])
+[![License][5]]([6])
 [![Bash Version](src/bash_badge.svg)](https://www.python.org/) [![Python Version](src/python_badge.svg)](https://www.python.org/)
 
 ## System setup for MacBook Pro using Mojave, Bash, and Python Development
@@ -127,3 +128,5 @@ Suggestions/improvements
 [4]: https://coveralls.io/github/skeptycal/.dotfiles?branch=master
 [5]: src/license.svg
 [6]: http://badges.mit-license.org
+
+[![Coverage Status](https://coveralls.io/repos/github/skeptycal/.dotfiles/badge.svg?branch=master)](https://coveralls.io/github/skeptycal/.dotfiles?branch=master)
