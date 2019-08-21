@@ -31,13 +31,8 @@ function _initialize_functions() {
 }
 function _load_tab_completions() {
     # Brew install bash-completion bash-completion@2
-    # export BASH_COMPLETION_COMPAT_DIR="/usr/local/etc/bash_completion.d"
+    # declare -x BASH_COMPLETION_COMPAT_DIR="/usr/local/etc/bash_completion.d"
     # source "/usr/local/etc/profile.d/bash_completion.sh"
-
-    # NVM: Add the following to ~/.bash_profile
-    # export NVM_DIR="$HOME/.nvm"
-    # [ -s "/usr/local/opt/nvm/nvm.sh" ] && . "/usr/local/opt/nvm/nvm.sh"                           # This loads nvm
-    # [ -s "/usr/local/opt/nvm/etc/bash_completion" ] && . "/usr/local/opt/nvm/etc/bash_completion" # This loads nvm bash_completion
 
     # # travis tab completion
     # source "/Volumes/Data/skeptycal/.travis/travis.sh"

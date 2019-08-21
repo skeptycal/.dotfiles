@@ -1,11 +1,21 @@
 #!/usr/bin/env bash
 # -*- coding: utf-8 -*-
+# echo "sourcing script .bash_profile - forwarding to .bash_profile_details"
+
+# set -am # export all;
 #* #############################################################################
-#* ### Universal BASH debug flag
+#* Troubleshooting
 #* #############################################################################
-source "$(which ssm)"
-# set -am
+# set -n # trial run - read commands but do not execute
+# set -x # trace 'simple', for, case, select, and arithmetic
+# set -E # trap on ERR is inherited
 umask 022
+[ -n "$PS1" ] && source ~/.bash_profile_details
+
+# reference: https://unix.stackexchange.com/questions/425757/avoid-sourcing-scripts-multiple-times
+
+[[ $SSM_LOADED != 1 && -f "$(which ssm)" ]] && source "$(which ssm)"
+# if [ ! X”” = X”$uniq_var” ] ; then . ~/.bash_profile ; fi
 
 declare -xi SET_DEBUG=0 # set to 1 for verbose testing
 # log errors to text file; only functional if $SET_DEBUG='1'
@@ -14,50 +24,6 @@ declare -xi DEBUG_LOG=0
 declare -x debug_log_file="${HOME}/.bash_profile_error.log"
 # max filesize for debug_log_file
 declare -xi debug_log_max_size=32768
-
-function load_themes() {
-    # Brew install bash-git-prompt
-    if [ -f "/usr/local/opt/bash-git-prompt/share/gitprompt.sh" ]; then
-        __GIT_PROMPT_DIR="/usr/local/opt/bash-git-prompt/share"
-        source "/usr/local/opt/bash-git-prompt/share/gitprompt.sh"
-    fi
-
-    # ANSI color
-    declare -xi CLICOLOR=1
-    declare -x colorflag='--color=always'
-
-    # iterm2 bash shell integration
-    source "${HOME}/.iterm2_shell_integration.bash"
-
-    # https://www.gnu.org/software/coreutils/manual/html_node/dircolors-invocation.html#dircolors-invocation
-    # /usr/local/opt/coreutils/libexec/gnubin/dircolors -b &>/dev/null
-    # GIT colors
-    declare -x WS="$(git config --get-color color.diff.whitespace "blue reverse")"
-    declare -x RESET="$(git config --get-color "" "reset")"
-}
-function load_resources() {
-    # _debug_function_header
-    for file in ~/.dotfiles/.{path,exports,aliases,functions,extra,git_alias}; do
-        source "$file" # &>/dev/null # used to test for errors
-    done
-    unset file
-}
-
-function _profile_run_debug() {
-    db_echo "${WARN}BASH Debug Mode Enabled (SET_DEBUG=${SET_DEBUG})${RESET_FG}"
-    db_echo "Script source:${MAIN} ${BASH_SOURCE}${RESET_FG}"
-    db_echo "Logging to $debug_log_file"
-    db_echo "${GO}Use <versions> to see common program versions.${RESET_FG}"
-}
-
-function main() {
-    clear
-    load_themes
-    load_resources
-    [[ $SET_DEBUG == 1 ]] && _profile_run_debug
-}
-
-main "$@"
 
 #* #############################################################################
 #* ### End of standard .bash_profile

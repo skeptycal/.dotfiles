@@ -10,7 +10,10 @@ COPYRIGHT="Copyright (c) 2019 Michael Treanor"
 LICENSE="MIT <https://opensource.org/licenses/MIT>"
 GITHUB="https://www.github.com/skeptycal"
 #? ############################################################################
-declare -xi SET_DEBUG=0 # set to 1 for verbose testing
+declare -xi SET_DEBUG=0              # set to 1 for verbose testing
+declare -xi SSM_LOADED=1 >>/dev/null # prevent repeat loading
+
+[[ $SSM_LOADED != yes && -f ~/.ssm ]] && source ~/.privaterc
 
 exec 6>&1 # non-volatile stdout leaves return values of stdout undesturbed
 # set -aET
@@ -34,11 +37,16 @@ declare -x here="$PWD"
 
 #* ######################## constants
 
-declare -xr _pretty_usage="Usage :\n\t${MAIN}pretty${WHITE} [file(s) ...] \t\t- use list of files (default is all files in current directory)\n\t${MAIN}pretty${WHITE} [-m [commit message]] \t- use git staged files and commit with message
+declare -x _pretty_usage="Usage :\n\t${MAIN}pretty${WHITE} [file(s) ...] \t\t- use list of files (default is all files in current directory)\n\t${MAIN}pretty${WHITE} [-m [commit message]] \t- use git staged files and commit with message
     \n\t${MAIN}pretty${WHITE} [-h|--help|help] \t- usage help (this!)"
 
-declare -xr _debug_function_header_text='_header_test_log "Calling: ${CANARY:-}${FUNCNAME[0]} ${MAIN:-}$*${RESET_FG:-}"'
+declare -x _debug_function_header_text='_header_test_log "Calling: ${CANARY:-}${FUNCNAME[0]} ${MAIN:-}$*${RESET_FG:-}"'
 
+function async_run() {
+    {
+        eval "$@" &>/dev/null
+    } &
+}
 function _header_test_log() {
     (($DEBUG_LOG == 1)) || return 64
     printf "%b " "$@" >&2
@@ -60,74 +68,74 @@ function l() {
 #       from /usr/include/sysexits.h
 #       Copyright (c) 1987, 1993
 #       The Regents of the University of California.  All rights reserved.
-declare -xir EX_OK=0          # successful termination
-declare -xir EX__BASE=64      # base value for error messages
-declare -xir EX_USAGE=64      # command line usage error
-declare -xir EX_DATAERR=65    # data format error
-declare -xir EX_NOINPUT=66    # cannot open input
-declare -xir EX_NOUSER=67     # addressee unknown
-declare -xir EX_NOHOST=68     # host name unknown
-declare -xir EX_UNAVAILABL=69 # service unavailable
-declare -xir EX_SOFTWARE=70   # internal software error
-declare -xir EX_OSERR=71      # system error (e.g., can't fork)
-declare -xir EX_OSFILE=72     # critical OS file missing
-declare -xir EX_CANTCREAT=73  # can't create (user) output file
-declare -xir EX_IOERR=74      # input/output error
-declare -xir EX_TEMPFAIL=75   # temp failure; user is invited to retry
-declare -xir EX_PROTOCOL=76   # remote error in protocol
-declare -xir EX_NOPERM=77     # permission denied
-declare -xir EX_CONFIG=78     # configuration error
-declare -xir EX__MAX=78       # maximum listed value
+declare -xi EX_OK=0          # successful termination
+declare -xi EX__BASE=64      # base value for error messages
+declare -xi EX_USAGE=64      # command line usage error
+declare -xi EX_DATAERR=65    # data format error
+declare -xi EX_NOINPUT=66    # cannot open input
+declare -xi EX_NOUSER=67     # addressee unknown
+declare -xi EX_NOHOST=68     # host name unknown
+declare -xi EX_UNAVAILABL=69 # service unavailable
+declare -xi EX_SOFTWARE=70   # internal software error
+declare -xi EX_OSERR=71      # system error (e.g., can't fork)
+declare -xi EX_OSFILE=72     # critical OS file missing
+declare -xi EX_CANTCREAT=73  # can't create (user) output file
+declare -xi EX_IOERR=74      # input/output error
+declare -xi EX_TEMPFAIL=75   # temp failure; user is invited to retry
+declare -xi EX_PROTOCOL=76   # remote error in protocol
+declare -xi EX_NOPERM=77     # permission denied
+declare -xi EX_CONFIG=78     # configuration error
+declare -xi EX__MAX=78       # maximum listed value
 
 #* ######################## BASH trap signals
 # http://tldp.org/LDP/Bash-Beginners-Guide/html/sect_12_02.html
 # https://www.learnshell.org/en/Bash_trap_command
-declare -xir TRAP_SIGHUP=1
-declare -xir TRAP_SIGINT=2
-declare -xir TRAP_SIGQUIT=3
-declare -xir TRAP_SIGILL=4
-declare -xir TRAP_SIGTRAP=5
-declare -xir TRAP_SIGABRT=6
-declare -xir TRAP_SIGEMT=7
-declare -xir TRAP_SIGFPE=8
-declare -xir TRAP_SIGKILL=9
-declare -xir TRAP_SIGBUS=10
-declare -xir TRAP_SIGSEGV=11
-declare -xir TRAP_SIGSYS=12
-declare -xir TRAP_SIGPIPE=13
-declare -xir TRAP_SIGALRM=14
-declare -xir TRAP_SIGTERM=15
-declare -xir TRAP_SIGURG=16
-declare -xir TRAP_SIGSTOP=17
-declare -xir TRAP_SIGTSTP=18
-declare -xir TRAP_SIGCONT=19
-declare -xir TRAP_SIGCHLD=20
-declare -xir TRAP_SIGTTIN=21
-declare -xir TRAP_SIGTTOU=22
-declare -xir TRAP_SIGIO=23
-declare -xir TRAP_SIGXCPU=24
-declare -xir TRAP_SIGXFSZ=25
-declare -xir TRAP_SIGVTALRM=26
-declare -xir TRAP_SIGPROF=27
-declare -xir TRAP_SIGWINCH=28
-declare -xir TRAP_SIGINFO=29
-declare -xir TRAP_SIGUSR1=30
-declare -xir TRAP_SIGUSR2=31
+declare -xi TRAP_SIGHUP=1
+declare -xi TRAP_SIGINT=2
+declare -xi TRAP_SIGQUIT=3
+declare -xi TRAP_SIGILL=4
+declare -xi TRAP_SIGTRAP=5
+declare -xi TRAP_SIGABRT=6
+declare -xi TRAP_SIGEMT=7
+declare -xi TRAP_SIGFPE=8
+declare -xi TRAP_SIGKILL=9
+declare -xi TRAP_SIGBUS=10
+declare -xi TRAP_SIGSEGV=11
+declare -xi TRAP_SIGSYS=12
+declare -xi TRAP_SIGPIPE=13
+declare -xi TRAP_SIGALRM=14
+declare -xi TRAP_SIGTERM=15
+declare -xi TRAP_SIGURG=16
+declare -xi TRAP_SIGSTOP=17
+declare -xi TRAP_SIGTSTP=18
+declare -xi TRAP_SIGCONT=19
+declare -xi TRAP_SIGCHLD=20
+declare -xi TRAP_SIGTTIN=21
+declare -xi TRAP_SIGTTOU=22
+declare -xi TRAP_SIGIO=23
+declare -xi TRAP_SIGXCPU=24
+declare -xi TRAP_SIGXFSZ=25
+declare -xi TRAP_SIGVTALRM=26
+declare -xi TRAP_SIGPROF=27
+declare -xi TRAP_SIGWINCH=28
+declare -xi TRAP_SIGINFO=29
+declare -xi TRAP_SIGUSR1=30
+declare -xi TRAP_SIGUSR2=31
 
 #* ######################## ANSI constants for common colors
-declare -xr MAIN=$(echo -en '\001\033[38;5;229m')
-declare -xr WARN=$(echo -en '\001\033[38;5;203m')
-declare -xr COOL=$(echo -en '\001\033[38;5;38m')
-declare -xr BLUE=$(echo -en '\001\033[38;5;38m')
-declare -xr GO=$(echo -en '\001\033[38;5;28m')
-declare -xr CHERRY=$(echo -en '\001\033[38;5;124m')
-declare -xr CANARY=$(echo -en '\001\033[38;5;226m')
-declare -xr ATTN=$(echo -en '\001\033[38;5;178m')
-declare -xr PURPLE=$(echo -en '\001\033[38;5;93m')
-declare -xr RAIN=$(echo -en '\001\033[38;5;93m')
-declare -xr WHITE=$(echo -en '\001\033[37m')
-declare -xr RESTORE=$(echo -en '\001\033[0m\002')
-declare -xr RESET_FG=$(echo -en '\001\033[0m')
+declare -x MAIN=$(echo -en '\001\033[38;5;229m')
+declare -x WARN=$(echo -en '\001\033[38;5;203m')
+declare -x COOL=$(echo -en '\001\033[38;5;38m')
+declare -x BLUE=$(echo -en '\001\033[38;5;38m')
+declare -x GO=$(echo -en '\001\033[38;5;28m')
+declare -x CHERRY=$(echo -en '\001\033[38;5;124m')
+declare -x CANARY=$(echo -en '\001\033[38;5;226m')
+declare -x ATTN=$(echo -en '\001\033[38;5;178m')
+declare -x PURPLE=$(echo -en '\001\033[38;5;93m')
+declare -x RAIN=$(echo -en '\001\033[38;5;93m')
+declare -x WHITE=$(echo -en '\001\033[37m')
+declare -x RESTORE=$(echo -en '\001\033[0m\002')
+declare -x RESET_FG=$(echo -en '\001\033[0m')
 
 #* ######################## functions for printing lines in common colors
 function br() { printf "\n"; } # yes, this is a fake cli version of <br />
@@ -525,7 +533,25 @@ _set_traps() {
     debug_opts="axET"
     set "-${cur_opts}${debug_opts}"
 }
+
+_trap_error() {
+    # me "ERR: $ERR"
+    # set "-${cur_opts}"
+    return 0
+}
+_trap_debug() {
+    return 0
+    # ce "Script source:$MAIN $BASH_SOURCE$RESET_FG $@ \n"
+    # attn "echo VARIABLE ($VARIABLE) is being used here."
+}
 _trap_exit() {
+    # https://stackoverflow.com/a/50270940/9878098
+    exitcode=$?
+    printf 'error executing script...\n' 1>&2
+    printf 'exit code returned: %s\n' "$exitcode"
+    printf 'the command executing at the time of the error was: %s\n' "$BASH_COMMAND"
+    printf 'command present on line: %d' "${BASH_LINENO[0]}"
+    # Some more clean up code can be added here before exiting
     set "-${cur_opts}"
     exec 4>&- 5>&- 6>&-
     if [[ "$LOG" == '1' ]]; then
@@ -534,16 +560,8 @@ _trap_exit() {
         exec 4>&- 5>&-
         attn "logging off ..."
     fi
-}
-_trap_error() {
-    me "ERR: $ERR"
-    set "-${cur_opts}"
-    return
-}
-_trap_debug() {
-    return 0
-    # ce "Script source:$MAIN $BASH_SOURCE$RESET_FG $@ \n"
-    # attn "echo VARIABLE ($VARIABLE) is being used here."
+
+    exit $exitcode
 }
 #* ######################## script tests
 _run_tests() {
@@ -604,6 +622,7 @@ _run_tests() {
 }
 #* ######################## main loop
 _main_standard_script_modules() {
+    echo 5/0
     (($DEBUG_LOG == 1)) && _set_traps
     parse_options "$@"
     (($DEBUG_LOG == 1)) && _run_tests
@@ -612,7 +631,7 @@ _main_standard_script_modules() {
 }
 
 #* ######################## entry point
-# trap '_trap_error' ERR
+trap _trap_error ERR
 # trap _trap_exit EXIT
 # trap _trap_debug DEBUG
 _main_standard_script_modules "$@"
