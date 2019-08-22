@@ -1,22 +1,24 @@
 #!/usr/bin/env bash
 # -*- coding: utf-8 -*-
 #? ############################# skeptycal.com ################################
-NAME="${BASH_SOURCE##*/}"
+NAME="${BASH_SOURCE##*/:'standard_script_modules'}"
 VERSION='0.1.2'
 DESC='standard script modules for macOS (Bash 5.0 with GNU coreutils)'
-USAGE="source ${NAME} [help|test|usage|version]"
+USAGE="source ${NAME:-} [help|test|usage|version]"
 AUTHOR="Michael Treanor  <skeptycal@gmail.com>"
 COPYRIGHT="Copyright (c) 2019 Michael Treanor"
 LICENSE="MIT <https://opensource.org/licenses/MIT>"
 GITHUB="https://www.github.com/skeptycal"
 #? ############################################################################
+set -a
+# set -aET
+
 declare -xi SET_DEBUG=0              # set to 1 for verbose testing
 declare -xi SSM_LOADED=1 >>/dev/null # prevent repeat loading
 
 [[ $SSM_LOADED != yes && -f ~/.ssm ]] && source ~/.privaterc
 
-exec 6>&1 # non-volatile stdout leaves return values of stdout undesturbed
-# set -aET
+exec 6>&1 # non-volatile stdout leaves return values of stdout undisturbed
 # return 0
 
 # TODO
@@ -37,24 +39,19 @@ declare -x here="$PWD"
 
 #* ######################## constants
 
-declare -x _pretty_usage="Usage :\n\t${MAIN}pretty${WHITE} [file(s) ...] \t\t- use list of files (default is all files in current directory)\n\t${MAIN}pretty${WHITE} [-m [commit message]] \t- use git staged files and commit with message
-    \n\t${MAIN}pretty${WHITE} [-h|--help|help] \t- usage help (this!)"
-
-declare -x _debug_function_header_text='_header_test_log "Calling: ${CANARY:-}${FUNCNAME[0]} ${MAIN:-}$*${RESET_FG:-}"'
+declare -x _pretty_usage="Usage :\n\t${MAIN:-}pretty${WHITE:-} [file(s) ...] \t\t- use list of files (default is all files in current directory)\n\t${MAIN:-}pretty${WHITE:-} [-m [commit message]] \t- use git staged files and commit with message
+    \n\t${MAIN:-}pretty${WHITE:-} [-h|--help|help] \t- usage help (this!)"
 
 function async_run() {
     {
         eval "$@" &>/dev/null
     } &
 }
-function _header_test_log() {
-    (($DEBUG_LOG == 1)) || return 64
-    printf "%b " "$@" >&2
-    printf "%b" "\n"
-}
-
 function _debug_function_header() {
-    eval $_debug_function_header_text
+    # (($DEBUG_LOG == 1)) || return 64
+    printf "${MAIN:-}Calling: ${CANARY:-}${FUNCNAME[0]:-} ${MAIN:-}$*${RESET_FG:-}" >&2
+    printf "%b" "\n"
+
 }
 function l() {
     # added 'list' default parameter instead of 'help'
@@ -145,7 +142,7 @@ ce() {
     #     shift
     # fi
     printf '%b ' "$*"
-    printf "$RESET_FG"
+    printf "${RESET_FG:-}"
 }
 me() { printf "%b\n" "${MAIN:-}${@}${RESET_FG:-}"; }
 warn() { printf "%b\n" "${WARN:-:-}${@}${RESET_FG:-}"; }
@@ -162,7 +159,7 @@ white() { printf "%b\n" "${WHITE:-}${@}${RESET_FG:-}"; }
 #* ######################## program usage setup
 usage_long_desc="$(
     cat <<usage_long_desc
-    ${MAIN}$NAME${WHITE} sets and exports constants, functions, and ansi color utilities that give
+    ${MAIN:-}$NAME${WHITE:-} sets and exports constants, functions, and ansi color utilities that give
     access to novel and useful features simply by loading the module through a one
     line command: 'source ssm'
 
@@ -184,29 +181,29 @@ set_man_page() {
     MAN_PAGE="$(
         cat <<MAN_PAGE
 
-${MAIN}NAME${WHITE}
+${MAIN:-}NAME${WHITE:-}
     $NAME (version $VERSION) - $DESC
 
-${MAIN}SYNOPSIS${WHITE}
+${MAIN:-}SYNOPSIS${WHITE:-}
     $USAGE
 
-${MAIN}DESCRIPTION${WHITE}
+${MAIN:-}DESCRIPTION${WHITE:-}
 $usage_long_desc
 
-${MAIN}OPTIONS${WHITE}
+${MAIN:-}OPTIONS${WHITE:-}
 $usage_parameters
 
-${MAIN}EXIT STATUS${WHITE}
+${MAIN:-}EXIT STATUS${WHITE:-}
     0     - success; no errors detected
     1     - general errors (division by zero, etc.)
     2     - missing keyword or command (possible permission problem)
     64-78 - assorted user errors (e.g. EX_DATAERR=65, EX_NOINPUT=66,
             EX_UNAVAILABL=69, EX_OSERR=71, EX_OSFILE=72, EX_IOERR=74)
 
-${MAIN}CONTRIBUTING${WHITE}
+${MAIN:-}CONTRIBUTING${WHITE:-}
     GitHub: $GITHUB
 
-${MAIN}LICENSE${WHITE}
+${MAIN:-}LICENSE${WHITE:-}
     $LICENSE
     $COPYRIGHT
     $AUTHOR
@@ -283,9 +280,9 @@ die() {
     # exit program with $exit_code ($1) and optional $message ($2)
     # https://stackoverflow.com/questions/7868818/in-bash-is-there-an-equivalent-of-die-error-msg/7869065
 
-    warn "${2:-"Script died...$USAGE"}" >&2
-    db_echo "${MAIN}line ${BLUE}${BASH_LINENO[0]}${MAIN} of ${ATTN}${FUNCNAME[1]}${MAIN} in ${BASH_SOURCE[1]}${MAIN}." >&2
-    [[ ! "$DONT_DIE" == '1' ]] && exit "${1:-1}"
+    warn "${2:-script} died...${USAGE:-}" >&2
+    db_echo "${MAIN:-}line ${BLUE:-}${BASH_LINENO[0]}${MAIN:-} of ${ATTN:-}${FUNCNAME[1]}${MAIN:-} in ${BASH_SOURCE[1]}${MAIN:-}." >&2
+    [[ ! "$DONT_DIE" == '1' ]] && exit "${1:1}"
 }
 yes_no() {
     # Accept a Yes/no (default Yes) user response to prompt ($1 or default)
@@ -338,7 +335,7 @@ log_toggle() {
     # set default log filename or $1
     if [[ -z "$1" ]]; then
         if [[ -z "$LOG_FILE_NAME" ]]; then
-            LOG_FILE_NAME="${script_source}LOGFILE.log"
+            LOG_FILE_NAME="${script_source:-'./'}LOGFILE.log"
         fi
     else
         LOG_FILE_NAME="${1}"
@@ -347,8 +344,7 @@ log_toggle() {
     # if log is on, turn it off
     if [[ "$LOG" == '1' ]]; then
         LOG='0'
-        exec 1>&4 2>&5
-        exec 4>&- 5>&-
+        exec 1>&4- 2>&5-
         attn "logging off ..."
     else # if it is off ... turn it on
         LOG='1'
@@ -368,10 +364,10 @@ test_echo() {
     if [[ $SET_DEBUG == '1' ]] && [[ -n "$1" ]]; then
         printf "%bFunction Test -> %bPID %s %b" "$MAIN" "$CANARY" "$$" "$GO"
         printf '%(%Y-%m-%d)T' -1
-        printf "%b test name: %s\n%b" "$ATTN" "$1" "$RESET_FG"
+        printf "%b test name: %s\n%b" "$ATTN" "$1" "${RESET_FG:-}"
         shift
         eval "$@"
-        printf "%bResult = %s%b\n" "$COOL" "$?" "${RESET_FG}"
+        printf "%bResult = %s%b\n" "$COOL" "$?" "${RESET_FG:-}"
     fi
 }
 test_var() {
@@ -418,10 +414,10 @@ parse_filename() {
     [[ -n "$1" ]] && filename="$1"
 
     # if no filename, error & exit
-    [[ -z "$filename" ]] && exit_usage "\$filename not available or specified ..." "${MAIN}parse_filename ${WHITE}[filename]"
+    [[ -z "$filename" ]] && exit_usage "\$filename not available or specified ..." "${MAIN:-}parse_filename ${WHITE:-}[filename]"
     test_var "$filename"
     log_flag
-    [[ -r "$filename" ]] && exit_usage "\$filename not readable ..." "${MAIN}parse_filename ${WHITE}[filename]"
+    [[ -r "$filename" ]] && exit_usage "\$filename not readable ..." "${MAIN:-}parse_filename ${WHITE:-}[filename]"
     base_name="${filename##*/}"
     # Strip longest match of */ from start
     dir="${filename:0:${#filename}-${#base_name}}"
@@ -622,15 +618,17 @@ _run_tests() {
 }
 #* ######################## main loop
 _main_standard_script_modules() {
-    echo 5/0
-    (($DEBUG_LOG == 1)) && _set_traps
+    # _debug_function_header
+    [[ $DEBUG_LOG == 1 ]] && _set_traps
     parse_options "$@"
-    (($DEBUG_LOG == 1)) && _run_tests
+    [[ $DEBUG_LOG == 1 ]] && _run_tests
     # declare -f
     return 0
 }
 
 #* ######################## entry point
+${filename##*/}
+ce "Script source:$MAIN ${BASH_SOURCE##*/}${RESET_FG:-}\n"
 trap _trap_error ERR
 # trap _trap_exit EXIT
 # trap _trap_debug DEBUG
