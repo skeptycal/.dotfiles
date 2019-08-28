@@ -5,9 +5,9 @@
 # *## PYTHONPATH ###########################################################
 PYTHONPATH="\
         /usr/local/Cellar/python/3.7.3/Frameworks/Python.framework/Versions/3.7/Resources/Python.app/Contents/MacOS/python:\
-        /Volumes/Data/skeptycal/anaconda3/lib/python3.7/site-packages:\
-        /Volumes/Data/skeptycal/bin/utilities/python:\
-        /Volumes/Data/skeptycal/bin/utilities/apps/python:\
+        $HOME/anaconda3/lib/python3.7/site-packages:\
+        $HOME/bin/utilities/python:\
+        $HOME/bin/utilities/apps/python:\
         /usr/bin/python:\
         /usr/local/bin/python:\
         "
@@ -57,6 +57,9 @@ PATH="\
     /usr/local/opt/sqlite/bin:\
     /usr/local/opt/libpq/bin:\
     /usr/local/opt/cython/bin:\
+    $HOME/Documents/coding/emsdk:\
+    $HOME/Documents/coding/emsdk/fastcomp/emscripten:\
+    $HOME/Documents/coding/emsdk/node/10.16.3_64bit/bin
     $HOME/bin/utilities:\
     $HOME/bin/utilities/python:\
     $HOME/bin/utilities/php:\
@@ -137,7 +140,7 @@ _main_paths
 # /Library/Frameworks/Mono.framework/Versions/Current/Commands
 # /Applications/Postgres.app/Contents/Versions/latest/bin
 # /Applications/Xamarin Workbooks.app/Contents/SharedSupport/path-bin
-# /Volumes/Data/skeptycal/perl5/bin
+# $HOME/perl5/bin
 
 #   ! This should be either first or last ... it is up for debate
 #   I put mine first and curate what I place in here ...
