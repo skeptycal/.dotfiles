@@ -12,7 +12,7 @@ LICENSE="MIT <https://opensource.org/licenses/MIT>"
 GITHUB="https://www.github.com/skeptycal"
 #? ############################################################################
 declare -xi SET_DEBUG=0 # set to 1 for verbose testing
-source $(which ssm)
+# source $(which ssm) # this is done in the parent script
 
 function _initialize_functions() {
     if [ ! "$(uname -s)" = 'Darwin' ]; then

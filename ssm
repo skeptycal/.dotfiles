@@ -410,27 +410,27 @@ parse_filename() {
     #       name_only   - name without extension
     #       extension   - file extension or '' if none
 
-    # set filename
-    [[ -n "$1" ]] && filename="$1"
+    [[ -z "$filename" ]] && filename="$1"
+    if [[ -r "$1" ]]; then
+        exit_usage "\$filename not readable ..." "${MAIN:-}${FUNCNAME[0]} ${WHITE:-}[filename]"
 
-    # if no filename, error & exit
-    [[ -z "$filename" ]] && exit_usage "\$filename not available or specified ..." "${MAIN:-}parse_filename ${WHITE:-}[filename]"
+        base_name="${filename##*/}"
+        # Strip longest match of */ from start
+        dir="${filename:0:${#filename}-${#base_name}}"
+        # Substring from 0 thru pos of filename
+        name_only="${base_name%.[^.]*}"
+        # Strip shortest match of . plus at least one non-dot char from end
+        extension="${base_name:${#name_only}+1}"
+        # Substring from len of base thru end
+        if [[ -z "$name_only" && -n "$extension" ]]; then
+            # If we have an extension and no base, it's really the base
+            name_only="$extension"
+            extension=""
+        fi
+    fi
     test_var "$filename"
     log_flag
-    [[ -r "$filename" ]] && exit_usage "\$filename not readable ..." "${MAIN:-}parse_filename ${WHITE:-}[filename]"
-    base_name="${filename##*/}"
-    # Strip longest match of */ from start
-    dir="${filename:0:${#filename}-${#base_name}}"
-    # Substring from 0 thru pos of filename
-    name_only="${base_name%.[^.]*"
-    # Strip shortest match of . plus at least one non-dot char from end
-    extension="${base_name:${#name_only}+1}"
-    # Substring from len of base thru end
-    if [[ -z "$name_only" && -n "$extension" ]]; then
-        # If we have an extension and no base, it's really the base
-        name_only="$extension"
-        extension=""
-    fi
+
 }
 get_safe_new_filename() {
     # usage: get_safe_new_filename filename /path/to/file [extension]
