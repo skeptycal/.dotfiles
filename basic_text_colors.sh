@@ -2,8 +2,14 @@
 # -*- coding: utf-8 -*-
 #? ############################################################################
 echo "basic_text_colors is deprecated. All features are implemented in ssm now."
-echo "use <source ssm> instead."
-exit 78
+
+if [[ $(which ssm) ]]; then
+    source $(which ssm)
+else
+    echo "  source: $BASH_SOURCE[0]"
+    echo "use <source ssm> instead."
+    exit 78
+fi
 #? ############################################################################
 
 #? ############################# skeptycal.com ################################

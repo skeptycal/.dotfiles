@@ -422,7 +422,7 @@ parse_filename() {
     # Strip longest match of */ from start
     dir="${filename:0:${#filename}-${#base_name}}"
     # Substring from 0 thru pos of filename
-    name_only="${base_name%.[^.]*}"
+    name_only="${base_name%.[^.]*"
     # Strip shortest match of . plus at least one non-dot char from end
     extension="${base_name:${#name_only}+1}"
     # Substring from len of base thru end
@@ -627,8 +627,11 @@ _main_standard_script_modules() {
 }
 
 #* ######################## entry point
-${filename##*/}
-ce "Script source:$MAIN ${BASH_SOURCE##*/}${RESET_FG:-}\n"
+echo ${filename##*/}
+ce "Script source:$MAIN ${BASH_SOURCE[0]##*/}${RESET_FG:-}\n"
+ce "Script parent:$MAIN ${BASH_SOURCE[1]##*/}${RESET_FG:-}\n"
+ce "Script grandparent:$MAIN ${BASH_SOURCE[2]##*/}${RESET_FG:-}\n"
+
 trap _trap_error ERR
 # trap _trap_exit EXIT
 # trap _trap_debug DEBUG
