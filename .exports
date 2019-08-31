@@ -5,8 +5,8 @@ declare -x LANG='en_US.UTF-8'
 declare -x LC_ALL='en_US.UTF-8'
 declare -xi CGO_ENABLED=1
 declare -x AZURE_WORKING_DIR="${HOME}/myagent"
-source_file "${dotfiles_path}/.homebrew_github_private.sh"
-source_file "${dotfiles_path}/.travis_token_private.sh"
+source "${dotfiles_path}/.homebrew_github_private.sh"
+source "${dotfiles_path}/.travis_token_private.sh"
 declare -x SH_KEY_PATH="${HOME}/.ssh/rsa_id"
 declare -x LOCAL_IP=$(ipconfig getifaddr en0)
 
@@ -64,11 +64,4 @@ main_exports() {
     [[ $DEBUG == '1' ]] && run_debug_exports
 }
 
-main_exports "$@"
-
-# 'todo' app
-# alias t='./todo.sh -d /path/to/your/todo.cfg'
-# 'TODOTXT_DEFAULT_ACTION=ls
-# declare -x TODOTXT_DEFAULT_ACTION
-# 'TODOTXT_SORT_COMMAND='env LC_COLLATE=C sort -k 2,2 -k 1,1n'
-# declare -x TODOTXT_SORT_COMMAND
+main_exports

@@ -6,22 +6,32 @@
 #* ### Load profile details
 #* #############################################################################
 
+declare -x SOURCE_PATH="$HOME/.dotfiles"
+
 # reference: https://unix.stackexchange.com/questions/425757/avoid-sourcing-scripts-multiple-times
 
-[[ ! X”” == X"$SSM_LOADED" ]] && . "$(which ssm)"
+[[ ! $SSM_LOADED == 1 ]] && . "$(which ssm)"
 
 function _profile_run_debug() {
     db_echo "${WARN}BASH Debug Mode Enabled (SET_DEBUG=${SET_DEBUG})${RESET_FG}"
     db_echo "Script source:${MAIN} ${BASH_SOURCE}${RESET_FG}"
+    db_echo "\$SOURCE_PATH: ${MAIN} $SOURCE_PATH"
     db_echo "Logging to $debug_log_file"
     db_echo "${GO}Use <versions> to see common program versions.${RESET_FG}"
 }
 
 function main() {
-    for file in ~/.dotfiles/.{path,exports,aliases,theme,functions,extra,git_alias}; do
-        source "$file" # &>/dev/null # used to test for errors
-    done
-    unset file
+    source "${SOURCE_PATH}/.path"
+    source "${SOURCE_PATH}/.exports"
+    source "${SOURCE_PATH}/.aliases"
+    source "${SOURCE_PATH}/.theme"
+    # source "${SOURCE_PATH}/.functions"
+    # source "${SOURCE_PATH}/.extra"
+    # source "${SOURCE_PATH}/.git_alias"
+    # for file in ${SOURCE_PATH}/.{path,exports,aliases,theme,functions,extra,git_alias}; do
+    #     source "$file" # &>/dev/null # used to test for errors
+    # done
+    # unset file
     [[ $SET_DEBUG == 1 ]] && _profile_run_debug
 }
 

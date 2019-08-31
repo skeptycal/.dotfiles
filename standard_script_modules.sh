@@ -12,11 +12,12 @@ GITHUB="https://www.github.com/skeptycal"
 #? ############################################################################
 set -a
 # set -aET
+[[ ! $SSM_LOADED == 1 ]] && return
 
 declare -xi SET_DEBUG=0              # set to 1 for verbose testing
 declare -xi SSM_LOADED=1 >>/dev/null # prevent repeat loading
 
-[[ $SSM_LOADED != yes && -f ~/.ssm ]] && source ~/.privaterc
+# [[ $SSM_LOADED != yes && -f ~/.ssm ]] && source ~/.privaterc
 
 exec 6>&1 # non-volatile stdout leaves return values of stdout undisturbed
 # return 0
@@ -505,7 +506,7 @@ parse_options() {
         # exit 0
         ;;
     -t | --test | test)
-        [[ ! "$SET_DEBUG" == '1' ]] && _run_tests "$@"
+        [[ ! "$SET_DEBUG" == '1' ]] && _run_tests
         return
         # exit 0
         ;;
@@ -619,9 +620,9 @@ _run_tests() {
 #* ######################## main loop
 _main_standard_script_modules() {
     # _debug_function_header
-    [[ $DEBUG_LOG == 1 ]] && _set_traps
+    [[ $SET_DEBUG == 1 ]] && _set_traps
     parse_options "$@"
-    [[ $DEBUG_LOG == 1 ]] && _run_tests
+    [[ $SET_DEBUG == 1 ]] && _run_tests
     # declare -f
     return 0
 }
@@ -635,6 +636,7 @@ ce "Script grandparent:$MAIN ${BASH_SOURCE[2]##*/}${RESET_FG:-}\n"
 trap _trap_error ERR
 # trap _trap_exit EXIT
 # trap _trap_debug DEBUG
+
 _main_standard_script_modules "$@"
 
 #? ############################################################################

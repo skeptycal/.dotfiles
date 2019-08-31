@@ -41,7 +41,7 @@ export MANPATH
 # openssl is keg-only, which means it was not symlinked into /usr/local,
 # because Apple has deprecated use of OpenSSL in favor of its own TLS and
 # crypto libraries.
-export PATH="/usr/local/opt/openssl/bin:$PATH"
+# export PATH="/usr/local/opt/openssl/bin:$PATH"
 # A CA file has been bootstrapped using certificates from the SystemRoots
 # keychain. To add additional certificates (e.g. the certificates added in
 # the System keychain), place .pem files in
@@ -123,7 +123,7 @@ function _main_paths() {
     [[ $SET_DEBUG == '1' ]] && _run_debug_paths
 }
 
-_main_paths
+_main_paths "$@"
 ###############################################################################
 # Notes:
 
