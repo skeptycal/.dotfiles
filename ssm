@@ -14,8 +14,8 @@ set -a
 # set -aET
 [[ ! $SSM_LOADED == 1 ]] && return
 
-declare -xi SET_DEBUG=0              # set to 1 for verbose testing
-declare -xi SSM_LOADED=1 >>/dev/null # prevent repeat loading
+export SET_DEBUG=0              # set to 1 for verbose testing
+export SSM_LOADED=1 >>/dev/null # prevent repeat loading
 
 # [[ $SSM_LOADED != yes && -f ~/.ssm ]] && source ~/.privaterc
 
@@ -30,17 +30,17 @@ exec 6>&1 # non-volatile stdout leaves return values of stdout undisturbed
 #   functions beginning with _ are only called 'by the script'
 #   others are reusable in any script as needed
 #* ######################## path variables
-declare -x script_name="${BASH_SOURCE##*/}"
-declare -x script_path="${BASH_SOURCE%/*}"
-declare -x src_path="${script_path}/src"
-declare -x bak_path="${script_path}/bak"
-declare -x bin_path="${HOME}/bin/utilities/pc_bak"
-declare -x dotfiles_path="${HOME}/.dotfiles"
-declare -x here="$PWD"
+export script_name="${BASH_SOURCE##*/}"
+export script_path="${BASH_SOURCE%/*}"
+export src_path="${script_path}/src"
+export bak_path="${script_path}/bak"
+export bin_path="${HOME}/bin/utilities/pc_bak"
+export dotfiles_path="${HOME}/.dotfiles"
+export here="$PWD"
 
 #* ######################## constants
 
-declare -x _pretty_usage="Usage :\n\t${MAIN:-}pretty${WHITE:-} [file(s) ...] \t\t- use list of files (default is all files in current directory)\n\t${MAIN:-}pretty${WHITE:-} [-m [commit message]] \t- use git staged files and commit with message
+export _pretty_usage="Usage :\n\t${MAIN:-}pretty${WHITE:-} [file(s) ...] \t\t- use list of files (default is all files in current directory)\n\t${MAIN:-}pretty${WHITE:-} [-m [commit message]] \t- use git staged files and commit with message
     \n\t${MAIN:-}pretty${WHITE:-} [-h|--help|help] \t- usage help (this!)"
 
 function async_run() {
@@ -66,74 +66,74 @@ function l() {
 #       from /usr/include/sysexits.h
 #       Copyright (c) 1987, 1993
 #       The Regents of the University of California.  All rights reserved.
-declare -xi EX_OK=0          # successful termination
-declare -xi EX__BASE=64      # base value for error messages
-declare -xi EX_USAGE=64      # command line usage error
-declare -xi EX_DATAERR=65    # data format error
-declare -xi EX_NOINPUT=66    # cannot open input
-declare -xi EX_NOUSER=67     # addressee unknown
-declare -xi EX_NOHOST=68     # host name unknown
-declare -xi EX_UNAVAILABL=69 # service unavailable
-declare -xi EX_SOFTWARE=70   # internal software error
-declare -xi EX_OSERR=71      # system error (e.g., can't fork)
-declare -xi EX_OSFILE=72     # critical OS file missing
-declare -xi EX_CANTCREAT=73  # can't create (user) output file
-declare -xi EX_IOERR=74      # input/output error
-declare -xi EX_TEMPFAIL=75   # temp failure; user is invited to retry
-declare -xi EX_PROTOCOL=76   # remote error in protocol
-declare -xi EX_NOPERM=77     # permission denied
-declare -xi EX_CONFIG=78     # configuration error
-declare -xi EX__MAX=78       # maximum listed value
+export EX_OK=0          # successful termination
+export EX__BASE=64      # base value for error messages
+export EX_USAGE=64      # command line usage error
+export EX_DATAERR=65    # data format error
+export EX_NOINPUT=66    # cannot open input
+export EX_NOUSER=67     # addressee unknown
+export EX_NOHOST=68     # host name unknown
+export EX_UNAVAILABL=69 # service unavailable
+export EX_SOFTWARE=70   # internal software error
+export EX_OSERR=71      # system error (e.g., can't fork)
+export EX_OSFILE=72     # critical OS file missing
+export EX_CANTCREAT=73  # can't create (user) output file
+export EX_IOERR=74      # input/output error
+export EX_TEMPFAIL=75   # temp failure; user is invited to retry
+export EX_PROTOCOL=76   # remote error in protocol
+export EX_NOPERM=77     # permission denied
+export EX_CONFIG=78     # configuration error
+export EX__MAX=78       # maximum listed value
 
 #* ######################## BASH trap signals
 # http://tldp.org/LDP/Bash-Beginners-Guide/html/sect_12_02.html
 # https://www.learnshell.org/en/Bash_trap_command
-declare -xi TRAP_SIGHUP=1
-declare -xi TRAP_SIGINT=2
-declare -xi TRAP_SIGQUIT=3
-declare -xi TRAP_SIGILL=4
-declare -xi TRAP_SIGTRAP=5
-declare -xi TRAP_SIGABRT=6
-declare -xi TRAP_SIGEMT=7
-declare -xi TRAP_SIGFPE=8
-declare -xi TRAP_SIGKILL=9
-declare -xi TRAP_SIGBUS=10
-declare -xi TRAP_SIGSEGV=11
-declare -xi TRAP_SIGSYS=12
-declare -xi TRAP_SIGPIPE=13
-declare -xi TRAP_SIGALRM=14
-declare -xi TRAP_SIGTERM=15
-declare -xi TRAP_SIGURG=16
-declare -xi TRAP_SIGSTOP=17
-declare -xi TRAP_SIGTSTP=18
-declare -xi TRAP_SIGCONT=19
-declare -xi TRAP_SIGCHLD=20
-declare -xi TRAP_SIGTTIN=21
-declare -xi TRAP_SIGTTOU=22
-declare -xi TRAP_SIGIO=23
-declare -xi TRAP_SIGXCPU=24
-declare -xi TRAP_SIGXFSZ=25
-declare -xi TRAP_SIGVTALRM=26
-declare -xi TRAP_SIGPROF=27
-declare -xi TRAP_SIGWINCH=28
-declare -xi TRAP_SIGINFO=29
-declare -xi TRAP_SIGUSR1=30
-declare -xi TRAP_SIGUSR2=31
+export TRAP_SIGHUP=1
+export TRAP_SIGINT=2
+export TRAP_SIGQUIT=3
+export TRAP_SIGILL=4
+export TRAP_SIGTRAP=5
+export TRAP_SIGABRT=6
+export TRAP_SIGEMT=7
+export TRAP_SIGFPE=8
+export TRAP_SIGKILL=9
+export TRAP_SIGBUS=10
+export TRAP_SIGSEGV=11
+export TRAP_SIGSYS=12
+export TRAP_SIGPIPE=13
+export TRAP_SIGALRM=14
+export TRAP_SIGTERM=15
+export TRAP_SIGURG=16
+export TRAP_SIGSTOP=17
+export TRAP_SIGTSTP=18
+export TRAP_SIGCONT=19
+export TRAP_SIGCHLD=20
+export TRAP_SIGTTIN=21
+export TRAP_SIGTTOU=22
+export TRAP_SIGIO=23
+export TRAP_SIGXCPU=24
+export TRAP_SIGXFSZ=25
+export TRAP_SIGVTALRM=26
+export TRAP_SIGPROF=27
+export TRAP_SIGWINCH=28
+export TRAP_SIGINFO=29
+export TRAP_SIGUSR1=30
+export TRAP_SIGUSR2=31
 
 #* ######################## ANSI constants for common colors
-declare -x MAIN=$(echo -en '\001\033[38;5;229m')
-declare -x WARN=$(echo -en '\001\033[38;5;203m')
-declare -x COOL=$(echo -en '\001\033[38;5;38m')
-declare -x BLUE=$(echo -en '\001\033[38;5;38m')
-declare -x GO=$(echo -en '\001\033[38;5;28m')
-declare -x CHERRY=$(echo -en '\001\033[38;5;124m')
-declare -x CANARY=$(echo -en '\001\033[38;5;226m')
-declare -x ATTN=$(echo -en '\001\033[38;5;178m')
-declare -x PURPLE=$(echo -en '\001\033[38;5;93m')
-declare -x RAIN=$(echo -en '\001\033[38;5;93m')
-declare -x WHITE=$(echo -en '\001\033[37m')
-declare -x RESTORE=$(echo -en '\001\033[0m\002')
-declare -x RESET_FG=$(echo -en '\001\033[0m')
+export MAIN=$(echo -en '\001\033[38;5;229m')
+export WARN=$(echo -en '\001\033[38;5;203m')
+export COOL=$(echo -en '\001\033[38;5;38m')
+export BLUE=$(echo -en '\001\033[38;5;38m')
+export GO=$(echo -en '\001\033[38;5;28m')
+export CHERRY=$(echo -en '\001\033[38;5;124m')
+export CANARY=$(echo -en '\001\033[38;5;226m')
+export ATTN=$(echo -en '\001\033[38;5;178m')
+export PURPLE=$(echo -en '\001\033[38;5;93m')
+export RAIN=$(echo -en '\001\033[38;5;93m')
+export WHITE=$(echo -en '\001\033[37m')
+export RESTORE=$(echo -en '\001\033[0m\002')
+export RESET_FG=$(echo -en '\001\033[0m')
 
 #* ######################## functions for printing lines in common colors
 function br() { printf "\n"; } # yes, this is a fake cli version of <br />

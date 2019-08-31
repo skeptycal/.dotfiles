@@ -32,7 +32,7 @@ function _initialize_functions() {
 }
 function _load_tab_completions() {
     # Brew install bash-completion bash-completion@2
-    # declare -x BASH_COMPLETION_COMPAT_DIR="/usr/local/etc/bash_completion.d"
+    # export BASH_COMPLETION_COMPAT_DIR="/usr/local/etc/bash_completion.d"
     # source "/usr/local/etc/profile.d/bash_completion.sh"
 
     # # travis tab completion

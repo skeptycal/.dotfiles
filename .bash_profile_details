@@ -6,7 +6,7 @@
 #* ### Load profile details
 #* #############################################################################
 
-declare -x SOURCE_PATH="$HOME/.dotfiles"
+export SOURCE_PATH="$HOME/.dotfiles"
 
 # reference: https://unix.stackexchange.com/questions/425757/avoid-sourcing-scripts-multiple-times
 
@@ -26,8 +26,8 @@ function main() {
     source "${SOURCE_PATH}/.aliases"
     source "${SOURCE_PATH}/.theme"
     # source "${SOURCE_PATH}/.functions"
-    # source "${SOURCE_PATH}/.extra"
-    # source "${SOURCE_PATH}/.git_alias"
+    source "${SOURCE_PATH}/.extra"
+    source "${SOURCE_PATH}/.git_alias"
     # for file in ${SOURCE_PATH}/.{path,exports,aliases,theme,functions,extra,git_alias}; do
     #     source "$file" # &>/dev/null # used to test for errors
     # done

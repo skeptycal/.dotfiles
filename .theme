@@ -6,17 +6,17 @@
 #* ### Load ANSI colors, prompt, and themes
 #* #############################################################################
 # Only load Liquid Prompt in interactive shells, not from a script or from scp
-[[ $- == *i* ]] && source ~/liquidprompt/liquidprompt
-# Brew install bash-git-prompt
+[[ $- == *i* ]] && source "${HOME}/liquidprompt/liquidprompt"
 
+# Brew install bash-git-prompt
 if [ -f "$(brew --prefix)/opt/bash-git-prompt/share/gitprompt.sh" ]; then
     __GIT_PROMPT_DIR="$(brew --prefix)/opt/bash-git-prompt/share"
     source "${__GIT_PROMPT_DIR}/gitprompt.sh"
 fi
 
 # ANSI color flags
-declare -xi CLICOLOR=1
-declare -x colorflag='--color=always'
+export CLICOLOR=1
+export colorflag='--color=always'
 
 # iterm2 bash shell integration
 source "${HOME}/.iterm2_shell_integration.bash"
@@ -25,8 +25,8 @@ source "${HOME}/.iterm2_shell_integration.bash"
 # /usr/local/opt/coreutils/libexec/gnubin/dircolors -b &>/dev/null
 
 # GIT colors
-declare -x WS="$(git config --get-color color.diff.whitespace "blue reverse")"
-declare -x RESET="$(git config --get-color "" "reset")"
+export WS="$(git config --get-color color.diff.whitespace "blue reverse")"
+export RESET="$(git config --get-color "" "reset")"
 
 #* #############################################################################
 #* ### End of .theme

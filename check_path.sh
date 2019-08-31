@@ -12,7 +12,7 @@ GITHUB="https://www.github.com/skeptycal"
 #? ############################################################################
 set -a
 # set -aET # ET - inherit traps
-declare -xi SET_DEBUG=0 # set to 1 for verbose testing
+export SET_DEBUG=0 # set to 1 for verbose testing
 
 exec 6>&1 # non-volatile stdout leaves return values of stdout undisturbed
 # return 0

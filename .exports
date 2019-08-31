@@ -1,29 +1,29 @@
 #!/usr/bin/env bash
 # *############################################################################
 
-declare -x LANG='en_US.UTF-8'
-declare -x LC_ALL='en_US.UTF-8'
-declare -xi CGO_ENABLED=1
-declare -x AZURE_WORKING_DIR="${HOME}/myagent"
-source "${dotfiles_path}/.homebrew_github_private.sh"
-source "${dotfiles_path}/.travis_token_private.sh"
-declare -x SH_KEY_PATH="${HOME}/.ssh/rsa_id"
-declare -x LOCAL_IP=$(ipconfig getifaddr en0)
+export LANG='en_US.UTF-8'
+export LC_ALL='en_US.UTF-8'
+export CGO_ENABLED=1
+export AZURE_WORKING_DIR="${HOME}/myagent"
+source "${HOME}/.dotfiles/.homebrew_github_private.sh"
+source "${HOME}/.dotfiles/.travis_token_private.sh"
+export SH_KEY_PATH="${HOME}/.ssh/rsa_id"
+export LOCAL_IP=$(ipconfig getifaddr en0)
 
 # System
-declare -x LDFLAGS="-L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib"
+export LDFLAGS="-L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib"
 # LDFLAGS="-L/usr/local/opt/zlib/lib"
 # CPPFLAGS="-I/usr/local/opt/zlib/include"
-declare -x HISTSIZE='32768'
-declare -x HISTFILESIZE="${HISTSIZE}"
-declare -x HISTCONTROL='ignoreboth'
+export HISTSIZE='32768'
+export HISTFILESIZE="${HISTSIZE}"
+export HISTCONTROL='ignoreboth'
 
 # Python
-declare -x PYTHONIOENCODING='UTF-8'
+export PYTHONIOENCODING='UTF-8'
 # python sucks ... virtual environments suck ...
 # someone should find a better way to do this ... it's so stupid
-declare -x WORKON_HOME="${HOME}/.virtualenvs"
-declare -x PROJECT_HOME="${HOME}/Documents/coding/"
+export WORKON_HOME="${HOME}/.virtualenvs"
+export PROJECT_HOME="${HOME}/Documents/coding/"
 # source_file $(which virtualenvwrapper.sh)
 # [[ $(which pyenv-virtualenv-init >/dev/null) ]] && eval "$(pyenv virtualenv-init -)"
 
@@ -32,16 +32,18 @@ declare -x PROJECT_HOME="${HOME}/Documents/coding/"
 # M2_HOME="/usr/share/apache-maven-3.6.0"
 
 # Node
-declare -x NODE_REPL_HISTORY="${HOME}/.node_history"
-declare -x NODE_REPL_HISTORY_SIZE='32768'
-declare -x NODE_REPL_MODE='sloppy'
+export NODE_REPL_HISTORY="${HOME}/.node_history"
+export NODE_REPL_HISTORY_SIZE='32768'
+export NODE_REPL_MODE='sloppy'
 
 # Perl
-declare -x PERL_MM_OPT="INSTALL_BASE=${HOME}/perl5"
+export PERL_MM_OPT="INSTALL_BASE=${HOME}/perl5"
 eval "$(perl -I"${HOME}/perl5/lib/perl5" -Mlocal::lib="${HOME}/perl5")"
 
 # Heroku autocomplete setup
-declare -x HEROKU_AC_BASH_SETUP_PATH="/Volumes/Data/skeptycal/Library/Caches/heroku/autocomplete/bash_setup" && test -f "$HEROKU_AC_BASH_SETUP_PATH" && source "$HEROKU_AC_BASH_SETUP_PATH"
+export HEROKU_AC_BASH_SETUP_PATH="/Volumes/Data/skeptycal/Library/Caches/heroku/autocomplete/bash_setup" && test -f "$HEROKU_AC_BASH_SETUP_PATH" && source "$HEROKU_AC_BASH_SETUP_PATH"
+
+export DATABASE_URL=postgres://$(whoami)
 
 ############################################################################
 # Enable some Bash 4 features when possible:
