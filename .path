@@ -75,7 +75,6 @@ PATH="\
     /usr/local/Cellar/python/3.7.3/Frameworks/Python.framework/Versions/3.7/Resources/Python.app/Contents/MacOS:\
     /Applications/Postgres.app/Contents/Versions/latest/bin:\
     /Applications/Visual Studio Code.app/Contents/Resources/app/bin:\
-    /usr/local/anaconda3/bin:\
     /usr/local/opt/ruby/bin:\
     /usr/local/lib/ruby/gems/2.6.0/bin:\
     /usr/local/go/bin:\
@@ -94,7 +93,7 @@ PATH="\
     /usr/local/share/dotnet:\
     /opt/X11/bin:\
     $HOME/.dotnet/tools:\
-    /Library/Frameworks/Mono.framework/Versions/Current/Commands:\
+    /usr/local/anaconda3/bin:\
     /Applications/Postgres.app/Contents/Versions/latest/bin:\
     /Applications/Xamarin Workbooks.app/Contents/SharedSupport/path-bin:\
     $HOME/perl5/bin:\

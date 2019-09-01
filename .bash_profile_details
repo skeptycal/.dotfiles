@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # cannot be run directly; called from .bash_profile or .bashrc
 
+set -a
 #* #############################################################################
 #* ### Load profile details
 #* #############################################################################
@@ -25,7 +26,8 @@ function main() {
     source "${SOURCE_PATH}/.exports"
     source "${SOURCE_PATH}/.aliases"
     source "${SOURCE_PATH}/.theme"
-    # source "${SOURCE_PATH}/.functions"
+    source "${SOURCE_PATH}/.functions"
+    source $(which brew_fix.sh)
     source "${SOURCE_PATH}/.extra"
     source "${SOURCE_PATH}/.git_alias"
     # for file in ${SOURCE_PATH}/.{path,exports,aliases,theme,functions,extra,git_alias}; do

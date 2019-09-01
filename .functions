@@ -11,34 +11,9 @@ COPYRIGHT="Copyright (c) 2019 Michael Treanor"
 LICENSE="MIT <https://opensource.org/licenses/MIT>"
 GITHUB="https://www.github.com/skeptycal"
 #? ############################################################################
+set -a
 export SET_DEBUG=0 # set to 1 for verbose testing
-echo $SSM_LOADED
 [[ ! $SSM_LOADED == 1 ]] && . "$(which ssm)"
-
-function _initialize_functions() {
-    if [ ! "$(uname -s)" = 'Darwin' ]; then
-        if grep -q Microsoft /proc/version; then
-            alias open='explorer.exe'
-        else
-            alias open='xdg-open'
-        fi
-    fi
-
-    if [[ "$(hash git &>/dev/null)" -eq 0 ]]; then
-        function diff() {
-            git diff --no-index --color-words "$@"
-        }
-    fi
-}
-function _load_tab_completions() {
-    # Brew install bash-completion bash-completion@2
-    # export BASH_COMPLETION_COMPAT_DIR="/usr/local/etc/bash_completion.d"
-    # source "/usr/local/etc/profile.d/bash_completion.sh"
-
-    # # travis tab completion
-    # source "/Volumes/Data/skeptycal/.travis/travis.sh"
-    return 0
-}
 
 function new() { echo -e ${1//:/\\n}; }
 function fix_list() {
@@ -614,9 +589,19 @@ function _run_debug_functions() {
 }
 
 function _main_functions() {
-    _initialize_functions
-    _load_tab_completions
-    source "${dotfiles_path}/brew_fix.sh"
+    if [ ! "$(uname -s)" = 'Darwin' ]; then
+        if grep -q Microsoft /proc/version; then
+            alias open='explorer.exe'
+        else
+            alias open='xdg-open'
+        fi
+    fi
+
+    if [[ "$(hash git &>/dev/null)" -eq 0 ]]; then
+        function diff() {
+            git diff --no-index --color-words "$@"
+        }
+    fi
 
     versions
     # echo "Travis test: $TRAVIS_TOKEN"

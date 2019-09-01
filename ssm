@@ -12,7 +12,7 @@ GITHUB="https://www.github.com/skeptycal"
 #? ############################################################################
 set -a
 # set -aET
-[[ ! $SSM_LOADED == 1 ]] && return
+# [[ ! $SSM_LOADED == 1 ]] && return
 
 export SET_DEBUG=0              # set to 1 for verbose testing
 export SSM_LOADED=1 >>/dev/null # prevent repeat loading
@@ -624,14 +624,13 @@ _main_standard_script_modules() {
     parse_options "$@"
     [[ $SET_DEBUG == 1 ]] && _run_tests
     # declare -f
-    return 0
 }
 
 #* ######################## entry point
-echo ${filename##*/}
-ce "Script source:$MAIN ${BASH_SOURCE[0]##*/}${RESET_FG:-}\n"
-ce "Script parent:$MAIN ${BASH_SOURCE[1]##*/}${RESET_FG:-}\n"
-ce "Script grandparent:$MAIN ${BASH_SOURCE[2]##*/}${RESET_FG:-}\n"
+# echo ${filename##*/}
+# ce "Script source:$MAIN ${BASH_SOURCE[0]##*/}${RESET_FG:-}\n"
+# ce "Script parent:$MAIN ${BASH_SOURCE[1]##*/}${RESET_FG:-}\n"
+# ce "Script grandparent:$MAIN ${BASH_SOURCE[2]##*/}${RESET_FG:-}\n"
 
 trap _trap_error ERR
 # trap _trap_exit EXIT

@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 # cannot be run directly; called from .bash_profile or .bashrc
 
+export HOMEBREW_PREFIX=$(brew --prefix)
+
 #* #############################################################################
 #* ### Load ANSI colors, prompt, and themes
 #* #############################################################################
@@ -9,8 +11,8 @@
 [[ $- == *i* ]] && source "${HOME}/liquidprompt/liquidprompt"
 
 # Brew install bash-git-prompt
-if [ -f "$(brew --prefix)/opt/bash-git-prompt/share/gitprompt.sh" ]; then
-    __GIT_PROMPT_DIR="$(brew --prefix)/opt/bash-git-prompt/share"
+if [ -f "${HOMEBREW_PREFIX}/opt/bash-git-prompt/share/gitprompt.sh" ]; then
+    __GIT_PROMPT_DIR="${HOMEBREW_PREFIX}/opt/bash-git-prompt/share"
     source "${__GIT_PROMPT_DIR}/gitprompt.sh"
 fi
 
