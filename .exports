@@ -9,6 +9,7 @@ source "${HOME}/.dotfiles/.homebrew_github_private.sh"
 source "${HOME}/.dotfiles/.travis_token_private.sh"
 export SH_KEY_PATH="${HOME}/.ssh/rsa_id"
 export LOCAL_IP=$(ipconfig getifaddr en0)
+export HOMEBREW_PREFIX=$(brew --prefix)
 
 # System
 export LDFLAGS="-L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib"
@@ -41,8 +42,19 @@ export PERL_MM_OPT="INSTALL_BASE=${HOME}/perl5"
 eval "$(perl -I"${HOME}/perl5/lib/perl5" -Mlocal::lib="${HOME}/perl5")"
 
 # Heroku autocomplete setup
-export HEROKU_AC_BASH_SETUP_PATH="/Volumes/Data/skeptycal/Library/Caches/heroku/autocomplete/bash_setup" && test -f "$HEROKU_AC_BASH_SETUP_PATH" && source "$HEROKU_AC_BASH_SETUP_PATH"
+# HOMEBREW_PREFIX=$(brew --prefix)
+if type brew &>/dev/null; then
+    if [[ -r "${HOMEBREW_PREFIX}/etc/profile.d/bash_completion.sh" ]]; then
+        source "${HOMEBREW_PREFIX}/etc/profile.d/bash_completion.sh"
+    else
+        for COMPLETION in "${HOMEBREW_PREFIX}/etc/bash_completion.d/"*; do
+            [[ -r "$COMPLETION" ]] && source "$COMPLETION"
+        done
+    fi
+fi
+# heroku autocomplete --refresh-cache # one time use after above is loaded
 
+# Postgres setup
 export DATABASE_URL=postgres://$(whoami)
 
 ############################################################################

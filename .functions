@@ -11,7 +11,7 @@ COPYRIGHT="Copyright (c) 2019 Michael Treanor"
 LICENSE="MIT <https://opensource.org/licenses/MIT>"
 GITHUB="https://www.github.com/skeptycal"
 #? ############################################################################
-declare -xi SET_DEBUG=0 # set to 1 for verbose testing
+export SET_DEBUG=0 # set to 1 for verbose testing
 echo $SSM_LOADED
 [[ ! $SSM_LOADED == 1 ]] && . "$(which ssm)"
 
