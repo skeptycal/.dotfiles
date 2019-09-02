@@ -334,27 +334,29 @@ log_toggle() {
     #   reference: https://unix.stackexchange.com/questions/80988/how-to-stop-redirection-in-bash
 
     # set default log filename or $1
-    if [[ -z "$1" ]]; then
-        if [[ -z "$LOG_FILE_NAME" ]]; then
-            LOG_FILE_NAME="${script_source:-'./'}LOGFILE.log"
-        fi
-    else
-        LOG_FILE_NAME="${1}"
-    fi
-    touch "$LOG_FILE_NAME"
-    # if log is on, turn it off
-    if [[ "$LOG" == '1' ]]; then
-        LOG='0'
-        exec 1>&4- 2>&5-
-        attn "logging off ..."
-    else # if it is off ... turn it on
-        LOG='1'
-        exec 4>&1 5>&2
-        # log to the filename stored in $LOG_FILE_NAME
-        db_echo "\${LOG_FILE_NAME}: ${LOG_FILE_NAME}"
-        exec > >(tee -a -i "${LOG_FILE_NAME}") 2>&1
-        attn "logging on ..."
-    fi
+    # TODO this function is generating sporadic errors ...
+    return 0
+    # if [[ -z "$1" ]]; then
+    #     if [[ -z "$LOG_FILE_NAME" ]]; then
+    #         LOG_FILE_NAME="${script_source:-'./'}LOGFILE.log"
+    #     fi
+    # else
+    #     LOG_FILE_NAME="${1}"
+    # fi
+    # touch "$LOG_FILE_NAME"
+    # # if log is on, turn it off
+    # if [[ "$LOG" == '1' ]]; then
+    #     LOG='0'
+    #     exec 1>&4- 2>&5-
+    #     attn "logging off ..."
+    # else # if it is off ... turn it on
+    #     LOG='1'
+    #     exec 4>&1 5>&2
+    #     # log to the filename stored in $LOG_FILE_NAME
+    #     db_echo "\${LOG_FILE_NAME}: ${LOG_FILE_NAME}"
+    #     exec > >(tee -a -i "${LOG_FILE_NAME}") 2>&1
+    #     attn "logging on ..."
+    # fi
 }
 test_echo() {
     # log the current value of a given variable ($1)
@@ -637,6 +639,9 @@ trap _trap_error ERR
 # trap _trap_debug DEBUG
 
 _main_standard_script_modules "$@"
+
+# generate a function list
+declare -F | sed "s/declare -fx //g" >ssm_functions.txt
 
 #? ############################################################################
 # References

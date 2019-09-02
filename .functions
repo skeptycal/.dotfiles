@@ -15,6 +15,17 @@ set -a
 export SET_DEBUG=0 # set to 1 for verbose testing
 [[ ! $SSM_LOADED == 1 ]] && . "$(which ssm)"
 
+function lns() {
+    # list symlinks in current directory
+    # References: https://askubuntu.com/questions/522051/how-to-list-all-symbolic-links-in-a-directory
+    # ls -la | grep "\->"
+    find $PWD -maxdepth 1 -type l -ls # -print0 | xargs -0
+    # find $PWD -maxdepth 1 -type l -ls
+    # find $PWD -maxdepth 1 -type l -exec echo {} \;
+
+    # ls -la | grep "\->"
+}
+
 function new() { echo -e ${1//:/\\n}; }
 function fix_list() {
     # TODO work in progress
@@ -611,6 +622,9 @@ function _main_functions() {
 }
 
 _main_functions "$@"
+
+# generate a function list
+# declare -F | sed "s/declare -fx //g" >.functions_functions.txt
 
 # References:
 # 	'find types' https://www.gnu.org/software/findutils/manual/html_mono/find.html#Type

@@ -1,5 +1,34 @@
-#!/usr/bin/env bash
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
+# -*- encoding: utf-8 -*-
+#? ############################# skeptycal.com ################################
+NAME = __file__
+VERSION='0.1.2'
+DESC='standard script modules for macOS (Bash 5.0 with GNU coreutils)'
+USAGE="source ${NAME:-} [help|test|usage|version]"
+AUTHOR="Michael Treanor  <skeptycal@gmail.com>"
+COPYRIGHT="Copyright (c) 2019 Michael Treanor"
+LICENSE="MIT <https://opensource.org/licenses/MIT>"
+GITHUB="https://www.github.com/skeptycal"
+#? ############################################################################
+""" module ssm.py """
+# requires python 3.7+
+# simple script module for python
+# utilities and handy knick-knacks
+import locale
+import json
+import os
+import sys
+from typing import List, Dict, Any
+
+from text_colors import color_encode
+
+print (__file__)
+print (sys.argv[0])
+
+"""
+macOS Bash 5.0 ssm
+
+
 #? ############################# skeptycal.com ################################
 NAME="${BASH_SOURCE##*/:'standard_script_modules'}"
 VERSION='0.1.2'
@@ -334,29 +363,27 @@ log_toggle() {
     #   reference: https://unix.stackexchange.com/questions/80988/how-to-stop-redirection-in-bash
 
     # set default log filename or $1
-    # TODO this function is generating sporadic errors ...
-    return 0
-    # if [[ -z "$1" ]]; then
-    #     if [[ -z "$LOG_FILE_NAME" ]]; then
-    #         LOG_FILE_NAME="${script_source:-'./'}LOGFILE.log"
-    #     fi
-    # else
-    #     LOG_FILE_NAME="${1}"
-    # fi
-    # touch "$LOG_FILE_NAME"
-    # # if log is on, turn it off
-    # if [[ "$LOG" == '1' ]]; then
-    #     LOG='0'
-    #     exec 1>&4- 2>&5-
-    #     attn "logging off ..."
-    # else # if it is off ... turn it on
-    #     LOG='1'
-    #     exec 4>&1 5>&2
-    #     # log to the filename stored in $LOG_FILE_NAME
-    #     db_echo "\${LOG_FILE_NAME}: ${LOG_FILE_NAME}"
-    #     exec > >(tee -a -i "${LOG_FILE_NAME}") 2>&1
-    #     attn "logging on ..."
-    # fi
+    if [[ -z "$1" ]]; then
+        if [[ -z "$LOG_FILE_NAME" ]]; then
+            LOG_FILE_NAME="${script_source:-'./'}LOGFILE.log"
+        fi
+    else
+        LOG_FILE_NAME="${1}"
+    fi
+    touch "$LOG_FILE_NAME"
+    # if log is on, turn it off
+    if [[ "$LOG" == '1' ]]; then
+        LOG='0'
+        exec 1>&4- 2>&5-
+        attn "logging off ..."
+    else # if it is off ... turn it on
+        LOG='1'
+        exec 4>&1 5>&2
+        # log to the filename stored in $LOG_FILE_NAME
+        db_echo "\${LOG_FILE_NAME}: ${LOG_FILE_NAME}"
+        exec > >(tee -a -i "${LOG_FILE_NAME}") 2>&1
+        attn "logging on ..."
+    fi
 }
 test_echo() {
     # log the current value of a given variable ($1)
@@ -663,3 +690,118 @@ declare -F | sed "s/declare -fx //g" >ssm_functions.txt
 
 # arguments in bash
 # https://stackoverflow.com/questions/255898/how-to-iterate-over-arguments-in-a-bash-script
+
+"""
+
+""" list of functions from .functions dotfile
+a
+allopen
+anybar
+anyguard
+async_run
+attn
+azure_agent
+bak
+blue
+br
+brew_fix
+canary
+cdf
+ce
+check_file
+cherry
+chmod_all
+clip
+dataurl
+datelog
+db_echo
+die
+diff
+digga
+dist_hook
+exit_usage
+fileop
+find_broken
+fix_list
+fs
+gdv
+get_current_os_name
+get_linux_platform_name
+get_safe_new_filename
+get_template
+getcertnames
+gfg
+ggf
+ggfl
+ggl
+ggp
+ggpnp
+ggu
+git_com
+git_one
+green
+gz
+hex_dump
+iterm2_begin_osc
+iterm2_end_osc
+iterm2_print_state_data
+iterm2_print_user_vars
+iterm2_print_version_number
+iterm2_prompt_mark
+iterm2_prompt_prefix
+iterm2_prompt_suffix
+iterm2_set_user_var
+l
+lns
+log_flag
+log_toggle
+lt
+main
+main_aliases
+main_exports
+me
+mkd
+new
+no_yes
+nonzero_return
+o
+parse_filename
+parse_git_branch
+parse_git_dirty
+parse_options
+phpserver
+pk
+prettier_here
+pretty
+print_usage
+prompt_OFF
+prompt_off
+prompt_on
+prompt_tag
+purple
+pyver
+rain
+readlinkf
+real_name
+run_debug_aliases
+run_debug_exports
+server
+set_man_page
+setup_tools
+source_file
+targz
+test_echo
+test_var
+travis_trigger
+tre
+tree_html
+trw
+tt
+url_decode
+url_encode
+versions
+warn
+web_chmod
+white
+yes_no
+"""
