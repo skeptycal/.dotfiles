@@ -324,7 +324,7 @@ print_usage() {
     echo "$MAN_PAGE"
 }
 #* ######################## program logging functions
-log_toggle() {
+# log_toggle() {
     #   usage: log_toggle [filename]
     #   toggle on and off logging to file
     #       parameter
@@ -334,8 +334,8 @@ log_toggle() {
     #   reference: https://unix.stackexchange.com/questions/80988/how-to-stop-redirection-in-bash
 
     # set default log filename or $1
-    # TODO this function is generating sporadic errors ...
-    return 0
+    # # TODO this function is generating sporadic errors ...
+    # return 0
     # if [[ -z "$1" ]]; then
     #     if [[ -z "$LOG_FILE_NAME" ]]; then
     #         LOG_FILE_NAME="${script_source:-'./'}LOGFILE.log"
@@ -357,7 +357,7 @@ log_toggle() {
     #     exec > >(tee -a -i "${LOG_FILE_NAME}") 2>&1
     #     attn "logging on ..."
     # fi
-}
+# }
 test_echo() {
     # log the current value of a given variable ($1)
     # usage: test_echo <test name> <test code>
@@ -579,7 +579,7 @@ _run_tests() {
         # functions that include an 'exit' will skip it so tests can continue
         DONT_DIE='1'
         # log everything to LOG_FILE_NAME
-        log_toggle
+        # log_toggle
 
         ce "${COOL}BASH_SOURCE:$MAIN $BASH_SOURCE$RESET_FG"
         log_flag
@@ -607,7 +607,7 @@ _run_tests() {
         test_var "$result"
 
         # cleanup test environment
-        log_toggle
+        # log_toggle
         unset DONT_DIE
         unset LOG_FILE_NAME
         unset _EXIT_USAGE_TEXT
