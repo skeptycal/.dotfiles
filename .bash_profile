@@ -1,33 +1,39 @@
 #!/usr/bin/env bash
 # -*- coding: utf-8 -*-
 
+# Silence Catalina Warning
+export BASH_SILENCE_DEPRECATION_WARNING=1
+
 #* #############################################################################
 #* ### Set Options
 #* #############################################################################
+
 umask 022 # use root defaults since they match web server defaults
-set -a    #? export all;
 
 #* #############################################################################
 #* ### Troubleshooting
 #* #############################################################################
-#?      set to 1 for verbose testing
-declare -xi SET_DEBUG=0
+
+#?      set to 1 for verbose testing ; remove -r to allow each script to set it
+declare -ir SET_DEBUG=1 
+export SET_DEBUG
 #?      log errors to text file; only functional if $SET_DEBUG=1
-if (($SET_DEBUG == 1)); then
+if [[ $SET_DEBUG == 1 ]]; then
     #? turn on debug logging
-    declare -xi DEBUG_LOG=0
+    export DEBUG_LOG=0
     #? log file for debug logs
-    declare -x debug_log_file="${HOME}/.bash_profile_error.log"
+    export debug_log_file="${HOME}/.bash_profile_error.log"
     #? max filesize for debug_log_file
-    declare -xi debug_log_max_size=32768
+    export debug_log_max_size=32768
 fi
-declare -x SOURCE_PATH="$HOME/.dotfiles"
 
 #* #############################################################################
 #* ### Load Profile settings
 #* #############################################################################
 
+export SOURCE_PATH="$HOME/.dotfiles"
 [ -n "$PS1" ] && . "${SOURCE_PATH}/.bash_profile_details"
+return
 
 #* #############################################################################
 #* ### Notes and References

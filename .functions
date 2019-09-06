@@ -11,7 +11,7 @@ COPYRIGHT="Copyright (c) 2019 Michael Treanor"
 LICENSE="MIT <https://opensource.org/licenses/MIT>"
 GITHUB="https://www.github.com/skeptycal"
 #? ############################################################################
-set -a
+# set -a
 export SET_DEBUG=0 # set to 1 for verbose testing
 [[ ! $SSM_LOADED == 1 ]] && . "$(which ssm)"
 
@@ -574,6 +574,14 @@ function getcertnames() {
     fi
 }
 
+# get name for open if linux or windows
+if [ ! "$(uname -s)" = 'Darwin' ]; then
+    if grep -q Microsoft /proc/version; then
+        alias open='explorer.exe'
+    else
+        alias open='xdg-open'
+    fi
+fi
 function o() {
     if [ $# -eq 0 ]; then
         open .
@@ -595,19 +603,12 @@ function tree_html() {
 }
 
 function _run_debug_functions() {
-    attn "Functions test"
-    ce "Script source:$MAIN $BASH_SOURCE$RESET_FG"
+    db_script_source "Functions test"
+    warn $NAME
 }
 
 function _main_functions() {
-    if [ ! "$(uname -s)" = 'Darwin' ]; then
-        if grep -q Microsoft /proc/version; then
-            alias open='explorer.exe'
-        else
-            alias open='xdg-open'
-        fi
-    fi
-
+    # use git diff if available
     if [[ "$(hash git &>/dev/null)" -eq 0 ]]; then
         function diff() {
             git diff --no-index --color-words "$@"
@@ -620,6 +621,8 @@ function _main_functions() {
 
     [[ $SET_DEBUG == '1' ]] && _run_debug_functions
 }
+
+source 
 
 _main_functions "$@"
 

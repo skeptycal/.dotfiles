@@ -15,7 +15,7 @@ export HOMEBREW_PREFIX=$(brew --prefix)
 export LDFLAGS="-L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib"
 # LDFLAGS="-L/usr/local/opt/zlib/lib"
 # CPPFLAGS="-I/usr/local/opt/zlib/include"
-export HISTSIZE='32768'
+export HISTSIZE=32768
 export HISTFILESIZE="${HISTSIZE}"
 export HISTCONTROL='ignoreboth'
 
@@ -34,7 +34,7 @@ export PROJECT_HOME="${HOME}/Documents/coding/"
 
 # Node
 export NODE_REPL_HISTORY="${HOME}/.node_history"
-export NODE_REPL_HISTORY_SIZE='32768'
+export NODE_REPL_HISTORY_SIZE=32768
 export NODE_REPL_MODE='sloppy'
 
 # Perl

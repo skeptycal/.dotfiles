@@ -10,8 +10,7 @@ COPYRIGHT="Copyright (c) 2019 Michael Treanor"
 LICENSE="MIT <https://opensource.org/licenses/MIT>"
 GITHUB="https://www.github.com/skeptycal"
 #? ############################################################################
-set -a
-# set -aET
+
 # [[ ! $SSM_LOADED == 1 ]] && return
 
 export SET_DEBUG=0              # set to 1 for verbose testing
@@ -137,14 +136,7 @@ export RESET_FG=$(echo -en '\001\033[0m')
 
 #* ######################## functions for printing lines in common colors
 function br() { printf "\n"; } # yes, this is a fake cli version of <br />
-ce() {
-    # if [ "$#" -gt 0 ]; then
-    #     printf '%b' "$1"
-    #     shift
-    # fi
-    printf '%b ' "$*"
-    printf "${RESET_FG:-}"
-}
+ce() { printf "%b\n" "${@}${RESET_FG:-}"; }
 me() { printf "%b\n" "${MAIN:-}${@}${RESET_FG:-}"; }
 warn() { printf "%b\n" "${WARN:-:-}${@}${RESET_FG:-}"; }
 blue() { printf "%b\n" "${COOL:-}${@}${RESET_FG:-}"; }
@@ -322,6 +314,10 @@ exit_usage() {
 print_usage() {
     set_man_page
     echo "$MAN_PAGE"
+}
+function db_script_source() {
+    attn "$@"
+    attn "Script source:${MAIN} ${BASH_SOURCE}${RESET_FG}\n"
 }
 #* ######################## program logging functions
 # log_toggle() {
@@ -629,10 +625,10 @@ _main_standard_script_modules() {
 }
 
 #* ######################## entry point
-# echo ${filename##*/}
-# ce "Script source:$MAIN ${BASH_SOURCE[0]##*/}${RESET_FG:-}\n"
-# ce "Script parent:$MAIN ${BASH_SOURCE[1]##*/}${RESET_FG:-}\n"
-# ce "Script grandparent:$MAIN ${BASH_SOURCE[2]##*/}${RESET_FG:-}\n"
+echo ${filename##*/}
+ce "Script source:$MAIN ${BASH_SOURCE[0]##*/}${RESET_FG:-}\n"
+ce "Script parent:$MAIN ${BASH_SOURCE[1]##*/}${RESET_FG:-}\n"
+ce "Script grandparent:$MAIN ${BASH_SOURCE[2]##*/}${RESET_FG:-}\n"
 
 trap _trap_error ERR
 # trap _trap_exit EXIT

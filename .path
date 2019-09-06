@@ -10,6 +10,7 @@ PYTHONPATH="\
         $HOME/bin/utilities/apps/python:\
         /usr/bin/python:\
         /usr/local/bin/python:\
+        ./
         "
 
 PYTHONPATH="${PYTHONPATH// /}"
@@ -52,6 +53,7 @@ export MANPATH
 
 PATH="\
     $HOME/bin:\
+    ./src:\
     /usr/local/opt/coreutils/libexec/gnubin:\
     /usr/local/opt/ccache/libexec:\
     /usr/local/opt/sqlite/bin:\

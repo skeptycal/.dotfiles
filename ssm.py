@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 # -*- encoding: utf-8 -*-
+"""
+module ssm.py
+requires python 3.7+
 #? ############################# skeptycal.com ################################
 NAME = __file__
 VERSION='0.1.2'
@@ -10,15 +13,12 @@ COPYRIGHT="Copyright (c) 2019 Michael Treanor"
 LICENSE="MIT <https://opensource.org/licenses/MIT>"
 GITHUB="https://www.github.com/skeptycal"
 #? ############################################################################
-""" module ssm.py """
-# requires python 3.7+
-# simple script module for python
-# utilities and handy knick-knacks
-import locale
+"""
 import json
+import locale
 import os
 import sys
-from typing import List, Dict, Any
+from typing import Any, Dict, List
 
 from text_colors import color_encode
 

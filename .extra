@@ -1,6 +1,7 @@
 #!/usr/bin/env false bash
 # *############################################################################
-[[ $SET_DEBUG == 1 ]] && ce "Script source:$MAIN $BASH_SOURCE$RESET"
+[[ $SET_DEBUG == 1 ]] && db_script_source ".extra test"
+
 
 # https://rick.cogley.info/post/use-homebrew-zsh-instead-of-the-osx-default/
 # unalias run-help
@@ -8,3 +9,5 @@
 # HELPDIR=/usr/local/share/zsh/help
 
 # source "${HOME}/.dotfiles/.iterm2_shell_integration.zsh"
+
+source $(which brew_fix.sh)
