@@ -5,12 +5,10 @@
 # *## PYTHONPATH ###########################################################
 PYTHONPATH="\
         /usr/local/Cellar/python/3.7.3/Frameworks/Python.framework/Versions/3.7/Resources/Python.app/Contents/MacOS/python:\
-        $HOME/anaconda3/lib/python3.7/site-packages:\
         $HOME/bin/utilities/python:\
         $HOME/bin/utilities/apps/python:\
         /usr/bin/python:\
-        /usr/local/bin/python:\
-        ./
+        ./:\
         "
 
 PYTHONPATH="${PYTHONPATH// /}"
@@ -52,13 +50,11 @@ export MANPATH
 #   /usr/local/opt/openssl/bin/c_rehash
 
 PATH="\
+    /usr/local/opt/coreutils/libexec/gnubin:\
     $HOME/bin:\
     ./src:\
-    /usr/local/opt/coreutils/libexec/gnubin:\
-    /usr/local/opt/ccache/libexec:\
-    /usr/local/opt/sqlite/bin:\
-    /usr/local/opt/libpq/bin:\
     /usr/local/opt/cython/bin:\
+    /usr/local/bin/:\
     $HOME/Documents/coding/emsdk:\
     $HOME/Documents/coding/emsdk/fastcomp/emscripten:\
     $HOME/Documents/coding/emsdk/node/10.16.3_64bit/bin
@@ -74,13 +70,9 @@ PATH="\
     $HOME/.local/bin:\
     $HOME/.dotfiles:\
     /usr/local/lib/node_modules:\
-    /usr/local/Cellar/python/3.7.3/Frameworks/Python.framework/Versions/3.7/Resources/Python.app/Contents/MacOS:\
     /Applications/Postgres.app/Contents/Versions/latest/bin:\
     /Applications/Visual Studio Code.app/Contents/Resources/app/bin:\
-    /usr/local/opt/ruby/bin:\
-    /usr/local/lib/ruby/gems/2.6.0/bin:\
     /usr/local/go/bin:\
-    /usr/local/bin:\
     /usr/bin:\
     /bin:\
     /usr/local/opt:\
@@ -95,8 +87,6 @@ PATH="\
     /usr/local/share/dotnet:\
     /opt/X11/bin:\
     $HOME/.dotnet/tools:\
-    /usr/local/anaconda3/bin:\
-    /Applications/Postgres.app/Contents/Versions/latest/bin:\
     /Applications/Xamarin Workbooks.app/Contents/SharedSupport/path-bin:\
     $HOME/perl5/bin:\
     $HOME/bin/utilities/git-achievements:\

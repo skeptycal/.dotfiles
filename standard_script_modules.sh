@@ -13,10 +13,8 @@ GITHUB="https://www.github.com/skeptycal"
 
 # [[ ! $SSM_LOADED == 1 ]] && return
 
-export SET_DEBUG=0              # set to 1 for verbose testing
-export SSM_LOADED=1 >>/dev/null # prevent repeat loading
-
-# [[ $SSM_LOADED != yes && -f ~/.ssm ]] && source ~/.privaterc
+export SET_DEBUG=0        # set to 1 for verbose testing
+export SSM_LOADED=1       # prevent repeat loading
 
 exec 6>&1 # non-volatile stdout leaves return values of stdout undisturbed
 # return 0
@@ -136,17 +134,17 @@ export RESET_FG=$(echo -en '\001\033[0m')
 
 #* ######################## functions for printing lines in common colors
 function br() { printf "\n"; } # yes, this is a fake cli version of <br />
-ce() { printf "%b\n" "${@}${RESET_FG:-}"; }
-me() { printf "%b\n" "${MAIN:-}${@}${RESET_FG:-}"; }
-warn() { printf "%b\n" "${WARN:-:-}${@}${RESET_FG:-}"; }
-blue() { printf "%b\n" "${COOL:-}${@}${RESET_FG:-}"; }
-green() { printf "%b\n" "${GO:-}${@}${RESET_FG:-}"; }
-cherry() { printf "%b\n" "${CHERRY:-}${@}${RESET_FG:-}"; }
-canary() { printf "%b\n" "${CANARY:-}${@}${RESET_FG:-}"; }
-attn() { printf "%b\n" "${ATTN:-}${@}${RESET_FG:-}"; }
-purple() { printf "%b\n" "${PURPLE:-}${@}${RESET_FG:-}"; }
-rain() { printf "%b\n" "${RAIN:-}${@}${RESET_FG:-}"; }
-white() { printf "%b\n" "${WHITE:-}${@}${RESET_FG:-}"; }
+function ce() { printf "%b\n" "${@}${RESET_FG:-}"; }
+function me() { printf "%b\n" "${MAIN:-}${@}${RESET_FG:-}"; }
+function warn() { printf "%b\n" "${WARN:-:-}${@}${RESET_FG:-}"; }
+function blue() { printf "%b\n" "${COOL:-}${@}${RESET_FG:-}"; }
+function green() { printf "%b\n" "${GO:-}${@}${RESET_FG:-}"; }
+function cherry() { printf "%b\n" "${CHERRY:-}${@}${RESET_FG:-}"; }
+function canary() { printf "%b\n" "${CANARY:-}${@}${RESET_FG:-}"; }
+function attn() { printf "%b\n" "${ATTN:-}${@}${RESET_FG:-}"; }
+function purple() { printf "%b\n" "${PURPLE:-}${@}${RESET_FG:-}"; }
+function rain() { printf "%b\n" "${RAIN:-}${@}${RESET_FG:-}"; }
+function white() { printf "%b\n" "${WHITE:-}${@}${RESET_FG:-}"; }
 # go() { printf "%b\n" "${FUNCNAME[0]^^:-}${@}${RESET_FG:-}"; }
 
 #* ######################## program usage setup
@@ -316,7 +314,7 @@ print_usage() {
     echo "$MAN_PAGE"
 }
 function db_script_source() {
-    attn "$@"
+    [[ -n "$1" ]] && attn "$@"
     attn "Script source:${MAIN} ${BASH_SOURCE}${RESET_FG}\n"
 }
 #* ######################## program logging functions
@@ -625,10 +623,10 @@ _main_standard_script_modules() {
 }
 
 #* ######################## entry point
-echo ${filename##*/}
-ce "Script source:$MAIN ${BASH_SOURCE[0]##*/}${RESET_FG:-}\n"
-ce "Script parent:$MAIN ${BASH_SOURCE[1]##*/}${RESET_FG:-}\n"
-ce "Script grandparent:$MAIN ${BASH_SOURCE[2]##*/}${RESET_FG:-}\n"
+# echo ${filename##*/}
+# ce "Script source:$MAIN ${BASH_SOURCE[0]##*/}${RESET_FG:-}\n"
+# ce "Script parent:$MAIN ${BASH_SOURCE[1]##*/}${RESET_FG:-}\n"
+# ce "Script grandparent:$MAIN ${BASH_SOURCE[2]##*/}${RESET_FG:-}\n"
 
 trap _trap_error ERR
 # trap _trap_exit EXIT

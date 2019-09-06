@@ -78,17 +78,29 @@ function travis_trigger() {
     #     "https://api.travis-ci.org/repo/${org}%2F${repo}/requests"
 }
 function versions() {
-    green "BASH $BASH_VERSION"
-    attn "$(hub --version)"
-    cherry "ruby        v$(ruby -v 2>/dev/null | awk '{print $2}')"
-    purple "php         v$(php -v | grep '(cli)' | awk '{print $2}')"
-
-    printf "${COOL}"
+    br
+    me "####################################"
+    me "$(uname -i) | $(sw_vers -productName) | $(sw_vers -productVersion)"
+    me "shell:"
+    green "  zsh: $(zsh --version)"
+    green "  this zsh session: $ZSH_VERSION"
+    green "  bash: $(bash --version | command grep bash)"
+    green "  grep: $(grep --version)"
+    me "utilities:"
+    attn "  $(git --version | sed 's/version /        v/g')"
+    attn "  $(hub --version | grep hub | sed 's/version /        v/g')"
+    attn   "  npm         v$(npm -v)"
+    attn "  $(lein --version | sed 's/Leiningen/lein version/g' | sed 's/version /       v/g')"
+    me "languages:"
+    warn "  ruby        v$(ruby -v 2>/dev/null | awk '{print $2}')"
+    purple "  php         v$(php -v | grep '(cli)' | awk '{print $2}')"
+    printf "  ${COOL}"
     python -c 'import sys; sys.stdout.write("python      v" + ".".join(map(str, sys.version_info[:3]))); sys.stdout.flush()'
     printf "$RESET_FG\n"
+    canary "  node        $(node -v)"
 
-    canary "node        $(node -v)"
-    warn "npm         v$(npm -v)"
+    attn "  Xcode       v$(/Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -version | grep Xcode | sed 's/Xcode //g' )"
+    attn "  Clojure $(clojure -Sdescribe | grep version | sed 's/{://g' | sed 's/"//g' | sed 's/version /    v/g')"
     br
     # me "Travis CI   v$(travis version)"
 
@@ -621,8 +633,6 @@ function _main_functions() {
 
     [[ $SET_DEBUG == '1' ]] && _run_debug_functions
 }
-
-source 
 
 _main_functions "$@"
 
