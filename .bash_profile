@@ -31,6 +31,8 @@ fi
 #* ### Load Profile settings
 #* #############################################################################
 
+BASH_SOURCE="$0" # to help with zsh transition
+
 export SOURCE_PATH="$HOME/.dotfiles"
 [ -n "$PS1" ] && . "${SOURCE_PATH}/.bash_profile_details"
 return

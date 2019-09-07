@@ -56,6 +56,14 @@ function l() {
     eval "launchctl ${@:-list}"
 }
 
+in_list () { 
+    # usage: contains needle haystack
+    # list items must be surrounded by single spaces
+    # [[ "$2" =~ " ${1} " ]] && echo 'yes' || echo 'no' # false positives
+    # echo $list|grep $x
+    echo "$2" | grep " $1 " >/dev/null && echo 'yes' || echo 'no'
+}
+
 #* ######################## C++ style error messages
 #   References:
 #       Advanced Bash-Scripting Guide
@@ -64,7 +72,6 @@ function l() {
 #       Copyright (c) 1987, 1993
 #       The Regents of the University of California.  All rights reserved.
 export EX_OK=0          # successful termination
-export EX__BASE=64      # base value for error messages
 export EX_USAGE=64      # command line usage error
 export EX_DATAERR=65    # data format error
 export EX_NOINPUT=66    # cannot open input
@@ -80,7 +87,6 @@ export EX_TEMPFAIL=75   # temp failure; user is invited to retry
 export EX_PROTOCOL=76   # remote error in protocol
 export EX_NOPERM=77     # permission denied
 export EX_CONFIG=78     # configuration error
-export EX__MAX=78       # maximum listed value
 
 #* ######################## BASH trap signals
 # http://tldp.org/LDP/Bash-Beginners-Guide/html/sect_12_02.html
@@ -271,7 +277,7 @@ die() {
     # exit program with $exit_code ($1) and optional $message ($2)
     # https://stackoverflow.com/questions/7868818/in-bash-is-there-an-equivalent-of-die-error-msg/7869065
 
-    warn "${2:-script} died...${USAGE:-}" >&2
+    warn "${2:-$script_name} died...${USAGE:-}" >&2
     db_echo "${MAIN:-}line ${BLUE:-}${BASH_LINENO[0]}${MAIN:-} of ${ATTN:-}${FUNCNAME[1]}${MAIN:-} in ${BASH_SOURCE[1]}${MAIN:-}." >&2
     [[ ! "$DONT_DIE" == '1' ]] && exit "${1:1}"
 }
@@ -596,6 +602,11 @@ _run_tests() {
         test_var "$fake_filename"
         test_echo "real_name() test" "real_name $fake_filename"
 
+        test_echo "in_list() test" "in_list '1' '123'"
+        test_echo "in_list() test" "in_list 'ok' 'this is ok'"
+        test_echo "in_list() test" "in_list 'j' 'klm')"
+        test_echo "in_list() test" "in_list 'doc' '( txt rtf rtfd html doc docx odt wordml webarchive )')"
+
         log_flag
         result="${fake_filename##*/}"
         test_var "$result"
@@ -635,7 +646,7 @@ trap _trap_error ERR
 _main_standard_script_modules "$@"
 
 # generate a function list
-declare -F | sed "s/declare -fx //g" >ssm_functions.txt
+# declare -F | sed "s/declare -fx //g" >ssm_functions.txt
 
 #? ############################################################################
 # References

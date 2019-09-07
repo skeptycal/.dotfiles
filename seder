@@ -3,7 +3,10 @@
 
 
 # pattern='s/(v[0-9]*.[0-9]*.[0-9]*)/\1/'
-pattern='s/\(subversion\)/\1/'
+pattern='s/\^.*(subversion\).*/\1/'
+# pattern='s/\([a-z]*\).*/\1/'
 
 perl -v | grep version 
 perl -v | grep version | sed "$pattern"
+echo
+echo abcd123 | sed 's/\([a-z]*\).*/\1/'

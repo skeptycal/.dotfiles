@@ -22,8 +22,7 @@ export SET_DEBUG
 #     #? max filesize for debug_log_file
 #     export debug_log_max_size=32768
 # fi
-# declare -r colorflag=" --color=always"
-declare -r colorflag=" -G"
+declare -r colorflag=" --color=always"
 export colorflag
 
 #* #############################################################################
@@ -134,7 +133,8 @@ DISABLE_UNTRACKED_FILES_DIRTY="true"
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 # plugins=(git)
-plugins=(git lein pip pipenv django colored-man colorize pip python osx zsh-syntax-highlighting)
+plugins=(git colored-man colorize pip python osx zsh-syntax-highlighting)
+
 
 source $ZSH/oh-my-zsh.sh
 
@@ -163,17 +163,3 @@ export ARCHFLAGS="-arch x86_64"
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-
-#
-# Executes commands at the start of an interactive session.
-#
-# Authors:
-#   Sorin Ionescu <sorin.ionescu@gmail.com>
-#
-
-# Source Prezto.
-if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
-  source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
-fi
-
-# Customize to your needs...
