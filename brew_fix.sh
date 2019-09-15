@@ -1,5 +1,6 @@
-#!/usr/bin/env bash
+#!/usr/bin/env zsh
 # -*- coding: utf-8 -*-
+BASH_SOURCE="$0" # to ease the transition to zsh
 ###############################################################################
 # brew_fix : update, clean, and fix HomeBrew for macOS bash scripts
 #   node / npm often breaks when updating brew repos:

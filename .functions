@@ -1,6 +1,7 @@
 #!/usr/bin/env false bash
 # -*- coding: utf-8 -*-
 # cannot be run directly
+BASH_SOURCE="$0" # to ease the transition to zsh
 #? ############################# skeptycal.com ################################
 NAME="${BASH_SOURCE##*/}"
 VERSION='1.2.0'
@@ -12,19 +13,32 @@ LICENSE="MIT <https://opensource.org/licenses/MIT>"
 GITHUB="https://www.github.com/skeptycal"
 #? ############################################################################
 # set -a
-export SET_DEBUG=0 # set to 1 for verbose testing
-[[ ! $SSM_LOADED == 1 ]] && . "$(which ssm)"
+# export SET_DEBUG=0 # set to 1 for verbose testing
+# [[ ! $SSM_LOADED == 1 ]] && . "$(which ssm)"
+
+# get name for open if linux or windows
+if [ ! "$(uname -s)" = 'Darwin' ]; then
+    if grep -q Microsoft /proc/version; then
+        alias open='explorer.exe'
+    else
+        alias open='xdg-open'
+    fi
+fi
+function o() {
+    if [ $# -eq 0 ]; then
+        open .
+    else
+        open "$@"
+    fi
+    }
+
 
 function lns() {
     # list symlinks in current directory
     # References: https://askubuntu.com/questions/522051/how-to-list-all-symbolic-links-in-a-directory
-    # ls -la | grep "\->"
-    find $PWD -maxdepth 1 -type l -ls # -print0 | xargs -0
-    # find $PWD -maxdepth 1 -type l -ls
-    # find $PWD -maxdepth 1 -type l -exec echo {} \;
-
-    # ls -la | grep "\->"
-}
+    # la | grep '\-> \/'
+    find $PWD -maxdepth 1 -type l  
+    }
 
 function new() { echo -e ${1//:/\\n}; }
 function fix_list() {
@@ -38,7 +52,12 @@ function fix_list() {
 
     # < ~/.dotfiles/.functions | grep -e " function " | awk '{ print $2 }'
     # echo $function_list >function_list.txt
-}
+    }
+function pyver() {
+    # silly function to address the lack of correct output from
+    #   python 2.7 executable in this sitation 'python --version'
+    python -c "print('.'.join(str(i).strip() for i in __import__('sys').version_info[:3]))"
+    }
 function travis_trigger() {
     # TODO needs more testing - strange errors
     return 0
@@ -76,38 +95,38 @@ function travis_trigger() {
     #     -H "Authorization: token $TRAVIS_TOKEN" \
     #     -d "$body" \
     #     "https://api.travis-ci.org/repo/${org}%2F${repo}/requests"
-}
+    }
 function versions() {
     br
-    me "####################################"
-    me "$(uname -i) | $(sw_vers -productName) | $(sw_vers -productVersion)"
+    me "## Versions ############################"
+    cherry "$(uname -i) | $(sw_vers -productName) | $(sw_vers -productVersion)"
     me "shell:"
     green "  zsh: $(zsh --version)"
     green "  this zsh session: $ZSH_VERSION"
-    green "  bash: $(bash --version | command grep bash)"
+    green "  bash: $(bash --version | grep bash | cut -d ' ' -f 1-4 | cut -d '(' -f 1)"
     green "  grep: $(grep --version)"
+    cherry "  $(clang --version | grep version)"
     me "utilities:"
     attn "  $(git --version | sed 's/version /        v/g')"
     attn "  $(hub --version | grep hub | sed 's/version /        v/g')"
-    attn   "  npm         v$(npm -v)"
-    attn "  $(lein --version | sed 's/Leiningen/lein version/g' | sed 's/version /       v/g')"
+    canary   "  npm         v$(npm -v)"
+    # attn "  $(lein --version | sed 's/Leiningen/lein version/g' | sed 's/version /       v/g')"
     me "languages:"
-    warn "  ruby        v$(ruby -v 2>/dev/null | awk '{print $2}')"
-    purple "  php         v$(php -v | grep '(cli)' | awk '{print $2}')"
-    printf "  ${COOL}"
-    python -c 'import sys; sys.stdout.write("python      v" + ".".join(map(str, sys.version_info[:3]))); sys.stdout.flush()'
+    warn "  ruby        v$(ruby -v 2>/dev/null | cut -d ' ' -f 2)"
+    purple "  php         v$(php -v 2>/dev/null | grep '(cli)' | cut -d ' ' -f 2)"
+    printf "  ${COOL}python      v$(python --version | cut -d ' ' -f 2)"
+    # pyver
+    # python -c 'import sys; sys.stdout.write("python      v" + ".".join(map(str, sys.version_info[:3]))); sys.stdout.flush()'
     printf "$RESET_FG\n"
     canary "  node        $(node -v)"
-
-    attn "  Xcode       v$(/Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -version | grep Xcode | sed 's/Xcode //g' )"
+    cherry "  Xcode       v$(/Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -version | grep Xcode | sed 's/Xcode //g' )"
     attn "  Clojure $(clojure -Sdescribe | grep version | sed 's/{://g' | sed 's/"//g' | sed 's/version /    v/g')"
     br
     # me "Travis CI   v$(travis version)"
-
     # ye "eslint $(eslint -v)"
     # echo "$(pipenv --version)"
     # oe "prettier v$(prettier -v)"
-}
+    }
 function readlinkf() { perl -MCwd -e 'print Cwd::abs_path shift' "$1"; }
 function pk() { pkill -9 -u "$(id -u $1)"; } # kill another user's processes
 function check_file() {
@@ -129,7 +148,7 @@ function check_file() {
     [[ -k "$path" ]] && tmp_chk="${tmp_chk} sticky"
     echo " ->$tmp_chk"
     echo ''
-}
+    }
 dist_hook() {
     # TODO not yet implemented
     return 0
@@ -137,25 +156,26 @@ dist_hook() {
     # find -regextype posix-egrep -regex ".*(\.([chyl]|def|cpy|cob|conf|cfg)|(README|ChangeLog|AUTHORS|ABOUT-NLS|NEWS|THANKS|TODO|COPYING.*))$" -exec sed -i -e 's/\r*$/\r/' {} \;
     # OR
     # for F in Documents/*.{py,html}; do ...something with each '$F'... ; done
-}
+    }
 prettier_here() {
     # $1 = path (default $PWD); $2 = filenames ( default '*')
     # OR
     # $1 = 'git'; $2 = "$files"
     if [[ "$1" == 'git' ]]; then
+        FILES=$(git diff --cached --name-only | sed 's| |\\ |g')
         echo ${2:-$FILES} | xargs prettier --write | grep -e '[[:space:]]\?[[:digit:]]\+ms'
     else
         find -L ${1:-$PWD} -name ${2:-'*'} -type f -print0 | xargs -0 prettier --write | grep -e '[[:space:]]\?[[:digit:]]\+ms'
     fi
-}
+    }
 function pretty() {
     # Use prettier to format all compatible selected files
     # Use $1 for pattern, -m (github diff) or default is '*'
 
     if [[ -z "$1" ]]; then
         echo "Making all the things pretty! (use pretty -h for help)"
-        yes_no 'Prettify all files? (Y/n) '
-        if [ ! $? == 0 ]; then
+        yes_no 'Make all of the things Prettier? (Y/n) '
+        if [ "$?" ]; then
             ce "$_pretty_usage"
         else
             prettier_here
@@ -182,7 +202,7 @@ function pretty() {
             ;;
         esac
     fi
-}
+    }
 
 function fileop() {
     # TODO work in progress
@@ -226,7 +246,7 @@ function fileop() {
     #     echo "Invalid option"
     #     ;;
     # esac
-}
+    }
 function clip() { $("$@") | pbcopy; }
 function get_template() {
     # TODO work in progress
@@ -248,7 +268,7 @@ function get_template() {
     # else
     #     printf "SOURCE file not found.\n\n"
     # fi
-}
+    }
 chmod_all() {
     # chmod matching files to given mode
     # $1 is path (default $PWD);
@@ -268,7 +288,7 @@ chmod_all() {
     fi
 
     find -L ${1:-$PWD} -name ${2:-'*'} -type f -print0 | xargs -0 chmod ${3:-644}
-}
+    }
 function web_chmod() {
     # Set default permissions for a folder that will be uploaded to the web.
     # default directory is PWD
@@ -279,7 +299,7 @@ function web_chmod() {
     find -LX "$dir" -type d -print0 | xargs -0 chmod 755
     echo "Changing permissions of all regular directories to 0755."
     # ls "$dir" -ARlh
-}
+    }
 
 function find_broken() {
     # Find and delete all broken symbolic links in current directiry
@@ -294,7 +314,7 @@ function find_broken() {
 
         find -L $PWD -type l -print 2>&1
     fi
-}
+    }
 
 function trw() {
     # TODO work in progress
@@ -306,7 +326,7 @@ function trw() {
     #     var="${var#"${var&&[!'/']*}"}"
     #     var="${var%"${var##*[![:space:]]}"}"
     #     echo -n "$var"
-}
+    }
 
 function git_one() {
     # TODO work in progress
@@ -317,7 +337,7 @@ function git_one() {
         fixed_file=${file/5/-1}
         echo "$fixed_file"
     done
-}
+    }
 
 function bak() {
     FILES="$@"
@@ -328,29 +348,29 @@ function bak() {
         [[ -f "$file" ]] && cp -f "$file" "bak/${file}.bak" || echo -e "${WARN}backup unsuccessful - ${MAIN}${file}${RESET_FG}"
         echo ''
     done
-}
-function pyver() {
-    # silly function to address the lack of correct output from
-    #   python 2.7 executable in this sitation 'python --version'
-    python -c "print('.'.join(str(i).strip() for i in __import__('sys').version_info[:3]))"
-}
+    }
+
 
 function setup_tools() {
     # TODO Work in progress
     return 0
     # https://www.createdbypete.com/ruby-on-rails-development-setup-for-macos/
     echo "Setup for Homebrew, Node.js, Python, etc."
-    # echo ''
-    # echo "Homebrew ..."
-    # /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-    # brew update &>/dev/null && brew cleanup &>/dev/null && brew doctor &>/dev/null
-    # brew reinstall node &&	echo -e "==> Installation successful! node.js $(node -v) installed.""
-}
-
+    echo ''
+    if [ $(yes_no 'Fresh Homebrew and tools setup?') ]; then
+        echo "Homebrew ..."
+        /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+        brew update &>/dev/null && brew cleanup &>/dev/null && brew doctor &>/dev/null
+        brew install bash zsh coreutils cython python git hub heroku leiningen clojure php node
+        brew reinstall node &&	echo -e "==> Installation successful! node.js $(node -v) installed."
+    else 
+        return 1
+    fi
+    }
 function nonzero_return() {
     RETVAL=$?
     [ $RETVAL -ne 0 ] && echo "$RETVAL"
-}
+    }
 function parse_git_branch() {
     BRANCH=$(git branch 2>/dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')
     if [ ! "${BRANCH}" == "" ]; then
@@ -359,7 +379,7 @@ function parse_git_branch() {
     else
         echo ""
     fi
-}
+    }
 
 function parse_git_dirty() {
     status=$(git status 2>&1 | tee)
@@ -411,11 +431,11 @@ function parse_git_dirty() {
     else
         echo ""
     fi
-}
+    }
 
 function allopen() { sudo lsof -i -P | grep "$1"; }
 function a() { alias | grep "$1"; }
-function lt() { ls -ltrsA "$@" | tail; }
+function lt() { ls -lhtrsA "$@" | tail; }
 function anyguard() {
     ANYBAR_PORT=$(jot -r 1 1700 1900)
     ANYBAR_PORT=$ANYBAR_PORT open -n /Applications/AnyBar.app
@@ -433,10 +453,10 @@ function anyguard() {
     read ENTER
     anybar quit $ANYBAR_PORT
     return $ret
-}
+    }
 function anybar() {
     echo -n $1 | nc -4u -w0 localhost ${2:-1738}
-}
+    }
 function azure_agent() {
     # svc.sh only seems to work when run from its own directory ...
     # added default parameter 'status'
@@ -447,7 +467,7 @@ function azure_agent() {
     cd "$temp_pwd"
     unset temp_pwd
     return $result
-}
+    }
 
 function datelog() {
     # create a logfile with the date as part of the file_name
@@ -459,15 +479,15 @@ function datelog() {
     printf "Log for %s\n\n" $(date "+%m/%d/%Y") | tee -a "$file_name"
     exec "$command_text" | tee -a "$file_name"
     $("$@") | tee -a "$file_name"
-}
+    }
 
 function mkd() {
     mkdir -p "$@" && cd "$_" || return
-}
+    }
 
 function cdf() {
     cd "$(osascript -e 'tell app "Finder" to POSIX path of (insertion location as alias)')" || return 1
-}
+    }
 
 function targz() {
     local tmpFile="${*%/}.tar"
@@ -499,7 +519,7 @@ function targz() {
     )
 
     echo "${tmpFile}.gz ($((zippedSize / 1000)) kB) created successfully."
-}
+    }
 
 function fs() {
     if du -b /dev/null >/dev/null 2>&1; then
@@ -512,7 +532,7 @@ function fs() {
     else
         du $arg .[^.]* ./*
     fi
-}
+    }
 
 function dataurl() {
     local mimeType
@@ -521,13 +541,13 @@ function dataurl() {
         mimeType="${mimeType};charset=utf-8"
     fi
     echo "data:${mimeType};base64,$(openssl base64 -in "$1" | tr -d '\n')"
-}
+    }
 
 function server() {
     local port="${1:-8000}"
     sleep 1 && open "http://localhost:${port}/" &
     python2 -c 'import SimpleHTTPServer;\nmap = SimpleHTTPServer.SimpleHTTPRequestHandler.extensions_map;\nmap[""] = "text/plain";\nfor key, value in map.items():\n\tmap[key] = value + ";charset=UTF-8";\nSimpleHTTPServer.test();' "$port"
-}
+    }
 
 function phpserver() {
     local port
@@ -536,7 +556,7 @@ function phpserver() {
     ip=$(ipconfig getifaddr en0)
     sleep 1 && open "http://${ip}:${port}/" &
     php -S -c "$PWD" "${ip}:${port}" -
-}
+    }
 
 function gz() {
     local origsize
@@ -547,11 +567,11 @@ function gz() {
     ratio=$(echo "$gzipsize * 100 / $origsize" | bc -l)
     printf "orig: %d bytes\n" "$origsize"
     printf "gzip: %d bytes (%2.2f%%)\n" "$gzipsize" "$ratio"
-}
+    }
 
 function digga() {
     dig +nocmd "$1" any +multiline +noall +answer
-}
+    }
 
 function getcertnames() {
     if [ -z "${1}" ]; then
@@ -584,40 +604,24 @@ function getcertnames() {
         echo "ERROR: Certificate not found."
         return 1
     fi
-}
-
-# get name for open if linux or windows
-if [ ! "$(uname -s)" = 'Darwin' ]; then
-    if grep -q Microsoft /proc/version; then
-        alias open='explorer.exe'
-    else
-        alias open='xdg-open'
-    fi
-fi
-function o() {
-    if [ $# -eq 0 ]; then
-        open .
-    else
-        open "$@"
-    fi
-}
+    }
 
 function tre() {
     tree -axC -I '.git|node_modules|bower_components' --dirsfirst "$@" -- | less -FRNX
-}
+    }
 
 tt() {
     # alias treetop='tree -L 1'
     tree -L 1 -- "$@"
-}
+    }
 function tree_html() {
     tree -ahlsAFRHD --prune --du --si --dirsfirst >tree.html
-}
+    }
 
 function _run_debug_functions() {
     db_script_source "Functions test"
     warn $NAME
-}
+    }
 
 function _main_functions() {
     # use git diff if available
@@ -632,7 +636,7 @@ function _main_functions() {
     # travis login --github-token "$TRAVIS_TOKEN"
 
     [[ $SET_DEBUG == '1' ]] && _run_debug_functions
-}
+    }
 
 _main_functions "$@"
 
