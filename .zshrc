@@ -11,7 +11,7 @@ umask 022 # use root defaults since they match web server defaults
 #* #############################################################################
 BASH_SOURCE="$0" # to help with zsh transition
 #?      set to 1 for verbose testing ; remove -r to allow each script to set it
-declare -ir SET_DEBUG=1 
+declare -i SET_DEBUG=0
 export SET_DEBUG
 #?      log errors to text file; only functional if $SET_DEBUG=1
   # if [[ $SET_DEBUG == 1 ]]; then

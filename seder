@@ -1,5 +1,6 @@
 #!/usr/bin/env zsh
 # -*- coding: utf-8 -*-
+# tests for sed commnd (GNU vs BSD)
 
 
 # pattern='s/(v[0-9]*.[0-9]*.[0-9]*)/\1/'
