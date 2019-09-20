@@ -13,7 +13,7 @@ export LOCAL_IP=$(ipconfig getifaddr en0)
 export HOMEBREW_PREFIX=$(brew --prefix)
 
 # System
-export LDFLAGS="-L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib"
+# export LDFLAGS="-L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib"
 # LDFLAGS="-L/usr/local/opt/zlib/lib"
 # CPPFLAGS="-I/usr/local/opt/zlib/include"
 export HISTSIZE=32768
@@ -26,8 +26,23 @@ export PYTHONIOENCODING='UTF-8'
 # someone should find a better way to do this ... it's so stupid
 export WORKON_HOME="${HOME}/.virtualenvs"
 export PROJECT_HOME="${HOME}/Documents/coding/"
-# source_file $(which virtualenvwrapper.sh)
-# [[ $(which pyenv-virtualenv-init >/dev/null) ]] && eval "$(pyenv virtualenv-init -)"
+# source $(which virtualenvwrapper.sh)
+eval "$(pyenv init -)"
+if which pyenv-virtualenv-init >/dev/null; then
+    eval "$(pyenv virtualenv-init -)";
+fi
+
+# pip zsh completion start
+function _pip_completion {
+  local words cword
+  read -Ac words
+  read -cn cword
+  reply=( $( COMP_WORDS="$words[*]" \
+             COMP_CWORD=$(( cword-1 )) \
+             PIP_AUTO_COMPLETE=1 $words[1] ) )
+}
+compctl -K _pip_completion pip
+# pip zsh completion end
 
 # Java
 JAVA_HOME=$(/usr/libexec/java_home)
