@@ -1,0 +1,10 @@
+include tox.ini
+include toxcov.ini
+include pytest.ini
+include .coveragerc
+include CODE_OF_CONDUCT.md
+include README.rst
+include README.md
+include LICENSE
+include CHANGES.yml
+include show_colors.py
