@@ -1,0 +1,175 @@
+#!/usr/bin/env false zsh
+# -*- coding: utf-8 -*-
+# cannot be run directly
+BASH_SOURCE="$0" # to ease the transition to zsh
+#? ############################# skeptycal.com ################################
+NAME="${BASH_SOURCE##*/}"
+VERSION='1.2.0'
+DESC='personalized Bash aliases (Bash 5.0 on macOS with GNU coreutils)'
+USAGE="source ${NAME} [help|test|usage|version]"
+AUTHOR="Michael Treanor <skeptycal@gmail.com>"
+COPYRIGHT="Copyright (c) 2019 Michael Treanor"
+LICENSE="MIT <https://opensource.org/licenses/MIT>"
+GITHUB="https://www.github.com/skeptycal"
+#? ############################################################################
+# [[ $SET_DEBUG ]] && SET_DEBUG=0 # set to 1 for verbose testing
+
+function git_com() {
+    if [[ -n "$1" ]]; then
+        gaa
+        gc -S -m "$1"
+        gp
+    fi
+}
+
+# *########################################################################
+# TODO works in progress
+alias pret='prettier * --write --insert-pragma'
+# alias todo="$EDITOR ~/.todo"
+# alias pwdcopy='pwd | pbcopy'
+alias dev='source ~/.virtualenvs/${PWD##*/}/bin/activate'
+
+alias com="git_com $@"
+alias git="git-achievements"
+# export EDITOR=nano
+# *########################################################################
+# repo setup
+alias ii='cp /Volumes/Data/skeptycal/.dotfiles/.info.cfg .'
+alias gi='cp ~/.dotfiles/.gitignore .'
+alias py="python -m "
+alias sba='source venv/bin/activate'
+alias d="docker "
+alias pe='pipenv'
+alias pes='pipenv shell'
+alias pei='pipenv install'
+alias peg='pipenv graph'
+alias ve="virtualenv"
+alias vew="virtualenvwrapper"
+
+# *########################################################################
+# handy stuff
+alias cls='clear' # because 40 year old habits die hard
+alias dir='ls'    # and I'm stubborn
+alias rd="rm -rf"
+alias reload="exec ${SHELL} -l"
+alias path='echo -e ${PATH//:/\\n}'
+alias nis="npm install --save "
+alias cgr="composer global require"
+
+# *########################################################################
+# directories
+alias cdc="cd $HOME/Documents/coding"
+alias cdw="cd $HOME/Documents/work"
+alias cdd="cd $HOME/Sites"
+alias cdb="cd $HOME/Dropbox"
+alias dl="cd $HOME/Downloads"
+alias dt="cd $HOME/Desktop"
+alias ftree="find . -print | sed -e 's;[^/]*/;|____;g;s;____|; |;g'"
+alias filetree="ls -R | grep ':$' | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/ /' -e 's/-/|/'"
+
+# *########################################################################
+# search, filter, list
+alias ducks='du -ck * | sort -rn | head -11'
+alias toomuch='du -sh ~'
+alias howmuch='du -sh '
+alias treetotal='tree | tail -1'
+# alias fd="find $PWD -type d -name "
+# alias ff="find $PWD -type f -name "
+
+# *########################################################################
+# utilities
+alias hs="history | grep "
+alias map="xargs -n1"
+alias sudo="sudo "
+alias trim="sed -e 's/^[[:space:]]*//g' -e 's/[[:space:]]*\$//g'"
+alias now='date +"%T"'
+alias nowdate='date +"%m-%d-%Y"'
+alias week="date +%V"
+alias mount="mount | column -t"
+alias allopen="sudo lsof -i -P | grep"
+alias egrep="egrep --color=auto"
+alias fgrep="fgrep --color=auto"
+alias plistbuddy="/usr/libexec/PlistBuddy"
+command -v grunt >/dev/null && alias grunt="grunt --stack"
+command -v hd >/dev/null || alias hd="hexdump -C"
+command -v md5sum >/dev/null || alias md5sum="md5"
+command -v sha1sum >/dev/null || alias sha1sum="shasum"
+
+# *########################################################################
+# maintenance
+alias update="sudo softwareupdate -i -a; brew update; brew upgrade; brew cleanup; sudo npm install npm -g; sudo npm update -g; sudo gem update --system; sudo gem update; sudo gem cleanup"
+alias cleanup="find . -type f -name '*.DS_Store' -ls -delete"
+alias emptytrash="sudo rm -rfv /Volumes/*/.Trashes; sudo rm -rfv ~/.Trash; sudo rm -rfv /private/var/log/asl/*.asl; sqlite3 ~/Library/Preferences/com.apple.LaunchServices.QuarantineEventsV* 'delete from LSQuarantineEvent'"
+alias lscleanup="/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user && killall Finder"
+alias afk="/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspend"
+
+# *########################################################################
+# Applications
+alias mergepdf="/System/Library/Automator/Combine\ PDF\ Pages.action/Contents/Resources/join.py"
+# alias canary='/Applications/Google\ Chrome\ Canary.app/Contents/MacOS/Google\ Chrome\ Canary'
+alias chrome='/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome'
+alias chromekill="ps ux | grep '[C]hrome Helper --type=renderer' | grep -v extension-process | tr -s ' ' | cut -d ' ' -f2 | xargs kill"
+jscbin='/System/Library/Frameworks/JavaScriptCore.framework/Versions/A/Resources/jsc'
+[ -e "${jscbin}" ] && alias jsc="${jscbin}"
+unset jscbin
+
+# *########################################################################
+# macOS settings
+alias airport="/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport"
+alias whichmac="uname -a"
+
+# *########################################################################
+# network
+alias watch="nodemon -L ~/Documents/sites"
+alias flush="sudo dscacheutil -flushcache && killall -HUP mDNSResponder"
+alias localip="ipconfig getifaddr en0"
+for method in GET HEAD POST PUT DELETE TRACE OPTIONS; do
+    # echo "${method}=lwp-request -m '${method}' "
+    alias "${method}=lwp-request -m '${method}' "
+done
+alias ifactive="ifconfig | pcregrep -M -o '^[^\t:]+:([^\n]|\n\t)*status: active'"
+alias ip="dig +short myip.opendns.com @resolver1.opendns.com"
+alias ips="ifconfig -a | grep -o 'inet6\? \(addr:\)\?\s\?\(\(\([0-9]\+\.\)\{3\}[0-9]\+\)\|[a-fA-F0-9:]\+\)' | awk '{ sub(/inet6? (addr:)? ?/, \"\"); print }'"
+
+# *###########################################################################
+# listings
+# echo "\$colorflag= $colorflag"
+# colorflag=' -G'
+alias ls="ls --group-directories-first ${colorflag}"           # normal wide
+alias lsd="ls -ldh -- */"                                      # dirs only
+alias l.="ls -lhFAd .* --group-directories-first ${colorflag}" # dotfiles
+alias la="ls -lhFA --group-directories-first ${colorflag}"     # all files
+alias ll="ls -lhF --group-directories-first ${colorflag}"      # normal list
+alias lsa="ls -lhFArt ${colorflag}"                            # sort by date
+alias lss="ls -lhFArs ${colorflag}"                            # sort by size
+alias lw="ls -hF --group-directories-first ${colorflag}"       # detailed wide
+
+# *###########################################################################
+# change directories
+# alias -- -="cd -"
+# alias -- -='cd -'
+# alias .....="cd ../../../.."
+# alias ....="cd ../../.."
+# alias ...="cd ../.."
+# alias ..="cd .."
+# alias 1='cd -'
+# alias 2='cd -2'
+# alias 3='cd -3'
+# alias 4='cd -4'
+# alias 5='cd -5'
+# alias 6='cd -6'
+# alias 7='cd -7'
+# alias 8='cd -8'
+# alias 9='cd -9'
+
+function run_debug_aliases() {
+    # list current versions of common utilities
+    ce "Script source:${MAIN} ${BASH_SOURCE}${RESET_FG}"
+    green "ls status: $(type -a ls | grep aliased)"
+}
+
+function main_aliases() {
+    [[ $SET_DEBUG == 1 ]] && run_debug_aliases
+}
+
+main_aliases
