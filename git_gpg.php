@@ -43,5 +43,14 @@ preg_match_all(
 // ? (this variable is used in some modules that include this script)
 $gpg_code = implode('', $gpg_out[1]);
 
+
+// echo if CLI
+if (php_sapi_name() === 'cli') {
+    echo "-> Private Key !!";
+    echo "\n";
+    echo "-> Do NOT share this key!!\n\n";
+    echo $gpg_code;
+    echo "\n";
+}
 // return private key
-echo $gpg_code;
+return $gpg_code;

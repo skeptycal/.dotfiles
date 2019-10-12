@@ -16,7 +16,7 @@ export SSM_LOADED=1       # prevent repeat loading
 exec 6>&1 # non-volatile stdout leaves return values of stdout undisturbed
 # return 0
 source $(which ssm_resources)
-    
+
 # TODO - works in progress ##############################################
 #   - automate creation of TOC
 #   - use       declare -F ??
@@ -229,7 +229,7 @@ _run_tests() {
 #* ######################## main loop
 _main_standard_script_modules() {
     # _debug_function_header
-    # [[ $SET_DEBUG == 1 ]] && 
+    # [[ $SET_DEBUG == 1 ]] &&
     # _set_traps
     parse_options "$@"
     [[ $SET_DEBUG == 1 ]] && _run_tests
@@ -242,7 +242,7 @@ trap _trap_exit EXIT
 # trap _trap_debug DEBUG
 _main_standard_script_modules "$@"
 
-#* Resources found in ssm_resources   
+#* Resources found in ssm_resources
     # _debug_function_header, in_list
     #* ######################## C++ style error messages
     # EX_OK, EX_USAGE, EX_DATAERR, EX_NOINPUT, EX_NOUSER, EX_NOHOST, EX_UNAVAILABL, EX_SOFTWARE, EX_OSERR, EX_OSFILE, EX_CANTCREAT, EX_IOERR, EX_TEMPFAIL, EX_PROTOCOL, EX_NOPERM, EX_CONFIG

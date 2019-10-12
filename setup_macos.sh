@@ -146,7 +146,7 @@ brew upgrade cmake
 brew install openssl &> /dev/null
 brew upgrade openssl
 
-brew install go 
+brew install go
 brew install direnv
 brew install django-completion
 

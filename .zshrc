@@ -9,7 +9,7 @@ umask 022 # use root defaults since they match web server defaults
 #* #############################################################################
 #* ### Troubleshooting
 #* #############################################################################
-BASH_SOURCE="$0" # to help with zsh transition
+BASH_SOURCE="$0" # TODO Hack - to help with zsh transition
 #?      set to 1 for verbose testing ; remove -r to allow each script to set it
 declare -i SET_DEBUG=0
 export SET_DEBUG
@@ -34,7 +34,7 @@ if type brew &>/dev/null; then
   FPATH=$(brew --prefix)/share/zsh/site-functions:$FPATH
 fi
 
-export SOURCE_PATH="$HOME/.dotfiles"
+export SOURCE_PATH="${HOME}/.dotfiles"
 source "${SOURCE_PATH}/.path"
 source "${SOURCE_PATH}/.aliases"
 source "${SOURCE_PATH}/.exports"
@@ -47,7 +47,7 @@ source "${SOURCE_PATH}/.functions"
 #* #############################################################################
 #* ### Original .zshrc
 #* #############################################################################
-export ZSH="/Volumes/Data/skeptycal/.oh-my-zsh"
+export ZSH="${HOME}/.oh-my-zsh"
 ZSH_THEME="robbyrussell"
 # ZSH_THEME_RANDOM_CANDIDATES=( "robbyrussell" "agnoster" )
 # CASE_SENSITIVE="true"
@@ -64,7 +64,7 @@ COMPLETION_WAITING_DOTS="true"
 # HIST_STAMPS="mm/dd/yyyy"
 # ZSH_CUSTOM=/path/to/new-custom-folder
 plugins=(git lein pip pipenv django pip python osx vscode)
-source $ZSH/oh-my-zsh.sh
+source "${ZSH}/oh-my-zsh.sh"
 
 export LANG=en_US.UTF-8
 if [[ -n $SSH_CONNECTION ]]; then
@@ -90,6 +90,7 @@ if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
 fi
 
 # Customize to your needs...
+
 
 #* #############################################################################
 #* ### end of original .zprezto additions
