@@ -1,5 +1,7 @@
-#!/usr/bin/env false zsh
-BASH_SOURCE="$0" # to ease the transition to zsh
+#!/usr/bin/env false bash
+# -*- coding: utf-8 -*-
+# cannot be run directly; called from .bash_profile or .bashrc
+[[ -z "$BASH_SOURCE" ]] && BASH_SOURCE="$0" # to ease the transition to zsh
 # *############################################################################
 
 export LANG='en_US.UTF-8'
@@ -12,10 +14,17 @@ export SH_KEY_PATH="${HOME}/.ssh/rsa_id"
 export LOCAL_IP=$(ipconfig getifaddr en0)
 export HOMEBREW_PREFIX=$(brew --prefix)
 
+if [[ -n $SSH_CONNECTION ]]; then
+  export EDITOR='nano'
+else
+  export EDITOR='nano'
+fi
+
 # System
 # export LDFLAGS="-L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib"
 # LDFLAGS="-L/usr/local/opt/zlib/lib"
 # CPPFLAGS="-I/usr/local/opt/zlib/include"
+export ARCHFLAGS="-arch x86_64"
 export HISTSIZE=32768
 export HISTFILESIZE="${HISTSIZE}"
 export HISTCONTROL='ignoreboth'
@@ -58,8 +67,8 @@ export NODE_REPL_HISTORY_SIZE=32768
 export NODE_REPL_MODE='sloppy'
 
 # Perl
-export PERL_MM_OPT="INSTALL_BASE=${HOME}/perl5"
-eval "$(perl -I"${HOME}/perl5/lib/perl5" -Mlocal::lib="${HOME}/perl5")"
+# export PERL_MM_OPT="INSTALL_BASE=${HOME}/perl5"
+# eval "$(perl -I"${HOME}/perl5/lib/perl5" -Mlocal::lib="${HOME}/perl5")"
 
 # Heroku autocomplete setup
 # HOMEBREW_PREFIX=$(brew --prefix)

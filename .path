@@ -1,5 +1,7 @@
-#!/usr/bin/env zsh
-BASH_SOURCE="$0" # to ease the transition to zsh
+#!/usr/bin/env false bash
+# -*- coding: utf-8 -*-
+# cannot be run directly; called from .bash_profile or .bashrc
+[[ -z "$BASH_SOURCE" ]] && BASH_SOURCE="$0" # to ease the transition to zsh
 # *#############################################################################
 # ${PATH//:/\\n}
 # ${PATH// /}
@@ -56,24 +58,18 @@ PATH="\
     /usr/local/opt/cython/bin:\
     /usr/local/opt/ccache/libexec:\
     /usr/local/bin:\
-    $HOME/Documents/coding/emsdk:\
-    $HOME/Documents/coding/emsdk/fastcomp/emscripten:\
-    $HOME/Documents/coding/emsdk/node/10.16.3_64bit/bin
     $HOME/bin/utilities:\
     $HOME/bin/utilities/python:\
     $HOME/bin/utilities/php:\
     $HOME/bin/utilities/php/includes:\
     $HOME/bin/utilities/scripts:\
     $HOME/bin/utilities/apps:\
-    $HOME/.composer/vendor/bin:\
-    $HOME/.composer/vendor/squizlabs/php_codesniffer/bin:\
     $HOME/.local:\
     $HOME/.local/bin:\
     $HOME/.dotfiles:\
     /usr/local/lib/node_modules:\
     /Applications/Postgres.app/Contents/Versions/latest/bin:\
-    /Applications/Visual Studio Code.app/Contents/Resources/app/bin:\
-    /usr/local/go/bin:\
+    /Applications/Visual\ Studio\ Code.app/Contents/Resources/app/bin/:\
     /usr/bin:\
     /bin:\
     /usr/local/opt:\
@@ -84,12 +80,6 @@ PATH="\
     /usr/sbin:\
     /sbin:\
     /usr/libexec:\
-    /Library/TeX/texbin:\
-    /usr/local/share/dotnet:\
-    /opt/X11/bin:\
-    $HOME/.dotnet/tools:\
-    /Applications/Xamarin Workbooks.app/Contents/SharedSupport/path-bin:\
-    $HOME/perl5/bin:\
     $HOME/bin/utilities/git-achievements:\
     $PWD:\
     "

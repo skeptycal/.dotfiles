@@ -1,7 +1,7 @@
-#!/usr/bin/env false zsh
+#!/usr/bin/env false bash
 # -*- coding: utf-8 -*-
-# cannot be run directly
-BASH_SOURCE="$0" # to ease the transition to zsh
+# cannot be run directly; called from .bash_profile or .bashrc
+[[ -z "$BASH_SOURCE" ]] && BASH_SOURCE="$0" # to ease the transition to zsh
 #? ############################# skeptycal.com ################################
 NAME="${BASH_SOURCE##*/}"
 VERSION='1.2.0'
@@ -25,13 +25,11 @@ function git_com() {
 # *########################################################################
 # TODO works in progress
 alias pret='prettier * --write --insert-pragma'
-# alias todo="$EDITOR ~/.todo"
 # alias pwdcopy='pwd | pbcopy'
-alias dev='source ~/.virtualenvs/${PWD##*/}/bin/activate'
 
 alias com="git_com $@"
 alias git="git-achievements"
-# export EDITOR=nano
+
 # *########################################################################
 # repo setup
 alias ii='cp /Volumes/Data/skeptycal/.dotfiles/.info.cfg .'
@@ -48,9 +46,9 @@ alias vew="virtualenvwrapper"
 
 # *########################################################################
 # handy stuff
-alias cls='clear' # because 40 year old habits die hard
-alias dir='ls'    # and I'm stubborn
-alias rd="rm -rf"
+alias cls='clear'   # because 40 year old habits die hard
+alias dir='ls'      # and I'm stubborn
+alias rd="rm -rf"   #! remove directory (!CAREFUL!)
 alias reload="exec ${SHELL} -l"
 alias path='echo -e ${PATH//:/\\n}'
 alias nis="npm install --save "
@@ -73,8 +71,8 @@ alias ducks='du -ck * | sort -rn | head -11'
 alias toomuch='du -sh ~'
 alias howmuch='du -sh '
 alias treetotal='tree | tail -1'
-# alias fd="find $PWD -type d -name "
-# alias ff="find $PWD -type f -name "
+alias fd="find $PWD -type d -name "
+alias ff="find $PWD -type f -name "
 
 # *########################################################################
 # utilities
@@ -136,7 +134,7 @@ alias ips="ifconfig -a | grep -o 'inet6\? \(addr:\)\?\s\?\(\(\([0-9]\+\.\)\{3\}[
 # echo "\$colorflag= $colorflag"
 # colorflag=' -G'
 alias ls="ls --group-directories-first ${colorflag}"           # normal wide
-alias lsd="ls -ldh -- */"                                      # dirs only
+alias lsd="ls -ldh ${colorflag} -- */"                         # dirs only
 alias l.="ls -lhFAd .* --group-directories-first ${colorflag}" # dotfiles
 alias la="ls -lhFA --group-directories-first ${colorflag}"     # all files
 alias ll="ls -lhF --group-directories-first ${colorflag}"      # normal list
