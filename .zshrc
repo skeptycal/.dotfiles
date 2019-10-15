@@ -3,8 +3,8 @@
 #* #############################################################################
 #* ### Set Options
 #* #############################################################################
-
 umask 022 # use root defaults since they match web server defaults
+source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 
 #* #############################################################################
 #* ### Troubleshooting
@@ -25,22 +25,24 @@ export SET_DEBUG
 # fi
 
 #* #############################################################################
-#* ### Load Profile settings
+#* ### Path Info
 #* #############################################################################
-source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+export SOURCE_PATH="${HOME}/.dotfiles"
+source "${SOURCE_PATH}/.path"
 if type brew &>/dev/null; then
   FPATH=$(brew --prefix)/share/zsh/site-functions:$FPATH
 fi
 
-export SOURCE_PATH="${HOME}/.dotfiles"
-source "${SOURCE_PATH}/.path"
+#* #############################################################################
+#* ### Load Profile settings
+#* #############################################################################
 source "$(which ssm)"
 source "${SOURCE_PATH}/.aliases"
 source "${SOURCE_PATH}/.exports"
 source "${SOURCE_PATH}/.theme"
 source "${SOURCE_PATH}/.functions"
 source "${SOURCE_PATH}/.extra"
-# source "${SOURCE_PATH}/.git_alias"
+# source "${SOURCE_PATH}/.git_alias" # already included
 
 #* #############################################################################
 #* ### Original .zshrc
