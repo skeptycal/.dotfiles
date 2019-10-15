@@ -46,7 +46,8 @@ source "${SOURCE_PATH}/.extra"
 #* ### Original .zshrc
 #* #############################################################################
 export ZSH="${HOME}/.oh-my-zsh"
-ZSH_THEME="robbyrussell"
+# ZSH_THEME="robbyrussell"
+ZSH_THEME=""
 # ZSH_THEME_RANDOM_CANDIDATES=( "robbyrussell" "agnoster" )
 # CASE_SENSITIVE="true"
 # HYPHEN_INSENSITIVE="true"
@@ -61,8 +62,19 @@ COMPLETION_WAITING_DOTS="true"
 # DISABLE_UNTRACKED_FILES_DIRTY="true"
 # HIST_STAMPS="mm/dd/yyyy"
 # ZSH_CUSTOM=/path/to/new-custom-folder
-plugins=(git lein pip pipenv django pip python osx vscode)
+# plugins=(git lein pip pipenv django python osx vscode)
+plugins=(git django python osx vscode)
 source "${ZSH}/oh-my-zsh.sh"
+
+#* #############################################################################
+#* ### Sindre's prompt - https://github.com/sindresorhus/pure
+#* #############################################################################
+# Set ZSH_THEME="" in your .zshrc to disable oh-my-zsh themes.
+# Follow the Pure Install instructions.
+# Do not enable the following (incompatible) plugins: vi-mode, virtualenv.
+# NOTE: oh-my-zsh overrides the prompt so Pure must be activated after source $ZSH/oh-my-zsh.sh.
+autoload -U promptinit; promptinit
+prompt pure
 
 #* #############################################################################
 #* ### end of original .zshrc
