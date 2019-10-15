@@ -29,6 +29,12 @@ alias pret='prettier * --write --insert-pragma'
 
 alias com="git_com $@"
 alias git="git-achievements"
+alias pm="pygmentize"
+
+# Use NeoVim if available
+if type "nvim" >/dev/null; then
+  alias vim=nvim
+fi
 
 # *########################################################################
 # repo setup

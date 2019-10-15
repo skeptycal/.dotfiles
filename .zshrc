@@ -4,7 +4,18 @@
 #* ### Set Options
 #* #############################################################################
 # http://zsh.sourceforge.net/
-umask 022 # use root defaults since they match web server defaults
+
+# profile start time
+t0=$(date "+%s.%n")
+
+# use root defaults since they match web server defaults
+umask 022
+
+source gpg.zsh
+
+# Remove all aliases from random unexpected places
+unalias -a
+
 source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 
 # Set/unset  shell options
@@ -39,7 +50,6 @@ bindkey '^I' complete-word # complete on tab, leave expansion to _expand
 # distribution.
 autoload -U compinit
 compinit
-
 
 #* #############################################################################
 #* ### Troubleshooting
@@ -124,6 +134,10 @@ zstyle :prompt:pure:prompt:error color 196
 zstyle :prompt:pure:prompt:success color 222
 zstyle :prompt:pure:user color 36
 
+# end time
+t1=$(date "+%s.%N")
+# display script time
+printf "${MAIN}Profile took %.3f seconds to load\n" $(( t1-t0 ))
 #* #############################################################################
 #* ### end of original .zshrc
 #* #############################################################################
