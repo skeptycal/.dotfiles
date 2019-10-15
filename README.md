@@ -27,10 +27,10 @@ If you aren't sure, don't use it! This setup works for me for what I do. Don’t
 You can clone the repository wherever you want. (I like to keep it in `~/.dotfiles`) The bootstrapper script will pull in the latest version and copy the files to your home folder.
 
 ```bash
-git clone https://github.com/skeptycal/dotfiles.git && cd dotfiles && source bootstrap.sh
+git clone https://github.com/skeptycal/dotfiles.git && cd .dotfiles && source bootstrap.sh
 ```
 
-To update, `cd` into your local `dotfiles` repository and then:
+To update, `cd` into your local `.dotfiles` repository and then:
 
 ```bash
 source bootstrap.sh
@@ -128,5 +128,3 @@ Suggestions/improvements
 [4]: https://coveralls.io/github/skeptycal/.dotfiles?branch=master
 [5]: src/license.svg
 [6]: http://badges.mit-license.org
-
-[![Coverage Status](https://coveralls.io/repos/github/skeptycal/.dotfiles/badge.svg?branch=master)](https://coveralls.io/github/skeptycal/.dotfiles?branch=master)
