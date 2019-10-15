@@ -1,0 +1,177 @@
+#!/usr/bin/env zsh
+# -*- coding: utf-8 -*-
+[[ -z "$BASH_SOURCE" ]] && BASH_SOURCE="$0" # to ease the transition to zsh
+#? ############################# skeptycal.com ################################
+NAME="${BASH_SOURCE##*/}"
+[[ -z "$VERSION" ]] && VERSION='1.0.0'
+[[ -z "$DESC" ]] && DESC='Additional Script Resources for ssm on macOS'
+USAGE="source ${NAME:-} [help|test|usage|version]"
+AUTHOR="Michael Treanor  <skeptycal@gmail.com>"
+COPYRIGHT="Copyright (c) 2019 Michael Treanor"
+LICENSE="MIT <https://opensource.org/licenses/MIT>"
+GITHUB="https://www.github.com/skeptycal"
+#? ############################################################################
+# DEBUG='1' # set to 1 for debug and verbose testing
+
+#? ############################################################################
+# setup C++ style error messages
+    #
+    # reference: Advanced Bash-Scripting Guide
+    #   <http://tldp.org/LDP/abs/html/exitcodes.html#EXITCODESREF>
+
+    # from /usr/include/sysexits.h
+    # Copyright (c) 1987, 1993
+    # The Regents of the University of California.  All rights reserved.
+export EX_OK=0          # successful termination
+export EX__BASE=64      # base value for error messages
+export EX_USAGE=64      # command line usage error
+export EX_DATAERR=65    # data format error
+export EX_NOINPUT=66    # cannot open input
+export EX_NOUSER=67     # addressee unknown
+export EX_NOHOST=68     # host name unknown
+export EX_UNAVAILABL=69 # service unavailable
+export EX_SOFTWARE=70   # internal software error
+export EX_OSERR=71      # system error (e.g., can't fork)
+export EX_OSFILE=72     # critical OS file missing
+export EX_CANTCREAT=73  # can't create (user) output file
+export EX_IOERR=74      # input/output error
+export EX_TEMPFAIL=75   # temp failure; user is invited to retry
+export EX_PROTOCOL=76   # remote error in protocol
+export EX_NOPERM=77     # permission denied
+export EX_CONFIG=78     # configuration error
+export EX__MAX=78       # maximum listed value
+
+#? ############################################################################
+# setup ANSI constants for common colors
+MAIN=$(echo -en '\001\033[38;5;229m') && export MAIN
+WARN=$(echo -en '\001\033[38;5;203m') && export WARN
+COOL=$(echo -en '\001\033[38;5;38m') && export COOL
+BLUE=$(echo -en '\001\033[38;5;38m') && export BLUE
+GO=$(echo -en '\001\033[38;5;28m') && export GO
+CHERRY=$(echo -en '\001\033[38;5;124m') && export CHERRY
+CANARY=$(echo -en '\001\033[38;5;226m') && export CANARY
+ATTN=$(echo -en '\001\033[38;5;178m') && export ATTN
+PURPLE=$(echo -en '\001\033[38;5;93m') && export PURPLE
+RAIN=$(echo -en '\001\033[38;5;93m') && export RAIN
+WHITE=$(echo -en '\001\033[37m') && export WHITE
+RESTORE=$(echo -en '\001\033[0m\002') && export RESTORE
+RESET=$(echo -en '\001\033[0m') && export RESET
+
+#? ############################################################################
+# setup functions for printing lines in common colors
+br() { printf "\n"; } # yes, this is a fake cli version of <br />
+ce() { printf "%s \n" "${@}${RESET}"; }
+me() { ce "${MAIN}${@}"; }
+warn() { ce "${WARN}${@}"; }
+blue() { ce "${COOL}${@}"; }
+green() { ce "${GO}${@}"; }
+cherry() { ce "${CHERRY}${@}"; }
+canary() { ce "${CANARY}${@}"; }
+attn() { ce "${ATTN}${@}"; }
+purple() { ce "${PURPLE}${@}"; }
+rain() { ce "${RAIN}${@}"; }
+white() { ce "${WHITE}${@}"; }
+
+
+#? ############################################################################
+#* ### Stuff to keep out of the way ...
+usage_long_desc="$(
+    cat <<usage_long_desc
+    ${MAIN}$NAME${WHITE} sets and exports constants and functions that apply ANSI colors to
+    terminal output. In addition, there are several debugging and general
+    functions included for quality of life. These are the main colors
+
+    ${MAIN}MAIN   ${WARN}WARN   ${COOL}COOL   ${GO}GO   ${CHERRY}CHERRY   ${CANARY}CANARY   ${ATTN}ATTN   ${RAIN}RAIN   ${RESET}RESET
+usage_long_desc
+)"
+usage_parameters="$(
+    cat <<usage_parameters
+    help      - display complete usage information (this!)
+    test      - perform script tests
+    usage     - display short usage instructions
+    version   - display version information
+usage_parameters
+)"
+
+set_man_page() {
+    # Create man page $MAN_PAGE from variables and template
+    MAN_PAGE="$(
+        cat <<MAN_PAGE
+
+${MAIN}NAME${WHITE}
+    $NAME (version $VERSION) - $DESC
+
+${MAIN}SYNOPSIS${WHITE}
+    $USAGE
+
+${MAIN}DESCRIPTION${WHITE}
+$usage_long_desc
+
+${MAIN}OPTIONS${WHITE}
+$usage_parameters
+
+${MAIN}EXIT STATUS${WHITE}
+    0     - success; no errors detected
+    1     - general errors (division by zero, etc.)
+    2     - missing keyword or command (possible permission problem)
+    64-78 - assorted user errors (e.g. EX_DATAERR=65, EX_NOINPUT=66,
+            EX_UNAVAILABL=69, EX_OSERR=71, EX_OSFILE=72, EX_IOERR=74)
+
+${MAIN}CONTRIBUTING${WHITE}
+    GitHub: $GITHUB
+
+${MAIN}LICENSE${WHITE}
+    $LICENSE
+    $COPYRIGHT
+    $AUTHOR
+
+MAN_PAGE
+    )"
+}
+#? ############################################################################
+# _main_loop "$@"
+
+#? #### basic_text_colors.sh contents #########################################
+# TODO automate creation of TOC
+# FUNCTIONS         PARAMETERS and OPTIONS
+# color constants   - ANSI constants for common colors
+#                       MAIN, WARN, COOL, BLUE, GO, CHERRY, CANARY, ATTN,
+#                       PURPLE, RAIN, WHITE, RESTORE, RESET
+# color functions   - functions for printing lines in common colors
+#                       me (for main), warn, blue, green, cherry, canary,
+#                       attn, purple, rain, white
+# error messages    - C++ style error messages
+# br                - print blank line (CLI \n)
+# ce                - $@ (color echo - generic color as $1, etc.)
+# set_man_page      - set $MAN_PAGE based on docblock variables
+# parse_options     - parse basic options [test|usage|version|help] & DEBUG
+
+#? ############################################################################
+# References:
+#
+# (Side note about the colors: The colors are preceded by an escape
+#       sequence \e and defined by a color value, composed of [style;color+m]
+#       and wrapped in an escaped [] sequence. eg.
+# reference: https://stackoverflow.com/questions/1550288/os-x-terminal-colors
+# && # Â€Âœexport -p command -- show all the exported variables.
+# reference: https://www.thegeekstuff.com/2010/08/bash-shell-builtin-commands/
+###############################################################################
+
+
+#* Resources found in ssm_resources
+    # _debug_function_header, in_list
+    #* ######################## C++ style error messages
+    # EX_OK, EX_USAGE, EX_DATAERR, EX_NOINPUT, EX_NOUSER, EX_NOHOST, EX_UNAVAILABL, EX_SOFTWARE, EX_OSERR, EX_OSFILE, EX_CANTCREAT, EX_IOERR, EX_TEMPFAIL, EX_PROTOCOL, EX_NOPERM, EX_CONFIG
+    #* ######################## BASH trap signals
+    # TRAP_SIGHUP, TRAP_SIGINT, TRAP_SIGQUIT, TRAP_SIGILL, TRAP_SIGTRAP, TRAP_SIGABRT, TRAP_SIGEMT, TRAP_SIGFPE, TRAP_SIGKILL, TRAP_SIGBUS, TRAP_SIGSEGV, TRAP_SIGSYS, TRAP_SIGPIPE, TRAP_SIGALRM, TRAP_SIGTERM, TRAP_SIGURG, TRAP_SIGSTOP, TRAP_SIGTSTP, TRAP_SIGCONT, TRAP_SIGCHLD, TRAP_SIGTTIN, TRAP_SIGTTOU, TRAP_SIGIO, TRAP_SIGXCPU, TRAP_SIGXFSZ, TRAP_SIGVTALRM, TRAP_SIGPROF, TRAP_SIGWINCH, TRAP_SIGINFO, TRAP_SIGUSR1, TRAP_SIGUSR2
+    #* ######################## ANSI constants for common colors
+    # br, ce, me, warn, blue, green, cherry, canary, attn, purple, rain, white
+    # MAIN, WARN, COOL, BLUE, GO, CHERRY, CANARY, ATTN, PURPLE, RAIN, WHITE, RESTORE, RESET_FG
+    #* ######################## program configuration
+    # set_man_page, get_linux_platform_name, get_current_os_name
+    #* ######################## program control flow functions
+    # async_run, db_echo, die, yes_no, no_yes, exit_usage, print_usage, db_script_source
+    #* ######################## file manipulation functions
+    # source_file, hex_dump, url_encode, url_decode
+    #* ######################## path manipulation functions
+    # real_name, parse_filename, get_safe_new_filename

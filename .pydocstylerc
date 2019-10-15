@@ -1,8 +1,0 @@
-[pydocstyle]
-match = *.py
-
-[add_select]
-
-[add_ignore]
-
-[ignore_decorators]

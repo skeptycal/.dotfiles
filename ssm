@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 # -*- coding: utf-8 -*-
-BASH_SOURCE="$0" # to ease the transition to zsh
+[[ -z "$BASH_SOURCE" ]] && BASH_SOURCE="$0" # to ease the transition to zsh
 #? ############################# skeptycal.com ################################
 NAME="${BASH_SOURCE##*/:'standard_script_modules'}"
 VERSION='0.1.2'
@@ -11,7 +11,7 @@ COPYRIGHT="Copyright (c) 2019 Michael Treanor"
 LICENSE="MIT <https://opensource.org/licenses/MIT>"
 GITHUB="https://www.github.com/skeptycal"
 #? ############################################################################
-export SET_DEBUG=0        # set to 1 for verbose testing
+# export SET_DEBUG=0        # set to 1 for verbose testing
 export SSM_LOADED=1       # prevent repeat loading
 exec 6>&1 # non-volatile stdout leaves return values of stdout undisturbed
 # return 0
@@ -238,10 +238,11 @@ _main_standard_script_modules() {
 #* ######################## entry point
 
 # trap _trap_error ERR
-trap _trap_exit EXIT
+# trap _trap_exit EXIT
 # trap _trap_debug DEBUG
 _main_standard_script_modules "$@"
 
+#? ############################################################################
 #* Resources found in ssm_resources
     # _debug_function_header, in_list
     #* ######################## C++ style error messages

@@ -1,7 +1,7 @@
 #!/usr/bin/env false bash
 # -*- coding: utf-8 -*-
-# cannot be run directly
-BASH_SOURCE="$0" # to ease the transition to zsh
+# cannot be run directly; called from .bash_profile or .bashrc
+[[ -z "$BASH_SOURCE" ]] && BASH_SOURCE="$0" # to ease the transition to zsh
 #? ############################# skeptycal.com ################################
 NAME="${BASH_SOURCE##*/}"
 VERSION='1.2.0'
@@ -14,7 +14,8 @@ GITHUB="https://www.github.com/skeptycal"
 #? ############################################################################
 # set -a
 # export SET_DEBUG=0 # set to 1 for verbose testing
-# [[ ! $SSM_LOADED == 1 ]] && . "$(which ssm)"
+# [[ ! $SSM_LOADED == 1 ]] &&
+. "$(which ssm)"
 
 # get name for open if linux or windows
 if [ ! "$(uname -s)" = 'Darwin' ]; then
@@ -37,7 +38,7 @@ function lns() {
     # list symlinks in current directory
     # References: https://askubuntu.com/questions/522051/how-to-list-all-symbolic-links-in-a-directory
     # la | grep '\-> \/'
-    find $PWD -maxdepth 1 -type l  
+    find $PWD -maxdepth 1 -type l
     }
 
 function new() { echo -e ${1//:/\\n}; }
@@ -149,7 +150,7 @@ function check_file() {
     echo " ->$tmp_chk"
     echo ''
     }
-dist_hook() {
+function dist_hook() {
     # TODO not yet implemented
     return 0
     # https://stackoverflow.com/a/8969875
@@ -157,7 +158,7 @@ dist_hook() {
     # OR
     # for F in Documents/*.{py,html}; do ...something with each '$F'... ; done
     }
-prettier_here() {
+function prettier_here() {
     # $1 = path (default $PWD); $2 = filenames ( default '*')
     # OR
     # $1 = 'git'; $2 = "$files"
@@ -269,7 +270,7 @@ function get_template() {
     #     printf "SOURCE file not found.\n\n"
     # fi
     }
-chmod_all() {
+function chmod_all() {
     # chmod matching files to given mode
     # $1 is path (default $PWD);
     # $2 is pattern (default '*');
@@ -363,7 +364,7 @@ function setup_tools() {
         brew update &>/dev/null && brew cleanup &>/dev/null && brew doctor &>/dev/null
         brew install bash zsh coreutils cython python git hub heroku leiningen clojure php node
         brew reinstall node &&	echo -e "==> Installation successful! node.js $(node -v) installed."
-    else 
+    else
         return 1
     fi
     }

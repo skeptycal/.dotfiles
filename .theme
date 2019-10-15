@@ -1,8 +1,7 @@
 #!/usr/bin/env false bash
 # -*- coding: utf-8 -*-
 # cannot be run directly; called from .bash_profile or .bashrc
-
-export HOMEBREW_PREFIX=$(brew --prefix)
+[[ -z "$BASH_SOURCE" ]] && BASH_SOURCE="$0" # to ease the transition to zsh
 
 #* #############################################################################
 #* ### Load ANSI colors, prompt, and themes
@@ -16,40 +15,48 @@ fi;
 
 # ANSI color flags
 export CLICOLOR=1
+# Detect which `ls` flavor is in use
+if ls --color > /dev/null 2>&1; then # GNU `ls`
+	export colorflag=" --color=always"
+	# export LS_COLORS='no=00:fi=00:di=01;31:ln=01;36:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arj=01;31:*.taz=01;31:*.lzh=01;31:*.zip=01;31:*.z=01;31:*.Z=01;31:*.gz=01;31:*.bz2=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.jpg=01;35:*.jpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.avi=01;35:*.fli=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.ogg=01;35:*.mp3=01;35:*.wav=01;35:'
+else # macOS `ls`
+	export colorflag=" -G"
+	# export LSCOLORS='BxBxhxDxfxhxhxhxhxcxcx'
+fi
 
 # Shell prompt based on the Solarized Dark theme.
 # Screenshot: http://i.imgur.com/EkEtphC.png
 # Heavily inspired by @necolas’s prompt: https://github.com/necolas/dotfiles
 # iTerm → Profiles → Text → use 13pt Monaco with 1.1 vertical spacing.
-if tput setaf 1 &> /dev/null; then
-	tput sgr0; # reset colors
-	bold=$(tput bold);
-	reset=$(tput sgr0);
-	# Solarized colors, taken from http://git.io/solarized-colors.
-	black=$(tput setaf 0);
-	blue=$(tput setaf 33);
-	cyan=$(tput setaf 37);
-	green=$(tput setaf 64);
-	orange=$(tput setaf 166);
-	purple=$(tput setaf 125);
-	red=$(tput setaf 124);
-	violet=$(tput setaf 61);
-	white=$(tput setaf 255); #15
-	yellow=$(tput setaf 136);
-else
-	bold='';
-	reset="\e[0m";
-	black="\e[1;30m";
-	blue="\e[1;34m";
-	cyan="\e[1;36m";
-	green="\e[1;32m";
-	orange="\e[1;33m";
-	purple="\e[1;35m";
-	red="\e[1;31m";
-	violet="\e[1;35m";
-	white="\e[1;37m";
-	yellow="\e[1;33m";
-fi;
+# if tput setaf 1 &> /dev/null; then
+# 	tput sgr0; # reset colors
+# 	bold=$(tput bold);
+# 	reset=$(tput sgr0);
+# 	# Solarized colors, taken from http://git.io/solarized-colors.
+# 	black=$(tput setaf 0);
+# 	blue=$(tput setaf 33);
+# 	cyan=$(tput setaf 37);
+# 	green=$(tput setaf 64);
+# 	orange=$(tput setaf 166);
+# 	purple=$(tput setaf 125);
+# 	red=$(tput setaf 124);
+# 	violet=$(tput setaf 61);
+# 	white=$(tput setaf 255); #15
+# 	yellow=$(tput setaf 136);
+# else
+# 	bold='';
+# 	reset="\e[0m";
+# 	black="\e[1;30m";
+# 	blue="\e[1;34m";
+# 	cyan="\e[1;36m";
+# 	green="\e[1;32m";
+# 	orange="\e[1;33m";
+# 	purple="\e[1;35m";
+# 	red="\e[1;31m";
+# 	violet="\e[1;35m";
+# 	white="\e[1;37m";
+# 	yellow="\e[1;33m";
+# fi;
 
 # Highlight the user name when logged in as root.
 if [[ "${USER}" == "root" ]]; then
@@ -62,14 +69,6 @@ fi
 export WS="$(git config --get-color color.diff.whitespace "blue reverse")"
 export RESET="$(git config --get-color "" "reset")"
 
-# Detect which `ls` flavor is in use
-if ls --color > /dev/null 2>&1; then # GNU `ls`
-	export colorflag=" --color=always"
-	# export LS_COLORS='no=00:fi=00:di=01;31:ln=01;36:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arj=01;31:*.taz=01;31:*.lzh=01;31:*.zip=01;31:*.z=01;31:*.Z=01;31:*.gz=01;31:*.bz2=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.jpg=01;35:*.jpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.avi=01;35:*.fli=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.ogg=01;35:*.mp3=01;35:*.wav=01;35:'
-else # macOS `ls`
-	export colorflag=" -G"
-	# export LSCOLORS='BxBxhxDxfxhxhxhxhxcxcx'
-fi
 # https://www.gnu.org/software/coreutils/manual/html_node/dircolors-invocation.html#dircolors-invocation
 # /usr/local/opt/coreutils/libexec/gnubin/dircolors -b &>/dev/null
 
