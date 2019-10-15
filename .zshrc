@@ -78,6 +78,15 @@ source "${ZSH}/oh-my-zsh.sh"
 autoload -U promptinit; promptinit
 prompt pure
 
+zstyle :prompt:pure:exec_time color 225
+zstyle :prompt:pure:git:arrow color 220
+zstyle :prompt:pure:git:branch color 106
+zstyle :prompt:pure:host color 30
+zstyle :prompt:pure:path color 230
+zstyle :prompt:pure:prompt:error color 196
+zstyle :prompt:pure:prompt:success color 222
+zstyle :prompt:pure:user color 36
+
 #* #############################################################################
 #* ### end of original .zshrc
 #* #############################################################################
