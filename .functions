@@ -105,7 +105,7 @@ function versions() {
     green "  zsh: $(zsh --version)"
     green "  this zsh session: $ZSH_VERSION"
     green "  bash: $(bash --version | grep bash | cut -d ' ' -f 1-4 | cut -d '(' -f 1)"
-    green "  grep: $(grep --version)"
+    green "  grep: $(grep --version | head -n 1)"
     cherry "  $(clang --version | grep version)"
     me "utilities:"
     attn "  $(git --version | sed 's/version /        v/g')"

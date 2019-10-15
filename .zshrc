@@ -3,8 +3,43 @@
 #* #############################################################################
 #* ### Set Options
 #* #############################################################################
+# http://zsh.sourceforge.net/
 umask 022 # use root defaults since they match web server defaults
 source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+
+# Set/unset  shell options
+setopt   notify globdots correct pushdtohome cdablevars autolist
+setopt   correctall autocd recexact longlistjobs
+setopt   autoresume histignoredups pushdsilent noclobber
+setopt   autopushd pushdminus extendedglob rcquotes mailwarning
+unsetopt bgnice autoparamslash
+
+# Autoload zsh modules when they are referenced
+zmodload -a zsh/stat stat
+zmodload -a zsh/zpty zpty
+zmodload -a zsh/zprof zprof
+zmodload -ap zsh/mapfile mapfile
+
+# Some nice key bindings
+#bindkey '^X^Z' universal-argument ' ' magic-space
+#bindkey '^X^A' vi-find-prev-char-skip
+#bindkey '^Xa' _expand_alias
+#bindkey '^Z' accept-and-hold
+#bindkey -s '\M-/' \\\\
+#bindkey -s '\M-=' \|
+
+# bindkey -v               # vi key bindings
+
+bindkey -e                 # emacs key bindings
+bindkey ' ' magic-space    # also do history expansion on space
+bindkey '^I' complete-word # complete on tab, leave expansion to _expand
+
+# Setup new style completion system. To see examples of the old style (compctl
+# based) programmable completion, check Misc/compctl-examples in the zsh
+# distribution.
+autoload -U compinit
+compinit
+
 
 #* #############################################################################
 #* ### Troubleshooting
@@ -78,6 +113,8 @@ source "${ZSH}/oh-my-zsh.sh"
 autoload -U promptinit; promptinit
 prompt pure
 
+# http://zsh.sourceforge.net/Doc/Release/Zsh-Line-Editor.html#Character-Highlighting
+# https://github.com/sindresorhus/pure/pull/472
 zstyle :prompt:pure:exec_time color 225
 zstyle :prompt:pure:git:arrow color 220
 zstyle :prompt:pure:git:branch color 106
