@@ -29,6 +29,12 @@ alias pret='prettier * --write --insert-pragma'
 
 alias com="git_com $@"
 alias git="git-achievements"
+alias pm="pygmentize"
+
+# Use NeoVim if available
+if type "nvim" >/dev/null; then
+  alias vim=nvim
+fi
 
 # *########################################################################
 # repo setup
@@ -53,6 +59,9 @@ alias reload="exec ${SHELL} -l"
 alias path='echo -e ${PATH//:/\\n}'
 alias nis="npm install --save "
 alias cgr="composer global require"
+alias mv='nocorrect mv'       # no spelling correction on mv
+alias cp='nocorrect cp'       # no spelling correction on cp
+alias mkdir='nocorrect mkdir' # no spelling correction on mkdir
 
 # *########################################################################
 # directories
