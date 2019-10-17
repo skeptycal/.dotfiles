@@ -80,7 +80,7 @@ PATH="\
     /usr/sbin:\
     /sbin:\
     /usr/libexec:\
-    $HOME/bin/utilities/git-achievements:\
+    $HOME/.dotfiles/git-achievements:\
     $PWD:\
     "
 
