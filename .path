@@ -54,7 +54,6 @@ export MANPATH
 PATH="\
     /usr/local/opt/coreutils/libexec/gnubin:\
     $HOME/bin:\
-    ./src:\
     /usr/local/opt/cython/bin:\
     /usr/local/opt/ccache/libexec:\
     /usr/local/bin:\
