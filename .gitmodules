@@ -1,0 +1,3 @@
+[submodule "git-achievements"]
+	path = git-achievements
+	url = https://github.com/skeptycal/git-achievements.git

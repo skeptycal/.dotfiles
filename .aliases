@@ -54,7 +54,7 @@ alias vew="virtualenvwrapper"
 # handy stuff
 alias cls='clear'   # because 40 year old habits die hard
 alias dir='ls'      # and I'm stubborn
-alias rd="rm -rf"   #! remove directory (!CAREFUL!)
+alias del="rm -rf"   #! delete all the things now! (!CAREFUL!)
 alias reload="exec ${SHELL} -l"
 alias path='echo -e ${PATH//:/\\n}'
 alias nis="npm install --save "

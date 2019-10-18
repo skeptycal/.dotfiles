@@ -3,12 +3,12 @@
 ![Twitter Follow](https://img.shields.io/twitter/follow/skeptycal.svg?style=social) ![GitHub followers](https://img.shields.io/github/followers/skeptycal.svg?label=GitHub&style=social)
 
 > Michael Treanor
+
 > [skeptycal.com](https://www.skeptycal.com)
+
 > MIT License
 
-It is handy to trigger a Travis CI build from the command line. They have setup a great way using the [Travis CLI][1]. As described in the [documentation][2].
-
-There are **_many_** other interesting features in the CLI that make it worth looking at. Much of this information came from this [Stack Overflow][4] post.
+It is handy to trigger a Travis CI build from the command line. They have setup a great way using the [Travis CLI][1], as described in the [documentation][2]. There are **_many_** other interesting features in the CLI that make it worth looking at. Much of this information came from this [Stack Overflow][4] post.
 
 Make sure you have at least [Ruby][3] 1.9.3 (2.0.0 recommended) installed. _I tested on macOS (10.14.6 Beta) but it is available on Windows and Linux, also._
 
