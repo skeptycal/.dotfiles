@@ -33,7 +33,41 @@ function o() {
     fi
     }
 
+function versions() {
+    br
+    me "## Versions ############################"
+    cherry "$(uname -i) | $(sw_vers -productName) | $(sw_vers -productVersion)"
+    me "shell:"
+    green "  zsh: $(zsh --version)"
+    green "  this zsh session: $ZSH_VERSION"
+    canary "  bash: $(bash --version | grep bash | cut -d ' ' -f 1-4 | cut -d '(' -f 1)"
+    cherry "  $(clang --version | grep version)"
 
+    me "utilities:"
+    attn "  $(git --version | sed 's/version /            v/g')"
+    attn "  $(hub --version | grep hub | sed 's/version /            v/g')"
+    canary   "  npm             v$(npm -v)"
+    green     "  grep            $(grep --version | head -n 1)"
+    green "  TeXLive(tlmgr)  $(tlmgr --version | head -n 1 | cut -d ' ' -f 3-4))"
+
+    # attn "  $(lein --version | sed 's/Leiningen/lein version/g' | sed 's/version /       v/g')"
+    me "languages:"
+    blue "  GO          v$(go version | cut -d ' ' -f 3 | sed 's/go//g')"
+    warn "  ruby        v$(ruby -v 2>/dev/null | cut -d ' ' -f 2 | cut -d 'p' -f 1)"
+    purple "  php         v$(php -v 2>/dev/null | grep '(cli)' | cut -d ' ' -f 2)"
+    printf "  ${COOL}python      v$(python --version | cut -d ' ' -f 2)"
+    # pyver
+    # python -c 'import sys; sys.stdout.write("python      v" + ".".join(map(str, sys.version_info[:3]))); sys.stdout.flush()'
+    printf "$RESET_FG\n"
+    canary "  node        $(node -v)"
+    cherry "  Xcode       v$(/Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -version | grep Xcode | sed 's/Xcode //g' )"
+    attn "  Clojure $(clojure -Sdescribe | grep version | sed 's/{://g' | sed 's/"//g' | sed 's/version /    v/g')"
+    br
+    # me "Travis CI   v$(travis version)"
+    # ye "eslint $(eslint -v)"
+    # echo "$(pipenv --version)"
+    # oe "prettier v$(prettier -v)"
+    }
 function lns() {
     # list symlinks in current directory
     # References: https://askubuntu.com/questions/522051/how-to-list-all-symbolic-links-in-a-directory
@@ -97,37 +131,7 @@ function travis_trigger() {
     #     -d "$body" \
     #     "https://api.travis-ci.org/repo/${org}%2F${repo}/requests"
     }
-function versions() {
-    br
-    me "## Versions ############################"
-    cherry "$(uname -i) | $(sw_vers -productName) | $(sw_vers -productVersion)"
-    me "shell:"
-    green "  zsh: $(zsh --version)"
-    green "  this zsh session: $ZSH_VERSION"
-    green "  bash: $(bash --version | grep bash | cut -d ' ' -f 1-4 | cut -d '(' -f 1)"
-    green "  grep: $(grep --version | head -n 1)"
-    cherry "  $(clang --version | grep version)"
-    me "utilities:"
-    attn "  $(git --version | sed 's/version /        v/g')"
-    attn "  $(hub --version | grep hub | sed 's/version /        v/g')"
-    canary   "  npm         v$(npm -v)"
-    # attn "  $(lein --version | sed 's/Leiningen/lein version/g' | sed 's/version /       v/g')"
-    me "languages:"
-    warn "  ruby        v$(ruby -v 2>/dev/null | cut -d ' ' -f 2)"
-    purple "  php         v$(php -v 2>/dev/null | grep '(cli)' | cut -d ' ' -f 2)"
-    printf "  ${COOL}python      v$(python --version | cut -d ' ' -f 2)"
-    # pyver
-    # python -c 'import sys; sys.stdout.write("python      v" + ".".join(map(str, sys.version_info[:3]))); sys.stdout.flush()'
-    printf "$RESET_FG\n"
-    canary "  node        $(node -v)"
-    cherry "  Xcode       v$(/Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -version | grep Xcode | sed 's/Xcode //g' )"
-    attn "  Clojure $(clojure -Sdescribe | grep version | sed 's/{://g' | sed 's/"//g' | sed 's/version /    v/g')"
-    br
-    # me "Travis CI   v$(travis version)"
-    # ye "eslint $(eslint -v)"
-    # echo "$(pipenv --version)"
-    # oe "prettier v$(prettier -v)"
-    }
+
 function readlinkf() { perl -MCwd -e 'print Cwd::abs_path shift' "$1"; }
 function pk() { pkill -9 -u "$(id -u $1)"; } # kill another user's processes
 function check_file() {
