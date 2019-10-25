@@ -89,6 +89,8 @@ source "${SOURCE_PATH}/.functions"
 source "${SOURCE_PATH}/.extra"
 # source "${SOURCE_PATH}/.git_alias" # already included
 
+source ~/.oh-my-zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
 #* #############################################################################
 #* ### Original .zshrc
 #* #############################################################################
@@ -109,8 +111,11 @@ COMPLETION_WAITING_DOTS="true"
 # DISABLE_UNTRACKED_FILES_DIRTY="true"
 # HIST_STAMPS="mm/dd/yyyy"
 # ZSH_CUSTOM=/path/to/new-custom-folder
+# ** original
 # plugins=(git lein pip pipenv django python osx vscode)
-plugins=(git django python osx vscode)
+# https://towardsdatascience.com/trick-out-your-terminal-in-10-minutes-or-less-ba1e0177b7df
+# plugins=(git z github history osx pip pyenv pylint python sublime vscode)
+plugins=(git z history django python pylint osx vscode)
 source "${ZSH}/oh-my-zsh.sh"
 
 #* #############################################################################

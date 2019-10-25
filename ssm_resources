@@ -48,6 +48,7 @@ WARN=$(echo -en '\001\033[38;5;203m') && export WARN
 COOL=$(echo -en '\001\033[38;5;38m') && export COOL
 BLUE=$(echo -en '\001\033[38;5;38m') && export BLUE
 GO=$(echo -en '\001\033[38;5;28m') && export GO
+LIME=$(echo -en '\u001b[32;1m') && export LIME
 CHERRY=$(echo -en '\001\033[38;5;124m') && export CHERRY
 CANARY=$(echo -en '\001\033[38;5;226m') && export CANARY
 ATTN=$(echo -en '\001\033[38;5;178m') && export ATTN
@@ -65,6 +66,7 @@ me() { ce "${MAIN}${@}"; }
 warn() { ce "${WARN}${@}"; }
 blue() { ce "${COOL}${@}"; }
 green() { ce "${GO}${@}"; }
+lime() { ce "${LIME}${@}"; }
 cherry() { ce "${CHERRY}${@}"; }
 canary() { ce "${CANARY}${@}"; }
 attn() { ce "${ATTN}${@}"; }
