@@ -4,14 +4,14 @@
 #? ############################# skeptycal.com ################################
 NAME="${BASH_SOURCE##*/:'standard_script_modules'}"
 VERSION='0.1.2'
-DESC='standard script modules for macOS (Bash 5.0 with GNU coreutils)'
+DESC='standard script modules for macOS (zsh / Bash 5.0 with GNU coreutils)'
 USAGE="source ${NAME:-} [help|test|usage|version]"
 AUTHOR="Michael Treanor  <skeptycal@gmail.com>"
 COPYRIGHT="Copyright (c) 2019 Michael Treanor"
 LICENSE="MIT <https://opensource.org/licenses/MIT>"
 GITHUB="https://www.github.com/skeptycal"
 #? ############################################################################
-# export SET_DEBUG=0        # set to 1 for verbose testing
+export SET_DEBUG=1        # set to 1 for verbose testing
 export SSM_LOADED=1       # prevent repeat loading
 exec 6>&1 # non-volatile stdout leaves return values of stdout undisturbed
 # return 0
@@ -192,7 +192,7 @@ _run_tests() {
         # TODO add tests for these functions as needed
         test_echo "die() test" "die 'die test!'"
         test_echo "db_echo() test" "db_echo 'This is the test argument'"
-        test_echo "urlencode() test" "url_encode 'http://www.github.com/skeptycal'"
+        test_echo "urlencode() test" "url_encode 'https://www.github.com/skeptycal'"
         db_echo "$encoded"
         test_echo "urlencode() test" "url_decode 'http%3A%2F%2Fwww.github.com%2Fskeptycal'"
         db_echo "$decoded"
@@ -240,6 +240,7 @@ _main_standard_script_modules() {
 # trap _trap_error ERR
 # trap _trap_exit EXIT
 # trap _trap_debug DEBUG
+db_echo "\nTesting script ${NAME} version ${VERSION}."
 _main_standard_script_modules "$@"
 
 #? ############################################################################
