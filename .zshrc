@@ -3,6 +3,8 @@
 #* #############################################################################
 #* ### Set Options
 #* #############################################################################
+BASH_SOURCE=${(%):-%N} # to ease the transition to zsh
+
 # http://zsh.sourceforge.net/
 
 # profile start time
@@ -55,7 +57,6 @@ compinit
 #* ### Troubleshooting
 #* #############################################################################
 # TODO Hack - to help with zsh transition
-[[ -z "$BASH_SOURCE" ]] && BASH_SOURCE="$0" # to ease the transition to zsh
 #?      set to 1 for verbose testing ; remove -r to allow each script to set it
 declare -i SET_DEBUG=0
 export SET_DEBUG
