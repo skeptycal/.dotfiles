@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 [[ -z "$BASH_SOURCE" ]] && BASH_SOURCE="$0" # to ease the transition to zsh
 #? ############################# skeptycal.com ################################
-NAME="${BASH_SOURCE##*/}"
+[[ -z "$NAME" ]] && NAME="${BASH_SOURCE##*/}"
 [[ -z "$VERSION" ]] && VERSION='1.0.0'
 [[ -z "$DESC" ]] && DESC='Additional Script Resources for ssm on macOS'
 USAGE="source ${NAME:-} [help|test|usage|version]"
