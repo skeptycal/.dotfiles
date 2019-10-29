@@ -1,7 +1,7 @@
 #!/usr/bin/env false bash
 # -*- coding: utf-8 -*-
 # cannot be run directly; called from .bash_profile or .bashrc
-[[ -z "$BASH_SOURCE" ]] && BASH_SOURCE="$0" # to ease the transition to zsh
+BASH_SOURCE=${(%):-%N} # to ease the transition to zsh
 #? ############################# skeptycal.com ################################
 NAME="${BASH_SOURCE##*/}"
 VERSION='1.2.0'
@@ -16,7 +16,7 @@ GITHUB="https://www.github.com/skeptycal"
 # export SET_DEBUG=0 # set to 1 for verbose testing
 # [[ ! $SSM_LOADED == 1 ]] &&
 . "$(which ssm)"
-
+VERSION_LIST="${SOURCE_PATH}/.VERSION_LIST.md" && export VERSION_LIST
 # get name for open if linux or windows
 if [ ! "$(uname -s)" = 'Darwin' ]; then
     if grep -q Microsoft /proc/version; then
@@ -31,59 +31,132 @@ function o() {
     else
         open "$@"
     fi
-    }
+}
 
-function versions() {
+function checkpath() {
+    OLD_IFS=$IFS
+    # set internal field separator for the string list
+    # path_list=$PATH # colon separator (default for $PATH)
+    # path_list=$(echo -e ${PATH//:/,}) # CSV
+    path_list=( $(echo -e ${PATH//:/ }) ) # space separator (default for os - no IFS change should be needed)
+    # echo $path_list
     br
-    me "## Versions ############################"
-    cherry "$(uname -i) | $(sw_vers -productName) | $(sw_vers -productVersion)"
-    me "shell:"
-    lime "  zsh: $(zsh --version)"
-    green "  this zsh session: $ZSH_VERSION"
-    blue  "  VSCode   $(code --version | head -n 1)"
+    # IFS=':'
+    IFS=$'\n'
+    for p in "${(@)path_list}"; 
+    do
+        # echo "---> $p"
+        # echo "--->"
+        [[ -d "$p" ]] && lime $p || attn $p
+    done
+    IFS=$OLD_IFS
+}
+
+function write_versions_file() {
+    me "# Program Versions List"
+    green "## VERSION_LIST path: $VERSION_LIST"
+    warn "**os: $(uname -i) | $(sw_vers -productName) | $(sw_vers -productVersion)**"
+    me "### shell:"
+    lime "- zsh:            $(zsh --version)"
+    green "- current shell:  $ZSH_VERSION"
+    blue "- VSCode:         $(code --version | head -n 1)"
     br
-    me "utilities:"
-    canary "  $(bash --version | grep bash | cut -d ',' -f 1)        v$(bash --version | grep bash | cut -d ' ' -f 4 | cut -d '(' -f 1)"
-    cherry "  $(clang --version | grep version | sed 's/version /    v/g')"
-    attn   "  $(git --version | sed 's/version /            v/g')"
-    attn   "  $(hub --version | grep hub | sed 's/version /            v/g')"
-    green  "  grep            v$(grep --version | head -n 1)"
-    canary "  prettier        v$(prettier --version)"
+    me "### utilities:"
+    canary "- $(bash --version | grep bash | cut -d ',' -f 1)        v$(bash --version | grep bash | cut -d ' ' -f 4 | cut -d '(' -f 1)"
+    warn "- $(clang --version | grep version | sed 's/version /    v/g')"
+    attn "- $(git --version | sed 's/version /            v/g')"
+    attn "- $(hub --version | grep hub | sed 's/version /            v/g')"
+    green "- grep            v$(grep --version | head -n 1)"
+    canary "- prettier        v$(prettier --version)"
     br
-    me 'package managers'
-    lime     "  homebrew        v$(brew --version | tail -n 3 | head -n 1 | cut -d ' ' -f 2)"
-    blue     "  conda           v$(conda -V | cut -d ' ' -f 2) "
-    blue     "  pip             v$(pip --version | cut -d ' ' -f 2) "
-    blue     "  pipenv          v$(pipenv --version | cut -d ' ' -f 3) "
-    warn     "  gem             v$(gem -v)"
-    canary   "  npm             v$(npm -v)"
-    purple  "  composer        v$(composer --version | cut -d ' ' -f 3)"
-    green    "  TeXLive(tlmgr)  $(tlmgr --version | head -n 1 | cut -d ' ' -f 3-4))"
+    me '### package managers'
+    lime "- homebrew        v$(brew --version | tail -n 3 | head -n 1 | cut -d ' ' -f 2)"
+    blue "- conda           v$(conda -V | cut -d ' ' -f 2) "
+    blue "- pip             v$(pip --version | cut -d ' ' -f 2) "
+    blue "- pipenv          v$(pipenv --version | cut -d ' ' -f 3) "
+    warn "- gem             v$(gem -v)"
+    canary "- npm             v$(npm -v)"
+    purple "- composer        v$(composer --version | cut -d ' ' -f 3)"
+    green "- TeXLive(tlmgr)  $(tlmgr --version | head -n 1 | cut -d ' ' -f 3-4))"
     br
     # attn "  $(lein --version | sed 's/Leiningen/lein version/g' | sed 's/version /       v/g')"
-    me "languages:"
-    lime   "  GO              v$(go version | cut -d ' ' -f 3 | sed 's/go//g')"
-    warn   "  ruby            v$(ruby -v 2>/dev/null | cut -d ' ' -f 2 | cut -d 'p' -f 1)"
-    purple "  php             v$(php -v 2>/dev/null | grep '(cli)' | cut -d ' ' -f 2)"
-    printf "  ${COOL}python          v$(python --version | cut -d ' ' -f 2)"
-    # pyver
-    # python -c 'import sys; sys.stdout.write("python      v" + ".".join(map(str, sys.version_info[:3]))); sys.stdout.flush()'
-    printf "$RESET_FG\n"
-    canary "  node            $(node -v)"
-    cherry "  Xcode           v$(/Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -version | grep Xcode | sed 's/Xcode //g' )"
-    attn "  Clojure $(clojure -Sdescribe | grep version | sed 's/{://g' | sed 's/"//g' | sed 's/version /        v/g')"
+    me "### languages:"
+    blue "- GO              v$(go version | cut -d ' ' -f 3 | sed 's/go//g')"
+    warn "- ruby            v$(ruby -v 2>/dev/null | cut -d ' ' -f 2 | cut -d 'p' -f 1)"
+    purple "- php             v$(php -v 2>/dev/null | grep '(cli)' | cut -d ' ' -f 2)"
+    printf "- ${COOL}python          v$(python --version | cut -d ' ' -f 2)${RESET_FG}\n"
+    canary "- node            $(node -v)"
+    cherry "- Xcode           v$(/Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -version | grep Xcode | sed 's/Xcode //g')"
+    attn "- Clojure $(clojure -Sdescribe | grep version | sed 's/{://g' | sed 's/"//g' | sed 's/version /        v/g')"
     br
     # me "Travis CI   v$(travis version)"
     # ye "eslint $(eslint -v)"
     # echo "$(pipenv --version)"
     # oe "prettier v$(prettier -v)"
-    }
+} >"$VERSION_LIST"
+
+function save_versions() {
+    # echo "VERSION_LIST: $VERSION_LIST"
+    if [ -d "${SOURCE_PATH}" ]; then
+        rm -rf "$VERSION_LIST" >/dev/null
+        # : >"$VERSION_LIST" # 'touch' $VERSION_LIST file
+        write_versions_file
+    fi
+}
+
+function versions() {
+    save_versions
+    cat ~/.dotfiles/.VERSION_LIST.md
+    # br
+    # me "## Versions ############################"
+    # cherry "$(uname -i) | $(sw_vers -productName) | $(sw_vers -productVersion)"
+    # me "shell:"
+    # lime "  zsh: $(zsh --version)"
+    # green "  this zsh session: $ZSH_VERSION"
+    # blue "  VSCode   $(code --version | head -n 1)"
+    # br
+    # me "utilities:"
+    # canary "  $(bash --version | grep bash | cut -d ',' -f 1)        v$(bash --version | grep bash | cut -d ' ' -f 4 | cut -d '(' -f 1)"
+    # cherry "  $(clang --version | grep version | sed 's/version /    v/g')"
+    # attn "  $(git --version | sed 's/version /            v/g')"
+    # attn "  $(hub --version | grep hub | sed 's/version /            v/g')"
+    # green "  grep            v$(grep --version | head -n 1)"
+    # canary "  prettier        v$(prettier --version)"
+    # br
+    # me 'package managers'
+    # lime "  homebrew        v$(brew --version | tail -n 3 | head -n 1 | cut -d ' ' -f 2)"
+    # blue "  conda           v$(conda -V | cut -d ' ' -f 2) "
+    # blue "  pip             v$(pip --version | cut -d ' ' -f 2) "
+    # blue "  pipenv          v$(pipenv --version | cut -d ' ' -f 3) "
+    # warn "  gem             v$(gem -v)"
+    # canary "  npm             v$(npm -v)"
+    # purple "  composer        v$(composer --version | cut -d ' ' -f 3)"
+    # green "  TeXLive(tlmgr)  $(tlmgr --version | head -n 1 | cut -d ' ' -f 3-4))"
+    # br
+    # # attn "  $(lein --version | sed 's/Leiningen/lein version/g' | sed 's/version /       v/g')"
+    # me "languages:"
+    # lime "  GO              v$(go version | cut -d ' ' -f 3 | sed 's/go//g')"
+    # warn "  ruby            v$(ruby -v 2>/dev/null | cut -d ' ' -f 2 | cut -d 'p' -f 1)"
+    # purple "  php             v$(php -v 2>/dev/null | grep '(cli)' | cut -d ' ' -f 2)"
+    # printf "  ${COOL}python          v$(python --version | cut -d ' ' -f 2)"
+    # # pyver
+    # # python -c 'import sys; sys.stdout.write("python      v" + ".".join(map(str, sys.version_info[:3]))); sys.stdout.flush()'
+    # printf "$RESET_FG\n"
+    # canary "  node            $(node -v)"
+    # cherry "  Xcode           v$(/Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -version | grep Xcode | sed 's/Xcode //g')"
+    # attn "  Clojure $(clojure -Sdescribe | grep version | sed 's/{://g' | sed 's/"//g' | sed 's/version /        v/g')"
+    # br
+    # me "Travis CI   v$(travis version)"
+    # ye "eslint $(eslint -v)"
+    # echo "$(pipenv --version)"
+    # oe "prettier v$(prettier -v)"
+}
 function lns() {
     # list symlinks in current directory
     # References: https://askubuntu.com/questions/522051/how-to-list-all-symbolic-links-in-a-directory
     # la | grep '\-> \/'
     find $PWD -maxdepth 1 -type l
-    }
+}
 
 function new() { echo -e ${1//:/\\n}; }
 function fix_list() {
@@ -97,12 +170,12 @@ function fix_list() {
 
     # < ~/.dotfiles/.functions | grep -e " function " | awk '{ print $2 }'
     # echo $function_list >function_list.txt
-    }
+}
 function pyver() {
     # silly function to address the lack of correct output from
     #   python 2.7 executable in this sitation 'python --version'
     python -c "print('.'.join(str(i).strip() for i in __import__('sys').version_info[:3]))"
-    }
+}
 function travis_trigger() {
     # TODO needs more testing - strange errors
     return 0
@@ -140,7 +213,7 @@ function travis_trigger() {
     #     -H "Authorization: token $TRAVIS_TOKEN" \
     #     -d "$body" \
     #     "https://api.travis-ci.org/repo/${org}%2F${repo}/requests"
-    }
+}
 
 function readlinkf() { perl -MCwd -e 'print Cwd::abs_path shift' "$1"; }
 function pk() { pkill -9 -u "$(id -u $1)"; } # kill another user's processes
@@ -163,7 +236,7 @@ function check_file() {
     [[ -k "$path" ]] && tmp_chk="${tmp_chk} sticky"
     echo " ->$tmp_chk"
     echo ''
-    }
+}
 function dist_hook() {
     # TODO not yet implemented
     return 0
@@ -171,7 +244,7 @@ function dist_hook() {
     # find -regextype posix-egrep -regex ".*(\.([chyl]|def|cpy|cob|conf|cfg)|(README|ChangeLog|AUTHORS|ABOUT-NLS|NEWS|THANKS|TODO|COPYING.*))$" -exec sed -i -e 's/\r*$/\r/' {} \;
     # OR
     # for F in Documents/*.{py,html}; do ...something with each '$F'... ; done
-    }
+}
 function prettier_here() {
     # $1 = path (default $PWD); $2 = filenames ( default '*')
     # OR
@@ -182,7 +255,7 @@ function prettier_here() {
     else
         find -L ${1:-$PWD} -name ${2:-'*'} -type f -print0 | xargs -0 prettier --write | grep -e '[[:space:]]\?[[:digit:]]\+ms'
     fi
-    }
+}
 function pretty() {
     # Use prettier to format all compatible selected files
     # Use $1 for pattern, -m (github diff) or default is '*'
@@ -217,7 +290,7 @@ function pretty() {
             ;;
         esac
     fi
-    }
+}
 
 function fileop() {
     # TODO work in progress
@@ -261,7 +334,7 @@ function fileop() {
     #     echo "Invalid option"
     #     ;;
     # esac
-    }
+}
 function clip() { $("$@") | pbcopy; }
 function get_template() {
     # TODO work in progress
@@ -283,7 +356,7 @@ function get_template() {
     # else
     #     printf "SOURCE file not found.\n\n"
     # fi
-    }
+}
 function chmod_all() {
     # chmod matching files to given mode
     # $1 is path (default $PWD);
@@ -303,7 +376,7 @@ function chmod_all() {
     fi
 
     find -L ${1:-$PWD} -name ${2:-'*'} -type f -print0 | xargs -0 chmod ${3:-644}
-    }
+}
 function web_chmod() {
     # Set default permissions for a folder that will be uploaded to the web.
     # default directory is PWD
@@ -314,7 +387,7 @@ function web_chmod() {
     find -LX "$dir" -type d -print0 | xargs -0 chmod 755
     echo "Changing permissions of all regular directories to 0755."
     # ls "$dir" -ARlh
-    }
+}
 
 function find_broken() {
     # Find and delete all broken symbolic links in current directiry
@@ -329,7 +402,7 @@ function find_broken() {
 
         find -L $PWD -type l -print 2>&1
     fi
-    }
+}
 
 function trw() {
     # TODO work in progress
@@ -341,7 +414,7 @@ function trw() {
     #     var="${var#"${var&&[!'/']*}"}"
     #     var="${var%"${var##*[![:space:]]}"}"
     #     echo -n "$var"
-    }
+}
 
 function git_one() {
     # TODO work in progress
@@ -352,7 +425,7 @@ function git_one() {
         fixed_file=${file/5/-1}
         echo "$fixed_file"
     done
-    }
+}
 
 function bak() {
     FILES="$@"
@@ -363,8 +436,7 @@ function bak() {
         [[ -f "$file" ]] && cp -f "$file" "bak/${file}.bak" || echo -e "${WARN}backup unsuccessful - ${MAIN}${file}${RESET_FG}"
         echo ''
     done
-    }
-
+}
 
 function setup_tools() {
     # TODO Work in progress
@@ -377,15 +449,15 @@ function setup_tools() {
         /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
         brew update &>/dev/null && brew cleanup &>/dev/null && brew doctor &>/dev/null
         brew install bash zsh coreutils cython python git hub heroku leiningen clojure php node
-        brew reinstall node &&	echo -e "==> Installation successful! node.js $(node -v) installed."
+        brew reinstall node && echo -e "==> Installation successful! node.js $(node -v) installed."
     else
         return 1
     fi
-    }
+}
 function nonzero_return() {
     RETVAL=$?
     [ $RETVAL -ne 0 ] && echo "$RETVAL"
-    }
+}
 function parse_git_branch() {
     BRANCH=$(git branch 2>/dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')
     if [ ! "${BRANCH}" == "" ]; then
@@ -394,7 +466,7 @@ function parse_git_branch() {
     else
         echo ""
     fi
-    }
+}
 
 function parse_git_dirty() {
     status=$(git status 2>&1 | tee)
@@ -446,7 +518,7 @@ function parse_git_dirty() {
     else
         echo ""
     fi
-    }
+}
 
 function allopen() { sudo lsof -i -P | grep "$1"; }
 function a() { alias | grep "$1"; }
@@ -468,10 +540,10 @@ function anyguard() {
     read ENTER
     anybar quit $ANYBAR_PORT
     return $ret
-    }
+}
 function anybar() {
     echo -n $1 | nc -4u -w0 localhost ${2:-1738}
-    }
+}
 function azure_agent() {
     # svc.sh only seems to work when run from its own directory ...
     # added default parameter 'status'
@@ -482,7 +554,7 @@ function azure_agent() {
     cd "$temp_pwd"
     unset temp_pwd
     return $result
-    }
+}
 
 function datelog() {
     # create a logfile with the date as part of the file_name
@@ -494,15 +566,15 @@ function datelog() {
     printf "Log for %s\n\n" $(date "+%m/%d/%Y") | tee -a "$file_name"
     exec "$command_text" | tee -a "$file_name"
     $("$@") | tee -a "$file_name"
-    }
+}
 
 function mkd() {
     mkdir -p "$@" && cd "$_" || return
-    }
+}
 
 function cdf() {
     cd "$(osascript -e 'tell app "Finder" to POSIX path of (insertion location as alias)')" || return 1
-    }
+}
 
 function targz() {
     local tmpFile="${*%/}.tar"
@@ -534,7 +606,7 @@ function targz() {
     )
 
     echo "${tmpFile}.gz ($((zippedSize / 1000)) kB) created successfully."
-    }
+}
 
 function fs() {
     if du -b /dev/null >/dev/null 2>&1; then
@@ -547,7 +619,7 @@ function fs() {
     else
         du $arg .[^.]* ./*
     fi
-    }
+}
 
 function dataurl() {
     local mimeType
@@ -556,13 +628,13 @@ function dataurl() {
         mimeType="${mimeType};charset=utf-8"
     fi
     echo "data:${mimeType};base64,$(openssl base64 -in "$1" | tr -d '\n')"
-    }
+}
 
 function server() {
     local port="${1:-8000}"
     sleep 1 && open "http://localhost:${port}/" &
     python2 -c 'import SimpleHTTPServer;\nmap = SimpleHTTPServer.SimpleHTTPRequestHandler.extensions_map;\nmap[""] = "text/plain";\nfor key, value in map.items():\n\tmap[key] = value + ";charset=UTF-8";\nSimpleHTTPServer.test();' "$port"
-    }
+}
 
 function phpserver() {
     local port
@@ -571,7 +643,7 @@ function phpserver() {
     ip=$(ipconfig getifaddr en0)
     sleep 1 && open "http://${ip}:${port}/" &
     php -S -c "$PWD" "${ip}:${port}" -
-    }
+}
 
 function gz() {
     local origsize
@@ -582,11 +654,11 @@ function gz() {
     ratio=$(echo "$gzipsize * 100 / $origsize" | bc -l)
     printf "orig: %d bytes\n" "$origsize"
     printf "gzip: %d bytes (%2.2f%%)\n" "$gzipsize" "$ratio"
-    }
+}
 
 function digga() {
     dig +nocmd "$1" any +multiline +noall +answer
-    }
+}
 
 function getcertnames() {
     if [ -z "${1}" ]; then
@@ -619,24 +691,24 @@ function getcertnames() {
         echo "ERROR: Certificate not found."
         return 1
     fi
-    }
+}
 
 function tre() {
     tree -axC -I '.git|node_modules|bower_components' --dirsfirst "$@" -- | less -FRNX
-    }
+}
 
 tt() {
     # alias treetop='tree -L 1'
     tree -L 1 -- "$@"
-    }
+}
 function tree_html() {
     tree -ahlsAFRHD --prune --du --si --dirsfirst >tree.html
-    }
+}
 
 function _run_debug_functions() {
     db_script_source "Functions test"
     warn $NAME
-    }
+}
 
 function _main_functions() {
     # use git diff if available
@@ -646,13 +718,21 @@ function _main_functions() {
         }
     fi
 
-    versions
+    br
+    me "os: ${LIME}$(uname -i) | $(sw_vers -productName) | $(sw_vers -productVersion)"
+    me "shell: ${LIME}zsh: $(zsh --version)"
+    # green "  this zsh session: $ZSH_VERSION"
+    br
+    green "Use <versions> to display shell, language, and utility versions. (Use <checkpath> to check system \$PATH.)"
+    br
+    # versions #! show versions when loading shell
     # echo "Travis test: $TRAVIS_TOKEN"
     # travis login --github-token "$TRAVIS_TOKEN"
 
     [[ $SET_DEBUG == '1' ]] && _run_debug_functions
-    }
+}
 
+# save_versions
 _main_functions "$@"
 
 # generate a function list

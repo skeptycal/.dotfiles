@@ -1,0 +1,72 @@
+#!/usr/bin/env zsh
+# -*- coding: utf-8 -*-
+# Constants used in ssm standard script modules
+
+#? ######################## setup C++ style error messages
+    #
+    # reference: Advanced Bash-Scripting Guide
+    #   <http://tldp.org/LDP/abs/html/exitcodes.html#EXITCODESREF>
+
+    # from /usr/include/sysexits.h
+    # Copyright (c) 1987, 1993
+    # The Regents of the University of California.  All rights reserved.
+    export EX_OK=0          # successful termination
+    export EX__BASE=64      # base value for error messages
+    export EX_USAGE=64      # command line usage error
+    export EX_DATAERR=65    # data format error
+    export EX_NOINPUT=66    # cannot open input
+    export EX_NOUSER=67     # addressee unknown
+    export EX_NOHOST=68     # host name unknown
+    export EX_UNAVAILABL=69 # service unavailable
+    export EX_SOFTWARE=70   # internal software error
+    export EX_OSERR=71      # system error (e.g., can't fork)
+    export EX_OSFILE=72     # critical OS file missing
+    export EX_CANTCREAT=73  # can't create (user) output file
+    export EX_IOERR=74      # input/output error
+    export EX_TEMPFAIL=75   # temp failure; user is invited to retry
+    export EX_PROTOCOL=76   # remote error in protocol
+    export EX_NOPERM=77     # permission denied
+    export EX_CONFIG=78     # configuration error
+    export EX__MAX=78       # maximum listed value
+
+#? ######################## setup ANSI constants for common colors
+    MAIN=$(echo -en '\001\033[38;5;229m') && export MAIN
+    WARN=$(echo -en '\001\033[38;5;203m') && export WARN
+    COOL=$(echo -en '\001\033[38;5;38m') && export COOL
+    BLUE=$(echo -en '\001\033[38;5;38m') && export BLUE
+    GO=$(echo -en '\001\033[38;5;28m') && export GO
+    LIME=$(echo -en '\u001b[32;1m') && export LIME
+    CHERRY=$(echo -en '\001\033[38;5;124m') && export CHERRY
+    CANARY=$(echo -en '\001\033[38;5;226m') && export CANARY
+    ATTN=$(echo -en '\001\033[38;5;178m') && export ATTN
+    PURPLE=$(echo -en '\001\033[38;5;93m') && export PURPLE
+    RAIN=$(echo -en '\001\033[38;5;93m') && export RAIN
+    WHITE=$(echo -en '\001\033[37m') && export WHITE
+    RESTORE=$(echo -en '\001\033[0m\002') && export RESTORE
+    RESET=$(echo -en '\001\033[0m') && export RESET
+    RESET_FG=$RESET && export RESET_FG
+
+#? ######################## setup functions for printing lines in common colors
+    br() { printf "\n"; } # yes, this is a fake cli version of <br />
+    ce() { printf "%b\n" "${@:-}${RESET:-}"; }
+    me() { ce "${MAIN:-}${@:-}"; }
+    warn() { ce "${WARN:-}${@:-}"; }
+    blue() { ce "${COOL:-}${@:-}"; }
+    cool() { ce "${COOL:-}${@:-}"; }
+    green() { ce "${GO:-}${@:-}"; }
+    lime() { ce "${LIME:-}${@:-}"; }
+    cherry() { ce "${CHERRY:-}${@:-}"; }
+    canary() { ce "${CANARY:-}${@:-}"; }
+    attn() { ce "${ATTN:-}${@:-}"; }
+    purple() { ce "${PURPLE:-}${@:-}"; }
+    rain() { ce "${RAIN:-}${@:-}"; }
+    white() { ce "${WHITE:-}${@:-}"; }
+
+_main_loop() {
+    me "Running script ssm_constants\n"
+}
+
+# [[ $ZSH_EVAL_CONTEXT =~ :file$ ]] && is_sourced=1 || is_sourced=0
+# [[ $is_sourced == 0 ]] && _main_loop
+
+[[ $ZSH_EVAL_CONTEXT =~ :file$ ]] || _main_loop "$@"
