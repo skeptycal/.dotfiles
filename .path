@@ -1,15 +1,13 @@
 #!/usr/bin/env false bash
 # -*- coding: utf-8 -*-
 # cannot be run directly; called from .bash_profile or .bashrc
-[[ -z "$BASH_SOURCE" ]] && BASH_SOURCE="$0" # to ease the transition to zsh
+BASH_SOURCE=${(%):-%N} # to ease the transition to zsh
 # *#############################################################################
 # ${PATH//:/\\n}
 # ${PATH// /}
 # *## PYTHONPATH ###########################################################
 PYTHONPATH="\
-        /usr/local/Cellar/python/3.7.3/Frameworks/Python.framework/Versions/3.7/Resources/Python.app/Contents/MacOS/python:\
-        $HOME/bin/utilities/python:\
-        $HOME/bin/utilities/apps/python:\
+        /usr/local/bin/python:\
         /usr/bin/python:\
         ./:\
         "
@@ -18,12 +16,12 @@ PYTHONPATH="${PYTHONPATH// /}"
 export PYTHONPATH
 
 MANPATH=" \
-        /usr/local/opt/coreutils/libexec/gnuman: \
-        /usr/local/man: \
-        /usr/share/man: \
-        /usr/local/share/man: \
-        /Library/TeX/Distributions/.DefaultTeX/Contents/Man: \
-        /usr/local/MacGPG2/share/man: \
+        /usr/local/opt/coreutils/libexec/gnuman:\
+        /usr/local/man:\
+        /usr/share/man:\
+        /usr/local/share/man:\
+        /Library/TeX/Distributions/.DefaultTeX/Contents/Man:\
+        /usr/local/MacGPG2/share/man:\
         /opt/X11/share/man:\
         "
 
@@ -68,19 +66,16 @@ PATH="\
     $HOME/.local/bin:\
     $HOME/.dotfiles:\
     /usr/local/lib/node_modules:\
-    /Applications/Postgres.app/Contents/Versions/latest/bin:\
-    /Applications/Visual\ Studio\ Code.app/Contents/Resources/app/bin/:\
     /usr/bin:\
     /bin:\
     /usr/local/opt:\
-    /opt/local/bin:\
-    /opt/local/sbin:\
     /usr/local:\
     /usr/local/sbin:\
     /usr/sbin:\
     /sbin:\
     /usr/libexec:\
     $HOME/.dotfiles/git-achievements:\
+    /usr/local/opt/mysql@5.7/bin:\
     $PWD:\
     "
 
