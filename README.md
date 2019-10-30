@@ -1,10 +1,16 @@
 # Macbook Pro Setup
 
-[![Build Status][1]]([2]) [![Coverage][3]]([4])
+[![Build Status][1]]([2]) [![Coverage][3]]([4]) 
 
-[![GitHub Pipenv locked Python version](https://img.shields.io/github/pipenv/locked/python-version/skeptycal/skeptycal.com?color=3776AB&logo=python&logoColor=yellow)](https://www.python.org/) [![nuxt.js](https://img.shields.io/badge/-nuxt.js-35495e?logo=nuxt.js)](<[https://](https://nuxtjs.org/)>)
+[![GitHub Pipenv locked Python version](https://img.shields.io/github/pipenv/locked/python-version/skeptycal/skeptycal.com?color=3776AB&logo=python&logoColor=yellow)](https://www.python.org/) [![nuxt.js](https://img.shields.io/badge/nuxt.js-2.10.2-35495e?logo=nuxt.js)]([https://](https://nuxtjs.org/))
 
-[![License](https://img.shields.io/badge/License-MIT-blue)](https://skeptycal.mit-license.org/1976/) [![macOS Version](https://img.shields.io/badge/macOS-10.15%20Catalina-999999?logo=apple)](https://www.apple.com) ![markdown](https://img.shields.io/badge/-markdown-black?logo=visual-studio-code)
+[![License](https://img.shields.io/badge/License-MIT-blue)](https://skeptycal.mit-license.org/1976/) 
+
+[![macOS Version](https://img.shields.io/badge/macOS-10.15%20Catalina-999999?logo=apple)](https://www.apple.com) 
+
+[![Prettier](https://img.shields.io/badge/prettier--F7B93E?logo=prettier)](https://www.apple.com) 
+
+![markdown](https://img.shields.io/badge/-markdown-black?logo=visual-studio-code)
 
 ## System setup for MacBook Pro using Mojave, Bash, and Python Development
 
@@ -110,19 +116,19 @@ Suggestions/improvements
 
 ## Thanks to…
 
-- @ptb and [his _macOS Setup_ repository](https://github.com/ptb/mac-setup)
-- [Ben Alman](http://benalman.com/) and his [dotfiles repository](https://github.com/cowboy/dotfiles)
-- [Cătălin Mariș](https://github.com/alrra) and his [dotfiles repository](https://github.com/alrra/dotfiles)
-- [Gianni Chiappetta](https://butt.zone/) for sharing his [amazing collection of dotfiles](https://github.com/gf3/dotfiles)
-- [Jan Moesen](http://jan.moesen.nu/) and his [ancient `.bash_profile`](https://gist.github.com/1156154) + [shiny _tilde_ repository](https://github.com/janmoesen/tilde)
-- [Lauri ‘Lri’ Ranta](http://lri.me/) for sharing [loads of hidden preferences](http://osxnotes.net/defaults.html)
-- [Matijs Brinkhuis](https://matijs.brinkhu.is/) and his [dotfiles repository](https://github.com/matijs/dotfiles)
-- [Nicolas Gallagher](http://nicolasgallagher.com/) and his [dotfiles repository](https://github.com/necolas/dotfiles)
-- [Sindre Sorhus](https://sindresorhus.com/)
-- [Tom Ryder](https://sanctum.geek.nz/) and his [dotfiles repository](https://sanctum.geek.nz/cgit/dotfiles.git/about)
-- [Kevin Suttle](http://kevinsuttle.com/) and his [dotfiles repository](https://github.com/kevinSuttle/dotfiles) and [macOS-Defaults project](https://github.com/kevinSuttle/macOS-Defaults), which aims to provide better documentation for [`~/.macos`](https://mths.be/macos)
-- [Haralan Dobrev](https://hkdobrev.com/)
-- Anyone who [contributed a patch](https://github.com/mathiasbynens/dotfiles/contributors) or [made a helpful suggestion](https://github.com/mathiasbynens/dotfiles/issues)
+-   @ptb and [his _macOS Setup_ repository](https://github.com/ptb/mac-setup)
+-   [Ben Alman](http://benalman.com/) and his [dotfiles repository](https://github.com/cowboy/dotfiles)
+-   [Cătălin Mariș](https://github.com/alrra) and his [dotfiles repository](https://github.com/alrra/dotfiles)
+-   [Gianni Chiappetta](https://butt.zone/) for sharing his [amazing collection of dotfiles](https://github.com/gf3/dotfiles)
+-   [Jan Moesen](http://jan.moesen.nu/) and his [ancient `.bash_profile`](https://gist.github.com/1156154) + [shiny _tilde_ repository](https://github.com/janmoesen/tilde)
+-   [Lauri ‘Lri’ Ranta](http://lri.me/) for sharing [loads of hidden preferences](http://osxnotes.net/defaults.html)
+-   [Matijs Brinkhuis](https://matijs.brinkhu.is/) and his [dotfiles repository](https://github.com/matijs/dotfiles)
+-   [Nicolas Gallagher](http://nicolasgallagher.com/) and his [dotfiles repository](https://github.com/necolas/dotfiles)
+-   [Sindre Sorhus](https://sindresorhus.com/)
+-   [Tom Ryder](https://sanctum.geek.nz/) and his [dotfiles repository](https://sanctum.geek.nz/cgit/dotfiles.git/about)
+-   [Kevin Suttle](http://kevinsuttle.com/) and his [dotfiles repository](https://github.com/kevinSuttle/dotfiles) and [macOS-Defaults project](https://github.com/kevinSuttle/macOS-Defaults), which aims to provide better documentation for [`~/.macos`](https://mths.be/macos)
+-   [Haralan Dobrev](https://hkdobrev.com/)
+-   Anyone who [contributed a patch](https://github.com/mathiasbynens/dotfiles/contributors) or [made a helpful suggestion](https://github.com/mathiasbynens/dotfiles/issues)
 
 [1]: https://api.travis-ci.com/skeptycal/.dotfiles.svg?branch=master&style=flat-square
 [2]: https://travis-ci.com/skeptycal/.dotfiles/builds/116220477
