@@ -1,8 +1,16 @@
 # Macbook Pro Setup
 
-[![Build Status][1]]([2]) [![Coverage][3]]([4])
-[![License][5]]([6])
-[![Bash Version](src/bash_badge.svg)](https://www.python.org/) [![Python Version](src/python_badge.svg)](https://www.python.org/)
+[![Build Status][1]]([2]) [![Coverage][3]]([4]) 
+
+[![GitHub Pipenv locked Python version](https://img.shields.io/github/pipenv/locked/python-version/skeptycal/skeptycal.com?color=3776AB&logo=python&logoColor=yellow)](https://www.python.org/) [![nuxt.js](https://img.shields.io/badge/nuxt.js-2.10.2-35495e?logo=nuxt.js)]([https://](https://nuxtjs.org/))
+
+[![License](https://img.shields.io/badge/License-MIT-blue)](https://skeptycal.mit-license.org/1976/) 
+
+[![macOS Version](https://img.shields.io/badge/macOS-10.15%20Catalina-999999?logo=apple)](https://www.apple.com) 
+
+[![Prettier](https://img.shields.io/badge/prettier--F7B93E?logo=prettier)](https://www.apple.com) 
+
+![markdown](https://img.shields.io/badge/-markdown-black?logo=visual-studio-code)
 
 ## System setup for MacBook Pro using Mojave, Bash, and Python Development
 
@@ -126,5 +134,5 @@ Suggestions/improvements
 [2]: https://travis-ci.com/skeptycal/.dotfiles/builds/116220477
 [3]: https://coveralls.io/repos/github/skeptycal/.dotfiles/badge.svg?branch=master
 [4]: https://coveralls.io/github/skeptycal/.dotfiles?branch=master
-[5]: src/license.svg
+[5]: snippets/src/license.svg
 [6]: http://badges.mit-license.org

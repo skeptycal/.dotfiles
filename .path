@@ -65,6 +65,7 @@ PATH="\
     $HOME/.local:\
     $HOME/.local/bin:\
     $HOME/.dotfiles:\
+    $HOME/.cargo/bin:\
     /usr/local/lib/node_modules:\
     /usr/bin:\
     /bin:\
