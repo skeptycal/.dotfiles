@@ -74,6 +74,8 @@ function write_versions_file() {
     blue "- conda           v$(conda -V | cut -d ' ' -f 2) "
     blue "- pip             v$(pip --version | cut -d ' ' -f 2) "
     blue "- pipenv          v$(pipenv --version | cut -d ' ' -f 3) "
+    attn "- cargo           v$(cargo --version | cut -d ' ' -f 2)"
+    attn "- rustup          v$(rustup --version | cut -d ' ' -f 2)"
     warn "- gem             v$(gem -v)"
     canary "- npm             v$(npm -v)"
     purple "- composer        v$(composer --version | cut -d ' ' -f 3)"
@@ -82,7 +84,9 @@ function write_versions_file() {
     # attn "  $(lein --version | sed 's/Leiningen/lein version/g' | sed 's/version /       v/g')"
     me "### languages:"
     blue "- GO              v$(go version | cut -d ' ' -f 3 | sed 's/go//g')"
+    attn "- rustc           v$(rustc --version | cut -d ' ' -f 2)"
     warn "- ruby            v$(ruby -v 2>/dev/null | cut -d ' ' -f 2 | cut -d 'p' -f 1)"
+
     purple "- php             v$(php -v 2>/dev/null | grep '(cli)' | cut -d ' ' -f 2)"
     printf "- ${COOL}python          v$(python --version | cut -d ' ' -f 2)${RESET_FG}\n"
     canary "- node            $(node -v)"
