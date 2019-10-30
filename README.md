@@ -4,13 +4,7 @@
 
 [![GitHub Pipenv locked Python version](https://img.shields.io/github/pipenv/locked/python-version/skeptycal/skeptycal.com?color=3776AB&logo=python&logoColor=yellow)](https://www.python.org/) [![nuxt.js](https://img.shields.io/badge/nuxt.js-2.10.2-35495e?logo=nuxt.js)]([https://](https://nuxtjs.org/))
 
-[![License](https://img.shields.io/badge/License-MIT-blue)](https://skeptycal.mit-license.org/1976/) 
-
-[![macOS Version](https://img.shields.io/badge/macOS-10.15%20Catalina-999999?logo=apple)](https://www.apple.com) 
-
-[![Prettier](https://img.shields.io/badge/prettier--F7B93E?logo=prettier)](https://www.apple.com) 
-
-![markdown](https://img.shields.io/badge/-markdown-black?logo=visual-studio-code)
+[![macOS Version](https://img.shields.io/badge/macOS-10.15%20Catalina-999999?logo=apple)](https://www.apple.com) [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?logo=prettier)](https://github.com/prettier/prettier) [![License](https://img.shields.io/badge/License-MIT-darkblue)](https://skeptycal.mit-license.org/1976/)  
 
 ## System setup for MacBook Pro using Mojave, Bash, and Python Development
 
