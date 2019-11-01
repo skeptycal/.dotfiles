@@ -20,6 +20,7 @@ MANPATH=" \
         /usr/local/man:\
         /usr/share/man:\
         /usr/local/share/man:\
+        /usr/local/opt/erlang/lib/erlang/man:\
         /Library/TeX/Distributions/.DefaultTeX/Contents/Man:\
         /usr/local/MacGPG2/share/man:\
         /opt/X11/share/man:\
@@ -60,6 +61,8 @@ PATH="\
     $HOME/bin/utilities/python:\
     $HOME/bin/utilities/php:\
     $HOME/bin/utilities/php/includes:\
+    /usr/local/opt/ruby/bin:\
+    /usr/local/lib/ruby/gems/2.6.0/bin:\
     $HOME/bin/utilities/scripts:\
     $HOME/bin/utilities/apps:\
     $HOME/.local:\

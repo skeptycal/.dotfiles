@@ -12,7 +12,7 @@ It is handy to trigger a Travis CI build from the command line. They have setup 
 
 Make sure you have at least [Ruby][3] 1.9.3 (2.0.0 recommended) installed. _I tested on macOS (10.14.6 Beta) but it is available on Windows and Linux, also._
 
-```bash
+```sh
 # check ruby version
 $ ruby -v
 ruby 2.6.3p62 (2019-04-16 revision 67580) [x86_64-darwin18]
