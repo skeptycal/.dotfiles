@@ -51,6 +51,9 @@ export MANPATH
 # and run
 #   /usr/local/opt/openssl/bin/c_rehash
 PATH="\
+    $HOME/emsdk:\
+    $HOME/emsdk/upstream/emscripten:\
+    $HOME/emsdk/node/12.9.1_64bit/bin:\
     /usr/local/opt/coreutils/libexec/gnubin:\
     $HOME/bin:\
     $HOME/go/bin:\

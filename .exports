@@ -40,6 +40,11 @@ export PROJECT_HOME="${HOME}/Documents/coding/"
 [[ $(which pyenv >/dev/null) ]] && eval "$(pyenv init -)"
 [[ $(which pyenv-virtualenv-init >/dev/null) ]] && eval "$(pyenv virtualenv-init -)"
 
+# emsdk
+export EMSDK="/Users/skeptycal/emsdk"
+export EM_CONFIG="/Users/skeptycal/.emscripten"
+export EMSDK_NODE="/Users/skeptycal/emsdk/node/12.9.1_64bit/bin/node"
+
 # pip zsh completion start
 function _pip_completion() {
     local words cword
