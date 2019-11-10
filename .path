@@ -1,10 +1,14 @@
 #!/usr/bin/env false bash
 # -*- coding: utf-8 -*-
-# cannot be run directly; called from .bash_profile or .bashrc
-BASH_SOURCE=${(%):-%N} # to ease the transition to zsh
-# *#############################################################################
-# ${PATH//:/\\n}
-# ${PATH// /}
+# false - cannot be run directly
+#* ##############################################################################
+#? ${PATH//:/\\n}    - replace all colons with newlines to display as a list
+#? ${PATH// /}       - strip all spaces
+#? ${VAR##*/}        - return only final element in path (program name)
+#? ${VAR%/*}         - return only path elements in path (without program name)
+SHELL_BIN="${SHELL##*/}" && export SHELL_BIN
+[[ SHELL_BIN == 'zsh' ]] && BASH_SOURCE=${(%):-%N} # to ease the transition to zsh
+
 # *## PYTHONPATH ###########################################################
 PYTHONPATH="\
         /usr/local/bin/python:\
@@ -15,6 +19,7 @@ PYTHONPATH="\
 PYTHONPATH="${PYTHONPATH// /}"
 export PYTHONPATH
 
+# *## MANPATH ###########################################################
 MANPATH=" \
         /usr/local/opt/coreutils/libexec/gnuman:\
         /usr/local/man:\
@@ -95,7 +100,7 @@ export PATH
 function _run_debug_paths() {
     # list current versions of common utilities
     ce "Script source:$MAIN $BASH_SOURCE$RESET"
-    green "\$PATH is set. Type <path> or <new [\$PATHVAR]> to list elements."
+    green "\$PATH is set. Type <path> to list or <check_path> to test elements."
     # ${PATH//:/\\n}
     # ${PATH// /}
     # new() { echo -e ${1//:/\\n}; }
