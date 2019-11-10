@@ -56,6 +56,7 @@ export MANPATH
 # and run
 #   /usr/local/opt/openssl/bin/c_rehash
 PATH="\
+    $HOME/Library/Python/3.8/bin:\
     $HOME/emsdk:\
     $HOME/emsdk/upstream/emscripten:\
     $HOME/emsdk/node/12.9.1_64bit/bin:\
