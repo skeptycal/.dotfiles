@@ -9,6 +9,8 @@
 SHELL_BIN="${SHELL##*/}" && export SHELL_BIN
 [[ SHELL_BIN == 'zsh' ]] && BASH_SOURCE=${(%):-%N} # to ease the transition to zsh
 
+
+fpath+=("$HOME/.zsh/pure")
 # *## PYTHONPATH ###########################################################
 PYTHONPATH="\
         /usr/local/bin/python:\
