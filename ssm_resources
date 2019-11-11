@@ -11,8 +11,7 @@
 . $(which ssm_usage)
 base_dir=$(dirname "$0")
 echo $base_dir
-# SET_DEBUG='1' # set to 1 for debug and verbose testing
-declare -t SET_DEBUG='0' # set to 1 for verbose testing
+    declare -ix SET_DEBUG=0   # set to 1 for verbose testing
 
 # exec 6>&1 # non-volatile stdout leaves return values of &1 undesturbed
 set -aET

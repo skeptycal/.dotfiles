@@ -1,225 +1,20 @@
 #!/usr/bin/env zsh
 # -*- coding: utf-8 -*-
-BASH_SOURCE=${(%):-%N}
-# BASH_SOURCE=${BASH_SOURCE:=$0} # to ease the transition to zsh
-SCRIPT_SOURCE="$BASH_SOURCE"
+. ssm_init
+
 #? ######################## Project Information
-    NAME=${NAME:="${BASH_SOURCE##*/}"}
-    VERSION=${VERSION:='1.4.0'}
-    DESC=${DESC:='Script Resources for ssm on macOS'}
-    USAGE="source ${NAME:-} [help|test|usage|version]"
-#* ######################## initialization
-    source $(which ssm_usage)
-    source $(which ssm_resources)
-    export SET_DEBUG=0        # set to 1 for verbose testing
-    export SSM_LOADED=1       # prevent repeat loading
-    [[ $ZSH_EVAL_CONTEXT =~ :file$ ]] && is_sourced=1 || is_sourced=0
-    exec 6>&1 # non-volatile stdout leaves return values of stdout undisturbed
-    # return 0 #! used for debugging
+    declare -x NAME=${NAME:="${BASH_SOURCE##*/}"}
+    declare -x VERSION=${VERSION:='1.4.0'}
+    declare -x DESC=${DESC:='Script Resources for ssm on macOS'}
+    declare -x USAGE="source ${NAME:-} [help|test|usage|version]"
 
-# TODO #################### works in progress 
-    #   - automate creation of TOC
-    #   - use       declare -F ??
-get_function_list() {
-    cat "$1" | grep '() {' | sed 's/\(\.*\)*() {/\1/' | sed 's/function //' | sed 's/^[# ]*//' | sed 's/cat//' | cut -d ' ' -f1
-    }
-
-#* ######################## program debugging / logging functions
-# log_toggle() {
-    #   usage: log_toggle [filename]
-    #   toggle on and off logging to file
-    #       parameter
-    #           filename    - name of new logfile (default LOGFILE)
-    #       variable $LOG stores state
-    #       variable $LOGFILE stores filename
-    #   reference: https://unix.stackexchange.com/questions/80988/how-to-stop-redirection-in-bash
-
-    # set default log filename or $1
-    # # TODO this function is generating sporadic errors ...
-    # return 0
-    # if [[ -z "$1" ]]; then
-    #     if [[ -z "$LOG_FILE_NAME" ]]; then
-    #         LOG_FILE_NAME="${script_source:-'./'}LOGFILE.log"
-    #     fi
-    # else
-    #     LOG_FILE_NAME="${1}"
-    # fi
-    # touch "$LOG_FILE_NAME"
-    # # if log is on, turn it off
-    # if [[ "$LOG" == '1' ]]; then
-    #     LOG='0'
-    #     exec 1>&4- 2>&5-
-    #     attn "logging off ..."
-    # else # if it is off ... turn it on
-    #     LOG='1'
-    #     exec 4>&1 5>&2
-    #     # log to the filename stored in $LOG_FILE_NAME
-    #     db_echo "\${LOG_FILE_NAME}: ${LOG_FILE_NAME}"
-    #     exec > >(tee -a -i "${LOG_FILE_NAME}") 2>&1
-    #     attn "logging on ..."
-    # fi
-    # }
-test_echo() {
-    # log the current value of a given variable ($1)
-    # usage: test_echo <test name> <test code>
-    # report test results if:
-    #    - SET_DEBUG is set to '1' or cli [test] option set
-    #    - use log_toggle() to include file logging
-    if [[ $SET_DEBUG == 1 ]] || [[ $1 == 'test' ]]; then
-        printf "%bFunction Test -> %bPID %s %b" "$MAIN" "$CANARY" "$$" "$GO"
-        printf '%(%Y-%m-%d)T' -1
-        printf "%b test name: %s\n%b" "$ATTN" "$1" "${RESET_FG:-}"
-        shift
-        eval "$@"
-        printf "%bResult = %s%b\n" "$COOL" "$?" "${RESET_FG:-}"
-    fi
-    }
-test_var() {
-    # usage: test_var <test variable>
-    # report test results if:
-    #    - SET_DEBUG is set to '1' or cli [test] option set
-    #    - use log_toggle() to include file logging
-    # reference:
-    #   indirect variables: https://wiki.bash-hackers.org/syntax/pe#indirection
-    #   bash printf: https://www.linuxjournal.com/content/bashs-built-printf-function
-    if [[ $SET_DEBUG == 1 ]] && [[ -n "$1" ]]; then
-        local testvar="${1}"
-        echo "\$testvar: $testvar"
-        echo "testvar: "testvar
-        # echo "testvar: " ${!testvar}
-        echo ''
-        printf "%bVariable Test -> %bPID %s %b" "$MAIN" "$CANARY" "$$" "$GO"
-        printf '%(%Y-%m-%d)T' -1
-        printf "%b %15s -%b %s %b\n" "$ATTN" "\$$testvar" "$WARN" "$testvar" "$RESET_FG"
-    fi
-    }
-log_flag() { rain "#? ############################################################################"; }
-
-#* ######################## error handling
-_set_traps() {
-    cur_opts="$-"
-    debug_opts="axET"
-    set "-${cur_opts}${debug_opts}"
-    }
-
-_trap_error() {
-    me "ERR: $ERR"
-    set "-${cur_opts}"
-    # return 0
-    }
-_trap_debug() {
-    # return 0
-    ce "Script source:$MAIN $SCRIPT_SOURCE$RESET_FG $@ \n"
-    attn "echo VARIABLE ($VARIABLE) is being used here."
-    }
-_trap_exit() {
-    # https://stackoverflow.com/a/50270940/9878098
-    exitcode=$?
-    printf 'error executing script...\n' 1>&2
-    printf 'exit code returned: %s\n' "$exitcode"
-    printf 'the command executing at the time of the error was: %s\n' "$BASH_COMMAND"
-    printf 'command present on line: %d' "${BASH_LINENO[0]}"
-    # Some more clean up code can be added here before exiting
-    set "-${cur_opts}"
-    exec 4>&- 5>&- 6>&-
-    if [[ "$LOG" == '1' ]]; then
-        LOG='0'
-        exec 1>&4 2>&5
-        exec 4>&- 5>&-
-        attn "logging off ..."
-    fi
-
-    exit $exitcode
-    }
-#* ######################## script tests
-_run_tests() {
-    _run_debug_config() {
-        green "\$dotfiles_path is set to $dotfiles_path."
-        green "\$here is set to as $here."
-        }
-    _bt_color_sample_test() {
-        echo -e "${MAIN}C ${WARN}O ${COOL}L ${GO}O ${CHERRY}R   ${CANARY}T ${ATTN}E ${PURPLE}S ${RESET_FG}T"
-        echo -e "${MAIN}MAIN   ${WARN}WARN   ${COOL}COOL   ${GO}GO   ${CHERRY}CHERRY   ${CANARY}CANARY   ${ATTN}ATTN   ${RAIN}RAIN   ${RESET_FG}RESET_FG"
-        }
-    _test_standard_script_modules() {
-        _EXIT_USAGE_TEXT="${MAIN}${script_name}${WHITE} - macOS script"
-        lime $_EXIT_USAGE_TEXT
-        # log file for test sesssion
-        LOG_FILE_NAME="${script_source}ssm_debug_test.log"
-        # functions that include an 'exit' will skip it so tests can continue
-        DONT_DIE=1
-        # log everything to LOG_FILE_NAME
-        # log_toggle
-
-        cool "${COOL}SCRIPT_SOURCE:$MAIN $SCRIPT_SOURCE$RESET_FG"
-        log_flag
-
-        test_var "$script_name"
-        test_var "$script_source"
-        test_var "$SET_DEBUG"
-        test_var "$DONT_DIE"
-        test_var "$LOG"
-        test_var "$LOG_FILE_NAME"
-
-        # TODO add tests for these functions as needed
-        test_echo "die() test" "die 'die test!'"
-        test_echo "db_echo() test" "db_echo 'This is the test argument'"
-        test_echo "urlencode() test" "url_encode 'https://www.github.com/skeptycal'"
-        db_echo "$encoded"
-        test_echo "urlencode() test" "url_decode 'http%3A%2F%2Fwww.github.com%2Fskeptycal'"
-        db_echo "$decoded"
-        fake_filename="$LOG_FILE_NAME"
-        test_var "$fake_filename"
-        test_echo "real_name() test" "real_name $fake_filename"
-
-        test_echo "in_list() test" "in_list '1' '123'"
-        test_echo "in_list() test" "in_list 'ok' 'this is ok'"
-        test_echo "in_list() test" "in_list 'j' 'klm')"
-        test_echo "in_list() test" "in_list 'doc' '( txt rtf rtfd html doc docx odt wordml webarchive )')"
-
-        log_flag
-        result="${fake_filename##*/}"
-        test_var "$result"
-
-        # cleanup test environment
-        # log_toggle
-        unset DONT_DIE
-        unset LOG_FILE_NAME
-        unset _EXIT_USAGE_TEXT
-        unset LOG
-        }
-    
-    db_echo "zsh 'BASH_SOURCE': ${(%):-%N}"
-    db_echo "BASH_SOURCE: $BASH_SOURCE"
-    db_echo "\$0: $0"
-    db_echo "\$1: $1"
-    ce "Script source:${MAIN} ${SCRIPT_SOURCE}$RESET_FG"
-    # echo ${filename##*/}
-    lime "zsh 'BASH_SOURCE': ${(%):-%N}"
-    lime "(%): ${%N}"
-    db_echo "\nTesting script ${NAME} version ${VERSION}."
-    ce "Script source:$MAIN ${SCRIPT_SOURCE[0]##*/}${RESET_FG:-}\n"
-    ce "Script parent:$MAIN ${SCRIPT_SOURCE[1]##*/}${RESET_FG:-}\n"
-    ce "Script grandparent:$MAIN ${SCRIPT_SOURCE[2]##*/}${RESET_FG:-}\n"
-    _run_debug_config
-    _bt_color_sample_test
-    _test_standard_script_modules
-    return 0
-    }
 #! ######################## main loop
 _main_loop() {
+    [[ $ZSH_EVAL_CONTEXT =~ :file$ ]] || die(64)
     script_name=$NAME
     set_man_page
-    pgrep -fl "$BASH_SOURCE"
 
-    # trap _trap_error ERR
-    # trap _trap_exit EXIT
-    # trap _trap_debug DEBUG
-    # _debug_function_header
-    # [[ $SET_DEBUG == 1 ]] &&
-    # _set_traps
     parse_options "$@"
-    # lime "SET_DEBUG: $SET_DEBUG"
     # [[ $SET_DEBUG == 1 ]] && _run_tests "$@"
     }
 
@@ -245,7 +40,8 @@ usage_parameters
 )"
 
 #* ######################## entry point
-[[ $ZSH_EVAL_CONTEXT =~ :file$ ]] || _main_loop "$@"
+_main_loop "$@"
+set +avx
 #? ############################################################################
 #* Resources found in ssm_resources
     # _debug_function_header, in_list

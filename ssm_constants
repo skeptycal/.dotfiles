@@ -1,7 +1,6 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env false zsh
 # -*- coding: utf-8 -*-
 # Constants used in ssm standard script modules
-
 #? ######################## setup C++ style error messages
     #
     # reference: Advanced Bash-Scripting Guide
@@ -10,24 +9,36 @@
     # from /usr/include/sysexits.h
     # Copyright (c) 1987, 1993
     # The Regents of the University of California.  All rights reserved.
-    export EX_OK=0          # successful termination
-    export EX__BASE=64      # base value for error messages
-    export EX_USAGE=64      # command line usage error
-    export EX_DATAERR=65    # data format error
-    export EX_NOINPUT=66    # cannot open input
-    export EX_NOUSER=67     # addressee unknown
-    export EX_NOHOST=68     # host name unknown
-    export EX_UNAVAILABL=69 # service unavailable
-    export EX_SOFTWARE=70   # internal software error
-    export EX_OSERR=71      # system error (e.g., can't fork)
-    export EX_OSFILE=72     # critical OS file missing
-    export EX_CANTCREAT=73  # can't create (user) output file
-    export EX_IOERR=74      # input/output error
-    export EX_TEMPFAIL=75   # temp failure; user is invited to retry
-    export EX_PROTOCOL=76   # remote error in protocol
-    export EX_NOPERM=77     # permission denied
-    export EX_CONFIG=78     # configuration error
-    export EX__MAX=78       # maximum listed value
+    export EX_OK=0                  # successful termination
+
+    # The Linux Documentation Project has a list of reserved codes that also offers advice on what code to use for specific scenarios. These are the standard error codes in Linux or UNIX.
+    export EX_ERROR=1               # catchall for general errors
+    export EX_SHELLERR=2            # misuse of shell builtins (BASH); missing keyword
+
+    export EX__BASE=64              # base value for error messages
+    export EX_USAGE=64              # command line usage error
+    export EX_DATAERR=65            # data format error
+    export EX_NOINPUT=66            # cannot open input
+    export EX_NOUSER=67             # addressee unknown
+    export EX_NOHOST=68             # host name unknown
+    export EX_UNAVAILABL=69         # service unavailable
+    export EX_SOFTWARE=70           # internal software error
+    export EX_OSERR=71              # system error (e.g., can't fork)
+    export EX_OSFILE=72             # critical OS file missing
+    export EX_CANTCREAT=73          # can't create (user) output file
+    export EX_IOERR=74              # input/output error
+    export EX_TEMPFAIL=75           # temp failure; user is invited to retry
+    export EX_PROTOCOL=76           # remote error in protocol
+    export EX_NOPERM=77             # permission denied
+    export EX_CONFIG=78             # configuration error
+    export EX__MAX=78               # maximum listed value
+
+    # Linux / Unix codes
+    export EX_CANTEXECUTE=126       # command invoked cannot execute
+    export EX_NOTFOUND=127          # command not found; possible $PATH error or typo
+    export EX_BADARG=128            # invalid argument
+    export EX_FATALARG=129          # fatal error
+    export EX_CTRL_C=130            # script terminated by Control-C
 
 #? ######################## setup ANSI constants for common colors
     MAIN=$(echo -en '\001\033[38;5;229m') && export MAIN
@@ -61,12 +72,3 @@
     purple() { ce "${PURPLE:-}${@:-}"; }
     rain() { ce "${RAIN:-}${@:-}"; }
     white() { ce "${WHITE:-}${@:-}"; }
-
-_main_loop() {
-    me "Running script ssm_constants\n"
-}
-
-# [[ $ZSH_EVAL_CONTEXT =~ :file$ ]] && is_sourced=1 || is_sourced=0
-# [[ $is_sourced == 0 ]] && _main_loop
-
-[[ $ZSH_EVAL_CONTEXT =~ :file$ ]] || _main_loop "$@"

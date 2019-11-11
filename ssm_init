@@ -1,0 +1,42 @@
+#!/usr/bin/env zsh
+# -*- coding: utf-8 -*-
+
+declare -ix SET_DEBUG=1   # set to 1 for verbose testing
+declare -ix SSM_LOADED=1       # prevent repeat loading
+#* ######################## initialization
+ssm_init() {
+    # set -ax
+    # exec 6>&1 # non-volatile stdout leaves return values of stdout undisturbed
+
+    [[ -z $BASH_SOURCE ]] && BASH_SOURCE=${(%):-%N} # to ease the transition to zsh
+    [[ $ZSH_EVAL_CONTEXT =~ :file$ ]] && is_sourced=1 || is_sourced=0
+    # [[ $ZSH_EVAL_CONTEXT =~ :file$ ]] # is sourced?
+
+    declare -x SCRIPT_SOURCE="$BASH_SOURCE"
+    declare -x BASE_DIR=$(dirname "$0")
+    declare -x SYS_USERID=$(id -un):$(id -gn)
+    }
+which_var() { attn "\${!1}: $1"; }
+ssm_debug() {
+    echo -n ''
+}
+
+_run_tests() {
+    which_var "$SET_DEBUG"
+    which_var "$SSM_LOADED"
+    which_var "$SCRIPT_SOURCE"
+    which_var "$BASE_DIR"
+}
+
+#! ######################## main loop
+_main_loop() {
+    if [[ -z $SSM_LOADED ]]; then
+        me 'loading ssm...'
+        declare
+        [[ $SET_DEBUG == 1 ]] && _run_tests "$@"
+        ssm_init
+    fi
+    }
+
+#! ######################## entry point
+_main_loop # "$@"
