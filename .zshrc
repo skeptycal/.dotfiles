@@ -3,7 +3,7 @@
 #* ######################## Set Options
   # Using ZSH shell - http://zsh.sourceforge.net/
   BASH_SOURCE=${(%):-%N} # to ease the transition to zsh
-  set +avx
+  # set +avx
 
   # use root defaults since they match web server defaults
   umask 022
@@ -14,7 +14,7 @@
   # profile start time
   t0=$(date "+%s.%n")
 
-  source "${base_dir}/gpg.zsh"
+  source "${HOME}/.dotfiles/gpg.zsh"
   source "/usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
 
   # Set/unset  shell options

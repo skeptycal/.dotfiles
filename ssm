@@ -1,6 +1,5 @@
 #!/usr/bin/env zsh
 # -*- coding: utf-8 -*-
-. ssm_init
 
 #? ######################## Project Information
     declare -x NAME=${NAME:="${BASH_SOURCE##*/}"}
@@ -10,6 +9,7 @@
 
 #! ######################## main loop
 _main_loop() {
+    . ssm_resources
     [[ $ZSH_EVAL_CONTEXT =~ :file$ ]] || die(64)
     script_name=$NAME
     set_man_page
