@@ -411,6 +411,9 @@ _run_tests() {
     _test_standard_script_modules
     return 0
     }
+export_list() {
+    export -p | xargs
+}
 #? ######################## old basic_text_colors.sh contents
     # TODO automate creation of TOC
     # FUNCTIONS         PARAMETERS and OPTIONS
@@ -431,7 +434,7 @@ _run_tests() {
     #       sequence \e and defined by a color value, composed of [style;color+m]
     #       and wrapped in an escaped [] sequence. eg.
     # reference: https://stackoverflow.com/questions/1550288/os-x-terminal-colors
-    # && # Â€Âœexport -p command -- show all the exported variables.
+    # && # export -p command -- show all the exported variables.
     # reference: https://www.thegeekstuff.com/2010/08/bash-shell-builtin-commands/
 
 #? ######################## Resources found in ssm_resources
