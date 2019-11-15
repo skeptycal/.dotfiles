@@ -1,6 +1,23 @@
 #!/usr/bin/env false zsh
 # -*- coding: utf-8 -*-
-# Constants used in ssm standard script modules
+
+#? ######################## global constants
+#? ######################## path constants
+    declare -x TEMP_FILE=$TEMP_DIR/tmp_proc_random.$$.$RANDOM
+    declare -x SYS_USERID=$(id -un):$(id -gn)
+    declare -x SRC_PATH="${SCRIPT_PATH}/src"
+    declare -x BAK_PATH="${SCRIPT_PATH}/bak"
+    declare -x BIN_PATH="${HOME}/bin/utilities/pc_bak"
+    declare -x DOTFILES_PATH="${HOME}/.dotfiles"
+    declare -x HERE="$PWD"
+
+#? ######################## program constants
+
+    declare -x _pretty_usage="Usage :\n\t${MAIN}pretty${WHITE} [file(s) ...] \t\t- use list of files (default is all files in current directory)\n\t${MAIN}pretty${WHITE} [-m [commit message]] \t- use git staged files and commit with message
+        \n\t${MAIN}pretty${WHITE} [-h|--help|help] \t- usage help (this!)"
+
+    declare -x _debug_function_header_text='_header_test_log "Calling: ${CANARY:-}${FUNCNAME[0]} ${MAIN:-}$*${RESET:-}"'
+
 #? ######################## setup C++ style error messages
     #
     # reference: Advanced Bash-Scripting Guide
@@ -9,53 +26,86 @@
     # from /usr/include/sysexits.h
     # Copyright (c) 1987, 1993
     # The Regents of the University of California.  All rights reserved.
-    export EX_OK=0                  # successful termination
+    declare -ix EX_OK=0                  # successful termination
 
     # The Linux Documentation Project has a list of reserved codes that also offers advice on what code to use for specific scenarios. These are the standard error codes in Linux or UNIX.
-    export EX_ERROR=1               # catchall for general errors
-    export EX_SHELLERR=2            # misuse of shell builtins (BASH); missing keyword
+    declare -ix EX_ERROR=1               # catchall for general errors
+    declare -ix EX_SHELLERR=2            # misuse of shell builtins (BASH); missing keyword
 
-    export EX__BASE=64              # base value for error messages
-    export EX_USAGE=64              # command line usage error
-    export EX_DATAERR=65            # data format error
-    export EX_NOINPUT=66            # cannot open input
-    export EX_NOUSER=67             # addressee unknown
-    export EX_NOHOST=68             # host name unknown
-    export EX_UNAVAILABL=69         # service unavailable
-    export EX_SOFTWARE=70           # internal software error
-    export EX_OSERR=71              # system error (e.g., can't fork)
-    export EX_OSFILE=72             # critical OS file missing
-    export EX_CANTCREAT=73          # can't create (user) output file
-    export EX_IOERR=74              # input/output error
-    export EX_TEMPFAIL=75           # temp failure; user is invited to retry
-    export EX_PROTOCOL=76           # remote error in protocol
-    export EX_NOPERM=77             # permission denied
-    export EX_CONFIG=78             # configuration error
-    export EX__MAX=78               # maximum listed value
+    declare -ix EX__BASE=64              # base value for error messages
+    declare -ix EX_USAGE=64              # command line usage error
+    declare -ix EX_DATAERR=65            # data format error
+    declare -ix EX_NOINPUT=66            # cannot open input
+    declare -ix EX_NOUSER=67             # addressee unknown
+    declare -ix EX_NOHOST=68             # host name unknown
+    declare -ix EX_UNAVAILABL=69         # service unavailable
+    declare -ix EX_SOFTWARE=70           # internal software error
+    declare -ix EX_OSERR=71              # system error (e.g., can't fork)
+    declare -ix EX_OSFILE=72             # critical OS file missing
+    declare -ix EX_CANTCREAT=73          # can't create (user) output file
+    declare -ix EX_IOERR=74              # input/output error
+    declare -ix EX_TEMPFAIL=75           # temp failure; user is invited to retry
+    declare -ix EX_PROTOCOL=76           # remote error in protocol
+    declare -ix EX_NOPERM=77             # permission denied
+    declare -ix EX_CONFIG=78             # configuration error
+    declare -ix EX__MAX=78               # maximum listed value
 
     # Linux / Unix codes
-    export EX_CANTEXECUTE=126       # command invoked cannot execute
-    export EX_NOTFOUND=127          # command not found; possible $PATH error or typo
-    export EX_BADARG=128            # invalid argument
-    export EX_FATALARG=129          # fatal error
-    export EX_CTRL_C=130            # script terminated by Control-C
+    declare -ix EX_CANTEXECUTE=126       # command invoked cannot execute
+    declare -ix EX_NOTFOUND=127          # command not found; possible $PATH error or typo
+    declare -ix EX_BADARG=128            # invalid argument
+    declare -ix EX_FATALARG=129          # fatal error
+    declare -ix EX_CTRL_C=130            # script terminated by Control-C
+
+#? ######################## setup trap signal messages
+    declare -ix TRAP_SIGHUP=1
+    declare -ix TRAP_SIGINT=1
+    declare -ix TRAP_SIGQUIT=1
+    declare -ix TRAP_SIGILL=1
+    declare -ix TRAP_SIGTRAP=1
+    declare -ix TRAP_SIGABRT=1
+    declare -ix TRAP_SIGEMT=1
+    declare -ix TRAP_SIGFPE=1
+    declare -ix TRAP_SIGKILL=1
+    declare -ix TRAP_SIGBUS=1
+    declare -ix TRAP_SIGSEGV=1
+    declare -ix TRAP_SIGSYS=1
+    declare -ix TRAP_SIGPIPE=1
+    declare -ix TRAP_SIGALRM=1
+    declare -ix TRAP_SIGTERM=1
+    declare -ix TRAP_SIGURG=1
+    declare -ix TRAP_SIGSTOP=1
+    declare -ix TRAP_SIGTSTP=1
+    declare -ix TRAP_SIGCONT=1
+    declare -ix TRAP_SIGCHLD=1
+    declare -ix TRAP_SIGTTIN=1
+    declare -ix TRAP_SIGTTOU=1
+    declare -ix TRAP_SIGIO=1
+    declare -ix TRAP_SIGXCPU=1
+    declare -ix TRAP_SIGXFSZ=1
+    declare -ix TRAP_SIGVTALRM=1
+    declare -ix TRAP_SIGPROF=1
+    declare -ix TRAP_SIGWINCH=1
+    declare -ix TRAP_SIGINFO=1
+    declare -ix TRAP_SIGUSR1=1
+    declare -ix TRAP_SIGUSR2=1
 
 #? ######################## setup ANSI constants for common colors
-    MAIN=$(echo -en '\001\033[38;5;229m') && export MAIN
-    WARN=$(echo -en '\001\033[38;5;203m') && export WARN
-    COOL=$(echo -en '\001\033[38;5;38m') && export COOL
-    BLUE=$(echo -en '\001\033[38;5;38m') && export BLUE
-    GO=$(echo -en '\001\033[38;5;28m') && export GO
-    LIME=$(echo -en '\u001b[32;1m') && export LIME
-    CHERRY=$(echo -en '\001\033[38;5;124m') && export CHERRY
-    CANARY=$(echo -en '\001\033[38;5;226m') && export CANARY
-    ATTN=$(echo -en '\001\033[38;5;178m') && export ATTN
-    PURPLE=$(echo -en '\001\033[38;5;93m') && export PURPLE
-    RAIN=$(echo -en '\001\033[38;5;93m') && export RAIN
-    WHITE=$(echo -en '\001\033[37m') && export WHITE
-    RESTORE=$(echo -en '\001\033[0m\002') && export RESTORE
-    RESET=$(echo -en '\001\033[0m') && export RESET
-    RESET_FG=$RESET && export RESET_FG
+    declare -x MAIN=$(echo -en '\001\033[38;5;229m')
+    declare -x WARN=$(echo -en '\001\033[38;5;203m')
+    declare -x COOL=$(echo -en '\001\033[38;5;38m')
+    declare -x BLUE=$(echo -en '\001\033[38;5;38m')
+    declare -x GO=$(echo -en '\001\033[38;5;28m')
+    declare -x LIME=$(echo -en '\u001b[32;1m')
+    declare -x CHERRY=$(echo -en '\001\033[38;5;124m')
+    declare -x CANARY=$(echo -en '\001\033[38;5;226m')
+    declare -x ATTN=$(echo -en '\001\033[38;5;178m')
+    declare -x PURPLE=$(echo -en '\001\033[38;5;93m')
+    declare -x RAIN=$(echo -en '\001\033[38;5;93m')
+    declare -x WHITE=$(echo -en '\001\033[37m')
+    declare -x RESTORE=$(echo -en '\001\033[0m\002')
+    declare -x RESET=$(echo -en '\001\033[0m')
+    declare -x RESET_FG=$RESET
 
 #? ######################## setup functions for printing lines in common colors
     br() { printf "\n"; } # yes, this is a fake cli version of <br />
@@ -72,3 +122,33 @@
     purple() { ce "${PURPLE:-}${@:-}"; }
     rain() { ce "${RAIN:-}${@:-}"; }
     white() { ce "${WHITE:-}${@:-}"; }
+
+#? ######################## setup default package description and usage
+usage_long_desc="$(
+    cat <<usage_long_desc
+    ${MAIN:-}$NAME${WHITE:-} sets and exports standard script modules containing
+    constants and functions for macOS
+    Tested on macOS Catalina with ${COOL:-}Python ${CANARY:-}3.8${WHITE:-} ... includes ANSI color constants:
+
+    Includes a few basic ANSI color constants:
+
+    ${MAIN:-}MAIN   ${WARN:-}WARN   ${COOL:-}COOL   ${GO:-}GO   ${CHERRY:-}CHERRY   ${CANARY:-}CANARY   ${ATTN:-}ATTN   ${RAIN:-}RAIN   ${RESET:-}RESET
+usage_long_desc
+)"
+usage_parameters="$(
+    cat <<usage_parameters
+    help      - display complete usage information (this!)
+    test      - perform script tests
+    usage     - display short usage instructions
+    version   - display version information
+usage_parameters
+)"
+
+#? ######################## ssm_constants contents:
+    #? ######################## C++ style error messages
+    # EX_OK, EX_USAGE, EX_DATAERR, EX_NOINPUT, EX_NOUSER, EX_NOHOST, EX_UNAVAILABL, EX_SOFTWARE, EX_OSERR, EX_OSFILE, EX_CANTCREAT, EX_IOERR, EX_TEMPFAIL, EX_PROTOCOL, EX_NOPERM, EX_CONFIG
+    #? ######################## BASH trap signals
+    # TRAP_SIGHUP, TRAP_SIGINT, TRAP_SIGQUIT, TRAP_SIGILL, TRAP_SIGTRAP, TRAP_SIGABRT, TRAP_SIGEMT, TRAP_SIGFPE, TRAP_SIGKILL, TRAP_SIGBUS, TRAP_SIGSEGV, TRAP_SIGSYS, TRAP_SIGPIPE, TRAP_SIGALRM, TRAP_SIGTERM, TRAP_SIGURG, TRAP_SIGSTOP, TRAP_SIGTSTP, TRAP_SIGCONT, TRAP_SIGCHLD, TRAP_SIGTTIN, TRAP_SIGTTOU, TRAP_SIGIO, TRAP_SIGXCPU, TRAP_SIGXFSZ, TRAP_SIGVTALRM, TRAP_SIGPROF, TRAP_SIGWINCH, TRAP_SIGINFO, TRAP_SIGUSR1, TRAP_SIGUSR2
+    #? ######################## ANSI constants for common colors
+    # br, ce, me, warn, blue, green, cherry, canary, attn, purple, rain, white
+    # MAIN, WARN, COOL, BLUE, GO, CHERRY, CANARY, ATTN, PURPLE, RAIN, WHITE, RESTORE, RESET_FG

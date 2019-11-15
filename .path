@@ -6,7 +6,7 @@
 #? ${PATH// /}       - strip all spaces
 #? ${VAR##*/}        - return only final element in path (program name)
 #? ${VAR%/*}         - return only path elements in path (without program name)
-SHELL_BIN="${SHELL##*/}" && export SHELL_BIN
+declare -x SHELL_BIN="${SHELL##*/}" && export SHELL_BIN
 [[ SHELL_BIN == 'zsh' ]] && BASH_SOURCE=${(%):-%N} # to ease the transition to zsh
 
 
@@ -91,6 +91,7 @@ PATH="\
     /usr/libexec:\
     $HOME/.dotfiles/git-achievements:\
     /usr/local/opt/mysql@5.7/bin:\
+    $HOME/Library/Python/3.7/bin:\
     $PWD:\
     "
 

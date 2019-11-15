@@ -1,39 +1,16 @@
 #!/usr/bin/env zsh
 # -*- coding: utf-8 -*-
+declare -ix SET_DEBUG=${SET_DEBUG:=0}   # set to 1 for verbose testing
+#? ######################## initialization
 
-declare -ix SET_DEBUG=1   # set to 1 for verbose testing
-declare -ix SSM_LOADED=1       # prevent repeat loading
-#* ######################## initialization
-_ssm_init() {
-    # set -ax
-    # exec 6>&1 # non-volatile stdout leaves return values of stdout undisturbed
+# create 'realpath' function if none exists
+command -v realpath >/dev/null 2>&1 || realpath() { [[ $1 = /* ]] && echo "$1" || echo "$PWD/${1#./}" }
 
-    [[ -z $BASH_SOURCE ]] && BASH_SOURCE=${(%):-%N} # to ease the transition to zsh
-    [[ $ZSH_EVAL_CONTEXT =~ :file$ ]] && is_sourced=1 || is_sourced=0
-    # [[ $ZSH_EVAL_CONTEXT =~ :file$ ]] # is sourced?
+# is script 'scourced?'
+[[ $ZSH_EVAL_CONTEXT =~ :file$ ]] && is_sourced=1 || is_sourced=0
 
-    declare -x SCRIPT_SOURCE="$BASH_SOURCE"
-    declare -x BASE_DIR=$(dirname "$0")
-    declare -x SYS_USERID=$(id -un):$(id -gn)
-    #* ######################## path variables
-    declare -x script_name="${BASH_SOURCE##*/}"
-    declare -x script_path="${BASH_SOURCE%/*}"
-    declare -x src_path="${script_path}/src"
-    declare -x bak_path="${script_path}/bak"
-    declare -x bin_path="${HOME}/bin/utilities/pc_bak"
-    declare -x dotfiles_path="${HOME}/.dotfiles"
-    declare -x here="$PWD"
-    declare -x _pretty_usage="Usage :\n\t${MAIN}pretty${WHITE} [file(s) ...] \t\t- use list of files (default is all files in current directory)\n\t${MAIN}pretty${WHITE} [-m [commit message]] \t- use git staged files and commit with message
-        \n\t${MAIN}pretty${WHITE} [-h|--help|help] \t- usage help (this!)"
-
-    declare -x _debug_function_header_text='_header_test_log "Calling: ${CANARY:-}${FUNCNAME[0]} ${MAIN:-}$*${RESET:-}"'
-
-    }
-which_var() { attn "\${!1}: $1"; }
-ssm_debug() {
-    echo -n ''
-}
 _run_tests() {
+    blue "$0 - \$BASH_SOURCE $BASH_SOURCE"
     which_var "$SET_DEBUG"
     which_var "$SSM_LOADED"
     which_var "$SCRIPT_SOURCE"
@@ -42,15 +19,8 @@ _run_tests() {
 
 #! ######################## main loop
 _main_loop() {
-    if [[ -z $SSM_LOADED ]]; then
-        me 'loading ssm...'
-        declare
         [[ $SET_DEBUG == 1 ]] && _run_tests "$@"
-        _ssm_init
-    else
-        exit 0
-    fi
     }
 
 #! ######################## entry point
-_main_loop # "$@"
+_main_loop "$@"

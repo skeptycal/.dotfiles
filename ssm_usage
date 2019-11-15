@@ -1,26 +1,23 @@
 #!/usr/bin/env zsh
 #/usr/bin/env false zsh
 # -*- coding: utf-8 -*-
-# Standard project and usage information to include in scripts
+declare -ix SET_DEBUG=${SET_DEBUG:=0}   # set to 1 for verbose testing
 
-BASH_SOURCE=${BASH_SOURCE:=$0} # to ease the transition to zsh
 #? ######################## Project Information
     NAME=${NAME:="${BASH_SOURCE##*/}"}
     VERSION=${VERSION:='1.0.0'}
     DESC=${DESC:='Script Resources for ssm on macOS'}
-    USAGE="source ${NAME:-} [help|test|usage|version]"
+    USAGE="source ${NAME:-'[script]'} [help|test|usage|version]"
     AUTHOR="Michael Treanor  <skeptycal@gmail.com>"
     COPYRIGHT="Copyright (c) 2019 Michael Treanor"
     LICENSE="MIT <https://opensource.org/licenses/MIT>"
     GITHUB="https://www.github.com/skeptycal"
 
-source $(which ssm_constants)
-[[ $ZSH_EVAL_CONTEXT =~ :file$ ]] && is_sourced=1 || is_sourced=0
 
-#* ######################## Usage Text Constants
+#? ######################## Usage Text Constants
 usage_long_desc="$(
     cat <<usage_long_desc
-    ${MAIN:-}$NAME${WHITE:-} sets and exports constants and functions for macOS scripts. 
+    ${MAIN:-}$NAME${WHITE:-} sets and exports constants and functions for macOS scripts.
     Includes a few basic ANSI color constants:
 
     ${MAIN:-}MAIN   ${WARN:-}WARN   ${COOL:-}COOL   ${LIME:-}LIME   ${GO:-}GO   ${CHERRY:-}CHERRY   ${CANARY:-}CANARY   ${ATTN:-}ATTN   ${RAIN:-}RAIN   ${RESET:-}RESET
@@ -72,32 +69,7 @@ MAN_PAGE
     )"
 }
 
-#* ######################## Basic script functionality
-    # Reference - https://stackoverflow.com/questions/2683279/how-to-detect-if-a-script-is-being-sourced
-    # is_sourced=0
-    # if [ -n "$ZSH_EVAL_CONTEXT" ]; then 
-    #     [[ $ZSH_EVAL_CONTEXT =~ :file$ ]] && is_sourced=1 # || is_sourced=0
-    #     # case $ZSH_EVAL_CONTEXT in *:file) is_sourced=1;; esac
-    # elif [ -n "$KSH_VERSION" ]; then
-    #     [ "$(cd $(dirname -- $0) && pwd -P)/$(basename -- $0)" != "$(cd $(dirname -- ${.sh.file}) && pwd -P)/$(basename -- ${.sh.file})" ] && is_sourced=1
-    # elif [ -n "$BASH_VERSION" ]; then
-    #     (return 0 2>/dev/null) && is_sourced=1 
-    # else # All other shells: examine $0 for known shell binary filenames
-    #     # Detects `sh` and `dash`; add additional shell filenames as needed.
-    #     case ${0##*/} in sh|dash) is_sourced=1;; esac
-    # fi
-
-#* ######################## basic tests
-_run_tests() {
-    # set_man_page
-    # printf "%b" "$MAN_PAGE"
-    me "Running script $NAME\n"
-    attn "process $$ (sourced? ${is_sourced}) ($0, $BASH_SOURCE)" 
-    br
-    # echo $is_sourced
-    # echo "ZSH_EVAL_CONTEXT: $ZSH_EVAL_CONTEXT"
-    }
-#* ######################## basic parameter handling
+#? ######################## basic parameter handling
 parse_options() {
     # parse basic options [help|test|usage|version] & SET_DEBUG
     # TODO the 'exits' and lack of shifts make this function inadequate
@@ -127,12 +99,22 @@ parse_options() {
         return
         # exit 0
         ;;
-        *) 
+        *)
         me "$USAGE"
         ;;
     esac
     }
 
+#? ######################## basic tests
+_run_tests() {
+    # set_man_page
+    # printf "%b" "$MAN_PAGE"
+    me "Running script $NAME\n"
+    attn "process $$ (sourced? ${is_sourced}) ($0, $BASH_SOURCE)"
+    br
+    # echo $is_sourced
+    # echo "ZSH_EVAL_CONTEXT: $ZSH_EVAL_CONTEXT"
+    }
 _main_loop() {
     parse_options "$@"
     }

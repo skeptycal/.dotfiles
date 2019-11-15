@@ -43,7 +43,7 @@ function checkpath() {
     br
     # IFS=':'
     IFS=$'\n'
-    for p in "${(@)path_list}"; 
+    for p in "${(@)path_list}";
     do
         # echo "---> $p"
         # echo "--->"

@@ -1,9 +1,9 @@
 #!/usr/bin/env zsh
 # -*- coding: utf-8 -*-
-#* ######################## Set Options
+#? ######################## Set Options
   # Using ZSH shell - http://zsh.sourceforge.net/
   BASH_SOURCE=${(%):-%N} # to ease the transition to zsh
-  # set +avx
+  set +avx
 
   # use root defaults since they match web server defaults
   umask 022
@@ -48,7 +48,7 @@
   autoload -U compinit
   compinit
 
-#* ######################## Troubleshooting
+#? ######################## Troubleshooting
   #?      set to 1 for verbose testing ; remove -r to allow each script to set it
   declare -ix SET_DEBUG=0
   #?      log errors to text file; only functional if $SET_DEBUG=1
@@ -61,14 +61,14 @@
       declare -ix debug_log_max_size=32768
   fi
 
-#* ######################## Path Info
+#? ######################## Path Info
   declare -x SOURCE_PATH="${HOME}/.dotfiles"
   source "${SOURCE_PATH}/.path"
   if type brew &>/dev/null; then
     FPATH=$(brew --prefix)/share/zsh/site-functions:$FPATH
   fi
 
-#* ######################## Load Profile settings
+#? ######################## Load Profile settings
   source "${SOURCE_PATH}/ssm"
   source "${SOURCE_PATH}/.aliases"
   source "${SOURCE_PATH}/.exports"
@@ -76,9 +76,9 @@
   source "${SOURCE_PATH}/.functions"
   source "${SOURCE_PATH}/.extra"
   # source "${SOURCE_PATH}/.git_alias" # already included
-  source "~/.oh-my-zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+  source "${HOME}/.oh-my-zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 
-#* ######################## Original .zshrc
+#? ######################## Original .zshrc
   declare -x ZSH="${HOME}/.oh-my-zsh"
   # ZSH_THEME="robbyrussell"
   ZSH_THEME=""
@@ -103,7 +103,7 @@
   plugins=(git z history django python pylint osx vscode)
   source "${ZSH}/oh-my-zsh.sh"
 
-#* ######################## Sindre's prompt - https://github.com/sindresorhus/pure
+#? ######################## Sindre's prompt - https://github.com/sindresorhus/pure
   # Set ZSH_THEME="" in your .zshrc to disable oh-my-zsh themes.
   # Follow the Pure Install instructions.
   # Do not enable the following (incompatible) plugins: vi-mode, virtualenv.
@@ -122,17 +122,17 @@
   zstyle :prompt:pure:prompt:success color 222
   zstyle :prompt:pure:user color 36
 
-#* ######################## script cleanup
+#? ######################## script cleanup
   # script end time
   t1=$(date "+%s.%N")
   # display script time
   printf "${MAIN}Profile took %.3f seconds to load.\n" $(( t1-t0 ))
   unset t1 t0
-  set +avx
+  # set +avx
 
   # echo "` <$0`"           # Echoes the script itself to stdout.
 
-#* ######################## zprezto (end of original .zshrc)
+#? ######################## zprezto (end of original .zshrc)
   # Executes commands at the start of an interactive session.
   #
   # Authors:
