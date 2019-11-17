@@ -14,6 +14,10 @@
   # profile start time
   t0=$(date "+%s.%n")
 
+  rm -f ~/.zcompdump;
+  if type brew &>/dev/null; then
+    FPATH=$(brew --prefix)/share/zsh/site-functions:$FPATH
+  fi
   source "${HOME}/.dotfiles/gpg.zsh"
   source "/usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
 
@@ -143,3 +147,13 @@
   #   source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
   # fi
   # Customize to your needs...
+
+#? ######################## asdf (end of original .zshrc)
+
+. $HOME/.asdf/asdf.sh
+
+. $HOME/.asdf/completions/asdf.bash
+
+# . /usr/local/Cellar/asdf/0.7.5/asdf.sh
+
+# . /usr/local/Cellar/asdf/0.7.5/etc/bash_completion.d/asdf.bash
