@@ -49,10 +49,9 @@
   # Setup new style completion system. To see examples of the old style (compctl
   # based) programmable completion, check Misc/compctl-examples in the zsh
   # distribution.
-  autoload -U compinit
-  compinit
+  autoload -Uz compinit && compinit
 
-#? ######################## Troubleshooting
+  #? ######################## Troubleshooting
   #?      set to 1 for verbose testing ; remove -r to allow each script to set it
   declare -ix SET_DEBUG=0
   #?      log errors to text file; only functional if $SET_DEBUG=1
