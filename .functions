@@ -33,6 +33,14 @@ function o() {
     fi
 }
 
+# Reference: https://linuxhint.com/bash_declare_command/
+# if foo is not declared
+# declare it
+# else use available foo
+test ! $( declare -F foo ) || {
+foo() { true ; }
+}
+
 function checkpath() {
     OLD_IFS=$IFS
     if [[ "$1" == '-d' ]]; then
