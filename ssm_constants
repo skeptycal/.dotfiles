@@ -3,7 +3,8 @@
 
 #? ######################## global constants
 #? ######################## path constants
-    declare -x TEMP_FILE=$TEMP_DIR/tmp_proc_random.$$.$RANDOM
+    declare -x TEMP_DIR="$(mktemp -q -d -t "$(basename "$0").XXXXXX" 2>/dev/null || mktemp -q -d)"
+    declare -x TEMP_FILE="$TEMP_DIR/tmp_proc_random.$$.$RANDOM"
     declare -x SYS_USERID=$(id -un):$(id -gn)
     declare -x SRC_PATH="${SCRIPT_PATH}/src"
     declare -x BAK_PATH="${SCRIPT_PATH}/bak"
