@@ -1,0 +1,694 @@
+#!/usr/bin/env false zsh
+# -*- coding: utf-8 -*-
+declare -ix SET_DEBUG=${SET_DEBUG:=0}   # set to 1 for verbose testing
+
+#? ######################## program configuration
+# set_man_page, get_linux_platform_name, get_current_os_name
+quick_check() { attn " -> ${BLUE}${0}${ATTN} - \$BASH_SOURCE ${CANARY}${BASH_SOURCE}"; }
+
+#? ######################## program configuration
+get_current_os_name() {
+    eval $debug_status_test
+
+    local uname=$(uname)
+    if [ "$uname" = "Darwin" ]; then
+        echo "osx"
+        return 0
+    elif [ "$uname" = "FreeBSD" ]; then
+        echo "freebsd"
+        return 0
+    elif [ "$uname" = "Linux" ]; then
+        local linux_platform_name
+        linux_platform_name="$(get_linux_platform_name)" || { echo "linux" && return 0; }
+
+        if [[ $linux_platform_name == "rhel.6" ]]; then
+            echo $linux_platform_name
+            return 0
+        elif [[ $linux_platform_name == alpine* ]]; then
+            echo "linux-musl"
+            return 0
+        else
+            echo "linux"
+            return 0
+        fi
+    fi
+
+    db_echo "OS name could not be detected: UName = $uname"
+    return 1
+    }
+#? ######################## program logging functions
+verbosity() {
+    # example from: https://unix.stackexchange.com/questions/18899/when-would-you-use-an-additional-file-descriptor?rq=1
+
+    log() {
+        echo $* >&3
+    }
+    info() {
+        echo $* >&4
+    }
+    err() {
+        echo $* >&2
+    }
+    debug() {
+        echo $* >&5
+    }
+
+    VERBOSE=1
+
+    while [[ $# -gt 0 ]]; do
+        ARG=$1
+        shift
+        case $ARG in
+            "-vv")
+                VERBOSE=3
+            ;;
+            "-v")
+                VERBOSE=2
+            ;;
+            "-q")
+                VERBOSE=0
+            ;;
+            # More flags
+            *)
+            echo -n
+            # Linear args
+            ;;
+        esac
+    done
+
+    for i in 1 2 3; do
+        fd=$(expr 2 + $i)
+        if [[ $VERBOSE -ge $i ]]; then
+            eval "exec $fd>&1"
+        else
+            eval "exec $fd> /dev/null"
+        fi
+    done
+
+    err "This will _always_ show up."
+    log "This is normally displayed, but can be prevented with -q"
+    info "This will only show up if -v is passed"
+    debug "This will show up for -vv"
+    }
+
+log_toggle() {
+    #   usage: log_toggle [filename]
+    #   toggle on and off logging to file
+    #       parameter
+    #           filename    - name of new logfile (default LOGFILE)
+    #       variable $LOG stores state
+    #       variable $LOGFILE stores filename
+    #   reference: https://unix.stackexchange.com/questions/80988/how-to-stop-redirection-in-bash
+
+    # set default log filename or $1
+    if [[ -z "$1" ]]; then
+        if [[ -z "$LOG_FILE_NAME" ]]; then
+            LOG_FILE_NAME="${script_source}LOGFILE.log"
+        fi
+    else
+        LOG_FILE_NAME="${1}"
+    fi
+    touch "$LOG_FILE_NAME"
+    # if log is on, turn it off
+    if [[ "$LOG" == '1' ]]; then
+        LOG='0'
+        exec 1>&4 2>&5
+        exec 4>&- 5>&-
+        attn "logging off ..."
+    else # if it is off ... turn it on
+        LOG='1'
+        exec 4>&1 5>&2
+        # log to the filename stored in $LOG_FILE_NAME
+        db_echo "\${LOG_FILE_NAME}: ${LOG_FILE_NAME}"
+        exec > >(tee -a -i "${LOG_FILE_NAME}") 2>&1
+        attn "logging on ..."
+    fi
+    }
+test_echo() {
+    # log the current value of a given variable ($1)
+    # usage: test_echo <test name> <test code>
+    # report test results if:
+    #    - SET_DEBUG is set to '1' or cli [test] option set
+    #    - use log_toggle() to include file logging
+    if [[ $SET_DEBUG == '1' ]] && [[ -n "$1" ]]; then
+        printf "%bFunction Test -> %bPID %s %b" "$MAIN" "$CANARY" "$$" "$GO"
+        printf '%(%Y-%m-%d)T' -1
+        printf "%b test name: %s\n%b" "$ATTN" "$1" "$RESET"
+        shift
+        local
+        eval "$@"
+        printf "%bResult = %s%b\n" "$COOL" "$?" "${RESET}"
+    fi
+    }
+test_var() {
+    # usage: test_var <test variable>
+    # report test results if:
+    #    - SET_DEBUG is set to '1' or cli [test] option set
+    #    - use log_toggle() to include file logging
+    # reference:
+    #   indirect variables: https://wiki.bash-hackers.org/syntax/pe#indirection
+    #   bash printf: https://www.linuxjournal.com/content/bashs-built-printf-function
+    if [[ $SET_DEBUG == '1' ]] && [[ -n "$1" ]]; then
+        local testvar="${1}"
+        echo "\$testvar: $testvar"
+        echo "testvar: " ${!testvar}
+        echo ''
+        echo ''
+        printf "%bVariable Test -> %bPID %s %b" "$MAIN" "$CANARY" "$$" "$GO"
+        printf '%(%Y-%m-%d)T' -1
+        printf "%b %15s -%b %s %b\n" "$ATTN" "\$$testvar" "$WARN" "$testvar" "$RESET"
+    fi
+    }
+log_flag() { rain "#? ############################################################################"; }
+#? ######################## path manipulation functions
+real_name() {
+    # TODO test this further ... working on a bash only method
+    # test_var "$1"
+    # log_flag
+    filename="${!1}"
+    filename="${1##*/}"
+    echo $filename
+    }
+parse_filename() {
+    #   usage: parse_filename [filename]
+    #   parameter
+    #       filename    - $1 or global $filename used
+    #   returns
+    #       base_name   - file name only (no path)
+    #       dir         - path only
+    #       name_only   - name without extension
+    #       extension   - file extension or '' if none
+
+    # set filename
+    [[ -n "$1" ]] && filename="$1"
+    # if no filename, error & exit
+    [[ -z "$filename" ]] && exit_usage "\$filename not available or specified ..." "${MAIN}parse_filename ${WHITE}[filename]"
+    test_var "$filename"
+    log_flag
+    [[ -r "$filename" ]] && exit_usage "\$filename not readable ..." "${MAIN}parse_filename ${WHITE}[filename]"
+    base_name="${filename##*/}"
+    # Strip longest match of */ from start
+    dir="${filename:0:${#filename}-${#base_name}}"
+    # Substring from 0 thru pos of filename
+    name_only="${base_name%.[^.]*}"
+    # Strip shortest match of . plus at least one non-dot char from end
+    extension="${base_name:${#name_only}+1}"
+    # Substring from len of base thru end
+    if [[ -z "$name_only" && -n "$extension" ]]; then
+        # If we have an extension and no base, it's really the base
+        name_only="$extension"
+        extension=""
+    fi
+    }
+get_safe_new_filename() {
+    # usage: get_safe_new_filename filename /path/to/file [extension]
+    #   returns
+    #       $new_safe_name      - new file name WITH path and extension
+    #       $new_safe_name_only - new file name (no path / ext)
+    #   eliminates duplicates by adding integers to filename as needed
+    #   (e.g. file_2, file_3 ...)
+    if [[ "$#" > 1 ]]; then
+        safe_name="$1"
+        safe_path="$2"
+        [[ -z "$3" ]] && safe_ext='' || safe_ext=".$3"
+        new_safe_name="${safe_path}/${safe_name}${safe_ext}"
+        declare -i i=2
+        while [ -f "$new_safe_name" ]; do
+            new_safe_name="${safe_path}/${safe_name}_${i}${safe_ext}"
+            i=$((i + 1))
+        done
+        new_safe_name_only="${safe_name}_${i}"
+    else
+        exit_usage "Invalid parameters ..." "usage: ${MAIN}get_safe_new_filename ${WHITE}filename /path/to/file [extension]"
+    fi
+    }
+#? ######################## file manipulation functions
+source_file() {
+    db_echo "Script source: ($BASH_SOURCE)"
+    if [[ -s "$1" ]]; then
+        source "$1"
+    elif [[ -L "$1" ]]; then
+        source "$1"
+    elif [[ -s "${HOME}/bin/$1" ]]; then
+        source "${HOME}/bin/$1"
+    elif [[ -s "$(which $1)" ]]; then
+        source "$(which $1)"
+    elif [[ -s "${PWD}/$1" ]]; then
+        source "${PWD}/$1"
+        db_echo "The source file ($1) loaded in script ($BASH_SOURCE) should include the path $PWD"
+        db_echo "Script source: ($BASH_SOURCE)"
+    elif [[ -s "$(which ${1}.sh)" ]]; then
+        source "$(which ${1}.sh)"
+        db_echo "The source file ($1) loaded in script ($BASH_SOURCE) should include the extension .sh"
+        db_echo "Script source: ($BASH_SOURCE)"
+    elif [[ -s "$(which ${1}.py)" ]]; then
+        source "$(which ${1}.py)"
+        db_echo "The source file ($1) loaded in script ($BASH_SOURCE) was not found, but was replaced with the python script (${1}.py)."
+        db_echo "Script source: ($BASH_SOURCE)"
+    else
+        db_echo "The source file ($1) listed in script ($BASH_SOURCE) could not be found. A search was made for items in the path, ${1}.sh, and ${1}.py without results."
+        db_echo "Script source: ($BASH_SOURCE)"
+    fi
+    }
+hex_dump() { [[ -r "$1" ]] && od -A x -t x1z -v "$1"; }
+url_encode() {
+    [[ -z "$1" ]] && return 64
+    encoded=$(php -r "echo rawurlencode('$1');") && return 0 || return "$EX_DATAERR"
+    }
+url_decode() {
+    [[ -z "$1" ]] && return 1
+    decoded=$(php -r "echo rawurldecode('$1');") && return 0 || return "$EX_DATAERR"
+    }
+#? ######################## paramter handling
+parse_options() {
+    # parse basic options [help|test|usage|version] & SET_DEBUG
+    # TODO the 'exits' and lack of shifts make this function inadequate
+    # TODO use standard functions in a wrapper instead
+    case "$1" in
+    -h | --help | help)
+        set_man_page
+        echo "$MAN_PAGE"
+        return
+        # exit 0
+        ;;
+    -t | --test | test)
+        [[ ! "$SET_DEBUG" == '1' ]] && _run_tests "$@"
+        return
+        # exit 0
+        ;;
+    -u | --usage | usage)
+        me "$USAGE"
+        return
+        # exit 0
+        ;;
+    -v | --version | version)
+        ce "${MAIN}${NAME}${WHITE} (version ${VERSION})${RESET}"
+        return
+        # exit 0
+        ;;
+        # *) ;;
+    esac
+    }
+#? ######################## error handling
+_set_traps() {
+    cur_opts="$-"
+    debug_opts="axET"
+    set "-${cur_opts}${debug_opts}"
+    }
+_trap_exit() {
+    set "-${cur_opts}"
+    exec 4>&- 5>&- 6>&-
+    if [[ "$LOG" == '1' ]]; then
+        LOG='0'
+        exec 1>&4 2>&5
+        exec 4>&- 5>&-
+        attn "logging off ..."
+    fi
+    }
+_trap_error() {
+    me "ERR: $ERR"
+    set "-${cur_opts}"
+    return
+    }
+_trap_debug() {
+    return 0
+    # ce "Script source:$MAIN $BASH_SOURCE$RESET $@ \n"
+    # attn "echo VARIABLE ($VARIABLE) is being used here."
+    }
+#? ######################## script tests
+_run_tests() {
+    _run_debug_config() {
+        green "\$dotfiles_path is set to $dotfiles_path."
+        green "\$here is set to as $here."
+        }
+    _bt_color_sample_test() {
+        echo -e "${MAIN}C ${WARN}O ${COOL}L ${GO}O ${CHERRY}R   ${CANARY}T ${ATTN}E ${PURPLE}S ${RESET}T"
+        echo -e "${MAIN}MAIN   ${WARN}WARN   ${COOL}COOL   ${GO}GO   ${CHERRY}CHERRY   ${CANARY}CANARY   ${ATTN}ATTN   ${RAIN}RAIN   ${RESET}RESET"
+        }
+    _test_standard_script_modules() {
+        _EXIT_USAGE_TEXT="${MAIN}${script_name}${WHITE} - macOS script"
+        # log file for test sesssion
+        LOG_FILE_NAME="${script_source}ssm_debug_test.log"
+        # functions that include an 'exit' will skip it so tests can continue
+        DONT_DIE='1'
+        # log everything to LOG_FILE_NAME
+        log_toggle
+
+        ce "${COOL}BASH_SOURCE:$MAIN $BASH_SOURCE$RESET"
+        log_flag
+
+        test_var "$script_name"
+        test_var "$script_source"
+        test_var "$SET_DEBUG"
+        test_var "$DONT_DIE"
+        test_var "$LOG"
+        test_var "$LOG_FILE_NAME"
+
+        # TODO add tests for these functions as needed
+        test_echo "die() test" "die 'die test!'"
+        test_echo "db_echo() test" "db_echo 'This is the test argument'"
+        test_echo "urlencode() test" "url_encode 'http://www.github.com/skeptycal'"
+        db_echo "$encoded"
+        test_echo "urlencode() test" "url_decode 'http%3A%2F%2Fwww.github.com%2Fskeptycal'"
+        db_echo "$decoded"
+        fake_filename="$LOG_FILE_NAME"
+        test_var "$fake_filename"
+        test_echo "real_name() test" "real_name $fake_filename"
+
+        log_flag
+        result="${fake_filename##*/}"
+        test_var "$result"
+
+        # cleanup test environment
+        log_toggle
+        unset DONT_DIE
+        unset LOG_FILE_NAME
+        unset _EXIT_USAGE_TEXT
+        unset LOG
+        }
+    ce "Script source:$MAIN $BASH_SOURCE$RESET"
+    _run_debug_config
+    _bt_color_sample_test
+    _test_standard_script_modules
+    return 0
+    }
+export_list() {
+    export -p | xargs
+    }
+#? ######################## program debugging / logging / trace functions
+yes_no() {
+    # Accept a Yes/no (default Yes) user response to prompt ($1 or default)
+    echo -n "${1:-'[Yes/no]: '}"
+    read yno
+    case $yno in
+    [nN] | [n | N][O | o])
+        return 1
+        ;;
+    *) # default 'Yes' ... see function no_yes for default 'No'
+        return 0
+        ;;
+    esac
+    }
+no_yes() {
+    # Accept a yes/No (default No) user response to prompt ($1 or default)
+    echo -n "${1:-'[No/yes]: '}"
+    read yno
+    case $yno in
+    [yY] | [yY][Ee][Ss])
+        return 1
+        ;;
+    *) # default 'No' ... see function yes_no for default 'Yes'
+        return 0
+        ;;
+    esac
+    }
+exit_usage() {
+    # Print script usage and exit
+    # TODO replace with die()
+    # Parameters:
+    #   $1 - specific message (e.g. 'file not found')
+    #   $2 - optional usage text
+    die "$@"
+    }
+print_usage() {
+    set_man_page
+    echo "$MAN_PAGE"
+    }
+which_var() {
+    var=$1
+    var_name=$(declare -p $var)
+    attn "${var_name}: $var"
+    }
+show_exports() {
+    for var in $(export -p); do
+        if $(declare -p $var); then
+            # if the var exists, get the name of it ...
+        fi
+    done
+}
+get_function_list() {
+    cat "$1" | grep '() {' | sed 's/\(\.*\)*() {/\1/' | sed 's/function //' | sed 's/^[# ]*//' | sed 's/cat//' | cut -d ' ' -f1
+    }
+
+# log_toggle() {
+    #   usage: log_toggle [filename]
+    #   toggle on and off logging to file
+    #       parameter
+    #           filename    - name of new logfile (default LOGFILE)
+    #       variable $LOG stores state
+    #       variable $LOGFILE stores filename
+    #   reference: https://unix.stackexchange.com/questions/80988/how-to-stop-redirection-in-bash
+
+    # set default log filename or $1
+    # # TODO this function is generating sporadic errors ...
+    # return 0
+    # if [[ -z "$1" ]]; then
+    #     if [[ -z "$LOG_FILE_NAME" ]]; then
+    #         LOG_FILE_NAME="${script_source:-'./'}LOGFILE.log"
+    #     fi
+    # else
+    #     LOG_FILE_NAME="${1}"
+    # fi
+    # touch "$LOG_FILE_NAME"
+    # # if log is on, turn it off
+    # if [[ "$LOG" == '1' ]]; then
+    #     LOG='0'
+    #     exec 1>&4- 2>&5-
+    #     attn "logging off ..."
+    # else # if it is off ... turn it on
+    #     LOG='1'
+    #     exec 4>&1 5>&2
+    #     # log to the filename stored in $LOG_FILE_NAME
+    #     db_echo "\${LOG_FILE_NAME}: ${LOG_FILE_NAME}"
+    #     exec > >(tee -a -i "${LOG_FILE_NAME}") 2>&1
+    #     attn "logging on ..."
+    # fi
+    # }
+# test_echo() {
+    # log the current value of a given variable ($1)
+    # usage: test_echo <test name> <test code>
+    # report test results if:
+    #    - SET_DEBUG is set to '1' or cli [test] option set
+    #    - use log_toggle() to include file logging
+    # if [[ $SET_DEBUG == 1 ]] || [[ $1 == 'test' ]]; then
+    #     printf "%bFunction Test -> %bPID %s %b" "$MAIN" "$CANARY" "$$" "$GO"
+    #     printf '%(%Y-%m-%d)T' -1
+    #     printf "%b test name: %s\n%b" "$ATTN" "$1" "${RESET_FG:-}"
+    #     shift
+    #     eval "$@"
+    #     printf "%bResult = %s%b\n" "$COOL" "$?" "${RESET_FG:-}"
+    # fi
+    # }
+# test_var() {
+    # usage: test_var <test variable>
+    # report test results if:
+    #    - SET_DEBUG is set to '1' or cli [test] option set
+    #    - use log_toggle() to include file logging
+    # reference:
+    #   indirect variables: https://wiki.bash-hackers.org/syntax/pe#indirection
+    #   bash printf: https://www.linuxjournal.com/content/bashs-built-printf-function
+    # if [[ $SET_DEBUG == 1 ]] && [[ -n "$1" ]]; then
+    #     local testvar="${1}"
+    #     echo "\$testvar: $testvar"
+    #     echo "testvar: "testvar
+    #     # echo "testvar: " ${!testvar}
+    #     echo ''
+    #     printf "%bVariable Test -> %bPID %s %b" "$MAIN" "$CANARY" "$$" "$GO"
+    #     printf '%(%Y-%m-%d)T' -1
+    #     printf "%b %15s -%b %s %b\n" "$ATTN" "\$$testvar" "$WARN" "$testvar" "$RESET_FG"
+    # fi
+    # }
+# log_flag() { rain "#? ############################################################################"; }
+_header_test_log() {
+    [[ -z $DEBUG_LOG ]] && return 64
+    printf "%b " "$@" >&2
+    printf "%b" "\n"
+}
+
+_debug_function_header() {
+    eval $_debug_function_header_text
+}
+l() {
+    # added 'list' default parameter instead of 'help'
+    eval "launchctl ${@:-list}"
+}
+
+#? ######################## program control
+    null_it () { eval "$@" 2>/dev/null; }
+        # To suppress the error message any output to standard error
+        #   is sent to /dev/null using 2>/dev/null.
+
+    or_it () { eval "$@" || exit 0; }
+        # If a command fails an OR operation can be used to provide a fallback
+        #   (e.g. cat file.txt || exit 0. In this case an exit code of 0 is
+        #   returned even if there is an error.
+
+    die_now() { exit "$1"; }
+        # die with optional errorcode
+
+    die () {
+        # die with debug functions
+        # $1 is errorcode
+        # $2 is an optional message
+        ERR_CODE=${1:0}
+        if [[ $SET_DEBUG == 1 ]]; then
+            db_echo "$@"
+            [[ $DONT_DIE == 1 ]] && db_echo "DONT_DIE is active - not exiting." || die_now "$1"
+        else
+            errcho "error ... ${1}: ${!1}   exiting ..."
+            die_now "$1"
+        fi
+        }
+#? ######################## error reporting
+    errcho(){ >&2 echo $@; }
+        # REF: https://stackoverflow.com/questions/2990414/echo-that-outputs-to-stderr
+
+#? ######################## error handling
+    _set_traps() {
+        cur_opts="$-"
+        debug_opts="axET"
+        set "-${cur_opts}${debug_opts}"
+        }
+
+    _trap_error() {
+        me "ERR: $ERR"
+        set "-${cur_opts}"
+        # return 0
+        }
+    _trap_debug() {
+        # return 0
+        ce "Script source:$MAIN $SCRIPT_SOURCE$RESET_FG $@ \n"
+        attn "echo VARIABLE ($VARIABLE) is being used here."
+        }
+    _trap_exit() {
+        # https://stackoverflow.com/a/50270940/9878098
+        exitcode=$?
+        printf 'error executing script...\n' 1>&2
+        printf 'exit code returned: %s\n' "$exitcode"
+        printf 'the command executing at the time of the error was: %s\n' "$BASH_COMMAND"
+        printf 'command present on line: %d' "${BASH_LINENO[0]}"
+        # Some more clean up code can be added here before exiting
+        set "-${cur_opts}"
+        exec 4>&- 5>&- 6>&-
+        if [[ "$LOG" == '1' ]]; then
+            LOG='0'
+            exec 1>&4 2>&5
+            exec 4>&- 5>&-
+            attn "logging off ..."
+        fi
+
+        exit $exitcode
+        }
+#? ######################## script tests
+db_echo() {
+    # db_echo() { [[ $SET_DEBUG == 1 ]] && warn "${@:-}${RESET_FG:-}"; }
+    # report data and errors in scripting
+    #    - SET_DEBUG is set to '1' to report errors
+    #    - use log_toggle() to include file logging
+    # using stream 2 (stderr)
+
+    if [[ $SET_DEBUG == '1' ]]; then
+        warn "debug info ($(date "+%D %T")) - $@" >&2
+    fi
+    # printf "%b\n" "${cyan:-}dotnet-install:${normal:-} $1" >&3
+    }
+die() {
+    # exit program with $exit_code ($1) and optional $message ($2)
+    # https://stackoverflow.com/questions/7868818/in-bash-is-there-an-equivalent-of-die-error-msg/7869065
+
+    warn "${2:-"Script died...$USAGE"}" >&2
+    db_echo "${MAIN}line ${BLUE}${BASH_LINENO[0]}${MAIN} of ${ATTN}${FUNCNAME[1]}${MAIN} in ${BASH_SOURCE[1]}${MAIN}." >&2
+    [[ ! "$DONT_DIE" == '1' ]] && exit "${1:-1}"
+    }
+_ansi_color_sample_test() {
+        echo -e "${MAIN}C ${WARN}O ${COOL}L ${GO}O ${CHERRY}R   ${CANARY}T ${ATTN}E ${PURPLE}S ${RESET_FG}T"
+        echo -e "${MAIN}MAIN   ${WARN}WARN   ${COOL}COOL   ${GO}GO   ${CHERRY}CHERRY   ${CANARY}CANARY   ${ATTN}ATTN   ${RAIN}RAIN   ${RESET_FG}RESET_FG"
+        }
+_run_debug_config() {
+        green "\$dotfiles_path is set to $dotfiles_path."
+        green "\$here is set to as $here."
+        }
+_test_standard_script_modules() {
+    _EXIT_USAGE_TEXT="${MAIN}${script_name}${WHITE} - macOS script"
+    attn $_EXIT_USAGE_TEXT
+    # log file for test sesssion
+    LOG_FILE_NAME="${script_source}ssm_debug_test.log"
+    # functions that include an 'exit' will skip it so tests can continue
+    DONT_DIE=1
+    # log everything to LOG_FILE_NAME
+    # log_toggle
+
+    cool "${COOL}SCRIPT_SOURCE:${RESET_FG} ${MAIN}${SCRIPT_SOURCE}${RESET_FG}"
+    log_flag
+
+    test_var "$script_name"
+    test_var "$script_source"
+    test_var "$SET_DEBUG"
+    test_var "$DONT_DIE"
+    test_var "$LOG"
+    test_var "$LOG_FILE_NAME"
+
+    # TODO add tests for these functions as needed
+    test_echo "die() test" "die 'die test!'"
+    test_echo "db_echo() test" "db_echo 'This is the test argument'"
+    test_echo "urlencode() test" "url_encode 'https://www.github.com/skeptycal'"
+    db_echo "$encoded"
+    test_echo "urlencode() test" "url_decode 'http%3A%2F%2Fwww.github.com%2Fskeptycal'"
+    db_echo "$decoded"
+    fake_filename="$LOG_FILE_NAME"
+    test_var "$fake_filename"
+    test_echo "real_name() test" "real_name $fake_filename"
+
+    test_echo "in_list() test" "in_list '1' '123'"
+    test_echo "in_list() test" "in_list 'ok' 'this is ok'"
+    test_echo "in_list() test" "in_list 'j' 'klm')"
+    test_echo "in_list() test" "in_list 'doc' '( txt rtf rtfd html doc docx odt wordml webarchive )')"
+
+    log_flag
+    result="${fake_filename##*/}"
+    test_var "$result"
+
+    # cleanup test environment
+    # log_toggle
+    unset DONT_DIE
+    unset LOG_FILE_NAME
+    unset _EXIT_USAGE_TEXT
+    unset LOG
+}
+_run_tests() {
+    # _debug_function_header
+    db_echo "zsh 'BASH_SOURCE': ${(%):-%N}"
+    db_echo "BASH_SOURCE: $BASH_SOURCE"
+    db_echo "\$0: $0"
+    db_echo "\$1: $1"
+    ce "Script source:${MAIN} ${SCRIPT_SOURCE}$RESET_FG"
+    # echo ${filename##*/}
+    lime "zsh 'BASH_SOURCE': ${(%):-%N}"
+    lime "(%): ${%N}"
+    db_echo "\nTesting script ${NAME} version ${VERSION}."
+    ce "Script source:$MAIN ${SCRIPT_SOURCE[0]##*/}${RESET_FG:-}\n"
+    ce "Script parent:$MAIN ${SCRIPT_SOURCE[1]##*/}${RESET_FG:-}\n"
+    ce "Script grandparent:$MAIN ${SCRIPT_SOURCE[2]##*/}${RESET_FG:-}\n"
+    # _run_debug_config
+    # _bt_color_sample_test
+    # _test_standard_script_modules
+    # return 0
+    }
+#! ######################## main loop
+_main_loop() {
+    # pgrep -fl "$BASH_SOURCE"
+    # trap _trap_error ERR
+    # trap _trap_exit EXIT
+    # trap _trap_debug DEBUG
+    # [[ $SET_DEBUG == 1 ]] && _set_traps
+    # parse_options "$@"
+    # lime "SET_DEBUG: $SET_DEBUG"
+    [[ $SET_DEBUG == 1 ]] && _run_tests "$@"
+    }
+
+#* ######################## entry point
+_main_loop "$@"
+
+#? ############################################################################
+#? Resources found in ssm_resources
+    # _debug_function_header, in_list

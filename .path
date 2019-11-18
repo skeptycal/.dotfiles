@@ -1,10 +1,16 @@
 #!/usr/bin/env false bash
 # -*- coding: utf-8 -*-
-# cannot be run directly; called from .bash_profile or .bashrc
-BASH_SOURCE=${(%):-%N} # to ease the transition to zsh
-# *#############################################################################
-# ${PATH//:/\\n}
-# ${PATH// /}
+# false - cannot be run directly
+#* ##############################################################################
+#? ${PATH//:/\\n}    - replace all colons with newlines to display as a list
+#? ${PATH// /}       - strip all spaces
+#? ${VAR##*/}        - return only final element in path (program name)
+#? ${VAR%/*}         - return only path elements in path (without program name)
+declare -x SHELL_BIN="${SHELL##*/}" && export SHELL_BIN
+[[ SHELL_BIN == 'zsh' ]] && BASH_SOURCE=${(%):-%N} # to ease the transition to zsh
+
+
+fpath+=("$HOME/.zsh/pure")
 # *## PYTHONPATH ###########################################################
 PYTHONPATH="\
         /usr/local/bin/python:\
@@ -15,15 +21,12 @@ PYTHONPATH="\
 PYTHONPATH="${PYTHONPATH// /}"
 export PYTHONPATH
 
+# *## MANPATH ###########################################################
 MANPATH=" \
         /usr/local/opt/coreutils/libexec/gnuman:\
-        /usr/local/man:\
         /usr/share/man:\
         /usr/local/share/man:\
         /usr/local/opt/erlang/lib/erlang/man:\
-        /Library/TeX/Distributions/.DefaultTeX/Contents/Man:\
-        /usr/local/MacGPG2/share/man:\
-        /opt/X11/share/man:\
         "
 
 MANPATH="${MANPATH// /}"
@@ -51,6 +54,8 @@ export MANPATH
 # and run
 #   /usr/local/opt/openssl/bin/c_rehash
 PATH="\
+    $HOME/Library/Python/3.8/bin:\
+    /Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/site-packages
     $HOME/emsdk:\
     $HOME/emsdk/upstream/emscripten:\
     $HOME/emsdk/node/12.9.1_64bit/bin:\
@@ -83,6 +88,7 @@ PATH="\
     /usr/libexec:\
     $HOME/.dotfiles/git-achievements:\
     /usr/local/opt/mysql@5.7/bin:\
+    $HOME/Library/Python/3.7/bin:\
     $PWD:\
     "
 
@@ -95,7 +101,7 @@ export PATH
 function _run_debug_paths() {
     # list current versions of common utilities
     ce "Script source:$MAIN $BASH_SOURCE$RESET"
-    green "\$PATH is set. Type <path> or <new [\$PATHVAR]> to list elements."
+    green "\$PATH is set. Type <path> to list or <check_path> to test elements."
     # ${PATH//:/\\n}
     # ${PATH// /}
     # new() { echo -e ${1//:/\\n}; }

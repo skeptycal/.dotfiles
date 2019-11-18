@@ -1,7 +1,7 @@
 #!/usr/bin/env false bash
 # -*- coding: utf-8 -*-
 # cannot be run directly; called from .bash_profile or .bashrc
-BASH_SOURCE=${(%):-%N} # to ease the transition to zsh
+# BASH_SOURCE=${(%):-%N} # to ease the transition to zsh
 # *############################################################################
 # [[ $SET_DEBUG == 1 ]] && db_script_source ".extra test"
 
