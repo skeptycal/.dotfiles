@@ -1,7 +1,7 @@
 #!/usr/bin/env false bash
 # -*- coding: utf-8 -*-
 # cannot be run directly; called from .bash_profile or .bashrc
-BASH_SOURCE=${(%):-%N} # to ease the transition to zsh
+# BASH_SOURCE=${(%):-%N} # to ease the transition to zsh
 #? ############################# skeptycal.com ################################
 NAME="${BASH_SOURCE##*/}"
 VERSION='1.2.0'
@@ -35,19 +35,35 @@ function o() {
 
 function checkpath() {
     OLD_IFS=$IFS
+    if [[ "$1" == '-d' ]]; then
+        shift
+        DELIM="$1"
+        shift
+    else
+        DELIM=' '
+    fi
+    path_param=${*:-$PATH} # use all args ... if none, use PATH as default
+
+    # path_param=${path_param//:/ }     # replace colons
+    # path_param=${path_param//,/ }     # replace commas
+    path_param=${path_param//$DELIM/ }  # replace DELIM
+    path_param=${path_param//  / }      # remove duplicate spaces
+
     # set internal field separator for the string list
     # path_list=$PATH # colon separator (default for $PATH)
     # path_list=$(echo -e ${PATH//:/,}) # CSV
-    path_list=( $(echo -e ${PATH//:/ }) ) # space separator (default for os - no IFS change should be needed)
+    # IFS=$DELIM
+
+    IFS="
+     :"
+    path_list=( $(echo -e $path_param) )
     # echo $path_list
-    br
     # IFS=':'
-    IFS=$'\n'
     for p in "${(@)path_list}";
     do
         # echo "---> $p"
         # echo "--->"
-        [[ -d "$p" ]] && lime $p || attn $p
+        [[ -d "$p" ]] && green $p || attn $p
     done
     IFS=$OLD_IFS
 }
