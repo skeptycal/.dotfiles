@@ -79,7 +79,7 @@
   source "${SOURCE_PATH}/.theme"
   source "${SOURCE_PATH}/.functions"
   source "${SOURCE_PATH}/.extra"
-  # source "${SOURCE_PATH}/.git_alias" # already included
+  source "${SOURCE_PATH}/.git_alias" # already included
   source "${HOME}/.oh-my-zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 
 #? ######################## Original .zshrc
