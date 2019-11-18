@@ -24,13 +24,9 @@ export PYTHONPATH
 # *## MANPATH ###########################################################
 MANPATH=" \
         /usr/local/opt/coreutils/libexec/gnuman:\
-        /usr/local/man:\
         /usr/share/man:\
         /usr/local/share/man:\
         /usr/local/opt/erlang/lib/erlang/man:\
-        /Library/TeX/Distributions/.DefaultTeX/Contents/Man:\
-        /usr/local/MacGPG2/share/man:\
-        /opt/X11/share/man:\
         "
 
 MANPATH="${MANPATH// /}"
