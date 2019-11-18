@@ -13,6 +13,6 @@ before_script:
   - py.test example/tests.py --cov=example
   - cd -
 script:
-  - py.test coveralls/tests.py --doctest-modules --pep8 coveralls -v --cov coveralls --cov-report term-missing
+  - pytest coveralls/tests.py --doctest-modules --pep8 coveralls -v --cov coveralls --cov-report term-missing
 after_success:
   - coveralls
