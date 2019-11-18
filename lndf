@@ -12,115 +12,124 @@
 #* - Delete original file if needed
 #* - Delete original symlink if needed
 #*#######################################################################
-# get $1
-INPUT_FILE="${1##*/}"
+#*################ get input file name ($1)
+    INPUT_FILE="${1##*/}"
+#*################ load my standard script modules (github.com/skeptycal/ssm)
+    . $(which ssm)
+    # provides:
+    #   color codes / functions (e.g. attn, blue, canary, etc.)
+    #   TEMP_FILE (linux / macOS compatible)... example:
+    #   /var/folders/sv/_4cpr0px23b4mn3k40nv46z40000gn/T/ssm_constants.NCXu12/tmp_proc_random.59646.30925
+#*################ Set text output colors
+    LOG_COLOR='ce' # ce is 'color echo with no color'
+    INFO_COLOR='green'
+    ERR_COLOR='warn'
+    DEBUG_COLOR='attn'
+    OUT_COLOR='me'
+#*################ setup constants
+    declare -i SET_DEBUG=1      # set to 1 for verbose testing
+    declare -i VERBOSE=3        # 0, 1, 2, 3  means out, +err, +info, +debug
+    declare -i SET_LOG=1        # 1 for file logging
+    eval "$DEBUG_COLOR 'INPUT_FILE: $INPUT_FILE'"
+#*################ setup file descriptors
+    [[ $VERBOSE -gt 2 ]] && exec {DEBUG}>&1 || exec {DEBUG}>/dev/null
+    [[ $VERBOSE -gt 1 ]] && exec {INFO}>&1 || exec {INFO}>/dev/null
+    [[ $VERBOSE -gt 0 ]] && exec {ERR}>&1 || exec {ERR}>/dev/null
+    exec {OUT}>&1
 
-#*#######################################################################
-# load standard script modules and color setup
-. $(which ssm)
-# provides:
-#   color codes / functions (e.g. attn, blue, canary, etc.)
-#   TEMP_FILE (linux / macOS compatible)... example:
-#   /var/folders/sv/_4cpr0px23b4mn3k40nv46z40000gn/T/ssm_constants.NCXu12/tmp_proc_random.59646.30925
+#*################ setup output functions
+    info() { "$INFO_COLOR $*"; } >&${INFO}
+    err() { "$ERR_COLOR $*"; } >&${ERR}
+    debug() { "$DEBUG_COLOR $*"; } >&${DEBUG}
+    out() { "$OUT_COLOR $*"; } >&${OUT}
 
-
-LOG_COLOR='ce' # ce is 'color echo with no color'
-INFO_COLOR='green'
-ERR_COLOR='warn'
-DEBUG_COLOR='attn'
-OUT_COLOR='canary'
-#*#######################################################################
-# setup constants
-declare -i SET_DEBUG=1      # set to 1 for verbose testing
-declare -i VERBOSE=3        # 0, 1, 2, 3 ... quiet, normal, info, verbose
-declare -i SET_LOG=0        # 1 for file logging
-
-# setup file descriptors
-[[ $VERBOSE -gt 2 ]] && exec {DEBUG}>&1 || exec {DEBUG}>/dev/null
-[[ $VERBOSE -gt 1 ]] && exec {INFO}>&1 || exec {INFO}>/dev/null
-[[ $VERBOSE -gt 0 ]] && exec {ERR}>&1 || exec {ERR}>/dev/null
-exec {OUT}>&1
-
-if [[ $SET_LOG == 1 ]]; then
-    LOG_FILENAME="$TEMP_FILE"
-    touch "$LOG_FILENAME"
-    echo "$LOG_FILENAME"
-    exec {LOG}>&1
-    echo '' >&${LOG} # all other output is 'appended'
-else
-    exec {LOG}>/dev/null
-fi
-
-log() { $LOG_COLOR "$*"; } >>&${LOG}
-info() { $INFO_COLOR "$*"; } >&${INFO}
-err() { $ERR_COLOR "$*"; } >&${ERR}
-debug() { $DEBUG_COLOR "$*"; } >&${DEBUG}
-out() { $OUT_COLOR "$*"; } >&${OUT}
-
-log "log file is $LOG_FILENAME"
-info "info is $INPUT_FILE"
-err "err is $INPUT_FILE"
-debug "debug is $INPUT_FILE"
-out "output is $INPUT_FILE"
-br
-_debug_function_header
-# redirect all uncontrolled stdout and stderr to /dev/null
-# basically STFU for everything except &6 ...
-# exec >/dev/null
-# exec 2>&1
+    # redirect all 'uncontrolled' stdout and stderr to /dev/null
+    # basically STFU for everything except &6 ...
+    # exec 1>/dev/null
+    # exec 2>&1
+#*################ setup logging to temp file
+    if [[ $SET_LOG == 1 ]]; then # if SET_LOG is 1, setup file logging
+        LOG_FILENAME="$TEMP_FILE"
+        touch "$LOG_FILENAME"
+        debug "$LOG_FILENAME"
+        exec {LOG}>$LOG_FILENAME
+        echo '' >&${LOG} # all other log output is 'appended'
+    else
+        exec {LOG}>/dev/null
+    fi
+    debug "LOG: $LOG"
+    log() { $LOG_COLOR "$*"; } >>&${LOG}
 
 # set paths based on $1
-dotfile="${HOME}/.dotfiles/${INPUT_FILE}"
-dotbak="${HOME}/.dotfiles/bak/${INPUT_FILE}_dotfile.bak"
-target="${HOME}/${INPUT_FILE}"
-tarbak="${HOME}/.dotfiles/bak/${INPUT_FILE}_target.bak"
+    dotfile="${HOME}/.dotfiles/${INPUT_FILE}"
+    dotbak="${HOME}/.dotfiles/bak/${INPUT_FILE}_dotfile.bak"
+    target="${HOME}/${INPUT_FILE}"
+    tarbak="${HOME}/.dotfiles/bak/${INPUT_FILE}_target.bak"
 
 #? lines for debug output of variables, etc are labeled with #? comments
-out "usage: lndf $INPUT_FILE"
-debug "The temp file in use is: "
-debug "  $TEMP_FILE"
-debug "lndf - link dotfile to user root."
-debug "*****************************************"
-debug "User: $(id -un)($(id -ur))"
-debug "Dotfile: $dotfile"
-debug $(ls -lah "$dotfile")
-debug "Target: $target"
-debug $(ls -lah "$target")
+
 
 # backup $dotfile and $target (numbered backups)
-cp -f --backup=numbered $dotfile $dotbak
-[[ $? ]] && attn "file backed up" || attn "no file backed up ..."
-cp -f --backup=numbered $target $tarbak
-[[ $? ]] && attn "file backed up" || attn "no file backed up ..."
+    cp -f --backup=numbered $dotfile $dotbak
+    [[ $? ]] && attn "file backed up" || attn "no file backed up ..."
+    cp -f --backup=numbered $target $tarbak
+    [[ $? ]] && attn "file backed up" || attn "no file backed up ..."
 
 # if dotfile exists and is a regular file, remove any current link
-if [ -f $dotfile ]; then
-    unlink $target
-    [[ $? ]] && attn "file unlinked" || attn "no link deleted ..."
+    if [ -f $dotfile ]; then
+        unlink $target
+        [[ $? ]] && attn "file unlinked" || attn "no link deleted ..."
 
-# if dotfile doesn't exist, move target file to .dotfiles
-else
-    mv -f $target $dotfile
-    [[ $? ]] && attn "file moved to .dotfiles" || attn "no file moved ..."
-fi
+        # if dotfile doesn't exist, move target file to .dotfiles
+    else
+        mv -f $target $dotfile
+        [[ $? ]] && attn "file moved to .dotfiles" || attn "no file moved ..."
+    fi
 
 # create a symlink from root to .dotfiles file
-ln -s $dotfile $target
-[[ $? ]] && green "link Successful ..." || attn "no link created ..."
-ls -lah $target
+    ln -s $dotfile $target
+    [[ $? ]] && green "link Successful ..." || attn "no link created ..."
+    ls -lah $target
 
 
 _run_tests() {
-    br
-    out "Script Tests (SET_DEBUG = ${SET_DEBUG})"
-    out "Testing function: ${ATTN:-}${0} ${MAIN:-}(PID ${$}${RESET:-})"
-    debug "zsh 'BASH_SOURCE( \${(%):-%N} )': ${(%):-%N}"
-    debug "\$0: $0"
-    debug "\$1: $1"
-    # debug ${filename##*/}
-    declare
+    test_script() {
+        debug ''
+        out "Script Tests (SET_DEBUG = ${SET_DEBUG})"
+        out "Testing function: ${ATTN:-}${0} ${MAIN:-}(PID ${$}${RESET:-})"
+        info "zsh 'BASH_SOURCE( \${(%):-%N} )': ${(%):-%N}"
+        info "usage: lndf $INPUT_FILE"
+        debug SET_DEBUG: $SET_DEBUG
+        debug "The temp file in use is: "
+        debug "  $TEMP_FILE"
+        debug "lndf - link dotfile to user root."
+        debug "*****************************************"
+        debug "User: $(id -un)($(id -ur))"
+        debug "Dotfile: $dotfile"
+        debug $(ls -lah "$dotfile")
+        debug "Target: $target"
+        debug $(ls -lah "$target")
+        br
+        debug "\$0: $0"
+        debug "\$1: $1"
+        debug "INPUT_FILE: $INPUT_FILE"
+        # debug ${filename##*/}
+        }
+    test_vars() {
+        br
+        out "File Descriptors: out:$OUT | err:$ERR | info:$INFO | debug:$DEBUG | log:$LOG"
+        br
+        out "testing (\$LOG=$LOG) log file is $LOG_FILENAME"
+        info "info color is $INFO_COLOR"
+        err "err color is $ERR_COLOR"
+        debug "debug color is $DEBUG_COLOR"
+        out "output color is $OUT_COLOR"
+        }
+    test_script
+    test_vars
     }
-function finish {
+#*################ cleanup
+cleanup() {
     # remove temp file
     rm -rf "$TEMP_FILE"
     # reset FD's
@@ -139,5 +148,5 @@ _main_loop() {
     }
 
 #* ######################## entry point
-trap finish EXIT
+trap cleanup EXIT # catch any exit condition and run 'cleanup'
 _main_loop "$@"
