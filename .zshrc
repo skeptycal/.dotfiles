@@ -21,6 +21,18 @@
   source "${HOME}/.dotfiles/gpg.zsh"
   source "/usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
 
+# pip zsh completion start
+function _pip_completion {
+  local words cword
+  read -Ac words
+  read -cn cword
+  reply=( $( COMP_WORDS="$words[*]" \
+             COMP_CWORD=$(( cword-1 )) \
+             PIP_AUTO_COMPLETE=1 $words[1] 2>/dev/null ))
+}
+compctl -K _pip_completion pip
+# pip zsh completion end
+
   # Set/unset  shell options
   setopt   notify globdots correct pushdtohome cdablevars autolist
   setopt   correctall autocd recexact longlistjobs

@@ -74,17 +74,17 @@
 #?######################### END SCRIPT SETUP ############################
 #?####################### BEGIN SCRIPT ACTIONS ##########################
 #*################ backup $dotfile and $target (numbered backups)
-    cp -f --backup=numbered $dotfile $dotbak >>/dev/null
+    [[ -f $dotfile ]] && cp -f --backup=numbered $dotfile $dotbak >/dev/null
     [[ $? ]] && info "  file backed up ... $dotfile" || err "  file NOT backed up ... $dotfile"
-    cp -f --backup=numbered $target $tarbak >>/dev/null
+    [[ -f $target ]] && cp -f --backup=numbered $target $tarbak >/dev/null
     [[ $? ]] && info  "  file backed up ... $target" || err "  file NOT backed up ... $target"
 #*################ if dotfile exists and is a regular file, remove any current link
     if [ -f $dotfile ]; then
-        unlink $target >>/dev/null
+        [[ -h $dotfile ]] && unlink $target >/dev/null
         [[ $? ]] && info "  file unlinked" || err "  no link deleted ..."
         # if dotfile doesn't exist, move target file to .dotfiles
     else
-        mv -f $target $dotfile >>/dev/null
+        mv -f $target $dotfile >/dev/null
         [[ $? ]] && info "  file moved to .dotfiles" || err "  no file moved ..."
     fi
 #*################ create a symlink from root to .dotfiles file
