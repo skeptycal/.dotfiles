@@ -13,65 +13,19 @@
     #  - Delete original symlink if needed
 
 #?######################## BEGIN SCRIPT SETUP ###########################
-#*################ get input file name ($1)
+#*################ set paths based on $1
     INPUT_FILE="${1##*/}"
+    dotfile="${HOME}/.dotfiles/${INPUT_FILE}"
+    dotbak="${HOME}/.dotfiles/bak/${INPUT_FILE}_dotfile.bak"
+    target="${HOME}/${INPUT_FILE}"
+    tarbak="${HOME}/.dotfiles/bak/${INPUT_FILE}_target.bak"
 #*################ load my standard script modules (github.com/skeptycal/ssm)
     . $(which ssm)
     # provides:
     #   color codes / functions (e.g. attn, blue, canary, etc.)
     #   TEMP_FILE (linux / macOS compatible)... example:
     #   /var/folders/sv/_4cpr0px23b4mn3k40nv46z40000gn/T/ssm_constants.NCXu12/tmp_proc_random.59646.30925
-#*################ Set text output colors
-    declare -x LOG_COLOR='ce' # ce is 'color echo with no color'
-    declare -x INFO_COLOR='green'
-    declare -x ERR_COLOR='warn'
-    declare -x DEBUG_COLOR='attn'
-    declare -x OUT_COLOR='me'
-#*################ setup constants
-    declare -i SET_DEBUG=0      # set to 1 for verbose testing
-    declare -i VERBOSE=0        # 0, 1, 2, 3  means out, +err, +info, +debug
-    declare -i SET_LOG=0        # 1 for file logging
-#*################ setup file descriptors
-    [[ $VERBOSE -gt 2 ]] && exec {DEBUG}>&1 || exec {DEBUG}>/dev/null
-    [[ $VERBOSE -gt 1 ]] && exec {INFO}>&1 || exec {INFO}>/dev/null
-    [[ $VERBOSE -gt 0 ]] && exec {ERR}>&1 || exec {ERR}>/dev/null
-    exec {OUT}>&1
-#*################ setup logging to temp file
-    if [[ $SET_LOG == 1 ]]; then # if SET_LOG is 1, setup file logging
-        LOG_FILENAME="$TEMP_FILE"
-        touch "$LOG_FILENAME"
-        exec {LOG}>$LOG_FILENAME
-        echo '' >&${LOG} # all other log output is 'appended'
-    else
-        exec {LOG}>/dev/null
-    fi
-#*################ setup output functions
-    info() { $INFO_COLOR "$*"; } >&${INFO}
-    err() { $ERR_COLOR "$*"; } >&${ERR}
-    debug() { $DEBUG_COLOR "$*"; } >&${DEBUG}
-    out() { $OUT_COLOR "$*"; } >&${OUT}
-    log() { $LOG_COLOR "$*"; } >>&${LOG}
-    # redirect all 'uncontrolled' stdout and stderr to /dev/null
-    # basically STFU for everything except &6 ...
-    # exec 1>/dev/null
-    # exec 2>&1
-#*################ set paths based on $1
-    dotfile="${HOME}/.dotfiles/${INPUT_FILE}"
-    dotbak="${HOME}/.dotfiles/bak/${INPUT_FILE}_dotfile.bak"
-    target="${HOME}/${INPUT_FILE}"
-    tarbak="${HOME}/.dotfiles/bak/${INPUT_FILE}_target.bak"
 
-#*################ debug summary output
-    err "INPUT_FILE: $INPUT_FILE"
-    debug "  SET_DEBUG: $SET_DEBUG"
-    debug "  VERBOSE: $VERBOSE"
-    debug "  SET_LOG: $SET_LOG"
-    debug "  File Descriptors: out:$OUT | err:$ERR | info:$INFO | debug:$DEBUG | log:$LOG"
-    info ''
-    info "  dotfile: $dotfile"
-    info "  target: $target"
-    info "  LOG_FILENAME: $LOG_FILENAME"
-#?######################### END SCRIPT SETUP ############################
 #?####################### BEGIN SCRIPT ACTIONS ##########################
 #*################ backup $dotfile and $target (numbered backups)
     [[ -f $dotfile ]] && cp -f --backup=numbered $dotfile $dotbak >/dev/null
@@ -124,22 +78,11 @@
         test_script
         test_vars
         }
-#*################ cleanup
-    cleanup() {
-        # remove temp file
-        rm -rf "$TEMP_FILE"
-        # reset FD's
-        exec {LOG}>&-
-        exec {ERR}>&-
-        exec {INFO}>&-
-        exec {DEBUG}>&-
-        exec {OUT}>&-
-        }
 
 #! ######################## main loop
 _main_loop() {
     [[ "$SET_DEBUG" == 1 ]] && _run_tests "$@"
     }
 #* ######################## start main script
-trap cleanup EXIT # catch any exit condition and run 'cleanup'
+trap verbose_cleanup EXIT # catch any exit condition and run 'verbose_cleanup'
 _main_loop "$@"

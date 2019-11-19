@@ -33,6 +33,12 @@ function o() {
     fi
 }
 
+function gitit() {
+    gst
+    gaa
+    gc -mS
+}
+
 # Reference: https://linuxhint.com/bash_declare_command/
 # if foo is not declared
 # declare it
