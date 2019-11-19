@@ -34,9 +34,11 @@ function o() {
 }
 
 function gitit() {
+    message='gitit minor updates (default automatic message)'
     gst
     gaa
-    gc -mS
+    gc -m "${1:=$message"
+    gpsup
 }
 
 # Reference: https://linuxhint.com/bash_declare_command/
