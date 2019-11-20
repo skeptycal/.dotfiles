@@ -39,7 +39,7 @@ function gitit() {
     echo -e "git add, pre-commit, commit, and push repo to github"
     echo -e "message: $message"
     git status
-    if  (( $? = 0 )) ; then
+    if [[ $? = 0 ]]; then
         echo "\$?: $?"
     else
         echo "This is not a git repo."
