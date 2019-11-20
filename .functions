@@ -38,7 +38,7 @@ function gitit() {
     git status >/dev/null 2>&1
     if [[ $? = 0 ]] && [[ -d "$dir" ]]; then
         message="${*:-'(GitIt) minor updates'}"
-        me "GitIt - add and commit all updates."
+        blue "GitIt - add and commit all updates."
         green "repo: $PWD"
         green "message: $message"
         git add --all >/dev/null 2>&1
@@ -48,7 +48,7 @@ function gitit() {
         git commit -m "$message"
         git push --set-upstream origin $(git_current_branch)
     else
-        cherry "This is not a git repo: $PWD"
+        warn "This is not a git repo: $PWD"
     fi
 }
 
