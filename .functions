@@ -13,7 +13,7 @@ LICENSE="MIT <https://opensource.org/licenses/MIT>"
 GITHUB="https://www.github.com/skeptycal"
 #? ############################################################################
 # set -a
-# export SET_DEBUG=0 # set to 1 for verbose testing
+export SET_DEBUG=${SET_DEBUG:-0} # set to 1 for verbose testing
 # [[ ! $SSM_LOADED == 1 ]] &&
 . "$(which ssm)"
 VERSION_LIST="${SOURCE_PATH}/.VERSION_LIST.md" && export VERSION_LIST
@@ -34,20 +34,32 @@ function o() {
 }
 
 function gitit() {
-    message='gitit minor updates (default automatic message)'
-    gst
-    gaa
-    gc -m "${1:=$message"
-    gpsup
+    # . $(which .aliases)
+    message="${*:-'gitit minor updates (default automatic message)'}"
+    echo -e "git add, pre-commit, commit, and push repo to github"
+    echo -e "message: $message"
+    if [[ $(git status) = 0 ]]; then
+        echo "\$?: $?"
+        git status
+    else
+        echo "This is not a git repo."
+    fi
+
+    git add --all
+    pre-commit
+    git add --all
+    pre-commit
+    git commit -m "$message"
+    git push --set-upstream origin $(git_current_branch)
 }
 
 # Reference: https://linuxhint.com/bash_declare_command/
 # if foo is not declared
 # declare it
 # else use available foo
-test ! $( declare -F foo ) || {
-foo() { true ; }
-}
+# test ! $( declare -F foo ) || {
+#     foo() { true ; }
+# }
 
 function checkpath() {
     OLD_IFS=$IFS
@@ -194,7 +206,7 @@ function lns() {
     find $PWD -maxdepth 1 -type l
 }
 
-function new() { echo -e ${1//:/\\n}; }
+function colon_list() { echo -e ${1//:/\\n}; }
 function fix_list() {
     # TODO work in progress
     return 0

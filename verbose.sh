@@ -30,12 +30,13 @@
     [[ $VERBOSE -gt 0 ]] && exec {ERR}>&1 || exec {ERR}>/dev/null
     exec {OUT}>&1
 #*################ setup logging to temp file
-    if [[ $SET_LOG == 1 ]]; then # if SET_LOG is 1, setup file logging
+# TODO - should I include logging to ERR also?
+    if [[ $SET_LOG > 0 ]]; then # if SET_LOG > 0, setup file logging
         LOG_FILENAME="$TEMP_FILE"
         touch "$LOG_FILENAME"
         exec {LOG}>$LOG_FILENAME
         echo '' >&${LOG} # all other log output is 'appended'
-    else
+    if [[ $SET_LOG == 2 ]]; then #TODO if SET_LOG is 1, setup screen logging
         exec {LOG}>/dev/null
     fi
 #*################ setup output functions
