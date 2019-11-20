@@ -13,10 +13,10 @@ LICENSE="MIT <https://opensource.org/licenses/MIT>"
 GITHUB="https://www.github.com/skeptycal"
 #? ############################################################################
 # set -a
-export SET_DEBUG=${SET_DEBUG:-0} # set to 1 for verbose testing
+declare -x SET_DEBUG=${SET_DEBUG:-0} # set to 1 for verbose testing
 # [[ ! $SSM_LOADED == 1 ]] &&
 . "$(which ssm)"
-VERSION_LIST="${SOURCE_PATH}/.VERSION_LIST.md" && export VERSION_LIST
+declare -x VERSION_LIST="${SOURCE_PATH}/.VERSION_LIST.md"
 # get name for open if linux or windows
 if [ ! "$(uname -s)" = 'Darwin' ]; then
     if grep -q Microsoft /proc/version; then
@@ -83,7 +83,7 @@ function checkpath() {
 
     IFS="
      :"
-    path_list=( $(echo -e $path_param) )
+    path_list=( $(echo -e "$path_param") )
     # echo $path_list
     # IFS=':'
     for p in "${(@)path_list}";
