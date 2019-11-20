@@ -1,39 +1,20 @@
 #!/usr/bin/env false bash
 # -*- coding: utf-8 -*-
 # cannot be run directly; called from .bash_profile or .bashrc
-# BASH_SOURCE=${(%):-%N} # to ease the transition to zsh
-#? ############################# skeptycal.com ################################
-NAME="${BASH_SOURCE##*/}"
-VERSION='1.2.0'
-DESC='personalized Bash functions (Bash 5.0 on macOS)'
-USAGE="source ${NAME} [help|test|usage|version]"
-AUTHOR="Michael Treanor  <skeptycal@gmail.com>"
-COPYRIGHT="Copyright (c) 2019 Michael Treanor"
-LICENSE="MIT <https://opensource.org/licenses/MIT>"
-GITHUB="https://www.github.com/skeptycal"
-#? ############################################################################
-# set -a
-declare -x SET_DEBUG=${SET_DEBUG:-0} # set to 1 for verbose testing
-# [[ ! $SSM_LOADED == 1 ]] &&
-. "$(which ssm)"
-declare -x VERSION_LIST="${SOURCE_PATH}/.VERSION_LIST.md"
-# get name for open if linux or windows
-if [ ! "$(uname -s)" = 'Darwin' ]; then
-    if grep -q Microsoft /proc/version; then
-        alias open='explorer.exe'
-    else
-        alias open='xdg-open'
-    fi
-fi
-function o() {
-    if [ $# -eq 0 ]; then
-        open .
-    else
-        open "$@"
-    fi
-}
+#?#######################################################################
+#* .functions - functions for standard script modules (ssm)
+#* copyright (c) 2019 Michael Treanor
+#* MIT License - https://www.github.com/skeptycal
 
-function gitit() {
+
+########################## TODO - WORKS IN PROGRESS
+_mkdir(){
+        local d="$1"               # get dir name
+        local p=${2:-0755}      # get permission, set default to 0755
+        [ $# -eq 0 ] && { echo "$0: dirname"; return; }
+        [ ! -d "$d" ] && mkdir -m $p -p "$d"
+}
+gitit() {
     dir="${PWD}/.git"
     git status >/dev/null 2>&1
     if [[ $? = 0 ]] && [[ -d "$dir" ]]; then
@@ -51,220 +32,62 @@ function gitit() {
         warn "This is not a git repo: $PWD"
     fi
 }
-
-# Reference: https://linuxhint.com/bash_declare_command/
-# if foo is not declared
-# declare it
-# else use available foo
-# test ! $( declare -F foo ) || {
-#     foo() { true ; }
-# }
-
-function checkpath() {
-    OLD_IFS=$IFS
-    if [[ "$1" == '-d' ]]; then
-        shift
-        DELIM="$1"
-        shift
+# TODO - Declare if not declared
+    # Reference: https://linuxhint.com/bash_declare_command/
+    # if foo is not declared
+    # declare it
+    # else use available foo
+    # test ! $( declare -F foo ) || {
+    #     foo() { true ; }
+    # }
+#?######################## BEGIN FUNCTIONS
+a() { alias | grep "$1"; }
+allopen() { sudo lsof -i -P | grep "$1"; }
+anyguard() {
+    ANYBAR_PORT=$(jot -r 1 1700 1900)
+    ANYBAR_PORT=$ANYBAR_PORT open -n /Applications/AnyBar.app
+    sleep 0.5
+    anybar orange $ANYBAR_PORT
+    eval "$@"
+    ret=$?
+    if [[ ret -eq 0 ]]; then
+        anybar green $ANYBAR_PORT
     else
-        DELIM=' '
+        anybar red $ANYBAR_PORT
     fi
-    path_param=${*:-$PATH} # use all args ... if none, use PATH as default
-
-    # path_param=${path_param//:/ }     # replace colons
-    # path_param=${path_param//,/ }     # replace commas
-    path_param=${path_param//$DELIM/ }  # replace DELIM
-    path_param=${path_param//  / }      # remove duplicate spaces
-
-    # set internal field separator for the string list
-    # path_list=$PATH # colon separator (default for $PATH)
-    # path_list=$(echo -e ${PATH//:/,}) # CSV
-    # IFS=$DELIM
-
-    IFS="
-     :"
-    path_list=( $(echo -e "$path_param") )
-    # echo $path_list
-    # IFS=':'
-    for p in "${(@)path_list}";
-    do
-        # echo "---> $p"
-        # echo "--->"
-        [[ -d "$p" ]] && green $p || attn $p
+    echo "Finished. Press [ENTER] to exit."
+    read ENTER
+    anybar quit $ANYBAR_PORT
+    return $ret
+}
+anybar() {
+    echo -n $1 | nc -4u -w0 localhost ${2:-1738}
+}
+azure_agent() {
+    # svc.sh only seems to work when run from its own directory ...
+    # added default parameter 'status'
+    local temp_pwd="$PWD"
+    cd "$AZURE_WORKING_DIR" || return
+    ${AZURE_WORKING_DIR}/svc.sh ${1:-'status'}
+    result="$?"
+    cd "$temp_pwd"
+    unset temp_pwd
+    return $result
+}
+bak() {
+    FILES="$@"
+    [[ -d "$PWD/bak" ]] || mkdir "$PWD/bak"
+    for file in $FILES; do
+        [[ -d "$file" ]] && bak "$file"
+        printf "Backup file %s " $file
+        [[ -f "$file" ]] && cp -f "$file" "bak/${file}.bak" || echo -e "${WARN}backup unsuccessful - ${MAIN}${file}${RESET_FG}"
+        echo ''
     done
-    IFS=$OLD_IFS
 }
-
-function write_versions_file() {
-    me "# Program Versions List"
-    green "## VERSION_LIST path: $VERSION_LIST"
-    warn "**os: $(uname -i) | $(sw_vers -productName) | $(sw_vers -productVersion)**"
-    me "### shell:"
-    lime "- zsh:            $(zsh --version)"
-    green "- current shell:  $ZSH_VERSION"
-    blue "- VSCode:         $(code --version | head -n 1)"
-    br
-    me "### utilities:"
-    canary "- $(bash --version | grep bash | cut -d ',' -f 1)        v$(bash --version | grep bash | cut -d ' ' -f 4 | cut -d '(' -f 1)"
-    warn "- $(clang --version | grep version | sed 's/version /    v/g')"
-    attn "- $(git --version | sed 's/version /            v/g')"
-    attn "- $(hub --version | grep hub | sed 's/version /            v/g')"
-    green "- grep            v$(grep --version | head -n 1)"
-    canary "- prettier        v$(prettier --version)"
-    br
-    me '### package managers'
-    lime "- homebrew        v$(brew --version | tail -n 3 | head -n 1 | cut -d ' ' -f 2)"
-    blue "- conda           v$(conda -V | cut -d ' ' -f 2) "
-    blue "- pip             v$(pip --version | cut -d ' ' -f 2) "
-    blue "- pipenv          v$(pipenv --version | cut -d ' ' -f 3) "
-    attn "- cargo           v$(cargo --version | cut -d ' ' -f 2)"
-    attn "- rustup          v$(rustup --version | cut -d ' ' -f 2)"
-    warn "- gem             v$(gem -v)"
-    canary "- npm             v$(npm -v)"
-    purple "- composer        v$(composer --version | cut -d ' ' -f 3)"
-    green "- TeXLive(tlmgr)  $(tlmgr --version | head -n 1 | cut -d ' ' -f 3-4))"
-    br
-    # attn "  $(lein --version | sed 's/Leiningen/lein version/g' | sed 's/version /       v/g')"
-    me "### languages:"
-    blue "- GO              v$(go version | cut -d ' ' -f 3 | sed 's/go//g')"
-    attn "- rustc           v$(rustc --version | cut -d ' ' -f 2)"
-    warn "- ruby            v$(ruby -v 2>/dev/null | cut -d ' ' -f 2 | cut -d 'p' -f 1)"
-
-    purple "- php             v$(php -v 2>/dev/null | grep '(cli)' | cut -d ' ' -f 2)"
-    printf "- ${COOL}python          v$(python --version | cut -d ' ' -f 2)${RESET_FG}\n"
-    canary "- node            $(node -v)"
-    cherry "- Xcode           v$(/Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -version | grep Xcode | sed 's/Xcode //g')"
-    attn "- Clojure $(clojure -Sdescribe | grep version | sed 's/{://g' | sed 's/"//g' | sed 's/version /        v/g')"
-    br
-    # me "Travis CI   v$(travis version)"
-    # ye "eslint $(eslint -v)"
-    # echo "$(pipenv --version)"
-    # oe "prettier v$(prettier -v)"
-} >"$VERSION_LIST"
-
-function save_versions() {
-    # echo "VERSION_LIST: $VERSION_LIST"
-    if [ -d "${SOURCE_PATH}" ]; then
-        rm -rf "$VERSION_LIST" >/dev/null
-        # : >"$VERSION_LIST" # 'touch' $VERSION_LIST file
-        write_versions_file
-    fi
+cdf() {
+    cd "$(osascript -e 'tell app "Finder" to POSIX path of (insertion location as alias)')" || return 1
 }
-
-function versions() {
-    save_versions
-    cat ~/.dotfiles/.VERSION_LIST.md
-    # br
-    # me "## Versions ############################"
-    # cherry "$(uname -i) | $(sw_vers -productName) | $(sw_vers -productVersion)"
-    # me "shell:"
-    # lime "  zsh: $(zsh --version)"
-    # green "  this zsh session: $ZSH_VERSION"
-    # blue "  VSCode   $(code --version | head -n 1)"
-    # br
-    # me "utilities:"
-    # canary "  $(bash --version | grep bash | cut -d ',' -f 1)        v$(bash --version | grep bash | cut -d ' ' -f 4 | cut -d '(' -f 1)"
-    # cherry "  $(clang --version | grep version | sed 's/version /    v/g')"
-    # attn "  $(git --version | sed 's/version /            v/g')"
-    # attn "  $(hub --version | grep hub | sed 's/version /            v/g')"
-    # green "  grep            v$(grep --version | head -n 1)"
-    # canary "  prettier        v$(prettier --version)"
-    # br
-    # me 'package managers'
-    # lime "  homebrew        v$(brew --version | tail -n 3 | head -n 1 | cut -d ' ' -f 2)"
-    # blue "  conda           v$(conda -V | cut -d ' ' -f 2) "
-    # blue "  pip             v$(pip --version | cut -d ' ' -f 2) "
-    # blue "  pipenv          v$(pipenv --version | cut -d ' ' -f 3) "
-    # warn "  gem             v$(gem -v)"
-    # canary "  npm             v$(npm -v)"
-    # purple "  composer        v$(composer --version | cut -d ' ' -f 3)"
-    # green "  TeXLive(tlmgr)  $(tlmgr --version | head -n 1 | cut -d ' ' -f 3-4))"
-    # br
-    # # attn "  $(lein --version | sed 's/Leiningen/lein version/g' | sed 's/version /       v/g')"
-    # me "languages:"
-    # lime "  GO              v$(go version | cut -d ' ' -f 3 | sed 's/go//g')"
-    # warn "  ruby            v$(ruby -v 2>/dev/null | cut -d ' ' -f 2 | cut -d 'p' -f 1)"
-    # purple "  php             v$(php -v 2>/dev/null | grep '(cli)' | cut -d ' ' -f 2)"
-    # printf "  ${COOL}python          v$(python --version | cut -d ' ' -f 2)"
-    # # pyver
-    # # python -c 'import sys; sys.stdout.write("python      v" + ".".join(map(str, sys.version_info[:3]))); sys.stdout.flush()'
-    # printf "$RESET_FG\n"
-    # canary "  node            $(node -v)"
-    # cherry "  Xcode           v$(/Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -version | grep Xcode | sed 's/Xcode //g')"
-    # attn "  Clojure $(clojure -Sdescribe | grep version | sed 's/{://g' | sed 's/"//g' | sed 's/version /        v/g')"
-    # br
-    # me "Travis CI   v$(travis version)"
-    # ye "eslint $(eslint -v)"
-    # echo "$(pipenv --version)"
-    # oe "prettier v$(prettier -v)"
-}
-function lns() {
-    # list symlinks in current directory
-    # References: https://askubuntu.com/questions/522051/how-to-list-all-symbolic-links-in-a-directory
-    # la | grep '\-> \/'
-    find $PWD -maxdepth 1 -type l
-}
-
-function colon_list() { echo -e ${1//:/\\n}; }
-function fix_list() {
-    # TODO work in progress
-    return 0
-    # https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html#Command-Substitution
-    # function_list=$(<~/.dotfiles/.functions | grep -e 'function () { ' | awk '{ printf "%s\\n",$2 }')
-
-    # me "\nAvailable BASH functions (function_list):\n"
-    # oe $function_list
-
-    # < ~/.dotfiles/.functions | grep -e " function " | awk '{ print $2 }'
-    # echo $function_list >function_list.txt
-}
-function pyver() {
-    # silly function to address the lack of correct output from
-    #   python 2.7 executable in this sitation 'python --version'
-    python -c "print('.'.join(str(i).strip() for i in __import__('sys').version_info[:3]))"
-}
-function travis_trigger() {
-    # TODO needs more testing - strange errors
-    return 0
-    # Travis CI CLI API
-    # Travis CI Client (CLI and Ruby library)
-    # https://github.com/travis-ci/travis.rb#mac-os-x-via-homebrew
-
-    # macOS:
-    # brew install ruby
-    # gem update --system
-    #
-
-    # Using the CLI
-
-    # travis login --org --auto
-    # travis token
-    # You can keep this token in an environment variable TRAVIS_TOKEN, as long as the file you keep it in is not version-controlled somewhere public.
-
-    # I use this function to submit triggers:
-
-    # local org=$1 && shift
-    # local repo=$1 && shift
-    # local branch=${1:-master} && shift
-
-    # body="{
-    #         \"request\": {
-    #         \"branch\": \"${branch}\"
-    #         }
-    #     }"
-
-    # curl -s -X POST \
-    #     -H "Content-Type: application/json" \
-    #     -H "Accept: application/json" \
-    #     -H "Travis-API-Version: 3" \
-    #     -H "Authorization: token $TRAVIS_TOKEN" \
-    #     -d "$body" \
-    #     "https://api.travis-ci.org/repo/${org}%2F${repo}/requests"
-}
-
-function readlinkf() { perl -MCwd -e 'print Cwd::abs_path shift' "$1"; }
-function pk() { pkill -9 -u "$(id -u $1)"; } # kill another user's processes
-function check_file() {
+check_file() {
     local name="${1##*/}"
     local path="${1%/*}"
     echo "name: $name"
@@ -284,7 +107,80 @@ function check_file() {
     echo " ->$tmp_chk"
     echo ''
 }
-function dist_hook() {
+checkpath() {
+    OLD_IFS=$IFS
+    if [[ "$1" == '-d' ]]; then
+        shift
+        DELIM="$1"
+        shift
+    else
+        DELIM=' '
+    fi
+    path_param=${*:-$PATH} # use all args ... if none, use PATH as default
+    # path_param=${path_param//:/ }     # replace colons
+    # path_param=${path_param//,/ }     # replace commas
+    path_param=${path_param//$DELIM/ }  # replace DELIM
+    path_param=${path_param//  / }      # remove duplicate spaces
+    # set internal field separator for the string list
+    # path_list=$PATH # colon separator (default for $PATH)
+    # path_list=$(echo -e ${PATH//:/,}) # CSV
+    # IFS=$DELIM
+    IFS="
+     :"
+    path_list=( $(echo -e "$path_param") )
+    # echo $path_list
+    # IFS=':'
+    for p in "${(@)path_list}";
+    do
+        # echo "---> $p"
+        # echo "--->"
+        [[ -d "$p" ]] && green $p || attn $p
+    done
+    IFS=$OLD_IFS
+}
+chmod_all() {
+    # chmod matching files to given mode
+    # $1 is path (default $PWD);
+    # $2 is pattern (default '*');
+    # $3 is mode (default '644' for files, '755' for directories)
+    case "$1" in
+    '-h' | '--help' | 'help')
+        echo "Usage : $0 [path($PWD)] [pattern(*)] [mode(644)]"
+        return $EX_USAGE
+        ;;
+    esac
+    # Check the given file is exist #
+    if [ ! -f "$3" ]; then
+        echo "Filename given \"$3\" doesn't exist"
+        return 1
+    fi
+    find -L ${1:-$PWD} -name ${2:-'*'} -type f -print0 | xargs -0 chmod ${3:-644}
+}
+clip() { $("$@") | pbcopy; }
+colon_list() { echo -e ${1//:/\\n}; }
+dataurl() {
+    local mimeType
+    mimeType=$(file -b --mime-type "$1")
+    if [[ $mimeType == text/* ]]; then
+        mimeType="${mimeType};charset=utf-8"
+    fi
+    echo "data:${mimeType};base64,$(openssl base64 -in "$1" | tr -d '\n')"
+}
+datelog() {
+    # create a logfile with the date as part of the file_name
+    [[ -z $1 ]] && exit 1
+    command_text="$@"
+    file_name="${PWD}/datelog_$(date "+%m_%d_%y").log"
+    printf "\nOutput logged to file: %s\n${file_name}\n"
+    printf "\n===================================\n" | tee -a "$file_name"
+    printf "Log for %s\n\n" $(date "+%m/%d/%Y") | tee -a "$file_name"
+    exec "$command_text" | tee -a "$file_name"
+    $("$@") | tee -a "$file_name"
+}
+digga() {
+    dig +nocmd "$1" any +multiline +noall +answer
+}
+dist_hook() {
     # TODO not yet implemented
     return 0
     # https://stackoverflow.com/a/8969875
@@ -292,54 +188,7 @@ function dist_hook() {
     # OR
     # for F in Documents/*.{py,html}; do ...something with each '$F'... ; done
 }
-function prettier_here() {
-    # $1 = path (default $PWD); $2 = filenames ( default '*')
-    # OR
-    # $1 = 'git'; $2 = "$files"
-    if [[ "$1" == 'git' ]]; then
-        FILES=$(git diff --cached --name-only | sed 's| |\\ |g')
-        echo ${2:-$FILES} | xargs prettier --write | grep -e '[[:space:]]\?[[:digit:]]\+ms'
-    else
-        find -L ${1:-$PWD} -name ${2:-'*'} -type f -print0 | xargs -0 prettier --write | grep -e '[[:space:]]\?[[:digit:]]\+ms'
-    fi
-}
-function pretty() {
-    # Use prettier to format all compatible selected files
-    # Use $1 for pattern, -m (github diff) or default is '*'
-
-    if [[ -z "$1" ]]; then
-        echo "Making all the things pretty! (use pretty -h for help)"
-        yes_no 'Make all of the things Prettier? (Y/n) '
-        if [ "$?" ]; then
-            ce "$_pretty_usage"
-        else
-            prettier_here
-        fi
-    else
-        case "$1" in
-        '-h' | '--help' | 'help')
-            ce "$_pretty_usage"
-            return $EX_USAGE
-            ;;
-        '-m' | '--commit-message' | 'commit')
-            # echo "Making your git staged file pretty ..."
-            # select stated files
-            FILES=$(git diff --cached --name-only | sed 's| |\\ |g')
-            # Prettify all selected files
-            prettier_here
-            # Add back the modified/prettified files to staging
-            echo "$FILES" | xargs git add
-            git commit -m "prettybot: $2"
-            git status
-            ;;
-        *)
-            prettier_here $PWD $1
-            ;;
-        esac
-    fi
-}
-
-function fileop() {
+fileop() {
     # TODO work in progress
     return 0
     # File counter, filter, and editor for word or line matches
@@ -348,15 +197,12 @@ function fileop() {
     #     echo "Usage : $0 option pattern filename"
     #     return 1
     # fi
-
     # # Check the given file is exist #
     # if [ ! -f "$3" ]; then
     #     echo "Filename given \"$3\" doesn't exist"
     #     return 1
     # fi
-
     # case "$1" in
-
     # # Count number of lines matches
     # -i)
     #     echo "Number of lines matches with the pattern $2 :"
@@ -382,8 +228,72 @@ function fileop() {
     #     ;;
     # esac
 }
-function clip() { $("$@") | pbcopy; }
-function get_template() {
+find_broken() {
+    # Find and delete all broken symbolic links in current directiry
+    # use safety feature $1 == '-d' to actually delete them
+    # interesting method:
+    # https://stackoverflow.com/a/26887762/9878098
+    if [[ "$1" == "-d" ]]; then
+        echo "Deleting Broken Symlinks ..."
+        find -L $PWD -type l -exec rm -- {} +
+    else
+        echo "Listing Broken Symlinks (use -d to delete links)..."
+        find -L $PWD -type l -print 2>&1
+    fi
+}
+fix_list() {
+    # TODO work in progress
+    return 0
+    # https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html#Command-Substitution
+    # function_list=$(<~/.dotfiles/.functions | grep -e 'function () { ' | awk '{ printf "%s\\n",$2 }')
+    # me "\nAvailable BASH functions (function_list):\n"
+    # oe $function_list
+    # < ~/.dotfiles/.functions | grep -e " function " | awk '{ print $2 }'
+    # echo $function_list >function_list.txt
+}
+fs() {
+    if du -b /dev/null >/dev/null 2>&1; then
+        local arg=-sbh
+    else
+        local arg=-sh
+    fi
+    if [[ -n "$*" ]]; then
+        du $arg -- "$*"
+    else
+        du $arg .[^.]* ./*
+    fi
+}
+getcertnames() {
+    if [ -z "${1}" ]; then
+        echo "ERROR: No domain specified."
+        return 1
+    fi
+    local domain="${1}"
+    echo "Testing ${domain}…"
+    echo ""
+    local tmp
+    local certText
+    tmp=$(echo -e "GET / HTTP/1.0\nEOT" |
+        openssl s_client -connect "${domain}:443" -servername "${domain}" 2>&1)
+    if [[ "${tmp}" == *"-----BEGIN CERTIFICATE-----"* ]]; then
+        certText=$(echo "${tmp}" |
+            openssl x509 -text -certopt "no_aux, no_header, no_issuer, no_pubkey, \
+                no_serial, no_sigdump, no_signame, no_validity, no_version")
+        echo "Common Name:"
+        echo ""
+        echo "${certText}" | grep "Subject:" | sed -e "s/^.*CN=//" | sed -e "s/\/emailAddress=.*//"
+        echo ""
+        echo "Subject Alternative Name(s):"
+        echo ""
+        echo "${certText}" | grep -A 1 "Subject Alternative Name:" |
+            sed -e "2s/DNS://g" -e "s/ //g" | tr "," "\n" | tail -n +2
+        return 0
+    else
+        echo "ERROR: Certificate not found."
+        return 1
+    fi
+}
+get_template() {
     # TODO work in progress
     return 0
     ## copy template file <$1> to current directory
@@ -404,66 +314,7 @@ function get_template() {
     #     printf "SOURCE file not found.\n\n"
     # fi
 }
-function chmod_all() {
-    # chmod matching files to given mode
-    # $1 is path (default $PWD);
-    # $2 is pattern (default '*');
-    # $3 is mode (default '644' for files, '755' for directories)
-    case "$1" in
-    '-h' | '--help' | 'help')
-        echo "Usage : $0 [path($PWD)] [pattern(*)] [mode(644)]"
-        return $EX_USAGE
-        ;;
-    esac
-
-    # Check the given file is exist #
-    if [ ! -f "$3" ]; then
-        echo "Filename given \"$3\" doesn't exist"
-        return 1
-    fi
-
-    find -L ${1:-$PWD} -name ${2:-'*'} -type f -print0 | xargs -0 chmod ${3:-644}
-}
-function web_chmod() {
-    # Set default permissions for a folder that will be uploaded to the web.
-    # default directory is PWD
-    # most files = 644; directories = 755
-    [[ -d "$1" ]] && dir="$1" || dir=$PWD
-    find -LX "$dir" -type f -print0 | xargs -0 chmod 644
-    echo "Changing permissions of all regular files to 0644."
-    find -LX "$dir" -type d -print0 | xargs -0 chmod 755
-    echo "Changing permissions of all regular directories to 0755."
-    # ls "$dir" -ARlh
-}
-
-function find_broken() {
-    # Find and delete all broken symbolic links in current directiry
-    # use safety feature $1 == '-d' to actually delete them
-    # interesting method:
-    # https://stackoverflow.com/a/26887762/9878098
-    if [[ "$1" == "-d" ]]; then
-        echo "Deleting Broken Symlinks ..."
-        find -L $PWD -type l -exec rm -- {} +
-    else
-        echo "Listing Broken Symlinks (use -d to delete links)..."
-
-        find -L $PWD -type l -print 2>&1
-    fi
-}
-
-function trw() {
-    # TODO work in progress
-    return 0
-    #     # trim leading and trailing whitespace
-    #     local var="$*"
-    #     var="${var#"${var%%[![:space:]]*}"}"
-
-    #     var="${var#"${var&&[!'/']*}"}"
-    #     var="${var%"${var##*[![:space:]]}"}"
-    #     echo -n "$var"
-}
-
-function git_one() {
+git_one() {
     # TODO work in progress
     # to keep from delaying a commit due to one file that won't pass pre-commit
     FILES=$(gaa -n)
@@ -473,39 +324,38 @@ function git_one() {
         echo "$fixed_file"
     done
 }
-
-function bak() {
-    FILES="$@"
-    [[ -d "$PWD/bak" ]] || mkdir "$PWD/bak"
-    for file in $FILES; do
-        [[ -d "$file" ]] && bak "$file"
-        printf "Backup file %s " $file
-        [[ -f "$file" ]] && cp -f "$file" "bak/${file}.bak" || echo -e "${WARN}backup unsuccessful - ${MAIN}${file}${RESET_FG}"
-        echo ''
-    done
+gz() {
+    local origsize
+    origsize=$(wc -c <"$1")
+    local gzipsize
+    gzipsize=$(gzip -c "$1" | wc -c)
+    local ratio
+    ratio=$(echo "$gzipsize * 100 / $origsize" | bc -l)
+    printf "orig: %d bytes\n" "$origsize"
+    printf "gzip: %d bytes (%2.2f%%)\n" "$gzipsize" "$ratio"
 }
-
-function setup_tools() {
-    # TODO Work in progress
-    return 0
-    # https://www.createdbypete.com/ruby-on-rails-development-setup-for-macos/
-    echo "Setup for Homebrew, Node.js, Python, etc."
-    echo ''
-    if [ $(yes_no 'Fresh Homebrew and tools setup?') ]; then
-        echo "Homebrew ..."
-        /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-        brew update &>/dev/null && brew cleanup &>/dev/null && brew doctor &>/dev/null
-        brew install bash zsh coreutils cython python git hub heroku leiningen clojure php node
-        brew reinstall node && echo -e "==> Installation successful! node.js $(node -v) installed."
-    else
-        return 1
-    fi
+lns() {
+    # list symlinks in current directory
+    # References: https://askubuntu.com/questions/522051/how-to-list-all-symbolic-links-in-a-directory
+    # la | grep '\-> \/'
+    find $PWD -maxdepth 1 -type l
 }
-function nonzero_return() {
+lt() { ls -lhtrsA "$@" | tail; }
+mkd() {
+    mkdir -p "$@" && cd "$_" || return
+}
+nonzero_return() {
     RETVAL=$?
     [ $RETVAL -ne 0 ] && echo "$RETVAL"
 }
-function parse_git_branch() {
+o() {
+    if [ $# -eq 0 ]; then
+        open .
+    else
+        open "$@"
+    fi
+}
+parse_git_branch() {
     BRANCH=$(git branch 2>/dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')
     if [ ! "${BRANCH}" == "" ]; then
         STAT=$(parse_git_dirty)
@@ -514,8 +364,7 @@ function parse_git_branch() {
         echo ""
     fi
 }
-
-function parse_git_dirty() {
+parse_git_dirty() {
     status=$(git status 2>&1 | tee)
     dirty=$(
         echo -n "${status}" 2>/dev/null | grep "modified:" &>/dev/null
@@ -566,72 +415,101 @@ function parse_git_dirty() {
         echo ""
     fi
 }
-
-function allopen() { sudo lsof -i -P | grep "$1"; }
-function a() { alias | grep "$1"; }
-function lt() { ls -lhtrsA "$@" | tail; }
-function anyguard() {
-    ANYBAR_PORT=$(jot -r 1 1700 1900)
-    ANYBAR_PORT=$ANYBAR_PORT open -n /Applications/AnyBar.app
-    sleep 0.5
-    anybar orange $ANYBAR_PORT
-    eval "$@"
-    ret=$?
-
-    if [[ ret -eq 0 ]]; then
-        anybar green $ANYBAR_PORT
+phpserver() {
+    local port
+    port="${1:-4000}"
+    local ip
+    ip=$(ipconfig getifaddr en0)
+    sleep 1 && open "http://${ip}:${port}/" &
+    php -S -c "$PWD" "${ip}:${port}" -
+}
+pk() { pkill -9 -u "$(id -u $1)"; } # kill another user's processes
+prettier_here() {
+    # $1 = path (default $PWD); $2 = filenames ( default '*')
+    # OR
+    # $1 = 'git'; $2 = "$files"
+    if [[ "$1" == 'git' ]]; then
+        FILES=$(git diff --cached --name-only | sed 's| |\\ |g')
+        echo ${2:-$FILES} | xargs prettier --write | grep -e '[[:space:]]\?[[:digit:]]\+ms'
     else
-        anybar red $ANYBAR_PORT
+        find -L ${1:-$PWD} -name ${2:-'*'} -type f -print0 | xargs -0 prettier --write | grep -e '[[:space:]]\?[[:digit:]]\+ms'
     fi
-    echo "Finished. Press [ENTER] to exit."
-    read ENTER
-    anybar quit $ANYBAR_PORT
-    return $ret
 }
-function anybar() {
-    echo -n $1 | nc -4u -w0 localhost ${2:-1738}
+pretty() {
+    # Use prettier to format all compatible selected files
+    # Use $1 for pattern, -m (github diff) or default is '*'
+    if [[ -z "$1" ]]; then
+        echo "Making all the things pretty! (use pretty -h for help)"
+        yes_no 'Make all of the things Prettier? (Y/n) '
+        if [ "$?" ]; then
+            ce "$_pretty_usage"
+        else
+            prettier_here
+        fi
+    else
+        case "$1" in
+        '-h' | '--help' | 'help')
+            ce "$_pretty_usage"
+            return $EX_USAGE
+            ;;
+        '-m' | '--commit-message' | 'commit')
+            # echo "Making your git staged file pretty ..."
+            # select stated files
+            FILES=$(git diff --cached --name-only | sed 's| |\\ |g')
+            # Prettify all selected files
+            prettier_here
+            # Add back the modified/prettified files to staging
+            echo "$FILES" | xargs git add
+            git commit -m "prettybot: $2"
+            git status
+            ;;
+        *)
+            prettier_here $PWD $1
+            ;;
+        esac
+    fi
 }
-function azure_agent() {
-    # svc.sh only seems to work when run from its own directory ...
-    # added default parameter 'status'
-    local temp_pwd="$PWD"
-    cd "$AZURE_WORKING_DIR" || return
-    ${AZURE_WORKING_DIR}/svc.sh ${1:-'status'}
-    result="$?"
-    cd "$temp_pwd"
-    unset temp_pwd
-    return $result
+pyver() {
+    # silly function to address the lack of correct output from
+    #   python 2.7 executable in this sitation 'python --version'
+    python -c "print('.'.join(str(i).strip() for i in __import__('sys').version_info[:3]))"
 }
-
-function datelog() {
-    # create a logfile with the date as part of the file_name
-    [[ -z $1 ]] && exit 1
-    command_text="$@"
-    file_name="${PWD}/datelog_$(date "+%m_%d_%y").log"
-    printf "\nOutput logged to file: %s\n${file_name}\n"
-    printf "\n===================================\n" | tee -a "$file_name"
-    printf "Log for %s\n\n" $(date "+%m/%d/%Y") | tee -a "$file_name"
-    exec "$command_text" | tee -a "$file_name"
-    $("$@") | tee -a "$file_name"
+readlinkf() { perl -MCwd -e 'print Cwd::abs_path shift' "$1"; }
+save_versions() {
+    # echo "VERSION_LIST: $VERSION_LIST"
+    if [ -d "${SOURCE_PATH}" ]; then
+        rm -rf "$VERSION_LIST" >/dev/null
+        write_versions_file
+    fi
 }
-
-function mkd() {
-    mkdir -p "$@" && cd "$_" || return
+server() {
+    local port="${1:-8000}"
+    sleep 1 && open "http://localhost:${port}/" &
+    python2 -c 'import SimpleHTTPServer;\nmap = SimpleHTTPServer.SimpleHTTPRequestHandler.extensions_map;\nmap[""] = "text/plain";\nfor key, value in map.items():\n\tmap[key] = value + ";charset=UTF-8";\nSimpleHTTPServer.test();' "$port"
 }
-
-function cdf() {
-    cd "$(osascript -e 'tell app "Finder" to POSIX path of (insertion location as alias)')" || return 1
+setup_tools() {
+    # TODO Work in progress
+    return 0
+    # https://www.createdbypete.com/ruby-on-rails-development-setup-for-macos/
+    echo "Setup for Homebrew, Node.js, Python, etc."
+    echo ''
+    if [ $(yes_no 'Fresh Homebrew and tools setup?') ]; then
+        echo "Homebrew ..."
+        /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+        brew update &>/dev/null && brew cleanup &>/dev/null && brew doctor &>/dev/null
+        brew install bash zsh coreutils cython python git hub heroku leiningen clojure php node
+        brew reinstall node && echo -e "==> Installation successful! node.js $(node -v) installed."
+    else
+        return 1
+    fi
 }
-
-function targz() {
+targz() {
     local tmpFile="${*%/}.tar"
     tar -cvf "${tmpFile}" --exclude=".DS_Store" "${@}" || return 1
-
     size=$(
         stat -f"%z" "${tmpFile}" 2>/dev/null
         stat -c"%s" "${tmpFile}" 2>/dev/null
     )
-
     local cmd=""
     if ((size < 52428800)) && hash zopfli 2>/dev/null; then
         cmd="zopfli"
@@ -642,129 +520,198 @@ function targz() {
             cmd="gzip"
         fi
     fi
-
     echo "Compressing .tar ($((size / 1000)) kB) using \`${cmd}\`…"
     "${cmd}" -v "${tmpFile}" || return 1
     [ -f "${tmpFile}" ] && rm "${tmpFile}"
-
     zippedSize=$(
         stat -f"%z" "${tmpFile}.gz" 2>/dev/null
         stat -c"%s" "${tmpFile}.gz" 2>/dev/null
     )
-
     echo "${tmpFile}.gz ($((zippedSize / 1000)) kB) created successfully."
 }
-
-function fs() {
-    if du -b /dev/null >/dev/null 2>&1; then
-        local arg=-sbh
-    else
-        local arg=-sh
-    fi
-    if [[ -n "$*" ]]; then
-        du $arg -- "$*"
-    else
-        du $arg .[^.]* ./*
-    fi
+travis_trigger() {
+    # TODO needs more testing - strange errors
+    return 0
+    # Travis CI CLI API
+    # Travis CI Client (CLI and Ruby library)
+    # https://github.com/travis-ci/travis.rb#mac-os-x-via-homebrew
+    # macOS:
+    # brew install ruby
+    # gem update --system
+    #
+    # Using the CLI
+    # travis login --org --auto
+    # travis token
+    # You can keep this token in an environment variable TRAVIS_TOKEN, as long as the file you keep it in is not version-controlled somewhere public.
+    # I use this function to submit triggers:
+    # local org=$1 && shift
+    # local repo=$1 && shift
+    # local branch=${1:-master} && shift
+    # body="{
+    #         \"request\": {
+    #         \"branch\": \"${branch}\"
+    #         }
+    #     }"
+    # curl -s -X POST \
+    #     -H "Content-Type: application/json" \
+    #     -H "Accept: application/json" \
+    #     -H "Travis-API-Version: 3" \
+    #     -H "Authorization: token $TRAVIS_TOKEN" \
+    #     -d "$body" \
+    #     "https://api.travis-ci.org/repo/${org}%2F${repo}/requests"
 }
-
-function dataurl() {
-    local mimeType
-    mimeType=$(file -b --mime-type "$1")
-    if [[ $mimeType == text/* ]]; then
-        mimeType="${mimeType};charset=utf-8"
-    fi
-    echo "data:${mimeType};base64,$(openssl base64 -in "$1" | tr -d '\n')"
-}
-
-function server() {
-    local port="${1:-8000}"
-    sleep 1 && open "http://localhost:${port}/" &
-    python2 -c 'import SimpleHTTPServer;\nmap = SimpleHTTPServer.SimpleHTTPRequestHandler.extensions_map;\nmap[""] = "text/plain";\nfor key, value in map.items():\n\tmap[key] = value + ";charset=UTF-8";\nSimpleHTTPServer.test();' "$port"
-}
-
-function phpserver() {
-    local port
-    port="${1:-4000}"
-    local ip
-    ip=$(ipconfig getifaddr en0)
-    sleep 1 && open "http://${ip}:${port}/" &
-    php -S -c "$PWD" "${ip}:${port}" -
-}
-
-function gz() {
-    local origsize
-    origsize=$(wc -c <"$1")
-    local gzipsize
-    gzipsize=$(gzip -c "$1" | wc -c)
-    local ratio
-    ratio=$(echo "$gzipsize * 100 / $origsize" | bc -l)
-    printf "orig: %d bytes\n" "$origsize"
-    printf "gzip: %d bytes (%2.2f%%)\n" "$gzipsize" "$ratio"
-}
-
-function digga() {
-    dig +nocmd "$1" any +multiline +noall +answer
-}
-
-function getcertnames() {
-    if [ -z "${1}" ]; then
-        echo "ERROR: No domain specified."
-        return 1
-    fi
-
-    local domain="${1}"
-    echo "Testing ${domain}…"
-    echo ""
-
-    local tmp
-    local certText
-    tmp=$(echo -e "GET / HTTP/1.0\nEOT" |
-        openssl s_client -connect "${domain}:443" -servername "${domain}" 2>&1)
-    if [[ "${tmp}" == *"-----BEGIN CERTIFICATE-----"* ]]; then
-        certText=$(echo "${tmp}" |
-            openssl x509 -text -certopt "no_aux, no_header, no_issuer, no_pubkey, \
-                no_serial, no_sigdump, no_signame, no_validity, no_version")
-        echo "Common Name:"
-        echo ""
-        echo "${certText}" | grep "Subject:" | sed -e "s/^.*CN=//" | sed -e "s/\/emailAddress=.*//"
-        echo ""
-        echo "Subject Alternative Name(s):"
-        echo ""
-        echo "${certText}" | grep -A 1 "Subject Alternative Name:" |
-            sed -e "2s/DNS://g" -e "s/ //g" | tr "," "\n" | tail -n +2
-        return 0
-    else
-        echo "ERROR: Certificate not found."
-        return 1
-    fi
-}
-
-function tre() {
+tre() {
     tree -axC -I '.git|node_modules|bower_components' --dirsfirst "$@" -- | less -FRNX
 }
-
+trw() {
+    # TODO work in progress
+    return 0
+    #     # trim leading and trailing whitespace
+    #     local var="$*"
+    #     var="${var#"${var%%[![:space:]]*}"}"
+    #     var="${var#"${var&&[!'/']*}"}"
+    #     var="${var%"${var##*[![:space:]]}"}"
+    #     echo -n "$var"
+}
 tt() {
     # alias treetop='tree -L 1'
     tree -L 1 -- "$@"
 }
-function tree_html() {
+tree_html() {
     tree -ahlsAFRHD --prune --du --si --dirsfirst >tree.html
 }
-
-function _run_debug_functions() {
+versions() {
+    save_versions
+    cat ~/.dotfiles/.VERSION_LIST.md
+    # br
+    # me "## Versions ############################"
+    # cherry "$(uname -i) | $(sw_vers -productName) | $(sw_vers -productVersion)"
+    # me "shell:"
+    # lime "  zsh: $(zsh --version)"
+    # green "  this zsh session: $ZSH_VERSION"
+    # blue "  VSCode   $(code --version | head -n 1)"
+    # br
+    # me "utilities:"
+    # canary "  $(bash --version | grep bash | cut -d ',' -f 1)        v$(bash --version | grep bash | cut -d ' ' -f 4 | cut -d '(' -f 1)"
+    # cherry "  $(clang --version | grep version | sed 's/version /    v/g')"
+    # attn "  $(git --version | sed 's/version /            v/g')"
+    # attn "  $(hub --version | grep hub | sed 's/version /            v/g')"
+    # green "  grep            v$(grep --version | head -n 1)"
+    # canary "  prettier        v$(prettier --version)"
+    # br
+    # me 'package managers'
+    # lime "  homebrew        v$(brew --version | tail -n 3 | head -n 1 | cut -d ' ' -f 2)"
+    # blue "  conda           v$(conda -V | cut -d ' ' -f 2) "
+    # blue "  pip             v$(pip --version | cut -d ' ' -f 2) "
+    # blue "  pipenv          v$(pipenv --version | cut -d ' ' -f 3) "
+    # warn "  gem             v$(gem -v)"
+    # canary "  npm             v$(npm -v)"
+    # purple "  composer        v$(composer --version | cut -d ' ' -f 3)"
+    # green "  TeXLive(tlmgr)  $(tlmgr --version | head -n 1 | cut -d ' ' -f 3-4))"
+    # br
+    # # attn "  $(lein --version | sed 's/Leiningen/lein version/g' | sed 's/version /       v/g')"
+    # me "languages:"
+    # lime "  GO              v$(go version | cut -d ' ' -f 3 | sed 's/go//g')"
+    # warn "  ruby            v$(ruby -v 2>/dev/null | cut -d ' ' -f 2 | cut -d 'p' -f 1)"
+    # purple "  php             v$(php -v 2>/dev/null | grep '(cli)' | cut -d ' ' -f 2)"
+    # printf "  ${COOL}python          v$(python --version | cut -d ' ' -f 2)"
+    # # pyver
+    # # python -c 'import sys; sys.stdout.write("python      v" + ".".join(map(str, sys.version_info[:3]))); sys.stdout.flush()'
+    # printf "$RESET_FG\n"
+    # canary "  node            $(node -v)"
+    # cherry "  Xcode           v$(/Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -version | grep Xcode | sed 's/Xcode //g')"
+    # attn "  Clojure $(clojure -Sdescribe | grep version | sed 's/{://g' | sed 's/"//g' | sed 's/version /        v/g')"
+    # br
+    # me "Travis CI   v$(travis version)"
+    # ye "eslint $(eslint -v)"
+    # echo "$(pipenv --version)"
+    # oe "prettier v$(prettier -v)"
+}
+web_chmod() {
+    # Set default permissions for a folder that will be uploaded to the web.
+    # default directory is PWD
+    # most files = 644; directories = 755
+    [[ -d "$1" ]] && dir="$1" || dir=$PWD
+    find -LX "$dir" -type f -print0 | xargs -0 chmod 644
+    echo "Changing permissions of all regular files to 0644."
+    find -LX "$dir" -type d -print0 | xargs -0 chmod 755
+    echo "Changing permissions of all regular directories to 0755."
+    # ls "$dir" -ARlh
+}
+write_versions_file() {
+    me "# Program Versions List"
+    green "## VERSION_LIST path: $VERSION_LIST"
+    warn "**os: $(uname -i) | $(sw_vers -productName) | $(sw_vers -productVersion)**"
+    me "### shell:"
+    lime "- zsh:            $(zsh --version)"
+    green "- current shell:  $ZSH_VERSION"
+    blue "- VSCode:         $(code --version | head -n 1)"
+    br
+    me "### utilities:"
+    canary "- $(bash --version | grep bash | cut -d ',' -f 1)        v$(bash --version | grep bash | cut -d ' ' -f 4 | cut -d '(' -f 1)"
+    warn "- $(clang --version | grep version | sed 's/version /    v/g')"
+    attn "- $(git --version | sed 's/version /            v/g')"
+    attn "- $(hub --version | grep hub | sed 's/version /            v/g')"
+    green "- grep            v$(grep --version | head -n 1)"
+    canary "- prettier        v$(prettier --version)"
+    br
+    me '### package managers'
+    lime "- homebrew        v$(brew --version | tail -n 3 | head -n 1 | cut -d ' ' -f 2)"
+    blue "- conda           v$(conda -V | cut -d ' ' -f 2) "
+    blue "- pip             v$(pip --version | cut -d ' ' -f 2) "
+    blue "- pipenv          v$(pipenv --version | cut -d ' ' -f 3) "
+    attn "- cargo           v$(cargo --version | cut -d ' ' -f 2)"
+    attn "- rustup          v$(rustup --version | cut -d ' ' -f 2)"
+    warn "- gem             v$(gem -v)"
+    canary "- npm             v$(npm -v)"
+    purple "- composer        v$(composer --version | cut -d ' ' -f 3)"
+    green "- TeXLive(tlmgr)  $(tlmgr --version | head -n 1 | cut -d ' ' -f 3-4))"
+    br
+    # attn "  $(lein --version | sed 's/Leiningen/lein version/g' | sed 's/version /       v/g')"
+    me "### languages:"
+    blue "- GO              v$(go version | cut -d ' ' -f 3 | sed 's/go//g')"
+    attn "- rustc           v$(rustc --version | cut -d ' ' -f 2)"
+    warn "- ruby            v$(ruby -v 2>/dev/null | cut -d ' ' -f 2 | cut -d 'p' -f 1)"
+    purple "- php             v$(php -v 2>/dev/null | grep '(cli)' | cut -d ' ' -f 2)"
+    printf "- ${COOL}python          v$(python --version | cut -d ' ' -f 2)${RESET_FG}\n"
+    canary "- node            $(node -v)"
+    cherry "- Xcode           v$(/Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -version | grep Xcode | sed 's/Xcode //g')"
+    attn "- Clojure $(clojure -Sdescribe | grep version | sed 's/{://g' | sed 's/"//g' | sed 's/version /        v/g')"
+    br
+    # me "Travis CI   v$(travis version)"
+    # ye "eslint $(eslint -v)"
+    # echo "$(pipenv --version)"
+    # oe "prettier v$(prettier -v)"
+} >"$VERSION_LIST"
+#?######################## SCRIPT TESTS
+_run_debug_functions() {
     db_script_source "Functions test"
     warn $NAME
 }
+#?######################## BEGIN SCRIPT SETUP
+_run_setup() {
+    # set -a
+    declare -x SET_DEBUG=${SET_DEBUG:-0} # set to 1 for verbose testing
 
-function _main_functions() {
+    declare -x DOTFILES_PATH=${DOTFILES_PATH:-"${HOME}/.dotfiles"}
+    declare VERSION_LIST="${DOTFILES_PATH}/.VERSION_LIST.md"
+
+    # get name for 'open' if linux or windows
+    if [ ! "$(uname -s)" = 'Darwin' ]; then
+        if grep -q Microsoft /proc/version; then
+            alias open='explorer.exe'
+        else
+            alias open='xdg-open'
+        fi
+    fi
     # use git diff if available
     if [[ "$(hash git &>/dev/null)" -eq 0 ]]; then
         function diff() {
             git diff --no-index --color-words "$@"
         }
     fi
-
+}
+_login_message() {
     br
     me "os: ${LIME}$(uname -i) | $(sw_vers -productName) | $(sw_vers -productVersion)"
     me "shell: ${LIME}zsh: $(zsh --version)"
@@ -773,18 +720,40 @@ function _main_functions() {
     green "Use <versions> to display shell, language, and utility versions. (Use <checkpath> to check system \$PATH.)"
     br
     # versions #! show versions when loading shell
+}
+_main_loop() {
+    _run_setup
+    _login_message
     # echo "Travis test: $TRAVIS_TOKEN"
     # travis login --github-token "$TRAVIS_TOKEN"
-
     [[ $SET_DEBUG == '1' ]] && _run_debug_functions
 }
 
-# save_versions
-_main_functions "$@"
+#?######################## PROGRAM FEATURES:
+    #  Symlink a file in ~/.dotfiles to ~/
+    #  This makes managing a 'dotfiles' Git repo more efficient
+    #  - Make Numbered backup copies in ~/.dotfiles/bak (not synced to repo)
+    #  - Copy file to ~/.dotfiles if needed
+    #  - Delete original file if needed
+    #  - Delete original symlink if needed
+#?######################## skeptycal.com
+    . "$(which ssm)"
+    NAME=".functions"
+    VERSION='1.4.0'
+    DESC='personalized Bash functions (Bash 5.0 on macOS)'
+    USAGE="source ${NAME} [help|test|usage|version]"
+    AUTHOR="Michael Treanor  <skeptycal@gmail.com>"
+    COPYRIGHT="Copyright (c) 2019 Michael Treanor"
+    LICENSE="MIT <https://opensource.org/licenses/MIT>"
+    GITHUB="https://www.github.com/skeptycal"
 
+# save_versions
+_main_loop "$@"
+
+#?#######################################################################
 # generate a function list
 # declare -F | sed "s/declare -fx //g" >.functions_functions.txt
-
 # References:
 # 	'find types' https://www.gnu.org/software/findutils/manual/html_mono/find.html#Type
 # pipe $2 with $1 using |&  https://unix.stackexchange.com/questions/128975/why-doesnt-grep-using-pipe-work-here
+# mkdir ref: https://www.cyberciti.biz/tips/bash-shell-parameter-substitution-2.html

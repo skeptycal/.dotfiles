@@ -1,10 +1,10 @@
 #!/usr/bin/env zsh
 # -*- coding: utf-8 -*-
-#*#######################################################################
+#?#######################################################################
 #* lndf - link to dotfiles
 #* copyright (c) 2019 Michael Treanor
 #* MIT License - https://www.github.com/skeptycal
-#*################ PROGRAM FEATURES:
+#?######################## PROGRAM FEATURES:
     #  Symlink a file in ~/.dotfiles to ~/
     #  This makes managing a 'dotfiles' Git repo more efficient
     #  - Make Numbered backup copies in ~/.dotfiles/bak (not synced to repo)
@@ -12,7 +12,7 @@
     #  - Delete original file if needed
     #  - Delete original symlink if needed
 
-#?######################## BEGIN SCRIPT SETUP ###########################
+#?######################## BEGIN SCRIPT SETUP
 #*################ set paths based on $1
     INPUT_FILE="${1##*/}"
     dotfile="${HOME}/.dotfiles/${INPUT_FILE}"
@@ -26,7 +26,7 @@
     #   TEMP_FILE (linux / macOS compatible)... example:
     #   /var/folders/sv/_4cpr0px23b4mn3k40nv46z40000gn/T/ssm_constants.NCXu12/tmp_proc_random.59646.30925
 
-#?####################### BEGIN SCRIPT ACTIONS ##########################
+#?######################## BEGIN SCRIPT ACTIONS
 #*################ backup $dotfile and $target (numbered backups)
     [[ -f $dotfile ]] && cp -f --backup=numbered $dotfile $dotbak >/dev/null
     [[ $? ]] && info "  file backed up ... $dotfile" || err "  file NOT backed up ... $dotfile"
@@ -45,8 +45,9 @@
     ln -s $dotfile $target
     [[ $? ]] && info "  link Successful ... $target" || err "  no link created ..."
 
-#?######################## END SCRIPT ACTIONS ###########################
-#?####################### BEGIN SCRIPT TESTING ##########################
+#?######################## END SCRIPT ACTIONS
+#?######################## BEGIN SCRIPT TESTING
+
     _run_tests() {
         test_script() {
             debug ''
