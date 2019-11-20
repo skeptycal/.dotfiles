@@ -38,7 +38,7 @@ function gitit() {
     message="${*:-'gitit minor updates (default automatic message)'}"
     echo -e "git add, pre-commit, commit, and push repo to github"
     echo -e "message: $message"
-    if [[ $(git status) = 0 ]]; then
+    if  (( $(git status) = 0 )) ; then
         echo "\$?: $?"
         git status
     else
