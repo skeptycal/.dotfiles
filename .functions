@@ -35,15 +35,11 @@ function o() {
 
 function gitit() {
     dir="${PWD}/.git"
-    echo $dir
-    [[ -d "${PWD}/.git" ]]
-
     git status >/dev/null 2>&1
-    if [[ $? != 0 ]]; then
-        cherry "This is not a git repo."
-    else
+    if [[ $? = 0 ]] && [[ -d "$dir" ]]; then
         message="${*:-'(GitIt) minor updates'}"
         me "GitIt - add and commit all updates."
+        attn "repo: $dir"
         attn "message: $message"
         git add --all >/dev/null 2>&1
         pre-commit >/dev/null 2>&1
@@ -51,6 +47,8 @@ function gitit() {
         pre-commit
         git commit -m "$message"
         git push --set-upstream origin $(git_current_branch)
+    else
+        cherry "This is not a git repo: $dir"
     fi
 }
 
