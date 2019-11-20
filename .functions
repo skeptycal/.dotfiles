@@ -35,22 +35,20 @@ function o() {
 
 function gitit() {
     # . $(which .aliases)
-    message="${*:-'gitit minor updates (default automatic message)'}"
-    echo -e "git add, pre-commit, commit, and push repo to github"
-    echo -e "message: $message"
+    message="${*:-'(GitIt) minor updates'}"
+    me "GitIt - add and commit all updates."
+    attn "message: $message"
     git status >/dev/null
-    if [[ $? = 0 ]]; then
-        echo "\$?: $?"
+    if [[ $? != 0 ]]; then
+        cherry "This is not a git repo."
     else
-        echo "This is not a git repo."
+        git add --all >/dev/null
+        pre-commit >/dev/null
+        git add --all
+        pre-commit
+        git commit -m "$message"
+        git push --set-upstream origin $(git_current_branch)
     fi
-
-    git add --all >/dev/null
-    pre-commit >/dev/null
-    git add --all
-    pre-commit
-    git commit -m "$message"
-    git push --set-upstream origin $(git_current_branch)
 }
 
 # Reference: https://linuxhint.com/bash_declare_command/
