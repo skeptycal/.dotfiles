@@ -38,12 +38,12 @@ function gitit() {
     message="${*:-'(GitIt) minor updates'}"
     me "GitIt - add and commit all updates."
     attn "message: $message"
-    git status >/dev/null
+    git status >/dev/null 2>&1
     if [[ $? != 0 ]]; then
         cherry "This is not a git repo."
     else
-        git add --all >/dev/null
-        pre-commit >/dev/null
+        git add --all >/dev/null 2>&1
+        pre-commit >/dev/null 2>&1
         git add --all
         pre-commit
         git commit -m "$message"
