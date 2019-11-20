@@ -34,14 +34,17 @@ function o() {
 }
 
 function gitit() {
-    # . $(which .aliases)
-    message="${*:-'(GitIt) minor updates'}"
-    me "GitIt - add and commit all updates."
-    attn "message: $message"
+    dir="${PWD}/.git"
+    echo $dir
+    [[ -d "${PWD}/.git" ]]
+
     git status >/dev/null 2>&1
     if [[ $? != 0 ]]; then
         cherry "This is not a git repo."
     else
+        message="${*:-'(GitIt) minor updates'}"
+        me "GitIt - add and commit all updates."
+        attn "message: $message"
         git add --all >/dev/null 2>&1
         pre-commit >/dev/null 2>&1
         git add --all
