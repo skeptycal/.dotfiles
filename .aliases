@@ -95,7 +95,7 @@ alias now='date +"%T"'
 alias nowdate='date +"%m-%d-%Y"'
 alias week="date +%V"
 alias mount="mount | column -t"
-alias allopen="sudo lsof -i -P | grep"
+# alias allopen="sudo lsof -i -P | grep" # used function instead ...
 alias egrep="egrep --color=auto"
 alias fgrep="fgrep --color=auto"
 alias plistbuddy="/usr/libexec/PlistBuddy"

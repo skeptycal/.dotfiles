@@ -6,7 +6,6 @@
 #* copyright (c) 2019 Michael Treanor
 #* MIT License - https://www.github.com/skeptycal
 
-
 ########################## TODO - WORKS IN PROGRESS
 _mkdir(){
         local d="$1"               # get dir name
@@ -42,7 +41,9 @@ gitit() {
     # }
 #?######################## BEGIN FUNCTIONS
 a() { alias | grep "$1"; }
+
 allopen() { sudo lsof -i -P | grep "$1"; }
+
 anyguard() {
     ANYBAR_PORT=$(jot -r 1 1700 1900)
     ANYBAR_PORT=$ANYBAR_PORT open -n /Applications/AnyBar.app
@@ -724,6 +725,7 @@ _login_message() {
 _main_loop() {
     _run_setup
     _login_message
+    warn "main"
     # echo "Travis test: $TRAVIS_TOKEN"
     # travis login --github-token "$TRAVIS_TOKEN"
     [[ $SET_DEBUG == '1' ]] && _run_debug_functions
@@ -748,7 +750,9 @@ _main_loop() {
     GITHUB="https://www.github.com/skeptycal"
 
 # save_versions
+warn "before"
 _main_loop "$@"
+warn "after"
 
 #?#######################################################################
 # generate a function list
