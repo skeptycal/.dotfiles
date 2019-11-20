@@ -39,8 +39,8 @@ function gitit() {
     if [[ $? = 0 ]] && [[ -d "$dir" ]]; then
         message="${*:-'(GitIt) minor updates'}"
         me "GitIt - add and commit all updates."
-        attn "repo: $PWD"
-        attn "message: $message"
+        green "repo: $PWD"
+        green "message: $message"
         git add --all >/dev/null 2>&1
         pre-commit >/dev/null 2>&1
         git add --all
