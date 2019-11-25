@@ -1,11 +1,11 @@
-#!/usr/bin/env false bash
+#!/usr/bin/env zsh
 # -*- coding: utf-8 -*-
 # cannot be run directly; called from .bash_profile or .bashrc
 #?#######################################################################
 #* .functions - functions for standard script modules (ssm)
 #* copyright (c) 2019 Michael Treanor
 #* MIT License - https://www.github.com/skeptycal
-
+. "$(which ssm)"
 ########################## TODO - WORKS IN PROGRESS
 _mkdir(){
         local d="$1"               # get dir name
@@ -13,6 +13,84 @@ _mkdir(){
         [ $# -eq 0 ] && { echo "$0: dirname"; return; }
         [ ! -d "$d" ] && mkdir -m $p -p "$d"
 }
+
+unbak(){
+    find . -name "*.bak" -type f -print | xargs /bin/rm -f
+}
+
+gather_del() {
+    find . -name "${1:-}" -type f -print | xargs /bin/rm -f
+}
+
+safe_split() {
+    # use custom IFS for safe word splitting of oddly formatted strings
+    oldIFS="$IFS"
+    IFS="$1"
+    shift
+    printf "$*"
+    IFS="$oldIFS"
+}
+
+gather() {
+    # gather - an easy way to gather similar file and do something with them | pipe to output
+    gather_test=0 # reset test flag (0|1) (set to 1 for testing)
+
+    ########################## process options
+        option_string='-0' # default options (-0 is required to work with find -print0)
+        if [ -z $1 ]; then # if no args, exit with usage and error message
+            me $GATHER_USAGE #TODO I wish this wasn't so ugly ...
+            warn "error $EX_USAGE: command line usage error" #TODO fix this so I can also lookup text
+            return $EX_USAGE #TODO and make a shell function to search from the command line or list error codes
+        else # process initial options
+            case $1 in
+                -h|--help|help|'')
+                    me $GATHER_USAGE
+                    return 0
+                ;;
+                -u|--usage|usage)
+                    me "$0 ${WHITE:-}[-huv] [-0opt] [xargs options] [file] [utility]"
+                    return 0
+                ;;
+                -v|--version|version)
+                    me "$0 version $VERSION"
+                    return 0
+                ;;
+                test)
+                    gather_test=1
+                    shift
+                ;;
+            esac
+        fi
+        while [[ ${1:0:1} == '-' ]]; do # process additional options
+            option_string+="$1" # add them to the string
+            shift
+        done
+
+    ########################## cleanup parameters
+        option_string=${option_string//0/}'0' # remove all 0 and add a single one (-0 is required)
+        option_string='-'${option_string//-/} # remove any '-' symbols and add a single one (formatting)
+        # default filetype is pdf ... imo, least likely to cause headaches if they are moved accidentally
+        gather_ext=\*"${1:-pdf}"
+        shift
+        # remaining args are considered the xargs 'utility' and its arguments (default /bin/echo)
+        command_string="${*:-/bin/echo}"
+
+    #!######################## testing
+        if [[ $gather_test == 1 ]]; then
+            attn "Gather all files like $gather_ext"
+            warn "pwd:            $PWD"
+            warn "option_string:  $option_string"
+            warn "gather_ext:     $gather_ext"
+            warn "command_string: $command_string"
+            warn "# find . -name '$gather_ext' -type f -print0 | xargs $option_string $command_string"
+            # mkdir -p ~/books/_new/${gather_ext//./} >/dev/null
+            # find . -name "*.bak" -type f -print0 | xargs0
+            # green "$( find . -name \'$gather_ext\' -type f -print0 | xargs $option_string $command_string )"
+        fi
+    # issue final command to shell functions - pipe output where you like
+    canary $(find . -name $gather_ext -type f -print0 | xargs $option_string $command_string)
+}
+
 gitit() {
     dir="${PWD}/.git"
     git status >/dev/null 2>&1
@@ -720,12 +798,11 @@ _login_message() {
     br
     green "Use <versions> to display shell, language, and utility versions. (Use <checkpath> to check system \$PATH.)"
     br
-    # versions #! show versions when loading shell
 }
+#?######################## MAIN LOOP
 _main_loop() {
     _run_setup
     _login_message
-    warn "main"
     # echo "Travis test: $TRAVIS_TOKEN"
     # travis login --github-token "$TRAVIS_TOKEN"
     [[ $SET_DEBUG == '1' ]] && _run_debug_functions
@@ -739,20 +816,22 @@ _main_loop() {
     #  - Delete original file if needed
     #  - Delete original symlink if needed
 #?######################## skeptycal.com
-    . "$(which ssm)"
-    NAME=".functions"
-    VERSION='1.4.0'
-    DESC='personalized Bash functions (Bash 5.0 on macOS)'
-    USAGE="source ${NAME} [help|test|usage|version]"
-    AUTHOR="Michael Treanor  <skeptycal@gmail.com>"
-    COPYRIGHT="Copyright (c) 2019 Michael Treanor"
-    LICENSE="MIT <https://opensource.org/licenses/MIT>"
-    GITHUB="https://www.github.com/skeptycal"
+declare -x GATHER_USAGE="$(
+    cat <<GATHER_USAGE
+    ${MAIN:-}gather${WHITE:-} construct argument list from all similar files in the current
+    directory / all subdirectories and execute optional <utility> program
 
-# save_versions
-warn "before"
+${MAIN:-}Usage:${WHITE:-}
+
+${MAIN:-}gather${WHITE:-} [-htuv] [-0opt] [-E eofstr] [-I replstr [-R replacements]] [-J replstr]
+    [-L number] [-n number [-x]] [-P maxprocs] [-s size] [utility [argument ...]]
+
+Tested on ${LIME:-}macOS Catalina${WHITE:-} with ${COOL:-}Python ${CANARY:-}3.8${WHITE:-}
+GATHER_USAGE
+)"
+
+#?######################## ENTRY POINT
 _main_loop "$@"
-warn "after"
 
 #?#######################################################################
 # generate a function list
