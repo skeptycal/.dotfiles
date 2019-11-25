@@ -25,6 +25,7 @@ function git_com() {
 # *########################################################################
 # TODO works in progress
 
+alias pip='python -m pip '
 alias mine="sudo chown -R $(id -un):$(id -gn) "
 alias pret='prettier * --write --insert-pragma'
 # alias pwdcopy='pwd | pbcopy'
