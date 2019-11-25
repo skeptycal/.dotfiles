@@ -2,10 +2,24 @@
 # -*- coding: utf-8 -*-
 
 #? ######################## global constants
+    NAME="ssm"
+    VERSION='1.4.0'
+    DESC='personalized Bash / Zsh functions (macOS)'
+    AUTHOR="Michael Treanor  <skeptycal@gmail.com>"
+    COPYRIGHT="Copyright (c) 2019 Michael Treanor"
+    LICENSE="MIT <https://opensource.org/licenses/MIT>"
+    GITHUB="https://www.github.com/skeptycal"
+    USAGE() { echo -e "${NAME:-'Skeptycal Software'} [help|test|usage|version]"; }
+
+
+# TODO perhaps include these? output of kill -l
+    # HUP INT QUIT ILL TRAP ABRT EMT FPE KILL BUS SEGV
+    # SYS PIPE ALRM TERM URG STOP TSTP CONT CHLD TTIN
+    # TTOU IO XCPU XFSZ VTALRM PROF WINCH INFO USR1 USR2
 #? ######################## path constants
     declare -x TEMP_DIR="$(mktemp -q -d -t "$(basename "$0").XXXXXX" 2>/dev/null || mktemp -q -d)"
     declare -x TEMP_FILE="$TEMP_DIR/tmp_proc_random.$$.$RANDOM"
-    declare -x SYS_USERID=$(id -un):$(id -gn)
+    declare -x SYS_USERID="$(id -un):$(id -gn)"
     declare -x SRC_PATH="${SCRIPT_PATH}/src"
     declare -x BAK_PATH="${SCRIPT_PATH}/bak"
     declare -x BIN_PATH="${HOME}/bin/utilities/pc_bak"
@@ -13,14 +27,12 @@
     declare -x HERE="$PWD"
 
 #? ######################## program constants
-
     declare -x _pretty_usage="Usage :\n\t${MAIN}pretty${WHITE} [file(s) ...] \t\t- use list of files (default is all files in current directory)\n\t${MAIN}pretty${WHITE} [-m [commit message]] \t- use git staged files and commit with message
         \n\t${MAIN}pretty${WHITE} [-h|--help|help] \t- usage help (this!)"
 
     declare -x _debug_function_header_text='_header_test_log "Calling: ${CANARY:-}${FUNCNAME[0]} ${MAIN:-}$*${RESET:-}"'
 
 #? ######################## setup C++ style error messages
-    #
     # reference: Advanced Bash-Scripting Guide
     #   <http://tldp.org/LDP/abs/html/exitcodes.html#EXITCODESREF>
 
@@ -59,6 +71,7 @@
     declare -ix EX_CTRL_C=130            # script terminated by Control-C
 
 #? ######################## setup trap signal messages
+    # https://linuxconfig.org/how-to-modify-scripts-behavior-on-signals-using-bash-traps
     declare -ix TRAP_SIGHUP=1
     declare -ix TRAP_SIGINT=1
     declare -ix TRAP_SIGQUIT=1
@@ -97,7 +110,7 @@
     declare -x COOL=$(echo -en '\001\033[38;5;38m')
     declare -x BLUE=$(echo -en '\001\033[38;5;38m')
     declare -x GO=$(echo -en '\001\033[38;5;28m')
-    declare -x LIME=$(echo -en '\u001b[32;1m')
+    declare -x LIME=$(echo -en '\001\033[32;1m')
     declare -x CHERRY=$(echo -en '\001\033[38;5;124m')
     declare -x CANARY=$(echo -en '\001\033[38;5;226m')
     declare -x ATTN=$(echo -en '\001\033[38;5;178m')
@@ -125,18 +138,18 @@
     white() { ce "${WHITE:-}${@:-}"; }
 
 #? ######################## setup default package description and usage
-usage_long_desc="$(
+declare -x usage_long_desc="$(
     cat <<usage_long_desc
     ${MAIN:-}$NAME${WHITE:-} sets and exports standard script modules containing
     constants and functions for macOS
-    Tested on macOS Catalina with ${COOL:-}Python ${CANARY:-}3.8${WHITE:-} ... includes ANSI color constants:
+    Tested on ${LIME:-}macOS Catalina${WHITE:-} with ${COOL:-}Python ${CANARY:-}3.8${WHITE:-} ... includes ANSI color constants:
 
     Includes a few basic ANSI color constants:
 
-    ${MAIN:-}MAIN   ${WARN:-}WARN   ${COOL:-}COOL   ${GO:-}GO   ${CHERRY:-}CHERRY   ${CANARY:-}CANARY   ${ATTN:-}ATTN   ${RAIN:-}RAIN   ${RESET:-}RESET
+    ${MAIN:-}MAIN   ${WARN:-}WARN   ${COOL:-}COOL   ${LIME:-}LIME   ${GO:-}GO   ${CHERRY:-}CHERRY   ${CANARY:-}CANARY   ${ATTN:-}ATTN   ${RAIN:-}RAIN   ${RESET:-}RESET
 usage_long_desc
 )"
-usage_parameters="$(
+declare -x usage_parameters="$(
     cat <<usage_parameters
     help      - display complete usage information (this!)
     test      - perform script tests
@@ -145,7 +158,7 @@ usage_parameters="$(
 usage_parameters
 )"
 
-#? ######################## ssm_constants contents:
+# ######################## ssm_constants contents:
     #? ######################## C++ style error messages
     # EX_OK, EX_USAGE, EX_DATAERR, EX_NOINPUT, EX_NOUSER, EX_NOHOST, EX_UNAVAILABL, EX_SOFTWARE, EX_OSERR, EX_OSFILE, EX_CANTCREAT, EX_IOERR, EX_TEMPFAIL, EX_PROTOCOL, EX_NOPERM, EX_CONFIG
     #? ######################## BASH trap signals
