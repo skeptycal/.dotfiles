@@ -1,22 +1,35 @@
 #!/usr/bin/env zsh
 # -*- coding: utf-8 -*-
-declare -ix SET_DEBUG=${SET_DEBUG:=0}   # set to 1 for verbose testing
-#? ######################## initialization
+declare -ix SET_DEBUG=${SET_DEBUG:-0}   # set to 1 for verbose testing
+#? ####################### initialization
+    # create 'realpath' function if none exists
+    command -v realpath >/dev/null 2>&1 || realpath() { [[ $1 = /* ]] && echo "$1" || echo "$PWD/${1#./}" }
 
-# create 'realpath' function if none exists
-command -v realpath >/dev/null 2>&1 || realpath() { [[ $1 = /* ]] && echo "$1" || echo "$PWD/${1#./}" }
+    OLD_BASH_SOURCE=${BASH_SOURCE:-}
+    declare -x SHELL_BIN="${SHELL##*/}"
+    case $SHELL_BIN in # to ease the transition to zsh
+        'zsh')
+            BASH_SOURCE=${(%):-%N}
+            [[ $ZSH_EVAL_CONTEXT =~ :file$ ]] && declare -ix is_sourced=1 || declare -ix is_sourced=0
+            ;;
+        'bash')
+            if [ -z $OLD_BASH_SOURCE[0] ]; then
+                BASH_SOURCE=$0
+            fi
+            ;;
+        *)
+            BASH_SOURCE=$0
+            ;;
+    esac
 
-# is script 'scourced?'
-[[ $ZSH_EVAL_CONTEXT =~ :file$ ]] && is_sourced=1 || is_sourced=0
-
-_run_tests() {
-    blue "$0 - \$BASH_SOURCE $BASH_SOURCE"
-    which_var "$SET_DEBUG"
-    which_var "$SSM_LOADED"
-    which_var "$SCRIPT_SOURCE"
-    which_var "$BASE_DIR"
-}
-
+#?######################## SCRIPT TESTS
+    _run_tests() {
+        blue "$0 - \$BASH_SOURCE $BASH_SOURCE"
+        which_var "$SET_DEBUG"
+        which_var "$SSM_LOADED"
+        which_var "$SCRIPT_SOURCE"
+        which_var "$BASE_DIR"
+        }
 #! ######################## main loop
 _main_loop() {
         [[ $SET_DEBUG == 1 ]] && _run_tests "$@"
