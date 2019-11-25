@@ -1,0 +1,105 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#?#######################################################################
+# * lndf - link to dotfiles
+# * copyright (c) 2019 Michael Treanor
+# * MIT License - https://www.github.com/skeptycal
+# ?######################## PROGRAM FEATURES:
+#  Symlink a file in ~/.dotfiles to ~/
+#  This makes managing a 'dotfiles' Git repo more efficient
+#  - Make Numbered backup copies in ~/.dotfiles/bak (not synced to repo)
+#  - Copy file to ~/.dotfiles if needed
+#  - Delete original file if needed
+#  - Delete original symlink if needed
+import pytest
+import argparse
+import fileinput
+import pathlib
+
+
+for line in fileinput.input(sys.argv[1:]):
+    mp3filename = line.strip()
+    if not mp3filename or mp3filename.startswith('#'):
+        continue
+    item = SubElement(rss, 'item')
+    title = SubElement(item, 'title')
+    title.text = mp3filename
+    encl = SubElement(item, 'enclosure', {
+                      'type': 'audio/mpeg', 'url': mp3filename})
+
+# ?######################## BEGIN SCRIPT SETUP
+# *################ set paths based on $1
+INPUT_FILE = "${1##*/}"
+dotfile = "${HOME}/.dotfiles/${INPUT_FILE}"
+dotbak = "${HOME}/.dotfiles/bak/${INPUT_FILE}_dotfile.bak"
+target = "${HOME}/${INPUT_FILE}"
+tarbak = "${HOME}/.dotfiles/bak/${INPUT_FILE}_target.bak"
+# *################ load my standard script modules (github.com/skeptycal/ssm)
+. $(which ssm)
+# provides:
+#   color codes / functions (e.g. attn, blue, canary, etc.)
+#   TEMP_FILE (linux / macOS compatible)... example:
+#   /var/folders/sv/_4cpr0px23b4mn3k40nv46z40000gn/T/ssm_constants.NCXu12/tmp_proc_random.59646.30925
+
+# ?######################## BEGIN SCRIPT ACTIONS
+# *################ backup $dotfile and $target (numbered backups)
+[[-f $dotfile]] & & cp - f - -backup = numbered $dotfile $dotbak > /dev/null
+[[$?]] & & info "  file backed up ... $dotfile" | | err "  file NOT backed up ... $dotfile"
+[[-f $target]] & & cp - f - -backup = numbered $target $tarbak > /dev/null
+[[$?]] & & info  "  file backed up ... $target" | | err "  file NOT backed up ... $target"
+# *################ if dotfile exists and is a regular file, remove any current link
+if [-f $dotfile]
+then
+[[-h $dotfile]] & & unlink $target > /dev/null
+[[$?]] & & info "  file unlinked" | | err "  no link deleted ..."
+# if dotfile doesn't exist, move target file to .dotfiles
+else
+mv - f $target $dotfile > /dev/null
+[[$?]] & & info "  file moved to .dotfiles" | | err "  no file moved ..."
+fi
+# *################ create a symlink from root to .dotfiles file
+ln - s $dotfile $target
+[[$?]] & & info "  link Successful ... $target" | | err "  no link created ..."
+
+# ?######################## END SCRIPT ACTIONS
+# ?######################## BEGIN SCRIPT TESTING
+
+_run_tests() {
+    test_script() {
+        debug ''
+        out "*****************************************"
+        out "Script Tests (SET_DEBUG = ${SET_DEBUG})"
+        out "  Testing function: ${ATTN:-}${0} ${MAIN:-}(PID ${$}${RESET:-})"
+        info "  zsh 'BASH_SOURCE( \${(%):-%N} )': ${(%):-%N}"
+        out "usage: lndf $INPUT_FILE"
+        debug ''
+        err "  SET_DEBUG: $SET_DEBUG"
+        debug "  The temp file in use is: "
+        err "    $LOG_FILENAME"
+        # debug ${filename##*/}
+    }
+    test_vars() {
+        out "*****************************************"
+        err "User: $(id -un)($(id -ur))"
+        info "  Dotfile: $dotfile"
+        info "  Target: $target"
+        info "  \$0: $0"
+        info "  \$1: $1"br
+        out "*****************************************"
+        out "File Descriptors: out:$OUT | err:$ERR | info:$INFO | debug:$DEBUG | log:$LOG"
+        info "  info color is $INFO_COLOR"
+        err "  err color is $ERR_COLOR"
+        debug "  debug color is $DEBUG_COLOR"
+        out "  output color is $OUT_COLOR"
+    }
+    test_script
+    test_vars
+}
+
+#! ######################## main loop
+_main_loop() {
+    [["$SET_DEBUG" == 1]] & & _run_tests "$@"
+}
+# * ######################## start main script
+trap verbose_cleanup EXIT  # catch any exit condition and run 'verbose_cleanup'
+_main_loop "$@"
