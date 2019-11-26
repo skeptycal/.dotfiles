@@ -33,13 +33,13 @@ safe_split() {
 
 gather() {
     # gather - an easy way to gather similar file and do something with them | pipe to output
-    gather_test=0 # reset test flag (0|1) (set to 1 for testing)
+    gather_test=1 # reset test flag (0|1) (set to 1 for testing)
 
     ########################## process options
         option_string='-0' # default options (-0 is required to work with find -print0)
         if [ -z $1 ]; then # if no args, exit with usage and error message
-            me $GATHER_USAGE #TODO I wish this wasn't so ugly ...
-            warn "error $EX_USAGE: command line usage error" #TODO fix this so I can also lookup text
+            me "$0 ${WHITE:-}[-huv] [-0opt] [xargs options] filetype [utility]"
+            attn "error $EX_USAGE: a 'filetype' to gather is required" #TODO fix this so I can also lookup text
             return $EX_USAGE #TODO and make a shell function to search from the command line or list error codes
         else # process initial options
             case $1 in
@@ -48,7 +48,7 @@ gather() {
                     return 0
                 ;;
                 -u|--usage|usage)
-                    me "$0 ${WHITE:-}[-huv] [-0opt] [xargs options] [file] [utility]"
+                    me "$0 ${WHITE:-}[-huv] [-0opt] [xargs options] filetype [utility]"
                     return 0
                 ;;
                 -v|--version|version)
@@ -82,13 +82,13 @@ gather() {
             warn "option_string:  $option_string"
             warn "gather_ext:     $gather_ext"
             warn "command_string: $command_string"
-            warn "# find . -name '$gather_ext' -type f -print0 | xargs $option_string $command_string"
+            warn "# find -x $PWD -name '$gather_ext' -type f -print0 | xargs $option_string $command_string"
             # mkdir -p ~/books/_new/${gather_ext//./} >/dev/null
             # find . -name "*.bak" -type f -print0 | xargs0
             # green "$( find . -name \'$gather_ext\' -type f -print0 | xargs $option_string $command_string )"
         fi
     # issue final command to shell functions - pipe output where you like
-    canary $(find . -name $gather_ext -type f -print0 | xargs $option_string $command_string)
+    canary $(find $PWD -name $gather_ext -type f -print0 | xargs $option_string $command_string)
 }
 
 gitit() {
