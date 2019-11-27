@@ -12,19 +12,19 @@ declare -x SHELL_BIN="${SHELL##*/}" && export SHELL_BIN
 fpath+=("$HOME/.zsh/pure")
 
 # *## PYTHONPATH ###########################################################
-declare -x PYTHONHOME="$(realpath /Library/Frameworks/Python.framework/Versions/Current)"
-declare -x PYTHONPATH="\
-        $(realpath /Library/Frameworks/Python.framework/Versions/current/lib/python):\
-        $(realpath /Library/Frameworks/Python.framework/Versions/current):\
-        /usr/local/bin:\
-        /usr/bin:\
-        ./:\
-        "
-PYTHONPATH="${PYTHONPATH// /}"
+# declare -x PYTHONHOME="$(realpath /Library/Frameworks/Python.framework/Versions/Current)"
+# declare -x PYTHONPATH="\
+#         $(realpath /Library/Frameworks/Python.framework/Versions/current/lib/python):\
+#         $(realpath /Library/Frameworks/Python.framework/Versions/current):\
+#         /usr/local/bin:\
+#         /usr/bin:\
+#         ./:\
+#         "
+# PYTHONPATH="${PYTHONPATH// /}"
 
 # PIPPATH is not part of the normal python installation. It is given by:
 # echo $(pip --version | cut -d ' ' -f 4)
-declare -x PIPPATH="$(realpath /Library/Frameworks/Python.framework/Versions/Current/lib/python/site-packages/pip)"
+declare -x PIPPATH="$(realpath /Library/Frameworks/Python.framework/Versions/Current/lib/python3.8/site-packages/pip)"
 PIPPATH="${PIPPATH// /}"
 
 # PIPLIST is not part of the normal python installation. It returns a list of installed packages.
@@ -63,9 +63,9 @@ MANPATH="${MANPATH// /}"
 # and run
 #   /usr/local/opt/openssl/bin/c_rehash
 declare -x PATH="\
-    $HOME/Library/Python/3.8/bin:\
-    /Library/Frameworks/Python.framework/Versions/3.8/bin:\
-    /Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/site-packages:\
+    /Library/Frameworks/Python.framework/Versions/Current/bin:\
+    /Library/Frameworks/Python.framework/Versions/Current/lib/python3.8/site-packages:\
+    $HOME/Library/Python/3.8/bin
     $HOME/emsdk:\
     $HOME/emsdk/upstream/emscripten:\
     $HOME/emsdk/node/12.9.1_64bit/bin:\
@@ -76,13 +76,13 @@ declare -x PATH="\
     /usr/local/opt/ccache/libexec:\
     /usr/local/bin:\
     $HOME/bin/utilities:\
+    $HOME/bin/utilities/apps:\
     $HOME/bin/utilities/python:\
     $HOME/bin/utilities/php:\
     $HOME/bin/utilities/php/includes:\
     /usr/local/opt/ruby/bin:\
     /usr/local/lib/ruby/gems/2.6.0/bin:\
     $HOME/bin/utilities/scripts:\
-    $HOME/bin/utilities/apps:\
     $HOME/.local:\
     $HOME/.local/bin:\
     $HOME/.dotfiles:\
