@@ -9,28 +9,37 @@
 declare -x SHELL_BIN="${SHELL##*/}" && export SHELL_BIN
 [[ SHELL_BIN == 'zsh' ]] && BASH_SOURCE=${(%):-%N} # to ease the transition to zsh
 
-
 fpath+=("$HOME/.zsh/pure")
-# *## PYTHONPATH ###########################################################
-PYTHONPATH="\
-        /usr/local/bin/python:\
-        /usr/bin/python:\
-        ./:\
-        "
 
-PYTHONPATH="${PYTHONPATH// /}"
-export PYTHONPATH
+# *## PYTHONPATH ###########################################################
+# declare -x PYTHONHOME="$(realpath /Library/Frameworks/Python.framework/Versions/Current)"
+# declare -x PYTHONPATH="\
+#         $(realpath /Library/Frameworks/Python.framework/Versions/current/lib/python):\
+#         $(realpath /Library/Frameworks/Python.framework/Versions/current):\
+#         /usr/local/bin:\
+#         /usr/bin:\
+#         ./:\
+#         "
+# PYTHONPATH="${PYTHONPATH// /}"
+
+# PIPPATH is not part of the normal python installation. It is given by:
+# echo $(pip --version | cut -d ' ' -f 4)
+declare -x PIPPATH="$(realpath /Library/Frameworks/Python.framework/Versions/Current/lib/python3.8/site-packages/pip)"
+PIPPATH="${PIPPATH// /}"
+
+# PIPLIST is not part of the normal python installation. It returns a list of installed packages.
+# The function recreates the list on demand.
+declare -x PIPLIST=$( pip list | tail -n +3 | sed 's/  */ /g' | cut -d ' ' -f 1; )
+# PIPLIST() { pip list | sed 's/  */ /g' | cut -d ' ' -f 1; }
 
 # *## MANPATH ###########################################################
-MANPATH=" \
+declare -x MANPATH=" \
         /usr/local/opt/coreutils/libexec/gnuman:\
         /usr/share/man:\
         /usr/local/share/man:\
         /usr/local/opt/erlang/lib/erlang/man:\
         "
-
 MANPATH="${MANPATH// /}"
-export MANPATH
 
 # *## shims ################################################################
 # node v8.16.0
@@ -53,9 +62,10 @@ export MANPATH
 #
 # and run
 #   /usr/local/opt/openssl/bin/c_rehash
-PATH="\
-    $HOME/Library/Python/3.8/bin:\
-    /Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/site-packages
+declare -x PATH="\
+    /Library/Frameworks/Python.framework/Versions/Current/bin:\
+    /Library/Frameworks/Python.framework/Versions/Current/lib/python3.8/site-packages:\
+    $HOME/Library/Python/3.8/bin
     $HOME/emsdk:\
     $HOME/emsdk/upstream/emscripten:\
     $HOME/emsdk/node/12.9.1_64bit/bin:\
@@ -66,13 +76,13 @@ PATH="\
     /usr/local/opt/ccache/libexec:\
     /usr/local/bin:\
     $HOME/bin/utilities:\
+    $HOME/bin/utilities/apps:\
     $HOME/bin/utilities/python:\
     $HOME/bin/utilities/php:\
     $HOME/bin/utilities/php/includes:\
     /usr/local/opt/ruby/bin:\
     /usr/local/lib/ruby/gems/2.6.0/bin:\
     $HOME/bin/utilities/scripts:\
-    $HOME/bin/utilities/apps:\
     $HOME/.local:\
     $HOME/.local/bin:\
     $HOME/.dotfiles:\
@@ -88,12 +98,10 @@ PATH="\
     /usr/libexec:\
     $HOME/.dotfiles/git-achievements:\
     /usr/local/opt/mysql@5.7/bin:\
-    $HOME/Library/Python/3.7/bin:\
     $PWD:\
     "
 
 PATH="${PATH// /}"
-export PATH
 
 # ! If needed, add RVM to PATH for scripting. Make sure this is the\
 # ! last PATH variable change.   $HOME/.rvm/bin:\

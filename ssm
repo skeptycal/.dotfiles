@@ -1,22 +1,7 @@
 #!/usr/bin/env zsh
 # -*- coding: utf-8 -*-
 declare -ix SET_DEBUG=0   # set to 1 for verbose testing
-declare -x BASH_SOURCE
-OLD_BASH_SOURCE=$BASH_SOURCE
-declare -x SHELL_BIN="${SHELL##*/}"
-case $SHELL_BIN in # to ease the transition to zsh
-    'zsh')
-        BASH_SOURCE=${(%):-%N}
-        ;;
-    'bash')
-        if [ -z $OLD_BASH_SOURCE[0] ]; then
-            BASH_SOURCE=$0
-        fi
-        ;;
-    *)
-        BASH_SOURCE=$0
-        ;;
-esac
+
 _run_tests() {
     for var in $(export -p); do
         which_var $var

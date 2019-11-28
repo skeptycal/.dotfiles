@@ -25,6 +25,7 @@ function git_com() {
 # *########################################################################
 # TODO works in progress
 
+alias pip='python -m pip '
 alias mine="sudo chown -R $(id -un):$(id -gn) "
 alias pret='prettier * --write --insert-pragma'
 # alias pwdcopy='pwd | pbcopy'
@@ -95,7 +96,7 @@ alias now='date +"%T"'
 alias nowdate='date +"%m-%d-%Y"'
 alias week="date +%V"
 alias mount="mount | column -t"
-alias allopen="sudo lsof -i -P | grep"
+# alias allopen="sudo lsof -i -P | grep" # used function instead ...
 alias egrep="egrep --color=auto"
 alias fgrep="fgrep --color=auto"
 alias plistbuddy="/usr/libexec/PlistBuddy"
@@ -145,7 +146,7 @@ alias ips="ifconfig -a | grep -o 'inet6\? \(addr:\)\?\s\?\(\(\([0-9]\+\.\)\{3\}[
 # echo "\$colorflag= $colorflag"
 # colorflag=' -G'
 alias ls="ls --group-directories-first ${colorflag}"           # normal wide
-alias lsd="ls -ldh ${colorflag} -- */"                         # dirs only
+alias lsd="ls -dh ${colorflag} -- */"                          # dirs only
 alias l.="ls -lhFAd .* --group-directories-first ${colorflag}" # dotfiles
 alias la="ls -lhFA --group-directories-first ${colorflag}"     # all files
 alias ll="ls -lhF --group-directories-first ${colorflag}"      # normal list
