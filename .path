@@ -63,13 +63,13 @@ MANPATH="${MANPATH// /}"
 # and run
 #   /usr/local/opt/openssl/bin/c_rehash
 declare -x PATH="\
+    /usr/local/opt/coreutils/libexec/gnubin:\
     /Library/Frameworks/Python.framework/Versions/Current/bin:\
     /Library/Frameworks/Python.framework/Versions/Current/lib/python3.8/site-packages:\
-    $HOME/Library/Python/3.8/bin
+    $HOME/Library/Python/3.8/bin:\
     $HOME/emsdk:\
     $HOME/emsdk/upstream/emscripten:\
     $HOME/emsdk/node/12.9.1_64bit/bin:\
-    /usr/local/opt/coreutils/libexec/gnubin:\
     $HOME/bin:\
     $HOME/go/bin:\
     /usr/local/opt/cython/bin:\
@@ -99,6 +99,7 @@ declare -x PATH="\
     $HOME/.dotfiles/git-achievements:\
     /usr/local/opt/mysql@5.7/bin:\
     $PWD:\
+    /usr/local/opt/coreutils/libexec/gnubin:\
     "
 
 PATH="${PATH// /}"
