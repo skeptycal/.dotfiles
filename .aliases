@@ -14,7 +14,9 @@ GITHUB="https://www.github.com/skeptycal"
 #? ############################################################################
 # [[ $SET_DEBUG ]] && SET_DEBUG=0 # set to 1 for verbose testing
 
-function git_com() {
+function com() {
+    # git add, prettify, commit, push
+    # $1 is required commit message
     if [[ -n "$1" ]]; then
         gaa
         gc -S -m "$1"
@@ -25,6 +27,7 @@ function git_com() {
 # *########################################################################
 # TODO works in progress
 
+alias python='python3'
 alias pip='python -m pip '
 alias mine="sudo chown -R $(id -un):$(id -gn) "
 alias pret='prettier * --write --insert-pragma'

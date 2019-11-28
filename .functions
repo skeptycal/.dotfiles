@@ -106,7 +106,7 @@ gitit() {
         git commit -m "$message"
         git push --set-upstream origin $(git_current_branch)
     else
-        warn "This is not a git repo: $PWD"
+        warn "This is not a git repo root: $PWD"
     fi
 }
 # TODO - Declare if not declared
