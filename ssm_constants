@@ -25,6 +25,8 @@
     declare -x BIN_PATH="${HOME}/bin/utilities/pc_bak"
     declare -x DOTFILES_PATH="${HOME}/.dotfiles"
     declare -x HERE="$PWD"
+    declare -x NEWLINE='
+'
 
 #? ######################## program constants
     declare -x _pretty_usage="Usage :\n\t${MAIN}pretty${WHITE} [file(s) ...] \t\t- use list of files (default is all files in current directory)\n\t${MAIN}pretty${WHITE} [-m [commit message]] \t- use git staged files and commit with message
