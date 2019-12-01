@@ -16,9 +16,13 @@ declare -x SH_KEY_PATH="${HOME}/.ssh/rsa_id"
 
 # utilities
 declare -x AZURE_WORKING_DIR="${HOME}/myagent"
+# start Azure
+# cd $AZURE_WORKING_DIR
+# ./svc.sh start
+# cd -
 declare -x HOMEBREW_PREFIX="$(brew --prefix)"
 declare -x MAGICK_HOME="/usr/local/Cellar/imagemagick/7.0.8-68"
-[[ -n $SSH_CONNECTION ]] && declare -x EDITOR='nano' || declare -x EDITOR='nano'
+[[ -n $SSH_CONNECTION ]] && declare -x EDITOR='vim' || declare -x EDITOR='nano'
 
 # System
 # declare -x LDFLAGS="-L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib"
