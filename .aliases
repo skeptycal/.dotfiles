@@ -14,16 +14,6 @@ GITHUB="https://www.github.com/skeptycal"
 #? ############################################################################
 # [[ $SET_DEBUG ]] && SET_DEBUG=0 # set to 1 for verbose testing
 
-function com() {
-    # git add, prettify, commit, push
-    # $1 is required commit message
-    if [[ -n "$1" ]]; then
-        gaa
-        gc -S -m "$1"
-        gp
-    fi
-}
-
 # *########################################################################
 # TODO works in progress
 
@@ -33,7 +23,6 @@ alias mine="sudo chown -R $(id -un):$(id -gn) "
 alias pret='prettier * --write --insert-pragma'
 # alias pwdcopy='pwd | pbcopy'
 
-alias com="git_com $@"
 alias git="git-achievements"
 alias pm="pygmentize"
 
@@ -44,7 +33,6 @@ fi
 
 # *########################################################################
 # repo setup
-alias ii='cp /Volumes/Data/skeptycal/.dotfiles/.info.cfg .'
 alias gi='cp ~/.dotfiles/.gitignore .'
 alias py="python -m "
 alias sba='source venv/bin/activate'
@@ -62,7 +50,7 @@ alias cls='clear'   # because 40 year old habits die hard
 alias dir='ls'      # and I'm stubborn
 alias del="rm -rf"   #! delete all the things now! (!CAREFUL!)
 alias reload="exec ${SHELL} -l"
-alias path='echo -e ${PATH//:/\\n}'
+# alias path='echo -e ${PATH//:/\\n}'
 alias nis="npm install --save "
 alias cgr="composer global require"
 alias mv='nocorrect mv'       # no spelling correction on mv
