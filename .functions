@@ -24,13 +24,32 @@ gather_del() {
 
 safe_split() {
     # use custom IFS for safe word splitting of oddly formatted strings
-    oldIFS="$IFS"
-    IFS="$1"
-    shift
-    printf "$*"
-    IFS="$oldIFS"
+    if [ -z "$2" ]; then
+        attn "Usage: safe_split <DELIMITER> <DATA (array | string | file)>"
+    else
+        IFS="$1"
+        shift
+        ce "$*"
+    fi
+}
+path() { # alias path='echo -e ${PATH//:/\\n}'
+    if [[ -z "$1" ]]; then  # no arguments given ... print path
+        green $( echo -e ${PATH//:/\\n} )
+    elif [ -d $1 ]; then # if $1 is a directory, highlight it in the path
+        path_list=( "${(@f)$(IFS=$':' echo $PATH[@]; echo .)}" )
+        # unset 'path_list[-1]'
+        for s in ( ${path_list[@]} ); do
+            echo -e "$RANDOM   -  $s"
+        done
+        unset 'path_list[-1]'
+
+        # ???❯ for line in ${PATH//:/ } ; do; echo $RANDOM$line; done;
+    else #  if $1 is not a directory, treat it as a : delimited list
+        echo -e ${${1}//:/\\n} | grep --color ''$2
+    fi
 }
 
+``
 gather() {
     # gather - an easy way to gather similar file and do something with them | pipe to output
     gather_test=1 # reset test flag (0|1) (set to 1 for testing)
