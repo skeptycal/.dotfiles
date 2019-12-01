@@ -7,8 +7,13 @@
 #? ${VAR##*/}        - return only final element in path (program name)
 #? ${VAR%/*}         - return only path elements in path (without program name)
 declare -x SHELL_BIN="${SHELL##*/}" && export SHELL_BIN
-[[ SHELL_BIN == 'zsh' ]] && BASH_SOURCE=${(%):-%N} # to ease the transition to zsh
-
+if [[ SHELL_BIN == 'zsh' ]]; then
+    declare -I
+    BASH_SOURCE=${(%):-%N} # to ease the transition to zsh
+    echo $BASH_SOURCE
+    echo "${(%):-%N}"
+    echo $( realpath "${(%):-%N}")
+fi
 fpath+=("$HOME/.zsh/pure")
 
 # *## PYTHONPATH ###########################################################
@@ -67,9 +72,6 @@ declare -x PATH="\
     /Library/Frameworks/Python.framework/Versions/Current/bin:\
     /Library/Frameworks/Python.framework/Versions/Current/lib/python3.8/site-packages:\
     $HOME/Library/Python/3.8/bin:\
-    $HOME/emsdk:\
-    $HOME/emsdk/upstream/emscripten:\
-    $HOME/emsdk/node/12.9.1_64bit/bin:\
     $HOME/bin:\
     $HOME/go/bin:\
     /usr/local/opt/cython/bin:\
@@ -96,6 +98,9 @@ declare -x PATH="\
     /usr/sbin:\
     /sbin:\
     /usr/libexec:\
+    $HOME/emsdk:\
+    $HOME/emsdk/upstream/emscripten:\
+    $HOME/emsdk/node/12.9.1_64bit/bin:\
     $HOME/.dotfiles/git-achievements:\
     /usr/local/opt/mysql@5.7/bin:\
     $PWD:\
