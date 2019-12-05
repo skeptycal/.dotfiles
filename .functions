@@ -49,9 +49,12 @@ path() { # alias path='echo -e ${PATH//:/\\n}'
     fi
 }
 
-``
+
 gather() {
-    # gather - an easy way to gather similar file and do something with them | pipe to output
+    # gather - an easy way to gather similar files and do something with them
+    #   designed for xargs (GNU findutils) 4.7.0 on macOS Catalina. ymmv
+    #   Usage: xargs [OPTION]... COMMAND [INITIAL-ARGS]...
+    #   installed with: <brew install findutils>
     gather_test=1 # reset test flag (0|1) (set to 1 for testing)
 
     ########################## process options
@@ -72,6 +75,7 @@ gather() {
                 ;;
                 -v|--version|version)
                     me "$0 version $VERSION"
+                    ce "$(xargs --version)"
                     return 0
                 ;;
                 test)
@@ -85,29 +89,38 @@ gather() {
             shift
         done
 
-    ########################## cleanup parameters
+    ########################## cleanup options
         option_string=${option_string//0/}'0' # remove all 0 and add a single one (-0 is required)
         option_string='-'${option_string//-/} # remove any '-' symbols and add a single one (formatting)
+
+    ########################## setup search pattern
         # default filetype is pdf ... imo, least likely to cause headaches if they are moved accidentally
-        gather_ext=\*"${1:-pdf}"
+        gather_pattern=\*"${1:-pdf}"\*
         shift
-        # remaining args are considered the xargs 'utility' and its arguments (default /bin/echo)
-        command_string="${*:-/bin/echo}"
+
+    ########################## setup command
+        # remaining args are considered the xargs 'command' or 'utility' and its arguments (default /bin/echo)
+        command_string="${@:-/bin/echo}"' {};'
 
     #!######################## testing
         if [[ $gather_test == 1 ]]; then
-            attn "Gather all files like $gather_ext"
-            warn "pwd:            $PWD"
-            warn "option_string:  $option_string"
-            warn "gather_ext:     $gather_ext"
-            warn "command_string: $command_string"
-            warn "# find -x $PWD -name '$gather_ext' -type f -print0 | xargs $option_string $command_string"
-            # mkdir -p ~/books/_new/${gather_ext//./} >/dev/null
+            br
+            lime "Gathering all files like ${MAIN:-}${gather_pattern}${LIME:-} in current path and recursively."
+            green "pwd:                  $PWD"
+            green "option_string:        $option_string"
+            green "gather_pattern:       $gather_pattern"
+            green "command_string:       $command_string"
+            br
+            blue "# find -x . -name '$gather_pattern' -print0 | xargs $option_string $command_string"
+            br
+
+            # mkdir -p ~/books/_new/${gather_pattern//./} >/dev/null
             # find . -name "*.bak" -type f -print0 | xargs0
-            # green "$( find . -name \'$gather_ext\' -type f -print0 | xargs $option_string $command_string )"
+            # green "$( find . -name \'$gather_pattern\' -type f -print0 | xargs $option_string $command_string )"
         fi
     # issue final command to shell functions - pipe output where you like
-    canary $(find $PWD -name $gather_ext -type f -print0 | xargs $option_string $command_string)
+    canary $(find . -name $gather_pattern -print0 | xargs $option_string $command_string)
+    # find . -name $gather_pattern -print0 |xargs -0
 }
 
 gitit() {
