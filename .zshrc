@@ -96,7 +96,7 @@ compctl -K _pip_completion pip
 #? ######################## Original .zshrc
   declare -x ZSH="${HOME}/.oh-my-zsh"
   # ZSH_THEME="robbyrussell"
-  ZSH_THEME=""
+  ZSH_THEME="robbyrussell"
   # ZSH_THEME_RANDOM_CANDIDATES=( "robbyrussell" "agnoster" )
   # CASE_SENSITIVE="true"
   # HYPHEN_INSENSITIVE="true"
@@ -114,8 +114,8 @@ compctl -K _pip_completion pip
   # ** original
   # plugins=(git lein pip pipenv django python osx vscode)
   # https://towardsdatascience.com/trick-out-your-terminal-in-10-minutes-or-less-ba1e0177b7df
-  # plugins=(git z github history osx pip pyenv pylint python sublime vscode)
-  plugins=(git z history django python pylint osx vscode)
+  plugins=(git z history osx pip pipenv pyenv pylint python django lein sublime github vscode)
+  # plugins=(git z history osx pylint python django vscode)
   source "${ZSH}/oh-my-zsh.sh"
 
 #? ######################## Sindre's prompt - https://github.com/sindresorhus/pure
