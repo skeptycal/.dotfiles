@@ -9,7 +9,39 @@ import random
 import string
 import hashlib
 
+VERBOSE = 3  # 0 = quiet, 1 = feedback, 2 = testing / comments, 3 = errors
 DEFAULT_STRING_LENGTH = 5
+
+CSI = "\x1B["
+
+
+class Ansi():
+    """
+    ANSI color strings
+    """
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+
+def print_ansi_format_table():
+    """
+    prints table of formatted text format options
+    """
+    for style in range(8):
+        for fg in range(30, 38):
+            s1 = ''
+            for bg in range(40, 48):
+                format = ';'.join([str(style), str(fg), str(bg)])
+                s1 += '\x1b[%sm %s \x1b[0m' % (format, format)
+            print(s1)
+        print('\n')
+
 
 if True:  # list test functions
     def random_string(l: int = 5) -> str:
@@ -70,14 +102,24 @@ def find_dup_files(file_list: List[str]):
     return dups
 
 
-if __name__ == "__main__":
+def error(e: Exception):
+    if VERBOSE > 2:
+        print(e)
+
+
+def tprint(*args, **kwargs):
+    if VERBOSE > 0:
+        print(*args, **kwargs)
+
+
+def main():
     n: int = DEFAULT_STRING_LENGTH
     if len(sys.argv) > 1:
         try:
             n = int(sys.argv[1])
-        except TypeError:
-            pass
-    print("find_dup.py [n]")
+        except TypeError as e:
+            error(e)
+    tprint("find_dup.py [length]")
     print("."*79)
     print("'find duplicates' for lists of python objects. ")
     print("  testing with strings and ints of length <n> (default 10)")
@@ -99,3 +141,8 @@ if __name__ == "__main__":
     print('--> duplicate values in int list:    ', find_dup(i1))
     print("."*79)
     print()
+    print_ansi_format_table()
+
+
+if __name__ == "__main__":
+    main()

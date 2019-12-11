@@ -7,6 +7,55 @@
 #* MIT License - https://www.github.com/skeptycal
 . "$(which ssm)"
 ########################## TODO - WORKS IN PROGRESS
+
+update () {
+    # System software updates (macOS - updated for Catalina)
+    ########################################################################
+    # Close any open System Preferences panes, to prevent them from overriding
+    # settings we’re about to change
+    osascript -e 'tell application "System Preferences" to quit'
+
+    # Ask for the administrator password upfront
+    sudo -v
+
+    # Keep-alive: update existing `sudo` time stamp until 'update' has finished
+    while true; do
+        sudo -n true
+        sleep 60
+        kill -0 "$$" || exit
+    done 2>/dev/null &
+    ########################################################################
+
+    sudo softwareupdate -i -a
+    brew update
+    brew upgrade
+    brew doctor
+    brew cleanup
+    # python
+    #   brew upgrade python pyenv pipenv
+    pip3 install -U pip
+    pip3 list --outdated | cut -d ' ' -f1 | xargs -n1 pip install -U
+    # npm
+    #   brew upgrade node
+    sudo npm install npm -g
+    sudo npm update -g
+    # ruby
+    sudo gem update --system
+    sudo gem update
+    sudo gem cleanup
+} # 2>/dev/null &
+
+cleanup () {
+    # maintenance
+    update &
+    # cleanup .DS_Store files
+    find . -type f -name '*.DS_Store' -ls -delete
+    # empty trashes
+    sudo rm -rfv /Volumes/*/.Trashes; sudo rm -rfv ~/.Trash; sudo rm -rfv /private/var/log/asl/*.asl; sqlite3 ~/Library/Preferences/com.apple.LaunchServices.QuarantineEventsV* 'delete from LSQuarantineEvent'
+    # lscleanup
+    /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user && killall Finder
+}
+
 _mkdir(){
         local d="$1"               # get dir name
         local p=${2:-0755}      # get permission, set default to 0755
@@ -100,7 +149,7 @@ gather() {
 
     ########################## setup command
         # remaining args are considered the xargs 'command' or 'utility' and its arguments (default /bin/echo)
-        command_string="${@:-/bin/echo}"' {};'
+        command_string="${@:-/bin/echo}"
 
     #!######################## testing
         if [[ $gather_test == 1 ]]; then

@@ -34,7 +34,6 @@ declare -ix SET_DEBUG=${SET_DEBUG:=0}   # set to 1 for verbose testing
     return 1
     }
 #?######################## FLOW CONTROL FUNCTIONS
-
 #?######################## SCRIPT LOGGING
     verbosity() {
         # example from: https://unix.stackexchange.com/questions/18899/when-would-you-use-an-additional-file-descriptor?rq=1
@@ -160,8 +159,6 @@ declare -ix SET_DEBUG=${SET_DEBUG:=0}   # set to 1 for verbose testing
         }
     log_flag() { rain "#? ############################################################################"; }
 #?######################## PATH FUNCTIONS
-
-
 #?######################## FILE FUNCTIONS
     source_file() {
         db_echo "Script source: ($BASH_SOURCE)"

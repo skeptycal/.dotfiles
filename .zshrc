@@ -141,7 +141,7 @@ compctl -K _pip_completion pip
   # script end time
   t1=$(date "+%s.%N")
   # display script time
-  printf "${MAIN}Profile took %.3f seconds to load.\n" $(( t1-t0 ))
+  printf "${MAIN}Profile took %.3f seconds to load.\n" $((t1-t0))
   unset t1 t0
   # set +avx
 
@@ -161,9 +161,9 @@ compctl -K _pip_completion pip
 
 #? ######################## asdf (end of original .zshrc)
 
-. $HOME/.asdf/asdf.sh
+# . $HOME/.asdf/asdf.sh
 
-. $HOME/.asdf/completions/asdf.bash
+# . $HOME/.asdf/completions/asdf.bash
 
 # . /usr/local/Cellar/asdf/0.7.5/asdf.sh
 

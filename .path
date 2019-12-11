@@ -18,23 +18,26 @@ fpath+=("$HOME/.zsh/pure")
 
 # *## PYTHONPATH ###########################################################
 # declare -x PYTHONHOME="$(realpath /Library/Frameworks/Python.framework/Versions/Current)"
-# declare -x PYTHONPATH="\
-#         $(realpath /Library/Frameworks/Python.framework/Versions/current/lib/python):\
-#         $(realpath /Library/Frameworks/Python.framework/Versions/current):\
-#         /usr/local/bin:\
-#         /usr/bin:\
-#         ./:\
-#         "
-# PYTHONPATH="${PYTHONPATH// /}"
+declare -x PYTHONHOME="$(realpath /Library/Frameworks/Python.framework/Versions/3.8)"
+declare -x PYTHONPATH="\
+        $(realpath /Library/Frameworks/Python.framework/Versions/3.8/bin):\
+        $(realpath /Library/Frameworks/Python.framework/Versions/3.8):\
+        $(realpath /Library/Frameworks/Python.framework/Versions/3.8/Resources/Python.app/Contents/MacOS):\
+        $(realpath /Library/Frameworks/Python.framework/Versions/3.8/lib):\
+        /usr/local/bin:\
+        /usr/bin:\
+        ./:\
+        "
+PYTHONPATH="${PYTHONPATH// /}"
 
 # PIPPATH is not part of the normal python installation. It is given by:
 # echo $(pip --version | cut -d ' ' -f 4)
-declare -x PIPPATH="$(realpath /Library/Frameworks/Python.framework/Versions/Current/lib/python3.8/site-packages/pip)"
+declare -x PIPPATH="$(which pip3)"
 PIPPATH="${PIPPATH// /}"
 
 # PIPLIST is not part of the normal python installation. It returns a list of installed packages.
 # The function recreates the list on demand.
-declare -x PIPLIST=$( pip list | tail -n +3 | sed 's/  */ /g' | cut -d ' ' -f 1; )
+declare -x PIPLIST=$( pip3 list | tail -n +3 | sed 's/  */ /g' | cut -d ' ' -f 1; )
 # PIPLIST() { pip list | sed 's/  */ /g' | cut -d ' ' -f 1; }
 
 # *## MANPATH ###########################################################
@@ -43,6 +46,7 @@ declare -x MANPATH=" \
         /usr/share/man:\
         /usr/local/share/man:\
         /usr/local/opt/erlang/lib/erlang/man:\
+        /Library/Frameworks/Python.framework/Versions/3.8/share/man/man1:\
         "
 MANPATH="${MANPATH// /}"
 
@@ -69,9 +73,9 @@ MANPATH="${MANPATH// /}"
 #   /usr/local/opt/openssl/bin/c_rehash
 declare -x PATH="\
     /usr/local/opt/coreutils/libexec/gnubin:\
-    /Library/Frameworks/Python.framework/Versions/Current/bin:\
-    /Library/Frameworks/Python.framework/Versions/Current/lib/python3.8/site-packages:\
-    $HOME/Library/Python/3.8/bin:\
+    /usr/local/opt/ccache/libexec:\
+    /Library/Frameworks/Python.framework/Versions/3.8/Resources/Python.app/Contents/MacOS:\
+    /Library/Frameworks/Python.framework/Versions/3.8/bin:\
     $HOME/bin:\
     $HOME/go/bin:\
     /usr/local/opt/cython/bin:\
@@ -86,7 +90,6 @@ declare -x PATH="\
     /usr/local/lib/ruby/gems/2.6.0/bin:\
     $HOME/bin/utilities/scripts:\
     $HOME/.local:\
-    $HOME/.local/bin:\
     $HOME/.dotfiles:\
     $HOME/.cargo/bin:\
     /usr/local/lib/node_modules:\
@@ -100,11 +103,9 @@ declare -x PATH="\
     /usr/libexec:\
     $HOME/emsdk:\
     $HOME/emsdk/upstream/emscripten:\
-    $HOME/emsdk/node/12.9.1_64bit/bin:\
     $HOME/.dotfiles/git-achievements:\
     /usr/local/opt/mysql@5.7/bin:\
     $PWD:\
-    /usr/local/opt/coreutils/libexec/gnubin:\
     "
 
 PATH="${PATH// /}"
