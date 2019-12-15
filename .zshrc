@@ -1,9 +1,26 @@
 #!/usr/bin/env zsh
 # -*- coding: utf-8 -*-
+
+  t0=$(date "+%s.%n") #* profile start time
+
 #? ######################## Set Options
   # Using ZSH shell - http://zsh.sourceforge.net/
   BASH_SOURCE=${(%):-%N} # to ease the transition to zsh
-  set +avx
+
+  # BASH options
+  # http://tldp.org/LDP/abs/html/options.html
+  # set -a    # mark all variables and functions for export
+
+  # local use options with deadly side effects
+  # set +H    # turn off History expansion (to use indirect variables)
+  # set -f    # disable globbing (#! CAREFUL)
+
+  # debugging options
+  # set -e    # exit immediately if a command fails (use Traps, however)
+  # set -n    # read commands but do not execute them
+  # set -u    # treat unset variables as an error
+  # set -v    # print lines as they are read
+  # set -x    # print a trace of simple commands
 
   # use root defaults since they match web server defaults
   umask 022
@@ -11,8 +28,7 @@
   # Remove all aliases from random unexpected places
   unalias -a
 
-  # profile start time
-  t0=$(date "+%s.%n")
+  number_of_cores=$(sysctl -n hw.ncpu)
 
   rm -f ~/.zcompdump;
   if type brew &>/dev/null; then
@@ -21,17 +37,8 @@
   source "${HOME}/.dotfiles/gpg.zsh"
   source "/usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
 
-# pip zsh completion start
-function _pip_completion {
-  local words cword
-  read -Ac words
-  read -cn cword
-  reply=( $( COMP_WORDS="$words[*]" \
-             COMP_CWORD=$(( cword-1 )) \
-             PIP_AUTO_COMPLETE=1 $words[1] 2>/dev/null ))
-}
-compctl -K _pip_completion pip
-# pip zsh completion end
+
+
 
   # Set/unset  shell options
   setopt   notify globdots correct pushdtohome cdablevars autolist
@@ -78,7 +85,7 @@ compctl -K _pip_completion pip
 
 #? ######################## Path Info
   declare -x SOURCE_PATH="${HOME}/.dotfiles"
-  source "${SOURCE_PATH}/.path"
+  . "${SOURCE_PATH}/.path"
   if type brew &>/dev/null; then
     FPATH=$(brew --prefix)/share/zsh/site-functions:$FPATH
   fi
@@ -92,6 +99,22 @@ compctl -K _pip_completion pip
   source "${SOURCE_PATH}/.extra"
   source "${SOURCE_PATH}/.git_alias" # already included
   source "${HOME}/.oh-my-zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+
+  # pipenv python environment settings
+  eval "$(pyenv init -)"
+  eval "$(pyenv virtualenv-init -)"
+
+  # pip zsh completion start
+  function _pip_completion {
+  local words cword
+  read -Ac words
+  read -cn cword
+  reply=( $( COMP_WORDS="$words[*]" \
+             COMP_CWORD=$(( cword-1 )) \
+             PIP_AUTO_COMPLETE=1 $words[1] 2>/dev/null ))
+  }
+  compctl -K _pip_completion pip
+  # pip zsh completion end
 
 #? ######################## Original .zshrc
   declare -x ZSH="${HOME}/.oh-my-zsh"
@@ -108,7 +131,7 @@ compctl -K _pip_completion pip
   # DISABLE_AUTO_TITLE="true"
   ENABLE_CORRECTION="true"
   COMPLETION_WAITING_DOTS="true"
-  # DISABLE_UNTRACKED_FILES_DIRTY="true"
+  DISABLE_UNTRACKED_FILES_DIRTY="true"
   # HIST_STAMPS="mm/dd/yyyy"
   # ZSH_CUSTOM=/path/to/new-custom-folder
   # ** original
@@ -137,13 +160,16 @@ compctl -K _pip_completion pip
   zstyle :prompt:pure:prompt:success color 222
   zstyle :prompt:pure:user color 36
 
+  # list dirs first
+  # Ref: https://unix.stackexchange.com/questions/22815/how-to-list-files-and-directories-with-directories-first
+  zstyle ':completion:*' list-dirs-first true
+
 #? ######################## script cleanup
   # script end time
   t1=$(date "+%s.%N")
   # display script time
   printf "${MAIN}Profile took %.3f seconds to load.\n" $((t1-t0))
   unset t1 t0
-  # set +avx
 
   # echo "` <$0`"           # Echoes the script itself to stdout.
 
@@ -159,12 +185,7 @@ compctl -K _pip_completion pip
   # fi
   # Customize to your needs...
 
-#? ######################## asdf (end of original .zshrc)
+#? ######################## (end of original .zshrc)
 
-# . $HOME/.asdf/asdf.sh
-
-# . $HOME/.asdf/completions/asdf.bash
-
-# . /usr/local/Cellar/asdf/0.7.5/asdf.sh
-
-# . /usr/local/Cellar/asdf/0.7.5/etc/bash_completion.d/asdf.bash
+export PATH="$HOME/.bin:$PATH"
+export PATH="${HOMEBREW_PREFIX}/bin:$PATH"
