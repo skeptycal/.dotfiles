@@ -107,8 +107,8 @@ parse_options() {
 
 #? ######################## basic tests
 _run_tests() {
-    # set_man_page
-    # printf "%b" "$MAN_PAGE"
+    set_man_page
+    printf "%b" "$MAN_PAGE"
     me "Running script $NAME\n"
     attn "process $$ (sourced? ${is_sourced}) ($0, $BASH_SOURCE)"
     br
@@ -120,3 +120,4 @@ _main_loop() {
     }
 
 [[ $ZSH_EVAL_CONTEXT =~ :file$ ]] || _main_loop "$@"
+[[ $SET_DEBUG == 1 ]] && _run_tests "$@"

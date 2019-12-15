@@ -125,19 +125,19 @@
 
 #? ######################## setup functions for printing lines in common colors
     br() { printf "\n"; } # yes, this is a fake cli version of <br />
-    ce() { printf "%b\n" "${@:-}${RESET:-}"; }
-    me() { ce "${MAIN:-}${@:-}"; }
-    warn() { ce "${WARN:-}${@:-}"; }
-    blue() { ce "${COOL:-}${@:-}"; }
-    cool() { ce "${COOL:-}${@:-}"; }
-    green() { ce "${GO:-}${@:-}"; }
-    lime() { ce "${LIME:-}${@:-}"; }
-    cherry() { ce "${CHERRY:-}${@:-}"; }
-    canary() { ce "${CANARY:-}${@:-}"; }
-    attn() { ce "${ATTN:-}${@:-}"; }
-    purple() { ce "${PURPLE:-}${@:-}"; }
-    rain() { ce "${RAIN:-}${@:-}"; }
-    white() { ce "${WHITE:-}${@:-}"; }
+    ce() { printf "%b\n" "${*:-}${RESET:-}"; }
+    me() { printf "%b\n" "${MAIN:-}${*:-}${RESET:-}"; }
+    warn() { printf "%b\n" "${WARN:-}${*:-}${RESET:-}"; }
+    blue() { printf "%b\n" "${COOL:-}${*:-}${RESET:-}"; }
+    cool() { printf "%b\n" "${COOL:-}${*:-}${RESET:-}"; }
+    green() { printf "%b\n" "${GO:-}${*:-}${RESET:-}"; }
+    lime() { printf "%b\n" "${LIME:-}${*:-}${RESET:-}"; }
+    cherry() { printf "%b\n" "${CHERRY:-}${*:-}${RESET:-}"; }
+    canary() { printf "%b\n" "${CANARY:-}${*:-}${RESET:-}"; }
+    attn() { printf "%b\n" "${ATTN:-}${*:-}${RESET:-}"; }
+    purple() { printf "%b\n" "${PURPLE:-}${*:-}${RESET:-}"; }
+    rain() { printf "%b\n" "${RAIN:-}${*:-}${RESET:-}"; }
+    white() { printf "%b\n" "${WHITE:-}${*:-}${RESET:-}"; }
 
 #? ######################## setup default package description and usage
 declare -x usage_long_desc="$(
