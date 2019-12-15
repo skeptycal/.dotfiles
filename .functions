@@ -6,7 +6,34 @@
 #* copyright (c) 2019 Michael Treanor
 #* MIT License - https://www.github.com/skeptycal
 . "$(which ssm)"
+
+# set -a
+declare -x SET_DEBUG=${SET_DEBUG:-0} # set to 1 for verbose testing
+
+declare -x DOTFILES_PATH=${DOTFILES_PATH:-"${HOME}/.dotfiles"}
+declare VERSION_LIST="${DOTFILES_PATH}/.VERSION_LIST.md"
+
+# get name for 'open' if linux or windows
+if [ ! "$(uname -s)" = 'Darwin' ]; then
+    if grep -q Microsoft /proc/version; then
+        alias open='explorer.exe'
+    else
+        alias open='xdg-open'
+    fi
+fi
+# use git diff if available
+if [[ "$(hash git &>/dev/null)" -eq 0 ]]; then
+    function diff() {
+        git diff --no-index --color-words "$@"
+    }
+fi
+
 ########################## TODO - WORKS IN PROGRESS
+
+# Ref: https://unix.stackexchange.com/questions/22815/how-to-list-files-and-directories-with-directories-first
+function l1() { # nice sorting ... #TODO no color ...
+  ls -l $* | sort -r | awk 'NF==9 { if ($1~/^d/) { print $9 "/" } else { print $9 } }'
+}
 
 update () {
     # System software updates (macOS - updated for Catalina)
@@ -57,9 +84,9 @@ cleanup () {
 }
 
 _mkdir(){
-        local d="$1"               # get dir name
-        local p=${2:-0755}      # get permission, set default to 0755
         [ $# -eq 0 ] && { echo "$0: dirname"; return; }
+        local d="$1"               # get dir name
+        local p=${2:-0755}         # get permission, set default to 0755
         [ ! -d "$d" ] && mkdir -m $p -p "$d"
 }
 
@@ -81,20 +108,71 @@ safe_split() {
         ce "$*"
     fi
 }
+
+ind() {
+    lime Indirect Variable Tests
+
+    value of
+
+    me "echo tests"
+    br
+    ce '  var name (\$1):'"\t\t"            \$$1
+    ce '  printf "$1":'"\t\t"           "$1"
+    ce "  printf '\$1':""\t\t"          '$1'
+    ce '  printf \$1:'"\t\t"         \$$1
+    ce '  printf "\$$1":'"\t"       "\$$1"
+    br
+    me "eval tests"
+    br
+    attn '  printf $1:'"\t\t"
+    eval echo -e $1
+    attn '  printf "$1":'"\t"
+    eval echo -e "$1"
+    attn "  printf '\$1':""\t"
+    eval echo -e '$1'
+    attn '  printf \$1:'"\t\t"
+    eval echo -e \$$1
+    attn '  printf "\$$1":'"\t"
+    eval echo -e "\$$1"
+}
 path() { # alias path='echo -e ${PATH//:/\\n}'
     if [[ -z "$1" ]]; then  # no arguments given ... print path
         green $( echo -e ${PATH//:/\\n} )
-    elif [ -d $1 ]; then # if $1 is a directory, highlight it in the path
-        path_list=( "${(@f)$(IFS=$':' echo $PATH[@]; echo .)}" )
-        # unset 'path_list[-1]'
-        for s in ( ${path_list[@]} ); do
-            echo -e "$RANDOM   -  $s"
+    elif [ -d $1 ]; then # if $1 is a directory, highlight the path entries
+
+        IFS=":"
+        typeset -a path_list
+        path_list=( $( IFS=":" echo -e $1; ) )
+        echo -e $path_list
+        echo -e "#------------------#"
+        for s in ${path_list[*]}
+        # for s in "${path_list}"
+        do
+            if [ -h $s ]; then
+                cool "$s"
+            elif [ -d $s ]; then
+                warn "$s"
+            elif [ -x $s ]; then
+                lime "$s"
+            elif [ -O $s ]; then
+                me "$s"
+            elif [ -S $s ]; then
+                canary "$s"
+            elif [ -k $s ]; then
+                rain "$s"
+            elif [ -f $s ]; then
+                ce "$s"
+            else
+                cherry "$s"
+            fi
         done
         unset 'path_list[-1]'
 
         # ???❯ for line in ${PATH//:/ } ; do; echo $RANDOM$line; done;
-    else #  if $1 is not a directory, treat it as a : delimited list
-        echo -e ${${1}//:/\\n} | grep --color ''$2
+    else #  if $1 is not a directory, treat it as a : delimited list ($1 is search term)
+        needle=$1
+        shift
+        echo -e ${${@}//:/\\n} | grep --color ''$needle
     fi
 }
 
@@ -635,13 +713,6 @@ pyver() {
     python -c "print('.'.join(str(i).strip() for i in __import__('sys').version_info[:3]))"
 }
 readlinkf() { perl -MCwd -e 'print Cwd::abs_path shift' "$1"; }
-save_versions() {
-    # echo "VERSION_LIST: $VERSION_LIST"
-    if [ -d "${SOURCE_PATH}" ]; then
-        rm -rf "$VERSION_LIST" >/dev/null
-        write_versions_file
-    fi
-}
 server() {
     local port="${1:-8000}"
     sleep 1 && open "http://localhost:${port}/" &
@@ -740,52 +811,60 @@ tt() {
 tree_html() {
     tree -ahlsAFRHD --prune --du --si --dirsfirst >tree.html
 }
-versions() {
-    save_versions
-    cat ~/.dotfiles/.VERSION_LIST.md
+write_versions_file() {
+    br
+    me "# Program Versions List"
+    me "-------------------------------------------------------------"
+    # green "## VERSION_LIST path: $VERSION_LIST"
+    blue "**os: $(uname -i) | $(sw_vers -productName) | $(sw_vers -productVersion)**"
+    me "### shell:"
+    lime "- zsh:            $(zsh --version)"
+    # green "- current shell:  $ZSH_VERSION"
+    rain "- VSCode:         $(code --version | head -n 1)"
+    br
+    me "### utilities:"
+    canary "- $(bash --version | grep bash | cut -d ',' -f 1)        v$(bash --version | grep bash | cut -d ' ' -f 4 | cut -d '(' -f 1)"
+    warn "- $(clang --version | grep version | sed 's/version /    v/g')"
+    attn "- $(git --version | sed 's/version /            v/g')"
+    attn "- $(hub --version | grep hub | sed 's/version /            v/g')"
+    green "- grep            v$(grep --version | head -n 1 | cut -d ' ' -f 4)"
+    canary "- prettier        v$(prettier --version)"
+    br
+
+    # me '### package managers'
+    # lime "- homebrew        v$(brew --version | tail -n 3 | head -n 1 | cut -d ' ' -f 2)"
+    # blue "- conda           v$(conda -V | cut -d ' ' -f 2) "
+    # blue "- pip             v$(pip --version | cut -d ' ' -f 2) "
+    # blue "- pipenv          v$(pipenv --version | cut -d ' ' -f 3) "
+    # attn "- cargo           v$(cargo --version | cut -d ' ' -f 2)"
+    # attn "- rustup          v$(rustup --version | cut -d ' ' -f 2)"
+    # warn "- gem             v$(gem -v)"
+    # canary "- npm             v$(npm -v)"
+    # purple "- composer        v$(composer --version | cut -d ' ' -f 3)"
+    # green "- TeXLive(tlmgr)  v$(tlmgr --version | head -n 1 | cut -d ' ' -f 3-4))"
     # br
-    # me "## Versions ############################"
-    # cherry "$(uname -i) | $(sw_vers -productName) | $(sw_vers -productVersion)"
-    # me "shell:"
-    # lime "  zsh: $(zsh --version)"
-    # green "  this zsh session: $ZSH_VERSION"
-    # blue "  VSCode   $(code --version | head -n 1)"
-    # br
-    # me "utilities:"
-    # canary "  $(bash --version | grep bash | cut -d ',' -f 1)        v$(bash --version | grep bash | cut -d ' ' -f 4 | cut -d '(' -f 1)"
-    # cherry "  $(clang --version | grep version | sed 's/version /    v/g')"
-    # attn "  $(git --version | sed 's/version /            v/g')"
-    # attn "  $(hub --version | grep hub | sed 's/version /            v/g')"
-    # green "  grep            v$(grep --version | head -n 1)"
-    # canary "  prettier        v$(prettier --version)"
-    # br
-    # me 'package managers'
-    # lime "  homebrew        v$(brew --version | tail -n 3 | head -n 1 | cut -d ' ' -f 2)"
-    # blue "  conda           v$(conda -V | cut -d ' ' -f 2) "
-    # blue "  pip             v$(pip --version | cut -d ' ' -f 2) "
-    # blue "  pipenv          v$(pipenv --version | cut -d ' ' -f 3) "
-    # warn "  gem             v$(gem -v)"
-    # canary "  npm             v$(npm -v)"
-    # purple "  composer        v$(composer --version | cut -d ' ' -f 3)"
-    # green "  TeXLive(tlmgr)  $(tlmgr --version | head -n 1 | cut -d ' ' -f 3-4))"
-    # br
-    # # attn "  $(lein --version | sed 's/Leiningen/lein version/g' | sed 's/version /       v/g')"
-    # me "languages:"
-    # lime "  GO              v$(go version | cut -d ' ' -f 3 | sed 's/go//g')"
-    # warn "  ruby            v$(ruby -v 2>/dev/null | cut -d ' ' -f 2 | cut -d 'p' -f 1)"
-    # purple "  php             v$(php -v 2>/dev/null | grep '(cli)' | cut -d ' ' -f 2)"
-    # printf "  ${COOL}python          v$(python --version | cut -d ' ' -f 2)"
-    # # pyver
-    # # python -c 'import sys; sys.stdout.write("python      v" + ".".join(map(str, sys.version_info[:3]))); sys.stdout.flush()'
-    # printf "$RESET_FG\n"
-    # canary "  node            $(node -v)"
-    # cherry "  Xcode           v$(/Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -version | grep Xcode | sed 's/Xcode //g')"
-    # attn "  Clojure $(clojure -Sdescribe | grep version | sed 's/{://g' | sed 's/"//g' | sed 's/version /        v/g')"
-    # br
+    # attn "  $(lein --version | sed 's/Leiningen/lein version/g' | sed 's/version /       v/g')"
+
+    me "### languages:"
+    blue "- GO              v$(go version | cut -d ' ' -f 3 | sed 's/go//g')"
+    attn "- rustc           v$(rustc --version | cut -d ' ' -f 2)"
+    warn "- ruby            v$(ruby -v 2>/dev/null | cut -d ' ' -f 2 | cut -d 'p' -f 1)"
+    purple "- php             v$(php -v 2>/dev/null | grep '(cli)' | cut -d ' ' -f 2)"
+    printf "${COOL}- python          v$(python --version | cut -d ' ' -f 2)${RESET_FG}\n"
+    canary "- node            $(node -v)"
+    cherry "- Xcode           v$(/Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -version | grep Xcode | sed 's/Xcode //g')"
+    attn "- Clojure $(clojure -Sdescribe | grep version | sed 's/{://g' | sed 's/"//g' | sed 's/version /        v/g')"
+    br
     # me "Travis CI   v$(travis version)"
-    # ye "eslint $(eslint -v)"
-    # echo "$(pipenv --version)"
-    # oe "prettier v$(prettier -v)"
+} >$VERSION_LIST
+save_versions() {
+    # echo "VERSION_LIST: $VERSION_LIST"
+    rm -rf $VERSION_LIST >/dev/null
+    # touch $VERSION_LIST
+    write_versions_file
+}
+versions() {
+    cat ~/.dotfiles/.VERSION_LIST.md
 }
 web_chmod() {
     # Set default permissions for a folder that will be uploaded to the web.
@@ -798,51 +877,7 @@ web_chmod() {
     echo "Changing permissions of all regular directories to 0755."
     # ls "$dir" -ARlh
 }
-write_versions_file() {
-    me "# Program Versions List"
-    green "## VERSION_LIST path: $VERSION_LIST"
-    warn "**os: $(uname -i) | $(sw_vers -productName) | $(sw_vers -productVersion)**"
-    me "### shell:"
-    lime "- zsh:            $(zsh --version)"
-    green "- current shell:  $ZSH_VERSION"
-    blue "- VSCode:         $(code --version | head -n 1)"
-    br
-    me "### utilities:"
-    canary "- $(bash --version | grep bash | cut -d ',' -f 1)        v$(bash --version | grep bash | cut -d ' ' -f 4 | cut -d '(' -f 1)"
-    warn "- $(clang --version | grep version | sed 's/version /    v/g')"
-    attn "- $(git --version | sed 's/version /            v/g')"
-    attn "- $(hub --version | grep hub | sed 's/version /            v/g')"
-    green "- grep            v$(grep --version | head -n 1)"
-    canary "- prettier        v$(prettier --version)"
-    br
-    me '### package managers'
-    lime "- homebrew        v$(brew --version | tail -n 3 | head -n 1 | cut -d ' ' -f 2)"
-    blue "- conda           v$(conda -V | cut -d ' ' -f 2) "
-    blue "- pip             v$(pip --version | cut -d ' ' -f 2) "
-    blue "- pipenv          v$(pipenv --version | cut -d ' ' -f 3) "
-    attn "- cargo           v$(cargo --version | cut -d ' ' -f 2)"
-    attn "- rustup          v$(rustup --version | cut -d ' ' -f 2)"
-    warn "- gem             v$(gem -v)"
-    canary "- npm             v$(npm -v)"
-    purple "- composer        v$(composer --version | cut -d ' ' -f 3)"
-    green "- TeXLive(tlmgr)  $(tlmgr --version | head -n 1 | cut -d ' ' -f 3-4))"
-    br
-    # attn "  $(lein --version | sed 's/Leiningen/lein version/g' | sed 's/version /       v/g')"
-    me "### languages:"
-    blue "- GO              v$(go version | cut -d ' ' -f 3 | sed 's/go//g')"
-    attn "- rustc           v$(rustc --version | cut -d ' ' -f 2)"
-    warn "- ruby            v$(ruby -v 2>/dev/null | cut -d ' ' -f 2 | cut -d 'p' -f 1)"
-    purple "- php             v$(php -v 2>/dev/null | grep '(cli)' | cut -d ' ' -f 2)"
-    printf "- ${COOL}python          v$(python --version | cut -d ' ' -f 2)${RESET_FG}\n"
-    canary "- node            $(node -v)"
-    cherry "- Xcode           v$(/Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -version | grep Xcode | sed 's/Xcode //g')"
-    attn "- Clojure $(clojure -Sdescribe | grep version | sed 's/{://g' | sed 's/"//g' | sed 's/version /        v/g')"
-    br
-    # me "Travis CI   v$(travis version)"
-    # ye "eslint $(eslint -v)"
-    # echo "$(pipenv --version)"
-    # oe "prettier v$(prettier -v)"
-} >"$VERSION_LIST"
+
 #?######################## SCRIPT TESTS
 _run_debug_functions() {
     db_script_source "Functions test"
@@ -850,26 +885,7 @@ _run_debug_functions() {
 }
 #?######################## BEGIN SCRIPT SETUP
 _run_setup() {
-    # set -a
-    declare -x SET_DEBUG=${SET_DEBUG:-0} # set to 1 for verbose testing
 
-    declare -x DOTFILES_PATH=${DOTFILES_PATH:-"${HOME}/.dotfiles"}
-    declare VERSION_LIST="${DOTFILES_PATH}/.VERSION_LIST.md"
-
-    # get name for 'open' if linux or windows
-    if [ ! "$(uname -s)" = 'Darwin' ]; then
-        if grep -q Microsoft /proc/version; then
-            alias open='explorer.exe'
-        else
-            alias open='xdg-open'
-        fi
-    fi
-    # use git diff if available
-    if [[ "$(hash git &>/dev/null)" -eq 0 ]]; then
-        function diff() {
-            git diff --no-index --color-words "$@"
-        }
-    fi
 }
 _login_message() {
     br
@@ -884,6 +900,7 @@ _login_message() {
 _main_loop() {
     _run_setup
     _login_message
+    save_versions & # 2>/dev/null
     # echo "Travis test: $TRAVIS_TOKEN"
     # travis login --github-token "$TRAVIS_TOKEN"
     [[ $SET_DEBUG == '1' ]] && _run_debug_functions
