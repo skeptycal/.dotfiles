@@ -7,33 +7,26 @@
 #? ${VAR##*/}        - return only final element in path (program name)
 #? ${VAR%/*}         - return only path elements in path (without program name)
 declare -x SHELL_BIN="${SHELL##*/}" && export SHELL_BIN
-if [[ SHELL_BIN == 'zsh' ]]; then
-    declare -I
+if [[ $SHELL_BIN == 'zsh' ]]; then
     BASH_SOURCE=${(%):-%N} # to ease the transition to zsh
-    echo $BASH_SOURCE
-    echo "${(%):-%N}"
-    echo $( realpath "${(%):-%N}")
+    # echo $BASH_SOURCE
+    # echo "${(%):-%N}"
+    # echo $( realpath "${(%):-%N}")
 fi
 fpath+=("$HOME/.zsh/pure")
 
 # *## PYTHONPATH ###########################################################
 # declare -x PYTHONHOME="$(realpath /Library/Frameworks/Python.framework/Versions/Current)"
-declare -x PYTHONHOME="$(realpath /Library/Frameworks/Python.framework/Versions/3.8)"
+# declare -x PYTHONHOME="$(realpath /Library/Frameworks/Python.framework/Versions/3.8)"
 declare -x PYTHONPATH="\
-        $(realpath /Library/Frameworks/Python.framework/Versions/3.8/bin):\
-        $(realpath /Library/Frameworks/Python.framework/Versions/3.8):\
-        $(realpath /Library/Frameworks/Python.framework/Versions/3.8/Resources/Python.app/Contents/MacOS):\
         $(realpath /Library/Frameworks/Python.framework/Versions/3.8/lib):\
-        /usr/local/bin:\
-        /usr/bin:\
-        ./:\
         "
 PYTHONPATH="${PYTHONPATH// /}"
 
 # PIPPATH is not part of the normal python installation. It is given by:
 # echo $(pip --version | cut -d ' ' -f 4)
-declare -x PIPPATH="$(which pip3)"
-PIPPATH="${PIPPATH// /}"
+# declare -x PIPPATH="$(which pip3)"
+# PIPPATH="${PIPPATH// /}"
 
 # PIPLIST is not part of the normal python installation. It returns a list of installed packages.
 # The function recreates the list on demand.
@@ -72,8 +65,10 @@ MANPATH="${MANPATH// /}"
 # and run
 #   /usr/local/opt/openssl/bin/c_rehash
 declare -x PATH="\
+    $HOME/.pyenv/bin:\
     /usr/local/opt/coreutils/libexec/gnubin:\
     /usr/local/opt/ccache/libexec:\
+    $HOME/Library/Python/3.8/bin:\
     /Library/Frameworks/Python.framework/Versions/3.8/Resources/Python.app/Contents/MacOS:\
     /Library/Frameworks/Python.framework/Versions/3.8/bin:\
     $HOME/bin:\
