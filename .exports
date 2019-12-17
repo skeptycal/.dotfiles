@@ -1,5 +1,8 @@
-#!/usr/bin/env false bash
+#!/usr/bin/env zsh
 # -*- coding: utf-8 -*-
+# shellcheck shell=bash
+# shellcheck source=/dev/null
+
 # cannot be run directly; called from .zshrc or .bashrc
 # BASH_SOURCE=${(%):-%N} # to ease the transition to zsh
 #? ############################################################################
@@ -21,7 +24,8 @@ declare -x AZURE_WORKING_DIR="${HOME}/myagent"
 # cd $AZURE_WORKING_DIR
 # ./svc.sh start
 # cd -
-declare -x HOMEBREW_PREFIX="$(brew --prefix)"
+declare -x HOMEBREW_PREFIX
+HOMEBREW_PREFIX="$(brew --prefix)"
 declare -x MAGICK_HOME="/usr/local/Cellar/imagemagick/7.0.8-68"
 [[ -n $SSH_CONNECTION ]] && declare -x EDITOR='vim' || declare -x EDITOR='nano'
 
@@ -44,9 +48,9 @@ declare -x PYTHONIOENCODING='UTF-8'
 #   pipenv is the best alternative for now
 declare -x WORKON_HOME="${HOME}/.virtualenvs"
 declare -x PROJECT_HOME="${HOME}/Documents/coding/"
-# source $(which virtualenvwrapper.sh)
-[[ $(which pyenv >/dev/null) ]] && eval "$(pyenv init -)"
-[[ $(which pyenv-virtualenv-init >/dev/null) ]] && eval "$(pyenv virtualenv-init -)"
+# source $(command -v virtualenvwrapper.sh)
+[[ $(command -v pyenv >/dev/null) ]] && eval "$(pyenv init -)"
+[[ $(command -v pyenv-virtualenv-init >/dev/null) ]] && eval "$(pyenv virtualenv-init -)"
 
 # emsdk
 # Emscripten is a toolchain for compiling to asm.js and WebAssembly, built using LLVM,
@@ -59,17 +63,24 @@ declare -x EMSDK_NODE="/Users/skeptycal/emsdk/node/12.9.1_64bit/bin/node"
 # pip zsh completion start
 function _pip_completion() {
     local words cword
+    # shellcheck disable=2162
     read -Ac words
+    # shellcheck disable=2162
     read -cn cword
+    # shellcheck disable=1087
+    # shellcheck disable=2207
+    # shellcheck disable=2034
     reply=($(COMP_WORDS="$words[*]" \
         COMP_CWORD=$((cword - 1)) \
-        PIP_AUTO_COMPLETE=1 $words[1]))
+        PIP_AUTO_COMPLETE=1 "$words[1]"))
 }
 compctl -K _pip_completion pip
 
 # Java
 JAVA_HOME="$(/usr/libexec/java_home)"
+export JAVA_HOME
 # M2_HOME="/usr/share/apache-maven-3.6.0"
+# export M2_HOME
 
 # Node
 declare -x NODE_REPL_HISTORY="${HOME}/.node_history"
@@ -78,7 +89,7 @@ declare -x NODE_REPL_MODE='sloppy'
 
 # Perl
 declare -x PERL_MM_OPT="INSTALL_BASE=${HOME}/perl5"
-eval "$(perl -I$HOME/perl5/lib/perl5 -Mlocal::lib=$HOME/perl5)"
+eval "$(perl -I"$HOME"/perl5/lib/perl5 -Mlocal::lib="$HOME"/perl5)"
 
 # Go
 declare -x GOPATH="$HOME/go"
@@ -88,11 +99,12 @@ declare -x GOPATH="$HOME/go"
 # heroku autocomplete --refresh-cache # one time use after above is loaded
 
 # Postgres setup
-declare -x DATABASE_URL="postgres://$(whoami)"
+declare -x DATABASE_URL
+DATABASE_URL="postgres://$(whoami)"
 
 _run_tests() {
     # list current versions of common utilities
-    ce "Script source:$MAIN $BASH_SOURCE$RESET"
+    ce "Script source:$MAIN ${BASH_SOURCE[*]}$RESET"
     green "\$LANG is set to $LANG."
     green "\$LOCAL_IP is set to and exported as $LOCAL_IP."
 }

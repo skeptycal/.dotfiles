@@ -1,11 +1,14 @@
 #!/usr/bin/env zsh
 # -*- coding: utf-8 -*-
+# shellcheck shell=bash
+# shellcheck disable=SC1090
+
 # SET_DEBUG: set to 1 for verbose testing; set option -r for readonly (override future changes)
 declare -ix SET_DEBUG=0
-. $(which ssm_constants)
-. $(which ssm_init)
-. $(which ssm_debug)
-. $(which ssm_usage)
+. "$(command -v ssm_constants)"
+. "$(command -v ssm_init)"
+. "$(command -v ssm_debug)"
+. "$(command -v ssm_usage)"
 
 _run_tests() {
     for var in $(export -p); do
@@ -15,8 +18,10 @@ _run_tests() {
 }
 _main_loop() {
     #? ######################## script information
-        declare -x SCRIPT_PATH="$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
-        declare -x SCRIPT_NAME="${BASH_SOURCE##*/}"
+        declare -x SCRIPT_PATH
+        SCRIPT_PATH="$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
+        declare -x SCRIPT_NAME
+        SCRIPT_NAME="${BASH_SOURCE##*/}"
 
     #? ######################## project information
         declare -x NAME=${NAME:="${BASH_SOURCE##*/}"}

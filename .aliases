@@ -1,5 +1,8 @@
-#!/usr/bin/env false bash
+#!/usr/bin/env zsh
 # -*- coding: utf-8 -*-
+# shellcheck shell=bash
+# shellcheck source=/dev/null
+
 # cannot be run directly; called from .bash_profile or .bashrc
 BASH_SOURCE=${(%):-%N} # to ease the transition to zsh
 #? ############################# skeptycal.com ################################

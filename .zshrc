@@ -1,10 +1,13 @@
 #!/usr/bin/env zsh
 # -*- coding: utf-8 -*-
+# shellcheck shell=bash
+# shellcheck source=/dev/null
 
-  t0=$(date "+%s.%n") #* profile start time
+t0=$(date "+%s.%n") #* profile start time
 
 #? ######################## Set Options
   # Using ZSH shell - http://zsh.sourceforge.net/
+  # shellcheck disable=2178
   BASH_SOURCE=${(%):-%N} # to ease the transition to zsh
 
   # BASH options
@@ -28,17 +31,15 @@
   # Remove all aliases from random unexpected places
   unalias -a
 
+  declare -x number_of_cores
   number_of_cores=$(sysctl -n hw.ncpu)
 
   rm -f ~/.zcompdump;
   if type brew &>/dev/null; then
     FPATH=$(brew --prefix)/share/zsh/site-functions:$FPATH
   fi
-  source "${HOME}/.dotfiles/gpg.zsh"
-  source "/usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
-
-
-
+  . "${HOME}/.dotfiles/gpg.zsh"
+  . "/usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
 
   # Set/unset  shell options
   setopt   notify globdots correct pushdtohome cdablevars autolist
@@ -91,14 +92,14 @@
   fi
 
 #? ######################## Load Profile settings
-  source "${SOURCE_PATH}/ssm"
-  source "${SOURCE_PATH}/.aliases"
-  source "${SOURCE_PATH}/.exports"
-  source "${SOURCE_PATH}/.theme"
-  source "${SOURCE_PATH}/.functions"
-  source "${SOURCE_PATH}/.extra"
-  source "${SOURCE_PATH}/.git_alias" # already included
-  source "${HOME}/.oh-my-zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+  . "${SOURCE_PATH}/ssm"
+  . "${SOURCE_PATH}/.aliases"
+  . "${SOURCE_PATH}/.exports"
+  . "${SOURCE_PATH}/.theme"
+  . "${SOURCE_PATH}/.functions"
+  . "${SOURCE_PATH}/.extra"
+  . "${SOURCE_PATH}/.git_alias" # already included
+  . "${HOME}/.oh-my-zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 
   # pipenv python environment settings
   eval "$(pyenv init -)"
@@ -107,11 +108,12 @@
   # pip zsh completion start
   function _pip_completion {
   local words cword
-  read -Ac words
-  read -cn cword
+  IFS="" read -r -Ac words
+  IFS="" read -r -cn cword
+  # shellcheck disable=1087,2207,2034
   reply=( $( COMP_WORDS="$words[*]" \
              COMP_CWORD=$(( cword-1 )) \
-             PIP_AUTO_COMPLETE=1 $words[1] 2>/dev/null ))
+             PIP_AUTO_COMPLETE=1 "$words[1]" 2>/dev/null ))
   }
   compctl -K _pip_completion pip
   # pip zsh completion end
@@ -119,27 +121,33 @@
 #? ######################## Original .zshrc
   declare -x ZSH="${HOME}/.oh-my-zsh"
   # ZSH_THEME="robbyrussell"
+  declare -x ZSH_THEME
   ZSH_THEME="robbyrussell"
   # ZSH_THEME_RANDOM_CANDIDATES=( "robbyrussell" "agnoster" )
   # CASE_SENSITIVE="true"
   # HYPHEN_INSENSITIVE="true"
   # DISABLE_AUTO_UPDATE="true"
+  declare -x DISABLE_UPDATE_PROMPT
   DISABLE_UPDATE_PROMPT="true"
   declare -x UPDATE_ZSH_DAYS=13
   # DISABLE_MAGIC_FUNCTIONS=true
   # DISABLE_LS_COLORS="true"
   # DISABLE_AUTO_TITLE="true"
+  declare -x ENABLE_CORRECTION
   ENABLE_CORRECTION="true"
+  declare -x COMPLETION_WAITING_DOTS
   COMPLETION_WAITING_DOTS="true"
+  declare -x DISABLE_UNTRACKED_FILES_DIRTY
   DISABLE_UNTRACKED_FILES_DIRTY="true"
   # HIST_STAMPS="mm/dd/yyyy"
   # ZSH_CUSTOM=/path/to/new-custom-folder
   # ** original
   # plugins=(git lein pip pipenv django python osx vscode)
   # https://towardsdatascience.com/trick-out-your-terminal-in-10-minutes-or-less-ba1e0177b7df
+  # shellcheck disable=SC2034
   plugins=(git z history osx pip pipenv pyenv pylint python django lein sublime github vscode)
   # plugins=(git z history osx pylint python django vscode)
-  source "${ZSH}/oh-my-zsh.sh"
+  . "${ZSH}/oh-my-zsh.sh"
 
 #? ######################## Sindre's prompt - https://github.com/sindresorhus/pure
   # Set ZSH_THEME="" in your .zshrc to disable oh-my-zsh themes.
@@ -181,7 +189,7 @@
   #
   # Source Prezto.
   # if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
-  #   source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
+  #   . "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
   # fi
   # Customize to your needs...
 
