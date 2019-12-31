@@ -1,8 +1,8 @@
-#!/usr/bin/env false bash
+#!/usr/bin/env zsh
 # -*- coding: utf-8 -*-
-# cannot be run directly; called from .bash_profile or .bashrc
-[[ -z $BASH_SOURCE ]] && BASH_SOURCE=${(%):-%N} # to ease the transition to zsh
-# [[ -z "$BASH_SOURCE" ]] && BASH_SOURCE="$0" # to ease the transition to zsh
+  # shellcheck shell=bash
+  # shellcheck source=/dev/null
+  # shellcheck disable=2178,2155
 
 #* #############################################################################
 #* ### Load ANSI colors, prompt, and themes
@@ -63,9 +63,9 @@ fi
 
 # Highlight the user name when logged in as root.
 if [[ "${USER}" == "root" ]]; then
-    userStyle="${red}"
+    declare -x userStyle="${red}"
 else
-    userStyle="${orange}"
+    declare -x userStyle="${orange}"
 fi
 
 # GIT colors

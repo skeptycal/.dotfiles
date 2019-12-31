@@ -246,6 +246,8 @@ Send2Trash = "==1.5.0"
 Sphinx = "==2.2.1"
 Wand = "==0.5.7"
 Werkzeug = "==0.16.0"
+docopt = "*"
+pyqt4 = "*"
 
 [requires]
 python_version = "3.8"
