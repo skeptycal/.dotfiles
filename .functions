@@ -2,22 +2,24 @@
 # -*- coding: utf-8 -*-
 # shellcheck shell=bash
 # shellcheck source=/dev/null
+# shellcheck disable=2230
 
 # cannot be run directly; called from .bash_profile or .bashrc
 #?#######################################################################
 #* .functions - functions for standard script modules (ssm)
 #* copyright (c) 2019 Michael Treanor
 #* MIT License - https://www.github.com/skeptycal
-. "$(command -v ssm)"
+
+
+. "$(which ssm)"
 
 #TODO find this text ... _pretty_usage
 _pretty_usage=''
 
 # set -a
-declare -x SET_DEBUG=${SET_DEBUG:-0} # set to 1 for verbose testing
+declare -ix SET_DEBUG && SET_DEBUG=${SET_DEBUG:-0} # set to 1 for verbose testing
 
-declare -x DOTFILES_PATH=${DOTFILES_PATH:-"${HOME}/.dotfiles"}
-declare VERSION_LIST="${DOTFILES_PATH}/.VERSION_LIST.md"
+declare -x VERSION_LIST && VERSION_LIST="${DOTFILES_PATH}/.VERSION_LIST.md"
 
 # get name for 'open' if linux or windows
 if [ ! "$(uname -s)" = 'Darwin' ]; then
@@ -36,15 +38,29 @@ fi
 
 ########################## TODO - WORKS IN PROGRESS
 
+# hardlink_dotfiles(){
+#     # convert symlinks to hardlinks
+#     ls "$HOME/.dotfiles" -A | perl -nle 'print if -l and not -d;'
+
+#     while IFS="" read -r f || [ -n "$f" ]
+#     do
+#         f=
+#         printf '%s\n' "$p"
+#         unlink ""
+#         ln "$HOME/.dotfiles/$p" "$HOME"
+#     done < lsln.txt
+# }
+
 py_realpath(){
-    python3 -m <<PYRP
-#!/usr/bin/env python3
+    python3 -c "
 import os
 import sys
 for item in sys.argv[1:]:
-    print(os.path.realpath(item))
-PYRP
+    print(item, os.path.realpath(item). )
+" "$@"
 }
+
+which() { command -v "$@"; }
 
 replace() {
     if [[ -z "$1" ]]; then
@@ -84,17 +100,17 @@ update () {
     osascript -e 'tell application "System Preferences" to quit'
 
     # Ask for the administrator password upfront
-    sudo -v
+    /usr/bin/sudo -v
 
     # Keep-alive: update existing `sudo` time stamp until 'update' has finished
     while true; do
-        sudo -n true
+        /usr/bin/sudo -n true
         sleep 60
         kill -0 "$$" || exit
     done 2>/dev/null &
     ########################################################################
 
-    sudo softwareupdate -i -a
+    /usr/bin/sudo softwareupdate -i -a
     brew update
     brew upgrade
     brew doctor
@@ -105,12 +121,12 @@ update () {
     pip3 list --outdated | cut -d ' ' -f1 | xargs -n1 pip install -U
     # npm
     #   brew upgrade node
-    sudo npm install npm -g
-    sudo npm update -g
+    /usr/bin/sudo npm install npm -g
+    /usr/bin/sudo npm update -g
     # ruby
-    sudo gem update --system
-    sudo gem update
-    sudo gem cleanup
+    /usr/bin/sudo gem update --system
+    /usr/bin/sudo gem update
+    /usr/bin/sudo gem cleanup
 } # 2>/dev/null &
 
 cleanup () {
@@ -119,7 +135,7 @@ cleanup () {
     # cleanup .DS_Store files
     find . -type f -name '*.DS_Store' -ls -delete
     # empty trashes
-    sudo rm -rfv /Volumes/*/.Trashes; sudo rm -rfv ~/.Trash; sudo rm -rfv /private/var/log/asl/*.asl; sqlite3 ~/Library/Preferences/com.apple.LaunchServices.QuarantineEventsV* 'delete from LSQuarantineEvent'
+    /usr/bin/sudo rm -rfv /Volumes/*/.Trashes; sudo rm -rfv ~/.Trash; sudo rm -rfv /private/var/log/asl/*.asl; sqlite3 ~/Library/Preferences/com.apple.LaunchServices.QuarantineEventsV* 'delete from LSQuarantineEvent'
     # lscleanup
     /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user && killall Finder
 }
@@ -303,22 +319,27 @@ gather() {
     canary "$(find . -name "$gather_pattern" -print0 | xargs "$option_string" "$command_string")"
     # find . -name $gather_pattern -print0 |xargs -0
 }
+gst(){
+    echo "if [ -n $1 ]; then cd $1; $(git status >/dev/null 2>&1; echo $?;)"
+}
 
 gitit() {
     dir="${PWD}/.git"
-    if [[ "$(git status >/dev/null 2>&1)" = 0 ]] && [[ -d "$dir" ]]; then
+    if ! [ -d "$dir" ]; then
+        warn "Git not found in $dir"
+    elif git status  ; then # >/dev/null 2>&1
+        warn "Git status error: $PWD"
+    else
         message="${*:-'(GitIt) minor updates'}"
         blue "GitIt - add and commit all updates."
-        green "repo: $PWD"
-        green "message: $message"
+        green "  repo: ${PWD##*/}"
+        green "  message: $message"
         git add --all >/dev/null 2>&1
         pre-commit >/dev/null 2>&1
         git add --all
         pre-commit
         git commit -m "$message"
         git push --set-upstream origin "$(git_current_branch)"
-    else
-        warn "This is not a git repo root: $PWD"
     fi
 }
 # TODO - Declare if not declared
@@ -873,38 +894,30 @@ write_versions_file() {
     rain "- VSCode:         $(code --version | head -n 1)"
     br
     me "### utilities:"
-    canary "- $(bash --version | grep bash | cut -d ',' -f 1)        v$(bash --version | grep bash | cut -d ' ' -f 4 | cut -d '(' -f 1)"
-    warn "- $(clang --version | grep version | sed 's/version /    v/g')"
-    attn "- $(git --version | sed 's/version /            v/g')"
-    attn "- $(hub --version | grep hub | sed 's/version /            v/g')"
-    green "- grep            v$(grep --version | head -n 1 | cut -d ' ' -f 4)"
-    canary "- prettier        v$(prettier --version)"
-    br
-
-    # me '### package managers'
-    # lime "- homebrew        v$(brew --version | tail -n 3 | head -n 1 | cut -d ' ' -f 2)"
-    # blue "- conda           v$(conda -V | cut -d ' ' -f 2) "
-    # blue "- pip             v$(pip --version | cut -d ' ' -f 2) "
-    # blue "- pipenv          v$(pipenv --version | cut -d ' ' -f 3) "
-    # attn "- cargo           v$(cargo --version | cut -d ' ' -f 2)"
-    # attn "- rustup          v$(rustup --version | cut -d ' ' -f 2)"
-    # warn "- gem             v$(gem -v)"
-    # canary "- npm             v$(npm -v)"
-    # purple "- composer        v$(composer --version | cut -d ' ' -f 3)"
+    warn   "- $(clang --version | grep version | sed 's/version //g')"
+    attn   "- $(git --version | sed 's/version //g') with $(hub --version | grep hub | sed 's/version //g')"
+    canary "- $(bash --version | grep bash | cut -d ',' -f 1)  ($(bash --version | grep bash | cut -d ' ' -f 4 | cut -d '(' -f 1))${WHITE} with ${GO}GNU grep ($(grep --version | head -n 1 | cut -d ' ' -f 4))${WHITE} and ${CHERRY}GNU coreutils ($(brew list coreutils --versions | cut -d ' ' -f 2))"
+    # lime "- homebrew ($(brew --version | tail -n 3 | head -n 1 | cut -d ' ' -f 2))" # and conda ($(conda -V | cut -d ' ' -f 2))"
+    canary "- prettier ($(prettier --version))"
+    # purple "- stack ($(stack --version | cut -d ',' -f 1 | cut -d ' ' -f 2))"
+    blue "- mkdocs ($(mkdocs --version | cut -d ' ' -f 3))"
     # green "- TeXLive(tlmgr)  v$(tlmgr --version | head -n 1 | cut -d ' ' -f 3-4))"
-    # br
-    # attn "  $(lein --version | sed 's/Leiningen/lein version/g' | sed 's/version /       v/g')"
+    br
 
     me "### languages:"
-    blue "- GO              v$(go version | cut -d ' ' -f 3 | sed 's/go//g')"
-    attn "- rustc           v$(rustc --version | cut -d ' ' -f 2)"
-    warn "- ruby            v$(ruby -v 2>/dev/null | cut -d ' ' -f 2 | cut -d 'p' -f 1)"
-    purple "- php             v$(php -v 2>/dev/null | grep '(cli)' | cut -d ' ' -f 2)"
-    printf "%s\n" "${COOL}- python          v$(python --version | cut -d ' ' -f 2)${RESET_FG}"
-    canary "- node            $(node -v)"
-    cherry "- Xcode           v$(/Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -version | grep Xcode | sed 's/Xcode //g')"
-    attn "- Clojure $(clojure -Sdescribe | grep version | sed 's/{://g' | sed 's/"//g' | sed 's/version /        v/g')"
+    blue   "- GO      ($(go version | cut -d ' ' -f 3 | sed 's/go//g'))"
+    # attn   "- rustc   ($(rustc --version | cut -d ' ' -f 2)) with rustup ($(rustup --version | cut -d ' ' -f 2))"
+    warn   "- ruby    ($(ruby -v 2>/dev/null | cut -d ' ' -f 2 | cut -d 'p' -f 1)) with gem ($(gem -v))"
+    # purple "- php     ($(php -v 2>/dev/null | grep '(cli)' | cut -d ' ' -f 2)) with composer ($(composer --version | cut -d ' ' -f 3))"
+    printf "%s\n" "${COOL}- python  ($(python --version | cut -d ' ' -f 2)) with pip ($(pip --version | cut -d ' ' -f 2)) and pipenv ($(pipenv --version | cut -d ' ' -f 3)) ${RESET_FG}"
+    canary "- node    ($(node -v | sed 's/v//g')) with npm ($(npm -v))"
+    cherry "- Xcode   ($(/Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -version | grep Xcode | sed 's/Xcode //g'))"
+    # attn   "- Clojure ($(clojure -Sdescribe | grep version | sed 's/{://g' | sed 's/"//g' | sed 's/version //g')) with lein"
     br
+
+    # attn "- cargo ($(cargo --version | cut -d ' ' -f 2))"
+    # attn "  $(lein --version | sed 's/Leiningen/lein version/g' | sed 's/version /       v/g')"
+
     # me "Travis CI   v$(travis version)"
 } >"$VERSION_LIST"
 save_versions() {

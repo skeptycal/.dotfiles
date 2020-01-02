@@ -2,27 +2,23 @@
 # -*- coding: utf-8 -*-
 # shellcheck shell=bash
 # shellcheck source=/dev/null
+# shellcheck disable=2178
 
-# cannot be run directly; called from .bash_profile or .bashrc
-BASH_SOURCE=${(%):-%N} # to ease the transition to zsh
 #? ############################# skeptycal.com ################################
-NAME="${BASH_SOURCE##*/}"
-VERSION='1.2.0'
-DESC='personalized Bash aliases (Bash 5.0 on macOS with GNU coreutils)'
-USAGE="source ${NAME} [help|test|usage|version]"
-AUTHOR="Michael Treanor <skeptycal@gmail.com>"
-COPYRIGHT="Copyright (c) 2019 Michael Treanor"
-LICENSE="MIT <https://opensource.org/licenses/MIT>"
-GITHUB="https://www.github.com/skeptycal"
-#? ############################################################################
 # [[ $SET_DEBUG ]] && SET_DEBUG=0 # set to 1 for verbose testing
+BASH_SOURCE="${BASH_SOURCE:-$0}" # to ease the transition to zsh
 
 # *########################################################################
 # TODO works in progress
 
+# alias lsln='ls -AF | grep '@' | cut -d '@' -f 1 ' # will include directories
+# find . -maxdepth 1 -type l # will include directories
+alias ll="ls -A | perl -nle 'print if -l and not -d;'"
+alias lsd='ls -1Ad */'
+
 alias modpy='chmod 775 *.py -c --preserve-root -- '
 alias python='python3'
-alias pip='python -m pip '
+alias pip='python3 -m pip '
 alias mine="sudo chown -R $(id -un):$(id -gn) "
 alias pret='prettier * --write --insert-pragma'
 # alias pwdcopy='pwd | pbcopy'
@@ -77,9 +73,17 @@ alias filetree="ls -R | grep ':$' | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 
 alias ducks='du -ck * | sort -rn | head -11'
 alias toomuch='du -sh ~'
 alias howmuch='du -sh '
-alias treetotal='tree | tail -1'
-alias fd="find $PWD -type d -name "
-alias ff="find $PWD -type f -name "
+alias treetotal='tree | tail -1' # needs 'brew install tree'
+# alias fd="find \$PWD -type d -name "
+# alias ff="find \$PWD -type f -name "
+
+ff() {
+    find "$PWD" -type f -name "$1"
+}
+
+fd() {
+    find "$PWD" -type d -name "$1"
+}
 
 # *########################################################################
 # utilities
@@ -106,7 +110,7 @@ command -v sha1sum >/dev/null || alias sha1sum="shasum"
 # alias cleanup="find . -type f -name '*.DS_Store' -ls -delete"
 # alias emptytrash="sudo rm -rfv /Volumes/*/.Trashes; sudo rm -rfv ~/.Trash; sudo rm -rfv /private/var/log/asl/*.asl; sqlite3 ~/Library/Preferences/com.apple.LaunchServices.QuarantineEventsV* 'delete from LSQuarantineEvent'"
 # alias lscleanup="/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user && killall Finder"
-alias afk="/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspend"
+# alias afk="/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspend"
 
 # *########################################################################
 # Applications

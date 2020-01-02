@@ -1,62 +1,72 @@
-#!/usr/bin/env false zsh
+#!/usr/bin/env zsh
 # -*- coding: utf-8 -*-
-declare -ix SET_DEBUG=${SET_DEBUG:=0}   # set to 1 for verbose testing
+# shellcheck shell=bash
+# shellcheck source=/dev/null
+# shellcheck disable=2230,2128
+
+declare -ix SET_DEBUG && SET_DEBUG=${SET_DEBUG:-0}   # set to 1 for verbose testing
 #?######################## SCRIPT CONFIG
     # set_man_page, get_linux_platform_name, get_current_os_name
     quick_check() { attn " -> ${BLUE}${0}${ATTN} - \$BASH_SOURCE ${CANARY}${BASH_SOURCE}"; }
     get_current_os_name() {
-    eval $debug_status_test
+        # eval $debug_status_test
 
-    local uname=$(uname)
-    if [ "$uname" = "Darwin" ]; then
-        echo "osx"
-        return 0
-    elif [ "$uname" = "FreeBSD" ]; then
-        echo "freebsd"
-        return 0
-    elif [ "$uname" = "Linux" ]; then
-        local linux_platform_name
-        linux_platform_name="$(get_linux_platform_name)" || { echo "linux" && return 0; }
+        local uname && uname=$(uname)
+        if [ "$uname" = "Darwin" ]; then
+            echo "osx"
+            return 0
+        elif [ "$uname" = "FreeBSD" ]; then
+            echo "freebsd"
+            return 0
+        elif [ "$uname" = "Linux" ]; then
+            local linux_platform_name
+            linux_platform_name="$(get_linux_platform_name)" || { echo "linux" && return 0; }
 
-        if [[ $linux_platform_name == "rhel.6" ]]; then
-            echo $linux_platform_name
-            return 0
-        elif [[ $linux_platform_name == alpine* ]]; then
-            echo "linux-musl"
-            return 0
-        else
-            echo "linux"
-            return 0
+            if [[ "$linux_platform_name" == "rhel.6" ]]; then
+                echo $linux_platform_name
+                return 0
+            elif [[ "$linux_platform_name" == alpine* ]]; then
+                echo "linux-musl"
+                return 0
+            else
+                echo "linux"
+                return 0
+            fi
         fi
-    fi
 
-    db_echo "OS name could not be detected: UName = $uname"
-    return 1
-    }
+        db_echo "OS name could not be detected: UName = $uname"
+        return 1
+        }
+    which() { command -v "$@" ; }
+
 #?######################## FLOW CONTROL FUNCTIONS
 #?######################## SCRIPT LOGGING
     verbosity() {
         # example from: https://unix.stackexchange.com/questions/18899/when-would-you-use-an-additional-file-descriptor?rq=1
+        setopt allexport
 
         log() {
-            echo $* >&3
+            echo "$*" >&3
         }
         info() {
-            echo $* >&4
+            echo "$*" >&4
         }
         err() {
-            echo $* >&2
+            echo "$*" >&2
         }
         debug() {
-            echo $* >&5
+            echo "$*" >&5
         }
 
-        VERBOSE=1
+        VERBOSE=1 # default verbosity level
 
-        while [[ $# -gt 0 ]]; do
+        while [[ "$#" -gt 0 ]]; do
             ARG=$1
             shift
-            case $ARG in
+            case "$ARG" in
+                "--debug")
+                    VERBOSE=4
+                ;;
                 "-vv")
                     VERBOSE=3
                 ;;
@@ -66,20 +76,24 @@ declare -ix SET_DEBUG=${SET_DEBUG:=0}   # set to 1 for verbose testing
                 "-q")
                     VERBOSE=0
                 ;;
-                # More flags
                 *)
                 echo -n
-                # Linear args
                 ;;
             esac
         done
 
-        for i in 1 2 3; do
-            fd=$(expr 2 + $i)
-            if [[ $VERBOSE -ge $i ]]; then
-                eval "exec $fd>&1"
+        # exec 3>&1
+        # exec 4>&1
+        # exec 5>&2
+
+        for i in 1 2 3 4; do
+            fd=$((2 + i))
+            if [[ "$VERBOSE" -ge "$i" ]]; then
+                lime "file descriptor &${FD} set to ${FD}>&1"
+                # eval "exec $fd>&1"
             else
-                eval "exec $fd> /dev/null"
+                lime "file descriptor &${FD} set to ${FD}>/dev/null"
+                # eval "exec "$fd>" /dev/null"
             fi
         done
 
@@ -89,46 +103,46 @@ declare -ix SET_DEBUG=${SET_DEBUG:=0}   # set to 1 for verbose testing
         debug "This will show up for -vv"
         }
 
-    log_toggle() {
-        #   usage: log_toggle [filename]
-        #   toggle on and off logging to file
-        #       parameter
-        #           filename    - name of new logfile (default LOGFILE)
-        #       variable $LOG stores state
-        #       variable $LOGFILE stores filename
-        #   reference: https://unix.stackexchange.com/questions/80988/how-to-stop-redirection-in-bash
-
-        # set default log filename or $1
-        if [[ -z "$1" ]]; then
-            if [[ -z "$LOG_FILE_NAME" ]]; then
-                LOG_FILE_NAME="${script_source}LOGFILE.log"
-            fi
-        else
-            LOG_FILE_NAME="${1}"
-        fi
-        touch "$LOG_FILE_NAME"
-        # if log is on, turn it off
-        if [[ "$LOG" == '1' ]]; then
-            LOG='0'
-            exec 1>&4 2>&5
-            exec 4>&- 5>&-
-            attn "logging off ..."
-        else # if it is off ... turn it on
-            LOG='1'
-            exec 4>&1 5>&2
-            # log to the filename stored in $LOG_FILE_NAME
-            db_echo "\${LOG_FILE_NAME}: ${LOG_FILE_NAME}"
-            exec > >(tee -a -i "${LOG_FILE_NAME}") 2>&1
-            attn "logging on ..."
-        fi
-        }
+#     log_toggle() {
+#         #   usage: log_toggle [filename]
+#         #   toggle on and off logging to file
+#         #       parameter
+#         #           filename    - name of new logfile (default LOGFILE)
+#         #       variable "$LOG" stores state
+#         #       variable "$LOGFILE" stores filename
+#         #   reference: https://unix.stackexchange.com/questions/80988/how-to-stop-redirection-in-bash
+# q
+#         # set default log filename or $1
+#         if [[ -z "$1" ]]; then
+#             if [[ -z "$LOG_FILE_NAME" ]]; then
+#                 LOG_FILE_NAME="${script_source}LOGFILE.log"
+#             fi
+#         else
+#             LOG_FILE_NAME="${1}"
+#         fi
+#         touch "$LOG_FILE_NAME"
+#         # if log is on, turn it off
+#         if [[ "$LOG" == '1' ]]; then
+#             LOG='0'
+#             exec 1>&4 2>&5
+#             exec 4>&- 5>&-
+#             attn "logging off ..."
+#         else # if it is off ... turn it on
+#             LOG='1'
+#             exec 4>&1 5>&2
+#             # log to the filename stored in $LOG_FILE_NAME
+#             db_echo "\${LOG_FILE_NAME}: ${LOG_FILE_NAME}"
+#             exec > >(tee -a -i "${LOG_FILE_NAME}") 2>&1
+#             attn "logging on ..."
+#         fi
+#         }
     test_echo() {
         # log the current value of a given variable ($1)
         # usage: test_echo <test name> <test code>
         # report test results if:
         #    - SET_DEBUG is set to '1' or cli [test] option set
         #    - use log_toggle() to include file logging
-        if [[ $SET_DEBUG == '1' ]] && [[ -n "$1" ]]; then
+        if [[ "$SET_DEBUG" == '1' ]] && [[ -n "$1" ]]; then
             printf "%bFunction Test -> %bPID %s %b" "$MAIN" "$CANARY" "$$" "$GO"
             printf '%(%Y-%m-%d)T' -1
             printf "%b test name: %s\n%b" "$ATTN" "$1" "$RESET"
@@ -146,7 +160,7 @@ declare -ix SET_DEBUG=${SET_DEBUG:=0}   # set to 1 for verbose testing
         # reference:
         #   indirect variables: https://wiki.bash-hackers.org/syntax/pe#indirection
         #   bash printf: https://www.linuxjournal.com/content/bashs-built-printf-function
-        if [[ $SET_DEBUG == '1' ]] && [[ -n "$1" ]]; then
+        if [[ "$SET_DEBUG" == '1' ]] && [[ -n "$1" ]]; then
             local testvar="${1}"
             echo "\$testvar: $testvar"
             echo "testvar: " ${!testvar}
@@ -183,71 +197,71 @@ declare -ix SET_DEBUG=${SET_DEBUG:=0}   # set to 1 for verbose testing
             db_echo "The source file ($1) loaded in script ($BASH_SOURCE) was not found, but was replaced with the python script (${1}.py)."
             db_echo "Script source: ($BASH_SOURCE)"
         else
-            db_echo "The source file ($1) listed in script ($BASH_SOURCE) could not be found. A search was made for items in the path, ${1}.sh, and ${1}.py without results."
+            db_echo "The source file ($1) listed in script ($BASH_SOURCE) could not be found. A search was made for items in the path, "${1}.sh," and "${1}.py" without results."
             db_echo "Script source: ($BASH_SOURCE)"
         fi
         }
-    get_safe_new_filename() {
-        # usage: get_safe_new_filename filename /path/to/file [extension]
-        #   returns
-        #       $new_safe_name      - new file name WITH path and extension
-        #       $new_safe_name_only - new file name (no path / ext)
-        #   eliminates duplicates by adding integers to filename as needed
-        #   (e.g. file_2, file_3 ...)
-        if [[ "$#" > 1 ]]; then
-            safe_name="$1"
-            safe_path="$2"
-            [[ -z "$3" ]] && safe_ext='' || safe_ext=".$3"
-            new_safe_name="${safe_path}/${safe_name}${safe_ext}"
-            declare -i i=2
-            while [ -f "$new_safe_name" ]; do
-                new_safe_name="${safe_path}/${safe_name}_${i}${safe_ext}"
-                i=$((i + 1))
-            done
-            new_safe_name_only="${safe_name}_${i}"
-        else
-            exit_usage "Invalid parameters ..." "usage: ${MAIN}get_safe_new_filename ${WHITE}filename /path/to/file [extension]"
-        fi
-        }
-    real_name() {
-        # TODO test this further ... working on a bash only method
-        # test_var "$1"
-        # log_flag
-        filename="${!1}"
-        filename="${1##*/}"
-        echo $filename
-        }
-    parse_filename() {
-        #   usage: parse_filename [filename]
-        #   parameter
-        #       filename    - $1 or global $filename used
-        #   returns
-        #       base_name   - file name only (no path)
-        #       dir         - path only
-        #       name_only   - name without extension
-        #       extension   - file extension or '' if none
+    # get_safe_new_filename() {
+    #     # usage: get_safe_new_filename filename /path/to/file [extension]
+    #     #   returns
+    #     #       "$new_safe_name"      - new file name WITH path and extension
+    #     #       "$new_safe_name_only" - new file name (no path / ext)
+    #     #   eliminates duplicates by adding integers to filename as needed
+    #     #   (e.g. file_2, file_3 ...)
+    #     if [[ "$#" -gt 1 ]]; then
+    #         safe_name="$1"
+    #         safe_path="$2"
+    #         [[ -z "$3" ]] && safe_ext='' || safe_ext=".$3"
+    #         new_safe_name="${safe_path}/${safe_name}${safe_ext}"
+    #         declare -i i=2
+    #         while [ -f "$new_safe_name" ]; do
+    #             new_safe_name="${safe_path}/${safe_name}_${i}${safe_ext}"
+    #             i=$((i + 1))
+    #         done
+    #         new_safe_name_only="${safe_name}_${i}"
+    #     else
+    #         exit_usage "Invalid parameters ..." "usage: "${MAIN}get_safe_new_filename" "${WHITE}filename" /path/to/file [extension]"
+    #     fi
+    #     }
+    # real_name() {
+    #     # TODO test this further ... working on a bash only method
+    #     # test_var "$1"
+    #     # log_flag
+    #     filename="${!1}"
+    #     filename="${1##*/}"
+    #     echo $filename
+    #     }
+    # parse_filename() {
+    #     #   usage: parse_filename [filename]
+    #     #   parameter
+    #     #       filename    - "$1" or global "$filename" used
+    #     #   returns
+    #     #       base_name   - file name only (no path)
+    #     #       dir         - path only
+    #     #       name_only   - name without extension
+    #     #       extension   - file extension or '' if none
 
-        # set filename
-        [[ -n "$1" ]] && filename="$1"
-        # if no filename, error & exit
-        [[ -z "$filename" ]] && exit_usage "\$filename not available or specified ..." "${MAIN}parse_filename ${WHITE}[filename]"
-        test_var "$filename"
-        log_flag
-        [[ -r "$filename" ]] && exit_usage "\$filename not readable ..." "${MAIN}parse_filename ${WHITE}[filename]"
-        base_name="${filename##*/}"
-        # Strip longest match of */ from start
-        dir="${filename:0:${#filename}-${#base_name}}"
-        # Substring from 0 thru pos of filename
-        name_only="${base_name%.[^.]*}"
-        # Strip shortest match of . plus at least one non-dot char from end
-        extension="${base_name:${#name_only}+1}"
-        # Substring from len of base thru end
-        if [[ -z "$name_only" && -n "$extension" ]]; then
-            # If we have an extension and no base, it's really the base
-            name_only="$extension"
-            extension=""
-        fi
-        }
+    #     # set filename
+    #     [[ -n "$1" ]] && filename="$1"
+    #     # if no filename, error & exit
+    #     [[ -z "$filename" ]] && exit_usage "\$filename not available or specified ..." "${MAIN}parse_filename ${WHITE}[filename]"
+    #     test_var "$filename"
+    #     log_flag
+    #     [[ -r "$filename" ]] && exit_usage "\$filename not readable ..." "${MAIN}parse_filename ${WHITE}[filename]"
+    #     base_name="${filename##*/}"
+    #     # Strip longest match of */ from start
+    #     dir="${filename:0:${#filename}-${#base_name}}"
+    #     # Substring from 0 thru pos of filename
+    #     name_only="${base_name%.[^.]*}"
+    #     # Strip shortest match of . plus at least one non-dot char from end
+    #     extension="${base_name:${#name_only}+1}"
+    #     # Substring from len of base thru end
+    #     if [[ -z "$name_only" && -n "$extension" ]]; then
+    #         # If we have an extension and no base, it's really the base
+    #         name_only="$extension"
+    #         extension=""
+    #     fi
+    #     }
     hex_dump() { [[ -r "$1" ]] && od -A x -t x1z -v "$1"; }
     url_encode() {
         [[ -z "$1" ]] && return 64
@@ -288,31 +302,31 @@ declare -ix SET_DEBUG=${SET_DEBUG:=0}   # set to 1 for verbose testing
         esac
         }
 #?######################## SCRIPT ERROR TRAPS
-    _set_traps() {
-        cur_opts="$-"
-        debug_opts="axET"
-        set "-${cur_opts}${debug_opts}"
-        }
-    _trap_exit() {
-        set "-${cur_opts}"
-        exec 4>&- 5>&- 6>&-
-        if [[ "$LOG" == '1' ]]; then
-            LOG='0'
-            exec 1>&4 2>&5
-            exec 4>&- 5>&-
-            attn "logging off ..."
-        fi
-        }
-    _trap_error() {
-        me "ERR: $ERR"
-        set "-${cur_opts}"
-        return
-        }
-    _trap_debug() {
-        return 0
-        # ce "Script source:$MAIN $BASH_SOURCE$RESET $@ \n"
-        # attn "echo VARIABLE ($VARIABLE) is being used here."
-        }
+    # _set_traps() {
+    #     cur_opts="$-"
+    #     debug_opts="axET"
+    #     set "-${cur_opts}${debug_opts}"
+    #     }
+    # _trap_exit() {
+    #     set "-${cur_opts}"
+    #     exec 4>&- 5>&- 6>&-
+    #     if [[ "$LOG" == '1' ]]; then
+    #         LOG='0'
+    #         exec 1>&4 2>&5
+    #         exec 4>&- 5>&-
+    #         attn "logging off ..."
+    #     fi
+    #     }
+    # _trap_error() {
+    #     me "ERR: $ERR"
+    #     set "-${cur_opts}"
+    #     return
+    #     }
+    # _trap_debug() {
+    #     return 0
+    #     # ce "Script source:$MAIN "$BASH_SOURCE$RESET" "$@" \n"
+    #     # attn "echo VARIABLE ($VARIABLE) is being used here."
+    #     }
 #?######################## SCRIPT TESTS
     _run_tests() {
         _run_debug_config() {
@@ -373,12 +387,12 @@ declare -ix SET_DEBUG=${SET_DEBUG:=0}   # set to 1 for verbose testing
     export_list() {
         export -p | xargs
         }
-#? ######################## program debugging / logging / trace functions
+#?######################## program debugging / logging / trace functions
     yes_no() {
         # Accept a Yes/no (default Yes) user response to prompt ($1 or default)
         echo -n "${1:-'[Yes/no]: '}"
         read yno
-        case $yno in
+        case "$yno" in
         [nN] | [n | N][O | o])
             return 1
             ;;
@@ -391,7 +405,7 @@ declare -ix SET_DEBUG=${SET_DEBUG:=0}   # set to 1 for verbose testing
         # Accept a yes/No (default No) user response to prompt ($1 or default)
         echo -n "${1:-'[No/yes]: '}"
         read yno
-        case $yno in
+        case "$yno" in
         [yY] | [yY][Ee][Ss])
             return 1
             ;;
@@ -404,8 +418,8 @@ declare -ix SET_DEBUG=${SET_DEBUG:=0}   # set to 1 for verbose testing
         # Print script usage and exit
         # TODO replace with die()
         # Parameters:
-        #   $1 - specific message (e.g. 'file not found')
-        #   $2 - optional usage text
+        #   "$1" - specific message (e.g. 'file not found')
+        #   "$2" - optional usage text
         die "$@"
         }
     print_usage() {
@@ -414,12 +428,13 @@ declare -ix SET_DEBUG=${SET_DEBUG:=0}   # set to 1 for verbose testing
         }
     which_var() {
         var=$1
-        var_name=$(declare -p $var)
+        var_name=$(declare -p "$var")
         attn "${var_name}: $var"
         }
     show_exports() {
         for var in $(export -p); do
-            if $(declare -p $var); then
+            if declare -p "$var"; then
+                true
                 # if the var exists, get the name of it ...
             fi
         done
@@ -433,8 +448,8 @@ declare -ix SET_DEBUG=${SET_DEBUG:=0}   # set to 1 for verbose testing
         #   toggle on and off logging to file
         #       parameter
         #           filename    - name of new logfile (default LOGFILE)
-        #       variable $LOG stores state
-        #       variable $LOGFILE stores filename
+        #       variable "$LOG" stores state
+        #       variable "$LOGFILE" stores filename
         #   reference: https://unix.stackexchange.com/questions/80988/how-to-stop-redirection-in-bash
 
         # set default log filename or $1
@@ -468,7 +483,7 @@ declare -ix SET_DEBUG=${SET_DEBUG:=0}   # set to 1 for verbose testing
         # report test results if:
         #    - SET_DEBUG is set to '1' or cli [test] option set
         #    - use log_toggle() to include file logging
-        # if [[ $SET_DEBUG == 1 ]] || [[ $1 == 'test' ]]; then
+        # if [[ "$SET_DEBUG" == 1 ]] || [[ "$1" == 'test' ]]; then
         #     printf "%bFunction Test -> %bPID %s %b" "$MAIN" "$CANARY" "$$" "$GO"
         #     printf '%(%Y-%m-%d)T' -1
         #     printf "%b test name: %s\n%b" "$ATTN" "$1" "${RESET_FG:-}"
@@ -485,7 +500,7 @@ declare -ix SET_DEBUG=${SET_DEBUG:=0}   # set to 1 for verbose testing
         # reference:
         #   indirect variables: https://wiki.bash-hackers.org/syntax/pe#indirection
         #   bash printf: https://www.linuxjournal.com/content/bashs-built-printf-function
-        # if [[ $SET_DEBUG == 1 ]] && [[ -n "$1" ]]; then
+        # if [[ "$SET_DEBUG" == 1 ]] && [[ -n "$1" ]]; then
         #     local testvar="${1}"
         #     echo "\$testvar: $testvar"
         #     echo "testvar: "testvar
@@ -497,19 +512,19 @@ declare -ix SET_DEBUG=${SET_DEBUG:=0}   # set to 1 for verbose testing
         # fi
         # }
     # log_flag() { rain "#? ############################################################################"; }
-        _header_test_log() {
-            [[ -z $DEBUG_LOG ]] && return 64
-            printf "%b " "$@" >&2
-            printf "%b" "\n"
-            }
+    _header_test_log() {
+        [[ -z "$DEBUG_LOG" ]] && return 64
+        printf "%b " "$@" >&2
+        printf "%b" "\n"
+        }
 
-        _debug_function_header() { eval $_debug_function_header_text; }
-        l() {
-            # added 'list' default parameter instead of 'help'
-            eval "launchctl ${@:-list}"
-            }
+    # _debug_function_header() { eval "$_debug_function_header_text"; }
+    l() {
+        # added 'list' default parameter instead of 'help'
+        eval "launchctl ${*:-list}"
+        }
 
-#? ######################## program control
+#?######################## program control
     null_it () { eval "$@" 2>/dev/null; }
         # To suppress the error message any output to standard error
         #   is sent to /dev/null using 2>/dev/null.
@@ -524,22 +539,23 @@ declare -ix SET_DEBUG=${SET_DEBUG:=0}   # set to 1 for verbose testing
 
     die () {
         # die with debug functions
-        # $1 is errorcode
-        # $2 is an optional message
+        # "$1" is errorcode
+        # "$2" is an optional message
         ERR_CODE=${1:0}
-        if [[ $SET_DEBUG == 1 ]]; then
+        if [[ $SET_DEBUG -eq 1 ]]; then
             db_echo "$@"
-            [[ $DONT_DIE == 1 ]] && db_echo "DONT_DIE is active - not exiting." || die_now "$1"
+            db_echo "$ERR_CODE"
+            [[ "$DONT_DIE" == 1 ]] && db_echo "DONT_DIE is active - not exiting." || die_now "$1"
         else
             errcho "error ... ${1}: ${!1}   exiting ..."
             die_now "$1"
         fi
         }
-#? ######################## error reporting
-    errcho(){ >&2 echo $@; }
+#?######################## error reporting
+    errcho(){ >&2 echo "$@"; }
         # REF: https://stackoverflow.com/questions/2990414/echo-that-outputs-to-stderr
 
-#? ######################## error handling
+#?######################## error handling
     _set_traps() {
         cur_opts="$-"
         debug_opts="axET"
@@ -553,7 +569,7 @@ declare -ix SET_DEBUG=${SET_DEBUG:=0}   # set to 1 for verbose testing
         }
     _trap_debug() {
         # return 0
-        ce "Script source:$MAIN $SCRIPT_SOURCE$RESET_FG $@ \n"
+        ce "Script source:$MAIN $SCRIPT_SOURCE$RESET_FG $* \n"
         attn "echo VARIABLE ($VARIABLE) is being used here."
         }
     _trap_exit() {
@@ -577,23 +593,23 @@ declare -ix SET_DEBUG=${SET_DEBUG:=0}   # set to 1 for verbose testing
         }
 #?######################## SCRIPT TESTS
     db_echo() {
-        # db_echo() { [[ $SET_DEBUG == 1 ]] && warn "${@:-}${RESET_FG:-}"; }
+        # db_echo() { [[ "$SET_DEBUG" == 1 ]] && warn "${@:-}${RESET_FG:-}"; }
         # report data and errors in scripting
         #    - SET_DEBUG is set to '1' to report errors
         #    - use log_toggle() to include file logging
         # using stream 2 (stderr)
 
-        if [[ $SET_DEBUG == '1' ]]; then
-            warn "debug info ($(date "+%D %T")) - $@" >&2
+        if [[ "$SET_DEBUG" == '1' ]]; then
+            warn "debug info ($(date "+%D %T")) - $*" >&2
         fi
-        # printf "%b\n" "${cyan:-}dotnet-install:${normal:-} $1" >&3
+        # printf "%b\n" "${cyan:-}dotnet-install:${normal:-} "$1"" >&3
         }
     die() {
-        # exit program with $exit_code ($1) and optional $message ($2)
+        # exit program with "$exit_code" ($1) and optional "$message" ($2)
         # https://stackoverflow.com/questions/7868818/in-bash-is-there-an-equivalent-of-die-error-msg/7869065
 
         warn "${2:-"Script died...$USAGE"}" >&2
-        db_echo "${MAIN}line ${BLUE}${BASH_LINENO[0]}${MAIN} of ${ATTN}${FUNCNAME[1]}${MAIN} in ${BASH_SOURCE[1]}${MAIN}." >&2
+        db_echo "${MAIN}line "${BLUE}${BASH_LINENO[0]}${MAIN}" of "${ATTN}${FUNCNAME[1]}${MAIN}" in "${BASH_SOURCE[1]}${MAIN}."" >&2
         [[ ! "$DONT_DIE" == '1' ]] && exit "${1:-1}"
         }
     _ansi_color_sample_test() {
@@ -670,19 +686,21 @@ declare -ix SET_DEBUG=${SET_DEBUG:=0}   # set to 1 for verbose testing
         # _test_standard_script_modules
         # return 0
         }
-#! ######################## main loop
+#!######################## main loop
 _main_loop() {
+    true
     # pgrep -fl "$BASH_SOURCE"
     # trap _trap_error ERR
     # trap _trap_exit EXIT
     # trap _trap_debug DEBUG
-    # [[ $SET_DEBUG == 1 ]] && _set_traps
+    # [[ "$SET_DEBUG" == 1 ]] && _set_traps
     # parse_options "$@"
     # lime "SET_DEBUG: $SET_DEBUG"
-    [[ $SET_DEBUG == 1 ]] && _run_tests "$@"
+    # [[ "$SET_DEBUG" == 1 ]] && _run_tests "$@"
     }
 
-#* ######################## entry point
+#! ######################## entry point
+# _ansi_color_sample_test
 _main_loop "$@"
 
 #? ############################################################################

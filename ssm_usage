@@ -1,18 +1,61 @@
 #!/usr/bin/env zsh
-#/usr/bin/env false zsh
 # -*- coding: utf-8 -*-
-declare -ix SET_DEBUG=${SET_DEBUG:=0}   # set to 1 for verbose testing
+# shellcheck shell=bash
+# shellcheck source=/dev/null
 
-#? ######################## Project Information
-    NAME=${NAME:="${BASH_SOURCE##*/}"}
-    VERSION=${VERSION:='1.0.0'}
-    DESC=${DESC:='Script Resources for ssm on macOS'}
-    USAGE="source ${NAME:-'[script]'} [help|test|usage|version]"
-    AUTHOR="Michael Treanor  <skeptycal@gmail.com>"
-    COPYRIGHT="Copyright (c) 2019 Michael Treanor"
-    LICENSE="MIT <https://opensource.org/licenses/MIT>"
-    GITHUB="https://www.github.com/skeptycal"
+declare -ix SET_DEBUG && SET_DEBUG=${SET_DEBUG:-0}   # set to 1 for verbose testing
 
+#? ######################## basic parameter handling
+parse_options() {
+    # parse basic options [help|test|usage|version] & SET_DEBUG
+    # TODO the 'exits' and lack of shifts make this function inadequate
+    # TODO use standard functions in a wrapper instead
+    case "$1" in
+    -h | --help | help)
+        set_man_page
+        printf "%s\n" "$MAN_PAGE"
+        br
+        br
+        return
+        # exit 0
+        ;;
+    -t | --test | test)
+        SET_DEBUG=1
+        _run_tests
+        return
+        # exit 0
+        ;;
+    -u | --usage | usage)
+        me "$USAGE"
+        return
+        # exit 0
+        ;;
+    -v | --version | version)
+        ce "${MAIN}${NAME}${WHITE} (version ${VERSION})${RESET_FG}"
+        return
+        # exit 0
+        ;;
+        *)
+        me "$USAGE"
+        ;;
+    esac
+    }
+
+#? ######################## basic tests
+_run_tests() {
+    set_man_page
+    printf "%b" "$MAN_PAGE"
+    me "Running script $NAME\n"
+    attn "process $$ (sourced? ${is_sourced}) ($0, $BASH_SOURCE)"
+    br
+    echo "ZSH_EVAL_CONTEXT: $ZSH_EVAL_CONTEXT"
+    }
+
+#!######################## main loop
+_main_loop() {
+    [[ $SET_DEBUG == 1 ]] && _run_tests "$@"
+    [[ $ZSH_EVAL_CONTEXT =~ :file$ ]] || parse_options "$@"
+    }
 
 #? ######################## Usage Text Constants
 usage_long_desc="$(
@@ -69,55 +112,9 @@ MAN_PAGE
     )"
 }
 
-#? ######################## basic parameter handling
-parse_options() {
-    # parse basic options [help|test|usage|version] & SET_DEBUG
-    # TODO the 'exits' and lack of shifts make this function inadequate
-    # TODO use standard functions in a wrapper instead
-    case "$1" in
-    -h | --help | help)
-        set_man_page
-        printf "$MAN_PAGE"
-        br
-        br
-        return
-        # exit 0
-        ;;
-    -t | --test | test)
-        SET_DEBUG=1
-        _run_tests
-        return
-        # exit 0
-        ;;
-    -u | --usage | usage)
-        me "$USAGE"
-        return
-        # exit 0
-        ;;
-    -v | --version | version)
-        ce "${MAIN}${NAME}${WHITE} (version ${VERSION})${RESET_FG}"
-        return
-        # exit 0
-        ;;
-        *)
-        me "$USAGE"
-        ;;
-    esac
-    }
+#! ######################## entry point
+_main_loop "$@"
 
-#? ######################## basic tests
-_run_tests() {
-    set_man_page
-    printf "%b" "$MAN_PAGE"
-    me "Running script $NAME\n"
-    attn "process $$ (sourced? ${is_sourced}) ($0, $BASH_SOURCE)"
-    br
-    # echo $is_sourced
-    # echo "ZSH_EVAL_CONTEXT: $ZSH_EVAL_CONTEXT"
-    }
-_main_loop() {
-    parse_options "$@"
-    }
-
-[[ $ZSH_EVAL_CONTEXT =~ :file$ ]] || _main_loop "$@"
-[[ $SET_DEBUG == 1 ]] && _run_tests "$@"
+#? ############################################################################
+#? Resources found in ssm_usage
+    # _debug_function_header, in_list
