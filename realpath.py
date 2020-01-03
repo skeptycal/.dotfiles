@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
-"""
-    realpath - Print the resolved absolute file name of FILE(s)
+""" realpath - Print the resolved absolute file name of FILE(s)
 
     Usage:
         realpath FILE [-Rtz] [-q | -v] [--color COLOR] [--pattern PATTERN]
@@ -26,17 +25,17 @@
         0 if all file names were printed without issue.
         1 otherwise.
 
-"""
+    """
 # pylint: disable=using-constant-test, bare-except, line-too-long
 
 import os
 import sys
+from random import randint
 from pathlib import Path
 
 from docopt import docopt
 
 __version__ = '1.0.0'
-
 
 # ?############################## CONSTANTS
 if True:
@@ -63,10 +62,6 @@ if True:
 
 # ?############################## Utilities
 
-
-def cprint(*args, color=DEFAULT_PRINT_COLOR, sep=' ', end=NL, file=sys.stdout, flush=False):
-    print(color, *args, RESET, sep=sep, end=end, file=file, flush=flush)
-
 # ?############################## RealPath class
 
 
@@ -80,9 +75,21 @@ class Verbose():
         >- 4 - exceptions: messages and trace info (emergency messages and exit codes)
         '''
 
-    def __init__(self, v: int = 1):
+    def __init__(self, v: int = 1, log=False):
         self.verbosity: int = v
+        if log:
+            # create logfile
+            pass
         super().__init__()
+
+    def unique_path(self, directory, name_pattern):
+        counter = 0
+        name_pattern = this_name + str(randint(10000, 99999))
+        while True:
+            counter += 1
+            path = directory / name_pattern.format(counter)
+            if not path.exists():
+                return path
 
     @staticmethod
     def catch(func):
@@ -103,32 +110,30 @@ class Verbose():
 
     @staticmethod
     def cprint(*args, color=DEFAULT_PRINT_COLOR, sep=' ', end=NL, file=sys.stdout, flush=False):
+        ''' Prints 'args' in color using the keyword arg 'color' '''
         print(color, *args, RESET, sep=sep, end=end, file=file, flush=flush)
 
-    def printvar(self, *args, color=DEFAULT_ERR_COLOR, file=sys.stderr):
+    @staticmethod
+    def printvar(*args, color=DEFAULT_ERR_COLOR, file=sys.stderr):
         for arg in args:
             cprint(f"{arg=}", color=color, file=file)
 
-    def print_attn(self, *args, color=DEFAULT_INFO_COLOR, file=sys.stderr):
-        cprint(*args, color=color, file=file)
-
-    def vprint(self, *args, verbosity=1, color=DEFAULT_PRINT_COLOR, sep=' ', end=NL, file=sys.stderr, flush=False):
-        """
-        Print based on chosen verbosity level of object.
+    def vprint(self, *args, v=1, sep=sep, end=end, flush=False):
+        """ Print based on chosen verbosity level of object.
 
             0 - quiet: only necessary feedback
             1 - normal: expected POSIX feedback
             2 - verbose: detailed feedback and errors
-            3 - debugging: all plus variables and tests
-        """
-        if verbosity == 3:
-            printvars(*args, color=WARN, file=file)
+            3 - debugging: detailed dev info and errorss
+            """
+        if v == 3:
+            printvars(*args, color=WARN, file=stderr, sep=sep, end=end, flush=flush)
             # for arg in args:
             #     cprint(f"{arg=}")
-        elif verbosity == 2:
-            cprint(*args, color=ATTN, file=stderr)
-        elif verbosity == 1:
-            cprint(*args, file=stdout)
+        elif v == 2:
+            cprint(*args, color=ATTN, file=stderr, sep=sep, end=end, flush=flush)
+        elif v == 1:
+            cprint(*args, color=color, file=stdout, sep=sep, end=end, flush=flush)
 
 
 class RealPath():
@@ -199,12 +204,13 @@ class RealPath():
 
     def process(self):
         # print([_ for _ in self.files])
-        self.vprint(1)
-        self.vprint(
+        p = Path()
+        vprint(1)
+        vprint(
             1, 'Realpath - resolved absolute path for file(s)', color=BLUE)
-        self.vprint(1)
+        vprint(1)
         for file in self.files:
-            print(Path(file).resolve(), end=self.sep)
+            print(p(file).resolve(), end=self.sep)
         # add regex color (if)
 
     def _print_args(self):
@@ -233,6 +239,7 @@ def main():
     '''
     CLI script main entry point.
     '''
+    this_name:str = __name__
     rp = RealPath()
     rp.process()
     rp._print_args()
