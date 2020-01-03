@@ -2,15 +2,18 @@
 # -*- coding: utf-8 -*-
   # shellcheck shell=bash
   # shellcheck source=/dev/null
-  # shellcheck disable=2178
+  # shellcheck disable=2178,2128,2206,2034
 
   # profile start time
   t0=$(date "+%s.%n")
 
 #? ######################## Shell Settings
   # to ease the transition to zsh
-  BASH_SOURCE=${(%):-%N}
-  BASH_SOURCE=${BASH_SOURCE:-$0}
+  if [ -z "$BASH_SOURCE" ]; then
+    BASH_SOURCE=${(%):-%N}
+    BASH_SOURCE=${BASH_SOURCE:-$0}
+  fi
+
 
   # use root defaults since they match web server defaults
   umask 022

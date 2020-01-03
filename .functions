@@ -89,7 +89,7 @@ done
 # Ref: https://unix.stackexchange.com/questions/22815/how-to-list-files-and-directories-with-directories-first
 function l1() { # nice sorting ... #TODO no color ...
     # shellcheck disable=2012
-    ls -l "$*" | sort -r | awk 'NF==9 { if ($1~/^d/) { print $9 "/" } else { print $9 } }'
+    ls -l "$@" | sort -r | awk 'NF==9 { if ($1~/^d/) { print $9 "/" } else { print $9 } }'
 }
 
 update () {
@@ -324,22 +324,24 @@ gst(){
 }
 
 gitit() {
-    dir="${PWD}/.git"
-    if ! [ -d "$dir" ]; then
-        warn "Git not found in $dir"
-    elif git status  ; then # >/dev/null 2>&1
-        warn "Git status error: $PWD"
+    if ! [ -d "$PWD/.git" ]; then
+        warn "Git repo not found in .../${PWD##*/}/.git"
     else
-        message="${*:-'(GitIt) minor updates'}"
-        blue "GitIt - add and commit all updates."
-        green "  repo: ${PWD##*/}"
-        green "  message: $message"
-        git add --all >/dev/null 2>&1
-        pre-commit >/dev/null 2>&1
-        git add --all
-        pre-commit
-        git commit -m "$message"
-        git push --set-upstream origin "$(git_current_branch)"
+        /usr/local/bin/git status
+        if "$?"; then # >/dev/null 2>&1
+            warn "Git status error: $PWD"
+        else
+            message="${*:-$(cat ~/.dotfiles/.stCommitMsg)}"
+            blue "GitIt - add and commit all updates."
+            green "  repo: ${PWD##*/}"
+            green "  message: $message"
+            git add --all >/dev/null 2>&1
+            pre-commit >/dev/null 2>&1
+            git add --all
+            pre-commit
+            git commit -m "$message"
+            git push --set-upstream origin "$(git_current_branch)"
+        fi
     fi
 }
 # TODO - Declare if not declared
