@@ -7,7 +7,9 @@
 #? ${PATH// /}       - strip all spaces
 #? ${VAR##*/}        - return only final element in path (program name)
 #? ${VAR%/*}         - return only path elements in path (without program name)
+
 declare -x SHELL_BIN="${SHELL##*/}" && export SHELL_BIN
+
 # if [[ $SHELL_BIN == 'zsh' ]]; then
     # BASH_SOURCE=${(%):-%N} # to ease the transition to zsh
     # echo $BASH_SOURCE
@@ -53,10 +55,12 @@ MANPATH="${MANPATH// /}"
 # * move up /usr/local/bin ... python is symlinked to python2 already
 
 # *## path #################################################################
+
 # openssl is keg-only, which means it was not symlinked into /usr/local,
 # because Apple has deprecated use of OpenSSL in favor of its own TLS and
 # crypto libraries.
 # export PATH="/usr/local/opt/openssl/bin:$PATH"
+
 # A CA file has been bootstrapped using certificates from the SystemRoots
 # keychain. To add additional certificates (e.g. the certificates added in
 # the System keychain), place .pem files in
