@@ -334,7 +334,8 @@ gitit() {
             message="${*:-$(cat ~/.dotfiles/.stCommitMsg)}"
             blue "GitIt - add and commit all updates."
             green "  repo: ${PWD##*/}"
-            green "  message: $message"
+            green "  message: "
+            green "$message"
             git add --all >/dev/null 2>&1
             pre-commit >/dev/null 2>&1
             git add --all
