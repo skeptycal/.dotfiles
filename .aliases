@@ -2,12 +2,12 @@
 # -*- coding: utf-8 -*-
 # shellcheck shell=bash
 # shellcheck source=/dev/null
-# shellcheck disable=2178
+# shellcheck disable=2178,2139
 
 #? ############################# skeptycal.com ################################
 # [[ $SET_DEBUG ]] && SET_DEBUG=0 # set to 1 for verbose testing
 BASH_SOURCE="${BASH_SOURCE:-$0}" # to ease the transition to zsh
-
+colorflag='--color=auto'
 # *########################################################################
 # TODO works in progress
 
@@ -77,13 +77,9 @@ alias treetotal='tree | tail -1' # needs 'brew install tree'
 # alias fd="find \$PWD -type d -name "
 # alias ff="find \$PWD -type f -name "
 
-ff() {
-    find "$PWD" -type f -name "$1"
-}
+ff() { find "$PWD" -type f -name "$1"; }
 
-fd() {
-    find "$PWD" -type d -name "$1"
-}
+fd() { find "$PWD" -type d -name "$1"; }
 
 # *########################################################################
 # utilities
@@ -96,8 +92,8 @@ alias nowdate='date +"%m-%d-%Y"'
 alias week="date +%V"
 alias mount="mount | column -t"
 # alias allopen="sudo lsof -i -P | grep" # used function instead ...
-alias egrep="egrep --color=auto"
-alias fgrep="fgrep --color=auto"
+alias egrep="egrep ${colorflag}"
+alias fgrep="fgrep ${colorflag}"
 alias plistbuddy="/usr/libexec/PlistBuddy"
 command -v grunt >/dev/null && alias grunt="grunt --stack"
 command -v hd >/dev/null || alias hd="hexdump -C"

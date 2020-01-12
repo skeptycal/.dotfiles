@@ -5,7 +5,7 @@
 # shellcheck disable=2230
 
 # cannot be run directly; called from .bash_profile or .bashrc
-#?#######################################################################
+#?#- ##########################- ############################################
 #* .functions - functions for standard script modules (ssm)
 #* copyright (c) 2019 Michael Treanor
 #* MIT License - https://www.github.com/skeptycal
@@ -36,10 +36,144 @@ if [[ "$(hash git &>/dev/null)" -eq 0 ]]; then
     }
 fi
 
-########################## TODO - WORKS IN PROGRESS
+# - #- ################################
+# - utilities from https://justin.abrah.ms/dotfiles/zsh.html
+
+# Nifty extras
+alias servethis="python -c 'import SimpleHTTPServer; SimpleHTTPServer.test()'"
+alias pypath='python -c "import sys; print(sys.path)" | tr "," "\n" | grep -v "egg"'
+alias pycclean='find $PWD -name "*.pyc" -exec rm {} \; && find $PWD -name "__pycache__" -exec rm -rf {} \;'
+alias ssh='ssh -R 10999:localhost:22'
+alias nethack='telnet nethack.alt.org'
+
+# curl for useragents
+alias iecurl="curl -H \"User-Agent: Mozilla/5.0 (Windows; U; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 2.0.50727)\""
+alias ffcurl="curl -H \"User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.8) Gecko/2009032609 Firefox/3.0.0 (.NET CLR 3.5.30729)\""
+
+killit() {
+    # Kills any process that matches a regexp passed to it
+    ps aux | grep -v "grep" | grep "$@" | awk '{print $2}' | xargs sudo kill
+}
+portslay () {
+    kill -9 `lsof -i tcp:$1 | tail -1 | awk '{ print $2;}'`
+}
+ghget () {
+    # input: rails/rails
+    USER=$(echo $@ | tr "/" " " | awk '{print $1}')
+    REPO=$(echo $@ | tr "/" " " | awk '{print $2}')
+    mcd "$HOME/src/github.com/$USER" && \
+    hub clone $@ && \
+    cd $REPO
+}
+exip () {
+    # gather external ip address
+    echo -n "Current External IP: "
+    curl -s -m 5 http://myip.dk | grep "ha4" | sed -e 's/.*ha4">//g' -e 's/<\/span>.*//g'
+}
+
+ipaddr () {
+    # determine local IP address
+    ifconfig | grep "inet " | awk '{ print $2 }'
+}
+parse_git_branch(){
+    git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/[\1] /';
+}
+
+parse_svn_rev(){
+    svn info 2> /dev/null | grep "Revision" | sed 's/Revision: \(.*\)/[r\1] /';
+}
+
+update_git_dirs() {
+    # so what the below does is finds all files named .git in my home
+    # directory, but excludes the .virtualenvs folder then strips the .git from
+    # the end, cd's into the directory, pulls from the origin master, then
+    # repeats
+
+    OLD_DIR=`pwd`
+    cd ~
+    for i in `find . -type d -name ".virtualenvs" -prune -o -name ".git" | sed 's/\.git//'`; do
+        echo "Going into $i"
+        cd $i
+        git pull origin master
+        cd ~
+    done
+    cd $OLD_DIR
+}
+shell () {
+  ps | grep `echo $$` | awk '{ print $4 }'
+}
+unegg () {
+    unzip $1 -d tmp
+    rm $1
+    mv tmp $1
+}
+
+unpatch () {
+  find . -name "*.orig" -o -name "*.rej"  -type f -exec rm {} \;
+  find . -name "b" -type d -exec rm -rf {} \;
+}
+set_gamma () {
+  xrandr --output eDP1 --gamma $1:$1:$1
+}
+
+cs_on() {
+  set_gamma 1.7
+}
+
+cs_off()  {
+  set_gamma 1.0
+}
+
+dls () {
+ # directory LS
+ echo `ls -l | grep "^d" | awk '{ print $9 }' | tr -d "/"`
+}
+dgrep() {
+    # A recursive, case-insensitive grep that excludes binary files
+    grep -iR "$@" -- * | grep -v "Binary"
+}
+dfgrep() {
+    # A recursive, case-insensitive grep that excludes binary files
+    # and returns only unique filenames
+    grep -iR "$@" -- * | grep -v "Binary" | sed 's/:/ /g' | awk '{ print $1 }' | sort | uniq
+}
+psgrep() {
+    if [ -n "$1" ] ; then
+        echo "Grepping for processes matching $1..."
+        ps aux | grep "$1" | grep -v grep
+    else
+        echo "!! Need name to grep for"
+    fi
+}
+# - ######################## TODO - WORKS IN PROGRESS
+
+dict() {
+    grep "$@" /usr/share/dict/words
+}
+
+extract () {
+    if [ -f "$1" ] ; then
+        case $1 in
+            *.tar.bz2)        tar xjf "$1"        ;;
+            *.tar.gz)         tar xzf "$1"        ;;
+            *.bz2)            bunzip2 "$1"        ;;
+            *.rar)            unrar x "$1"        ;;
+            *.gz)             gunzip "$1"         ;;
+            *.tar)            tar xf "$1"         ;;
+            *.tbz2)           tar xjf "$1"        ;;
+            *.tgz)            tar xzf "$1"        ;;
+            *.zip)            unzip "$1"          ;;
+            *.Z)              uncompress "$1"     ;;
+            *.7z)             7zr e "$1"          ;;
+            *)                echo "'$1' cannot be extracted via extract()" ;;
+        esac
+    else
+        echo "'$1' is not a valid file"
+    fi
+}
 
 # hardlink_dotfiles(){
-#     # convert symlinks to hardlinks
+#     -  convert symlinks to hardlinks
 #     ls "$HOME/.dotfiles" -A | perl -nle 'print if -l and not -d;'
 
 #     while IFS="" read -r f || [ -n "$f" ]
@@ -94,7 +228,7 @@ function l1() { # nice sorting ... #TODO no color ...
 
 update () {
     # System software updates (macOS - updated for Catalina)
-    ########################################################################
+    #- #- ##########################- ############################################
     # Close any open System Preferences panes, to prevent them from overriding
     # settings we’re about to change
     osascript -e 'tell application "System Preferences" to quit'
@@ -108,7 +242,7 @@ update () {
         sleep 60
         kill -0 "$$" || exit
     done 2>/dev/null &
-    ########################################################################
+    #- #- ##########################- ############################################
 
     /usr/bin/sudo softwareupdate -i -a
     brew update
@@ -214,7 +348,7 @@ path() { # alias path='echo -e ${PATH//:/\\n}'
         # shellcheck disable=SC2207
         path_list=( $( IFS=":" echo -e "$1"; ) )
         echo -e "${path_list[@]}"
-        echo -e "#------------------#"
+        echo -e "#-> -----------------#"
         for s in ${path_list[*]}
         # for s in "${path_list}"
         do
@@ -254,7 +388,7 @@ gather() {
     #   installed with: <brew install findutils>
     gather_test=1 # reset test flag (0|1) (set to 1 for testing)
 
-    ########################## process options
+    #- ######################### process options
         option_string='-0' # default options (-0 is required to work with find -print0)
         if [ -z "$1" ]; then # if no args, exit with usage and error message
             me "$0 ${WHITE:-}[-huv] [-0opt] [xargs options] filetype [utility]"
@@ -286,20 +420,20 @@ gather() {
             shift
         done
 
-    ########################## cleanup options
+    #- ######################### cleanup options
         option_string=${option_string//0/}'0' # remove all 0 and add a single one (-0 is required)
         option_string='-'${option_string//-/} # remove any '-' symbols and add a single one (formatting)
 
-    ########################## setup search pattern
+    #- ######################### setup search pattern
         # default filetype is pdf ... imo, least likely to cause headaches if they are moved accidentally
         gather_pattern=\*"${1:-pdf}"\*
         shift
 
-    ########################## setup command
+    #- ######################### setup command
         # remaining args are considered the xargs 'command' or 'utility' and its arguments (default /bin/echo)
         command_string="${*:-/bin/echo}"
 
-    #!######################## testing
+    #! ######################## testing
         if [[ $gather_test == 1 ]]; then
             br
             lime "Gathering all files like ${MAIN:-}${gather_pattern}${LIME:-} in current path and recursively."
@@ -353,7 +487,7 @@ gitit() {
     # test ! $( declare -F foo ) || {
     #     foo() { true ; }
     # }
-#?######################## BEGIN FUNCTIONS
+#? ######################## BEGIN FUNCTIONS
 a() { alias | grep "$1"; }
 
 allopen() { sudo lsof -i -P | grep "$1"; }
@@ -507,28 +641,28 @@ fileop() {
     #     echo "Usage : $0 option pattern filename"
     #     return 1
     # fi
-    # # Check the given file is exist #
+    # - # Check the given file is exist #
     # if [ ! -f "$3" ]; then
     #     echo "Filename given \"$3\" doesn't exist"
     #     return 1
     # fi
     # case "$1" in
-    # # Count number of lines matches
+    # - # Count number of lines matches
     # -i)
     #     echo "Number of lines matches with the pattern $2 :"
     #     fgrep -c -i $2 $3
     #     ;;
-    # # Count number of words matches
+    # - # Count number of words matches
     # -c)
     #     echo "Number of words matches with the pattern $2 :"
     #     fgrep -o -i $2 $3 | wc -l
     #     ;;
-    # # print all the matched lines
+    # - # print all the matched lines
     # -p)
     #     echo "Lines matches with the pattern $2 :"
     #     fgrep -i $2 $3
     #     ;;
-    # # Delete all the lines matches with the pattern
+    # - # Delete all the lines matches with the pattern
     # -d)
     #     echo "After deleting the lines matches with the pattern $2 :"
     #     sed -n "/$2/!p" $3
@@ -606,8 +740,8 @@ getcertnames() {
 get_template() {
     # TODO work in progress
     return 0
-    ## copy template file <$1> to current directory
-    ## use $2 == '-f' to force overwrite
+    # - # copy template file <$1> to current directory
+    # - # use $2 == '-f' to force overwrite
     # local template_file="${bin_path}/$1"
     # echo "$template_file"
     # if [[ -f "$template_file" ]]; then
@@ -871,7 +1005,7 @@ tre() {
 trw() {
     # TODO work in progress
     return 0
-    #     # trim leading and trailing whitespace
+    # -     # trim leading and trailing whitespace
     #     local var="$*"
     #     var="${var#"${var%%[![:space:]]*}"}"
     #     var="${var#"${var&&[!'/']*}"}"
@@ -944,12 +1078,12 @@ web_chmod() {
     # ls "$dir" -ARlh
 }
 
-#?######################## SCRIPT TESTS
+#? ######################## SCRIPT TESTS
 _run_debug_functions() {
     db_script_source "Functions test"
     warn "$name"
 }
-#?######################## BEGIN SCRIPT SETUP
+#? ######################## BEGIN SCRIPT SETUP
 # _run_setup() {
 
 # }
@@ -962,7 +1096,7 @@ _login_message() {
     green "Use <versions> to display shell, language, and utility versions. (Use <checkpath> to check system \$PATH.)"
     br
 }
-#?######################## MAIN LOOP
+#? ######################## MAIN LOOP
 _main_loop() {
     # _run_setup
     _login_message
@@ -972,14 +1106,14 @@ _main_loop() {
     [[ $SET_DEBUG == '1' ]] && _run_debug_functions
 }
 
-#?######################## PROGRAM FEATURES:
+#? ######################## PROGRAM FEATURES:
     #  Symlink a file in ~/.dotfiles to ~/
     #  This makes managing a 'dotfiles' Git repo more efficient
     #  - Make Numbered backup copies in ~/.dotfiles/bak (not synced to repo)
     #  - Copy file to ~/.dotfiles if needed
     #  - Delete original file if needed
     #  - Delete original symlink if needed
-#?######################## skeptycal.com
+#? ######################## skeptycal.com
 declare -x GATHER_USAGE
 GATHER_USAGE="$(
     cat <<GATHER_USAGE
@@ -995,10 +1129,10 @@ Tested on ${LIME:-}macOS Catalina${WHITE:-} with ${COOL:-}Python ${CANARY:-}3.8$
 GATHER_USAGE
 )"
 
-#?######################## ENTRY POINT
+#? ######################## ENTRY POINT
 _main_loop "$@"
 
-#?#######################################################################
+#?#- ##########################- ############################################
 # generate a function list
 # declare -F | sed "s/declare -fx //g" >.functions_functions.txt
 # References:
