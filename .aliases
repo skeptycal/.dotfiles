@@ -8,9 +8,9 @@
 # [[ $SET_DEBUG ]] && SET_DEBUG=0 # set to 1 for verbose testing
 BASH_SOURCE="${BASH_SOURCE:-$0}" # to ease the transition to zsh
 colorflag='--color=auto'
-# *########################################################################
-# TODO works in progress
+# *############################################## TODO works in progress
 
+alias blog="cd ~/Work/blog && code ."
 # alias lsln='ls -AF | grep '@' | cut -d '@' -f 1 ' # will include directories
 # find . -maxdepth 1 -type l # will include directories
 alias ll="ls -A | perl -nle 'print if -l and not -d;'"
@@ -31,8 +31,7 @@ if type "nvim" >/dev/null; then
   alias vim=nvim
 fi
 
-# *########################################################################
-# repo setup
+# *############################################## repo setup
 alias gi='cp ~/.dotfiles/.gitignore .'
 alias py="python -m "
 alias sba='source venv/bin/activate'
@@ -44,8 +43,7 @@ alias peg='pipenv graph'
 alias ve="virtualenv"
 alias vew="virtualenvwrapper"
 
-# *########################################################################
-# handy stuff
+# *############################################## handy stuff
 alias cls='clear'   # because 40 year old habits die hard
 alias dir='ls'      # and I'm stubborn
 alias del="rm -rf"   #! delete all the things now! (!CAREFUL!)
@@ -57,8 +55,7 @@ alias mv='nocorrect mv'       # no spelling correction on mv
 alias cp='nocorrect cp'       # no spelling correction on cp
 alias mkdir='nocorrect mkdir' # no spelling correction on mkdir
 
-# *########################################################################
-# directories
+# *############################################## directories
 alias cdc="cd $HOME/Documents/coding"
 alias cdw="cd $HOME/Documents/work"
 alias cdd="cd $HOME/Sites"
@@ -68,8 +65,7 @@ alias dt="cd $HOME/Desktop"
 alias ftree="find . -print | sed -e 's;[^/]*/;|____;g;s;____|; |;g'"
 alias filetree="ls -R | grep ':$' | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/ /' -e 's/-/|/'"
 
-# *########################################################################
-# search, filter, list
+# *############################################## search, filter, list
 alias ducks='du -ck * | sort -rn | head -11'
 alias toomuch='du -sh ~'
 alias howmuch='du -sh '
@@ -81,8 +77,7 @@ ff() { find "$PWD" -type f -name "$1"; }
 
 fd() { find "$PWD" -type d -name "$1"; }
 
-# *########################################################################
-# utilities
+# *############################################## utilities
 alias hs="history | grep "
 alias map="xargs -n1"
 alias sudo="sudo "
@@ -100,16 +95,14 @@ command -v hd >/dev/null || alias hd="hexdump -C"
 command -v md5sum >/dev/null || alias md5sum="md5"
 command -v sha1sum >/dev/null || alias sha1sum="shasum"
 
-# *########################################################################
-# # maintenance
+# *############################################## # maintenance
 # alias update="sudo softwareupdate -i -a; brew update; brew upgrade; brew cleanup; sudo npm install npm -g; sudo npm update -g; sudo gem update --system; sudo gem update; sudo gem cleanup"
 # alias cleanup="find . -type f -name '*.DS_Store' -ls -delete"
 # alias emptytrash="sudo rm -rfv /Volumes/*/.Trashes; sudo rm -rfv ~/.Trash; sudo rm -rfv /private/var/log/asl/*.asl; sqlite3 ~/Library/Preferences/com.apple.LaunchServices.QuarantineEventsV* 'delete from LSQuarantineEvent'"
 # alias lscleanup="/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user && killall Finder"
 # alias afk="/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspend"
 
-# *########################################################################
-# Applications
+# *############################################## Applications
 alias mergepdf="/System/Library/Automator/Combine\ PDF\ Pages.action/Contents/Resources/join.py"
 # alias canary='/Applications/Google\ Chrome\ Canary.app/Contents/MacOS/Google\ Chrome\ Canary'
 alias chrome='/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome'
@@ -118,13 +111,11 @@ jscbin='/System/Library/Frameworks/JavaScriptCore.framework/Versions/A/Resources
 [ -e "${jscbin}" ] && alias jsc="${jscbin}"
 unset jscbin
 
-# *########################################################################
-# macOS settings
+# *############################################## macOS settings
 alias airport="/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport"
 alias whichmac="uname -a"
 
-# *########################################################################
-# network
+# *############################################## network
 alias watch="nodemon -L ~/Documents/sites"
 alias flush="sudo dscacheutil -flushcache && killall -HUP mDNSResponder"
 alias localip="ipconfig getifaddr en0"
