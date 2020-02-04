@@ -118,6 +118,32 @@
     # bindkey ' ' magic-space    # also do history expansion on space
     # bindkey '^I' complete-word # complete on tab, leave expansion to _expand
 
+
+# sysctl - Access kernel state information.
+
+# Show all available variables and their values:
+# sysctl -a
+
+# Show Apple model identifier:
+# sysctl -n hw.model
+
+# Show CPU model:
+# sysctl -n machdep.cpu.brand_string
+
+# Show available CPU features (MMX, SSE, SSE2, SSE3, AES, etc):
+# sysctl -n machdep.cpu.feature
+
+# Set a changeable kernel state variable:
+# sysctl -w {{section.tunable}}={{value}}
+CPU=$(sysctl -n machdep.cpu.brand_string)
+
+# zsh autocomplete
+listsysctls () {
+  set -A reply $(sysctl -AN ${1%.*})
+  }
+compctl -K listsysctls sysctl
+
+
 #? ######################## Load Profile settings
   # . "${SOURCE_PATH}/ssm"
   . "${SOURCE_PATH}/.aliases"
@@ -199,5 +225,8 @@
   # profile end time
   t1=$(date "+%s.%n")
   # display script time
+  echo "$CPU"
   printf "${MAIN}Profile took %.3f seconds to load.\n" $((t1-t0))
   unset t1 t0
+  echo ''
+  echo -e 'Try <checkpath.py> <bc_remove.sh> <sysctl -a>'
