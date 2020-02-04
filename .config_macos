@@ -1,6 +1,7 @@
-#!/usr/bin/env false bash
+#!/usr/bin/env zsh
 # -*- coding: utf-8 -*-
-# cannot be run directly
+# shellcheck shell=bash
+# shellcheck source=/dev/null
 # BASH_SOURCE=${(%):-%N} # to ease the transition to zsh
 #? ############################################################################
 echo "config_macos is deprecated. All features are implemented in ssm now."

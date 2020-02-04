@@ -1,9 +1,19 @@
 #!/usr/bin/env zsh
 # -*- coding: utf-8 -*-
-#? ######################## Set Options
-  # Using ZSH shell - http://zsh.sourceforge.net/
-  BASH_SOURCE=${(%):-%N} # to ease the transition to zsh
-  set +avx
+  # shellcheck shell=bash
+  # shellcheck source=/dev/null
+  # shellcheck disable=2178,2128,2206,2034
+
+  # profile start time
+  t0=$(date "+%s.%n")
+
+#? ######################## Shell Settings
+  # to ease the transition to zsh
+  if [ -z "$BASH_SOURCE" ]; then
+    BASH_SOURCE=${(%):-%N}
+    BASH_SOURCE=${BASH_SOURCE:-$0}
+  fi
+
 
   # use root defaults since they match web server defaults
   umask 022
@@ -11,28 +21,68 @@
   # Remove all aliases from random unexpected places
   unalias -a
 
-  # profile start time
-  t0=$(date "+%s.%n")
+  declare -ix number_of_cores
+  number_of_cores=$(sysctl -n hw.ncpu)
 
-  rm -f ~/.zcompdump;
-  if type brew &>/dev/null; then
-    FPATH=$(brew --prefix)/share/zsh/site-functions:$FPATH
+  . "${HOME}/.dotfiles/gpg.zsh"
+
+#? ######################## Troubleshooting
+  #?      set to 1 for verbose testing ; remove -r to allow each script to set it
+  declare -ix SET_DEBUG=0
+  #?      log errors to text file; only functional if $SET_DEBUG=1
+  if [[ $SET_DEBUG == 1 ]]; then
+      # setopt verbose xtrace
+      #? turn on debug logging
+      declare -ix DEBUG_LOG && DEBUG_LOG=0
+      #? log file for debug logs
+      declare -x debug_log_file && debug_log_file="${HOME}/.bash_profile_error.log"
+      #? max filesize for debug_log_file
+      declare -ix debug_log_max_size && debug_log_max_size=32768
   fi
-  source "${HOME}/.dotfiles/gpg.zsh"
-  source "/usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
 
-# pip zsh completion start
-function _pip_completion {
-  local words cword
-  read -Ac words
-  read -cn cword
-  reply=( $( COMP_WORDS="$words[*]" \
-             COMP_CWORD=$(( cword-1 )) \
-             PIP_AUTO_COMPLETE=1 $words[1] 2>/dev/null ))
-}
-compctl -K _pip_completion pip
-# pip zsh completion end
+#? ######################## POSIX compliant 'source'
+  # .() {
+  #   s=$(command -v "$1")
+  #   echo "path \$1: $s"
+  #   source "$(realpath "${1}")" || echo "${0?"Unable to source script $s in $BASH_SOURCE at $LINENO"}"
+  #   }
+    # Reference: The shell shall execute commands from the file in the current environment.
 
+    # If file does not contain a <slash>, the shell shall use the search path specified by PATH to find the directory containing file. Unlike normal command search, however, the file searched for by the dot utility need not be executable. If no readable file is found, a non-interactive shell shall abort; an interactive shell shall write a diagnostic message to standard error, but this condition shall not be considered a syntax error.
+
+#? ######################## Path Info
+  declare -x SOURCE_PATH && SOURCE_PATH="${HOME}/.dotfiles"
+  . "${SOURCE_PATH}/.path"
+  . "${SOURCE_PATH}/.theme"
+
+  # if type brew &>/dev/null; then #! removed 'brew' check
+  #   FPATH=$(brew --prefix)/share/zsh/site-functions:$FPATH
+  # fi
+
+  fpath=(/usr/local/share/zsh/site-functions $fpath)
+  fpath=(/usr/local/share/zsh-completions $fpath)
+  fpath=($HOME/.zsh/pure $fpath)
+
+#? ######################## Set BASH Options
+  # BASH options
+  # http://tldp.org/LDP/abs/html/options.html
+  # set -a    # mark all variables and functions for export
+
+  # local use options with deadly side effects
+  # set +H    # turn off History expansion (to use indirect variables)
+  # set -f    # disable globbing (#! CAREFUL)
+
+  # debugging options
+  # set -e    # exit immediately if a command fails (use Traps, however)
+  # set -n    # read commands but do not execute them
+  # set -u    # treat unset variables as an error
+  # set -v    # print lines as they are read
+  # set -x    # print a trace of simple commands
+
+#? ######################## Set ZSH Options
+  # Using ZSH shell - http://zsh.sourceforge.net/
+
+  # zsh options
   # Set/unset  shell options
   setopt   notify globdots correct pushdtohome cdablevars autolist
   setopt   correctall autocd recexact longlistjobs
@@ -40,11 +90,21 @@ compctl -K _pip_completion pip
   setopt   autopushd pushdminus extendedglob rcquotes mailwarning
   unsetopt bgnice autoparamslash
 
+  # my options
+  # setopt   alwaystoend all_export
+
+  # zsh completions
+  # rm -f ~/.zcompdump;
+
+  # . "/usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+  # . "/usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+  # . "/usr/local/opt/zsh-git-prompt/zshrc.sh"
+
   # Autoload zsh modules when they are referenced
     zmodload -a zsh/stat stat
     zmodload -a zsh/zpty zpty
     zmodload -a zsh/zprof zprof
-    zmodload -ap zsh/mapfile mapfile
+    zmodload -a zsh/mapfile mapfile
 
   # Some nice key bindings
     # bindkey '^X^Z' universal-argument ' ' magic-space
@@ -58,113 +118,115 @@ compctl -K _pip_completion pip
     # bindkey ' ' magic-space    # also do history expansion on space
     # bindkey '^I' complete-word # complete on tab, leave expansion to _expand
 
+
+# sysctl - Access kernel state information.
+
+# Show all available variables and their values:
+# sysctl -a
+
+# Show Apple model identifier:
+# sysctl -n hw.model
+
+# Show CPU model:
+# sysctl -n machdep.cpu.brand_string
+
+# Show available CPU features (MMX, SSE, SSE2, SSE3, AES, etc):
+# sysctl -n machdep.cpu.feature
+
+# Set a changeable kernel state variable:
+# sysctl -w {{section.tunable}}={{value}}
+CPU=$(sysctl -n machdep.cpu.brand_string)
+
+# zsh autocomplete
+listsysctls () {
+  set -A reply $(sysctl -AN ${1%.*})
+  }
+compctl -K listsysctls sysctl
+
+
+#? ######################## Load Profile settings
+  # . "${SOURCE_PATH}/ssm"
+  . "${SOURCE_PATH}/.aliases"
+  . "${SOURCE_PATH}/.exports"
+  . "${SOURCE_PATH}/.functions"
+  . "${SOURCE_PATH}/.extra"
+  # . "${SOURCE_PATH}/.git_alias" # already included
+
+  # pipenv python environment settings
+  # eval "$(pyenv init -)"
+  # eval "$(pyenv virtualenv-init -)"
+
+  # pip zsh completion start
+  function _pip_completion {
+    local words cword
+    IFS="" read -r -Ac words
+    IFS="" read -r -cn cword
+    # shellcheck disable=1087,2207,2034
+    reply=( $( COMP_WORDS="$words[*]" \
+              COMP_CWORD=$(( cword-1 )) \
+              PIP_AUTO_COMPLETE=1 "$words[1]" 2>/dev/null ))
+    }
+  compctl -K _pip_completion pip
+  # pip zsh completion end
+
   # Setup new style completion system. To see examples of the old style (compctl
   # based) programmable completion, check Misc/compctl-examples in the zsh
   # distribution.
   autoload -Uz compinit && compinit
 
-  #? ######################## Troubleshooting
-  #?      set to 1 for verbose testing ; remove -r to allow each script to set it
-  declare -ix SET_DEBUG=0
-  #?      log errors to text file; only functional if $SET_DEBUG=1
-  if [[ $SET_DEBUG == 1 ]]; then
-      #? turn on debug logging
-      declare -ix DEBUG_LOG=0
-      #? log file for debug logs
-      declare -x debug_log_file="${HOME}/.bash_profile_error.log"
-      #? max filesize for debug_log_file
-      declare -ix debug_log_max_size=32768
-  fi
-
-#? ######################## Path Info
-  declare -x SOURCE_PATH="${HOME}/.dotfiles"
-  source "${SOURCE_PATH}/.path"
-  if type brew &>/dev/null; then
-    FPATH=$(brew --prefix)/share/zsh/site-functions:$FPATH
-  fi
-
-#? ######################## Load Profile settings
-  source "${SOURCE_PATH}/ssm"
-  source "${SOURCE_PATH}/.aliases"
-  source "${SOURCE_PATH}/.exports"
-  source "${SOURCE_PATH}/.theme"
-  source "${SOURCE_PATH}/.functions"
-  source "${SOURCE_PATH}/.extra"
-  source "${SOURCE_PATH}/.git_alias" # already included
-  source "${HOME}/.oh-my-zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
-
 #? ######################## Original .zshrc
-  declare -x ZSH="${HOME}/.oh-my-zsh"
-  # ZSH_THEME="robbyrussell"
-  ZSH_THEME=""
+  # Path to your oh-my-zsh installation.
+  export ZSH="/Users/skeptycal/.oh-my-zsh"
+
+  # Set name of the theme to load --- if set to "random", it will
+  # load a random theme each time oh-my-zsh is loaded, in which case,
+  # to know which specific one was loaded, run: echo $RANDOM_THEME
+  # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
+  ZSH_THEME="robbyrussell"
+
+  # Set list of themes to pick from when loading at random
+  # Setting this variable when ZSH_THEME=random will cause zsh to load
+  # a theme from this variable instead of looking in ~/.oh-my-zsh/themes/
+  # If set to an empty array, this variable will have no effect.
   # ZSH_THEME_RANDOM_CANDIDATES=( "robbyrussell" "agnoster" )
-  # CASE_SENSITIVE="true"
+
+  # Uncomment the following line to use case-sensitive completion.
+  CASE_SENSITIVE="true"
+
+  # Uncomment the following line to use hyphen-insensitive completion.
+  # Case-sensitive completion must be off. _ and - will be interchangeable.
   # HYPHEN_INSENSITIVE="true"
-  # DISABLE_AUTO_UPDATE="true"
-  DISABLE_UPDATE_PROMPT="true"
-  declare -x UPDATE_ZSH_DAYS=13
-  # DISABLE_MAGIC_FUNCTIONS=true
+
+  # Uncomment the following line to automatically update without prompting.
+  # DISABLE_UPDATE_PROMPT="true"
+
+  # Uncomment the following line to disable colors in ls.
   # DISABLE_LS_COLORS="true"
+
+  # Uncomment the following line to disable auto-setting terminal title.
   # DISABLE_AUTO_TITLE="true"
-  ENABLE_CORRECTION="true"
+
+  # Uncomment the following line to enable command auto-correction.
+  # ENABLE_CORRECTION="true"
+
+  # Uncomment the following line to display red dots whilst waiting for completion.
   COMPLETION_WAITING_DOTS="true"
-  # DISABLE_UNTRACKED_FILES_DIRTY="true"
-  # HIST_STAMPS="mm/dd/yyyy"
-  # ZSH_CUSTOM=/path/to/new-custom-folder
-  # ** original
-  # plugins=(git lein pip pipenv django python osx vscode)
-  # https://towardsdatascience.com/trick-out-your-terminal-in-10-minutes-or-less-ba1e0177b7df
-  # plugins=(git z github history osx pip pyenv pylint python sublime vscode)
-  plugins=(git z history django python pylint osx vscode)
-  source "${ZSH}/oh-my-zsh.sh"
 
-#? ######################## Sindre's prompt - https://github.com/sindresorhus/pure
-  # Set ZSH_THEME="" in your .zshrc to disable oh-my-zsh themes.
-  # Follow the Pure Install instructions.
-  # Do not enable the following (incompatible) plugins: vi-mode, virtualenv.
-  # NOTE: oh-my-zsh overrides the prompt so Pure must be activated after source $ZSH/oh-my-zsh.sh.
-  autoload -U promptinit; promptinit
-  prompt pure
+  # Uncomment the following line if you want to disable marking untracked files
+  # under VCS as dirty. This makes repository status check for large repositories
+  # much, much faster.
+  DISABLE_UNTRACKED_FILES_DIRTY="true"
 
-  # http://zsh.sourceforge.net/Doc/Release/Zsh-Line-Editor.html#Character-Highlighting
-  # https://github.com/sindresorhus/pure/pull/472
-  zstyle :prompt:pure:exec_time color 225
-  zstyle :prompt:pure:git:arrow color 220
-  zstyle :prompt:pure:git:branch color 106
-  zstyle :prompt:pure:host color 30
-  zstyle :prompt:pure:path color 230
-  zstyle :prompt:pure:prompt:error color 196
-  zstyle :prompt:pure:prompt:success color 222
-  zstyle :prompt:pure:user color 36
+  export plugins=(git)
+
+  source $ZSH/oh-my-zsh.sh
 
 #? ######################## script cleanup
-  # script end time
-  t1=$(date "+%s.%N")
+  # profile end time
+  t1=$(date "+%s.%n")
   # display script time
-  printf "${MAIN}Profile took %.3f seconds to load.\n" $(( t1-t0 ))
+  echo "$CPU"
+  printf "${MAIN}Profile took %.3f seconds to load.\n" $((t1-t0))
   unset t1 t0
-  # set +avx
-
-  # echo "` <$0`"           # Echoes the script itself to stdout.
-
-#? ######################## zprezto (end of original .zshrc)
-  # Executes commands at the start of an interactive session.
-  #
-  # Authors:
-  #   Sorin Ionescu <sorin.ionescu@gmail.com>
-  #
-  # Source Prezto.
-  # if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
-  #   source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
-  # fi
-  # Customize to your needs...
-
-#? ######################## asdf (end of original .zshrc)
-
-. $HOME/.asdf/asdf.sh
-
-. $HOME/.asdf/completions/asdf.bash
-
-# . /usr/local/Cellar/asdf/0.7.5/asdf.sh
-
-# . /usr/local/Cellar/asdf/0.7.5/etc/bash_completion.d/asdf.bash
+  echo ''
+  echo -e 'Try <checkpath.py> <bc_remove.sh> <sysctl -a>'

@@ -1,6 +1,8 @@
-#!/usr/bin/env bash
+#!/usr/bin/env zsh
+# -*- coding: utf-8 -*-
+  # shellcheck shell=bash
+  # shellcheck source=/dev/null
 
-echo "sourcing script .bashrc - forwarding to .zshrc for zsh"
-
-[ -n "$PS1" ] && source ~/.zshrc
-return
+if [ -f ~/.zshrc ]; then
+   source ~/.zshrc
+fi

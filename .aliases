@@ -1,36 +1,28 @@
-#!/usr/bin/env false bash
+#!/usr/bin/env zsh
 # -*- coding: utf-8 -*-
-# cannot be run directly; called from .bash_profile or .bashrc
-BASH_SOURCE=${(%):-%N} # to ease the transition to zsh
+# shellcheck shell=bash
+# shellcheck source=/dev/null
+# shellcheck disable=2178,2139
+
 #? ############################# skeptycal.com ################################
-NAME="${BASH_SOURCE##*/}"
-VERSION='1.2.0'
-DESC='personalized Bash aliases (Bash 5.0 on macOS with GNU coreutils)'
-USAGE="source ${NAME} [help|test|usage|version]"
-AUTHOR="Michael Treanor <skeptycal@gmail.com>"
-COPYRIGHT="Copyright (c) 2019 Michael Treanor"
-LICENSE="MIT <https://opensource.org/licenses/MIT>"
-GITHUB="https://www.github.com/skeptycal"
-#? ############################################################################
 # [[ $SET_DEBUG ]] && SET_DEBUG=0 # set to 1 for verbose testing
+BASH_SOURCE="${BASH_SOURCE:-$0}" # to ease the transition to zsh
+colorflag='--color=auto'
+# *############################################## TODO works in progress
 
-function git_com() {
-    if [[ -n "$1" ]]; then
-        gaa
-        gc -S -m "$1"
-        gp
-    fi
-}
+alias blog="cd ~/Work/blog && code ."
+# alias lsln='ls -AF | grep '@' | cut -d '@' -f 1 ' # will include directories
+# find . -maxdepth 1 -type l # will include directories
+alias ll="ls -A | perl -nle 'print if -l and not -d;'"
+alias lsd='ls -1Ad */'
 
-# *########################################################################
-# TODO works in progress
-
-alias pip='python -m pip '
+alias modpy='chmod 775 *.py -c --preserve-root -- '
+alias python='python3'
+alias pip='python3 -m pip '
 alias mine="sudo chown -R $(id -un):$(id -gn) "
 alias pret='prettier * --write --insert-pragma'
 # alias pwdcopy='pwd | pbcopy'
 
-alias com="git_com $@"
 alias git="git-achievements"
 alias pm="pygmentize"
 
@@ -39,9 +31,7 @@ if type "nvim" >/dev/null; then
   alias vim=nvim
 fi
 
-# *########################################################################
-# repo setup
-alias ii='cp /Volumes/Data/skeptycal/.dotfiles/.info.cfg .'
+# *############################################## repo setup
 alias gi='cp ~/.dotfiles/.gitignore .'
 alias py="python -m "
 alias sba='source venv/bin/activate'
@@ -53,21 +43,19 @@ alias peg='pipenv graph'
 alias ve="virtualenv"
 alias vew="virtualenvwrapper"
 
-# *########################################################################
-# handy stuff
+# *############################################## handy stuff
 alias cls='clear'   # because 40 year old habits die hard
 alias dir='ls'      # and I'm stubborn
 alias del="rm -rf"   #! delete all the things now! (!CAREFUL!)
 alias reload="exec ${SHELL} -l"
-alias path='echo -e ${PATH//:/\\n}'
+# alias path='echo -e ${PATH//:/\\n}'
 alias nis="npm install --save "
 alias cgr="composer global require"
 alias mv='nocorrect mv'       # no spelling correction on mv
 alias cp='nocorrect cp'       # no spelling correction on cp
 alias mkdir='nocorrect mkdir' # no spelling correction on mkdir
 
-# *########################################################################
-# directories
+# *############################################## directories
 alias cdc="cd $HOME/Documents/coding"
 alias cdw="cd $HOME/Documents/work"
 alias cdd="cd $HOME/Sites"
@@ -77,17 +65,19 @@ alias dt="cd $HOME/Desktop"
 alias ftree="find . -print | sed -e 's;[^/]*/;|____;g;s;____|; |;g'"
 alias filetree="ls -R | grep ':$' | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/ /' -e 's/-/|/'"
 
-# *########################################################################
-# search, filter, list
+# *############################################## search, filter, list
 alias ducks='du -ck * | sort -rn | head -11'
 alias toomuch='du -sh ~'
 alias howmuch='du -sh '
-alias treetotal='tree | tail -1'
-alias fd="find $PWD -type d -name "
-alias ff="find $PWD -type f -name "
+alias treetotal='tree | tail -1' # needs 'brew install tree'
+# alias fd="find \$PWD -type d -name "
+# alias ff="find \$PWD -type f -name "
 
-# *########################################################################
-# utilities
+ff() { find "$PWD" -type f -name "$1"; }
+
+fd() { find "$PWD" -type d -name "$1"; }
+
+# *############################################## utilities
 alias hs="history | grep "
 alias map="xargs -n1"
 alias sudo="sudo "
@@ -97,24 +87,22 @@ alias nowdate='date +"%m-%d-%Y"'
 alias week="date +%V"
 alias mount="mount | column -t"
 # alias allopen="sudo lsof -i -P | grep" # used function instead ...
-alias egrep="egrep --color=auto"
-alias fgrep="fgrep --color=auto"
+alias egrep="egrep ${colorflag}"
+alias fgrep="fgrep ${colorflag}"
 alias plistbuddy="/usr/libexec/PlistBuddy"
 command -v grunt >/dev/null && alias grunt="grunt --stack"
 command -v hd >/dev/null || alias hd="hexdump -C"
 command -v md5sum >/dev/null || alias md5sum="md5"
 command -v sha1sum >/dev/null || alias sha1sum="shasum"
 
-# *########################################################################
-# maintenance
-alias update="sudo softwareupdate -i -a; brew update; brew upgrade; brew cleanup; sudo npm install npm -g; sudo npm update -g; sudo gem update --system; sudo gem update; sudo gem cleanup"
-alias cleanup="find . -type f -name '*.DS_Store' -ls -delete"
-alias emptytrash="sudo rm -rfv /Volumes/*/.Trashes; sudo rm -rfv ~/.Trash; sudo rm -rfv /private/var/log/asl/*.asl; sqlite3 ~/Library/Preferences/com.apple.LaunchServices.QuarantineEventsV* 'delete from LSQuarantineEvent'"
-alias lscleanup="/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user && killall Finder"
-alias afk="/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspend"
+# *############################################## # maintenance
+# alias update="sudo softwareupdate -i -a; brew update; brew upgrade; brew cleanup; sudo npm install npm -g; sudo npm update -g; sudo gem update --system; sudo gem update; sudo gem cleanup"
+# alias cleanup="find . -type f -name '*.DS_Store' -ls -delete"
+# alias emptytrash="sudo rm -rfv /Volumes/*/.Trashes; sudo rm -rfv ~/.Trash; sudo rm -rfv /private/var/log/asl/*.asl; sqlite3 ~/Library/Preferences/com.apple.LaunchServices.QuarantineEventsV* 'delete from LSQuarantineEvent'"
+# alias lscleanup="/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user && killall Finder"
+# alias afk="/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspend"
 
-# *########################################################################
-# Applications
+# *############################################## Applications
 alias mergepdf="/System/Library/Automator/Combine\ PDF\ Pages.action/Contents/Resources/join.py"
 # alias canary='/Applications/Google\ Chrome\ Canary.app/Contents/MacOS/Google\ Chrome\ Canary'
 alias chrome='/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome'
@@ -123,13 +111,11 @@ jscbin='/System/Library/Frameworks/JavaScriptCore.framework/Versions/A/Resources
 [ -e "${jscbin}" ] && alias jsc="${jscbin}"
 unset jscbin
 
-# *########################################################################
-# macOS settings
+# *############################################## macOS settings
 alias airport="/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport"
 alias whichmac="uname -a"
 
-# *########################################################################
-# network
+# *############################################## network
 alias watch="nodemon -L ~/Documents/sites"
 alias flush="sudo dscacheutil -flushcache && killall -HUP mDNSResponder"
 alias localip="ipconfig getifaddr en0"

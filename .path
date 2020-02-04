@@ -1,35 +1,38 @@
-#!/usr/bin/env false bash
+#!/usr/bin/env zsh
 # -*- coding: utf-8 -*-
-# false - cannot be run directly
+# shellcheck shell=bash
+# shellcheck source=/dev/null
 #* ##############################################################################
 #? ${PATH//:/\\n}    - replace all colons with newlines to display as a list
 #? ${PATH// /}       - strip all spaces
 #? ${VAR##*/}        - return only final element in path (program name)
 #? ${VAR%/*}         - return only path elements in path (without program name)
-declare -x SHELL_BIN="${SHELL##*/}" && export SHELL_BIN
-[[ SHELL_BIN == 'zsh' ]] && BASH_SOURCE=${(%):-%N} # to ease the transition to zsh
 
-fpath+=("$HOME/.zsh/pure")
+declare -x SHELL_BIN="${SHELL##*/}" && export SHELL_BIN
+
+# if [[ $SHELL_BIN == 'zsh' ]]; then
+    # BASH_SOURCE=${(%):-%N} # to ease the transition to zsh
+    # echo $BASH_SOURCE
+    # echo "${(%):-%N}"
+    # echo $( realpath "${(%):-%N}")
+# fi
 
 # *## PYTHONPATH ###########################################################
 # declare -x PYTHONHOME="$(realpath /Library/Frameworks/Python.framework/Versions/Current)"
+# declare -x PYTHONHOME="$(realpath /Library/Frameworks/Python.framework/Versions/3.8)"
 # declare -x PYTHONPATH="\
-#         $(realpath /Library/Frameworks/Python.framework/Versions/current/lib/python):\
-#         $(realpath /Library/Frameworks/Python.framework/Versions/current):\
-#         /usr/local/bin:\
-#         /usr/bin:\
-#         ./:\
+#         $(realpath /Library/Frameworks/Python.framework/Versions/3.8/lib):\
 #         "
 # PYTHONPATH="${PYTHONPATH// /}"
 
 # PIPPATH is not part of the normal python installation. It is given by:
 # echo $(pip --version | cut -d ' ' -f 4)
-declare -x PIPPATH="$(realpath /Library/Frameworks/Python.framework/Versions/Current/lib/python3.8/site-packages/pip)"
-PIPPATH="${PIPPATH// /}"
+# declare -x PIPPATH="$(which pip3)"
+# PIPPATH="${PIPPATH// /}"
 
 # PIPLIST is not part of the normal python installation. It returns a list of installed packages.
 # The function recreates the list on demand.
-declare -x PIPLIST=$( pip list | tail -n +3 | sed 's/  */ /g' | cut -d ' ' -f 1; )
+# declare -x PIPLIST=$( pip3 list | tail -n +3 | sed 's/  */ /g' | cut -d ' ' -f 1; )
 # PIPLIST() { pip list | sed 's/  */ /g' | cut -d ' ' -f 1; }
 
 # *## MANPATH ###########################################################
@@ -38,6 +41,7 @@ declare -x MANPATH=" \
         /usr/share/man:\
         /usr/local/share/man:\
         /usr/local/opt/erlang/lib/erlang/man:\
+        /Library/Frameworks/Python.framework/Versions/3.8/share/man/man1:\
         "
 MANPATH="${MANPATH// /}"
 
@@ -51,10 +55,12 @@ MANPATH="${MANPATH// /}"
 # * move up /usr/local/bin ... python is symlinked to python2 already
 
 # *## path #################################################################
+
 # openssl is keg-only, which means it was not symlinked into /usr/local,
 # because Apple has deprecated use of OpenSSL in favor of its own TLS and
 # crypto libraries.
 # export PATH="/usr/local/opt/openssl/bin:$PATH"
+
 # A CA file has been bootstrapped using certificates from the SystemRoots
 # keychain. To add additional certificates (e.g. the certificates added in
 # the System keychain), place .pem files in
@@ -63,30 +69,24 @@ MANPATH="${MANPATH// /}"
 # and run
 #   /usr/local/opt/openssl/bin/c_rehash
 declare -x PATH="\
-    /Library/Frameworks/Python.framework/Versions/Current/bin:\
-    /Library/Frameworks/Python.framework/Versions/Current/lib/python3.8/site-packages:\
-    $HOME/Library/Python/3.8/bin
-    $HOME/emsdk:\
-    $HOME/emsdk/upstream/emscripten:\
-    $HOME/emsdk/node/12.9.1_64bit/bin:\
     /usr/local/opt/coreutils/libexec/gnubin:\
+    /Library/Frameworks/Python.framework/Versions/3.8/Resources/Python.app/Contents/MacOS:\
+    /Library/Frameworks/Python.framework/Versions/3.8/bin:\
+    $HOME/Library/Python/3.8/bin:\
     $HOME/bin:\
     $HOME/go/bin:\
     /usr/local/opt/cython/bin:\
-    /usr/local/opt/ccache/libexec:\
     /usr/local/bin:\
     $HOME/bin/utilities:\
     $HOME/bin/utilities/apps:\
     $HOME/bin/utilities/python:\
     $HOME/bin/utilities/php:\
     $HOME/bin/utilities/php/includes:\
+    $HOME/.gem/ruby/2.6.0/bin:\
     /usr/local/opt/ruby/bin:\
     /usr/local/lib/ruby/gems/2.6.0/bin:\
     $HOME/bin/utilities/scripts:\
-    $HOME/.local:\
-    $HOME/.local/bin:\
     $HOME/.dotfiles:\
-    $HOME/.cargo/bin:\
     /usr/local/lib/node_modules:\
     /usr/bin:\
     /bin:\
@@ -108,7 +108,7 @@ PATH="${PATH// /}"
 
 function _run_debug_paths() {
     # list current versions of common utilities
-    ce "Script source:$MAIN $BASH_SOURCE$RESET"
+    ce "Script source:${MAIN} ${BASH_SOURCE}${RESET}"
     green "\$PATH is set. Type <path> to list or <check_path> to test elements."
     # ${PATH//:/\\n}
     # ${PATH// /}
@@ -118,7 +118,7 @@ function _run_debug_paths() {
 # *############################################################################
 # * Bam ... make the magic
 function _main_paths() {
-    [[ $SET_DEBUG == '1' ]] && _run_debug_paths
+    [[ $SET_DEBUG == 1 ]] && _run_debug_paths
 }
 
 _main_paths "$@"
