@@ -83,6 +83,7 @@ declare -x PATH="\
     $HOME/bin/utilities/php:\
     $HOME/bin/utilities/php/includes:\
     $HOME/.gem/ruby/2.6.0/bin:\
+    $HOME/.poetry/bin:\
     /usr/local/opt/ruby/bin:\
     /usr/local/lib/ruby/gems/2.6.0/bin:\
     $HOME/bin/utilities/scripts:\
