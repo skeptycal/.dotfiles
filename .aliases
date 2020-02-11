@@ -9,7 +9,7 @@
 BASH_SOURCE="${BASH_SOURCE:-$0}" # to ease the transition to zsh
 colorflag='--color=auto'
 # *############################################## TODO works in progress
-
+alias dj="python3 manage.py runserver"
 alias blog="cd ~/Work/blog && code ."
 # alias lsln='ls -AF | grep '@' | cut -d '@' -f 1 ' # will include directories
 # find . -maxdepth 1 -type l # will include directories
