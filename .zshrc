@@ -230,3 +230,4 @@ compctl -K listsysctls sysctl
   unset t1 t0
   echo ''
   echo -e 'Try <checkpath.py> <bc_remove.sh> <sysctl -a>'
+[ -f "${GHCUP_INSTALL_BASE_PREFIX:=$HOME}/.ghcup/env" ] && source "${GHCUP_INSTALL_BASE_PREFIX:=$HOME}/.ghcup/env"
