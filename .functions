@@ -21,6 +21,48 @@ declare -ix SET_DEBUG && SET_DEBUG=${SET_DEBUG:-0} # set to 1 for verbose testin
 
 declare -x VERSION_LIST && VERSION_LIST="${DOTFILES_PATH}/.VERSION_LIST.md"
 
+#TODO ------------------ Works in Progress
+
+# to enable this function, add the following to line to the *end* of ~/.zshrc
+#   source /path/to/script/zsh_chrome_url.zsh
+#   or simply copy/paste the code there
+
+export OS=${$(uname):l}
+export KERNEL=$(uname -r)
+export MACH=$(uname -m)
+
+getURL(){
+    # copy URL from active tab of Google Chrome to macOS clipboard
+    if [ $OS = 'darwin' ]; then
+        url=$(osascript -e 'tell application "Google Chrome" to return URL of active tab of front window')
+        printf "%s" "$url" | pbcopy
+
+        # -v is verbose : print url to stdout in addition to clipboard
+        if [ "$1" = '-v' ]; then
+            printf "%s\n" "Chrome url sent to clipboard -> $url"
+        fi
+    fi
+}
+
+lower() {
+    # original
+    #   t=$(echo $f | tr '[:upper:]' '[:lower:]')
+    #   zsh uses ${file:l}
+    force_lower=0
+    if [[ $1 == '-f' ]]; then
+        force_lower=1
+        echo "Forcing mv ... \$force_lower = $force_lower"
+        shift
+    fi
+
+    if [[ $force_lower == 1 ]]; then
+        for file in $* ; do  mv $file ${file:l}  ; done
+    else
+        for file in $* ; do  echo $file ${file:l}  ; done
+    fi
+}
+
+
 flasher () { while true; do printf "\\e[?5h"; sleep 0.1; printf "\\e[?5l"; read -s -t1 && break; done; }
 
 # get name for 'open' if linux or windows

@@ -7,18 +7,38 @@
 #? ############################# skeptycal.com ################################
 # [[ $SET_DEBUG ]] && SET_DEBUG=0 # set to 1 for verbose testing
 BASH_SOURCE="${BASH_SOURCE:-$0}" # to ease the transition to zsh
-colorflag='--color=auto'
-# *############################################## TODO works in progress
+export CLICOLOR=1
+export colorflag='--color=auto' # I use GNU core_utils; no need to test '-G'
 
+# CLICOLOR Details
+#   exfxcxdxbxegedabagacad
+#
+#       ls Attribute	Foreground color	Background color
+#       directory	            e	            x
+#       symbolic	            f	            x
+#       socket	                c	            x
+#       pipe	                d	            x
+#       executable              b	            x
+#       block	                e	            g
+#       character	            e	            d
+#       executable	            a	            b
+#       directory	            a	            c
+#       directory	            a	            d
+
+# TODO ########################################## works in progress
+alias dj="python3 manage.py runserver"
 alias blog="cd ~/Work/blog && code ."
 # alias lsln='ls -AF | grep '@' | cut -d '@' -f 1 ' # will include directories
 # find . -maxdepth 1 -type l # will include directories
 alias ll="ls -A | perl -nle 'print if -l and not -d;'"
 alias lsd='ls -1Ad */'
 
-alias modpy='chmod 775 *.py -c --preserve-root -- '
-alias python='python3'
-alias pip='python3 -m pip '
+# *############################################## python
+# change all .py files in current folder to executable
+alias modpy='chmod +x *.py -c --preserve-root -- '
+alias python='python3 '
+alias pip='/Library/Frameworks/Python.framework/Versions/3.8/bin/python3 -m pip '
+alias py="python -m "
 alias mine="sudo chown -R $(id -un):$(id -gn) "
 alias pret='prettier * --write --insert-pragma'
 # alias pwdcopy='pwd | pbcopy'
@@ -33,7 +53,6 @@ fi
 
 # *############################################## repo setup
 alias gi='cp ~/.dotfiles/.gitignore .'
-alias py="python -m "
 alias sba='source venv/bin/activate'
 alias d="docker "
 alias pe='pipenv'

@@ -70,24 +70,20 @@ MANPATH="${MANPATH// /}"
 #   /usr/local/opt/openssl/bin/c_rehash
 declare -x PATH="\
     /usr/local/opt/coreutils/libexec/gnubin:\
-    /Library/Frameworks/Python.framework/Versions/3.8/Resources/Python.app/Contents/MacOS:\
     /Library/Frameworks/Python.framework/Versions/3.8/bin:\
     $HOME/Library/Python/3.8/bin:\
     $HOME/bin:\
     $HOME/go/bin:\
-    /usr/local/opt/cython/bin:\
     /usr/local/bin:\
     $HOME/bin/utilities:\
+    $HOME/bin/utilities/scripts:\
     $HOME/bin/utilities/apps:\
     $HOME/bin/utilities/python:\
     $HOME/bin/utilities/php:\
     $HOME/bin/utilities/php/includes:\
-    $HOME/.gem/ruby/2.6.0/bin:\
     $HOME/.poetry/bin:\
     /usr/local/opt/ruby/bin:\
     /usr/local/lib/ruby/gems/2.6.0/bin:\
-    $HOME/bin/utilities/scripts:\
-    $HOME/.dotfiles:\
     /usr/local/lib/node_modules:\
     /usr/bin:\
     /bin:\
@@ -97,6 +93,7 @@ declare -x PATH="\
     /usr/sbin:\
     /sbin:\
     /usr/libexec:\
+    $HOME/.dotfiles:\
     $HOME/.dotfiles/git-achievements:\
     /usr/local/opt/mysql@5.7/bin:\
     $PWD:\
