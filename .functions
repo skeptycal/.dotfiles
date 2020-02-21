@@ -4,6 +4,10 @@
 # shellcheck source=/dev/null
 # shellcheck disable=2230
 
+
+# number of years the first commercial
+#   modem would take to transmit a movie: 42.251651342415241
+
 # cannot be run directly; called from .bash_profile or .bashrc
 #?#- ######################################################################
 #* .functions - functions for standard script modules (ssm)
@@ -27,9 +31,12 @@ declare -x VERSION_LIST && VERSION_LIST="${DOTFILES_PATH}/.VERSION_LIST.md"
 #   source /path/to/script/zsh_chrome_url.zsh
 #   or simply copy/paste the code there
 
-export OS=${$(uname):l}
-export KERNEL=$(uname -r)
-export MACH=$(uname -m)
+export OS
+OS=${$(uname):l}
+export KERNEL
+KERNEL=$(uname -r)
+export MACH
+MACH=$(uname -m)
 
 getURL(){
     # copy URL from active tab of Google Chrome to macOS clipboard
@@ -63,7 +70,7 @@ lower() {
 }
 
 
-flasher () { while true; do printf "\\e[?5h"; sleep 0.1; printf "\\e[?5l"; read -s -t1 && break; done; }
+flasher () { while true; do printf "\\e[?5h"; sleep 0.1; printf "\\e[?5l"; read -rs -t1 && break; done; }
 
 # get name for 'open' if linux or windows
 if [ ! "$(uname -s)" = 'Darwin' ]; then
@@ -73,6 +80,7 @@ if [ ! "$(uname -s)" = 'Darwin' ]; then
         alias open='xdg-open'
     fi
 fi
+
 # use git diff if available
 if [[ "$(hash git &>/dev/null)" -eq 0 ]]; then
     function diff() {
@@ -99,15 +107,15 @@ killit() {
     ps aux | grep -v "grep" | grep "$@" | awk '{print $2}' | xargs sudo kill
 }
 portslay () {
-    kill -9 `lsof -i tcp:$1 | tail -1 | awk '{ print $2;}'`
+    kill -9 "$(lsof -i tcp:"$1" | tail -1 | awk '{ print $2;}')"
 }
 ghget () {
     # input: rails/rails
-    USER=$(echo $@ | tr "/" " " | awk '{print $1}')
-    REPO=$(echo $@ | tr "/" " " | awk '{print $2}')
-    mcd "$HOME/src/github.com/$USER" && \
-    hub clone $@ && \
-    cd $REPO
+    USER=$(echo "$@" | tr "/" " " | awk '{print $1}')
+    REPO=$(echo "$@" | tr "/" " " | awk '{print $2}')
+    mcd "$HOME/src/github.com/$USER" || return
+    hub clone "$@" || return
+    cd "$REPO" || return
 }
 exip () {
     # gather external ip address
@@ -133,23 +141,23 @@ update_git_dirs() {
     # the end, cd's into the directory, pulls from the origin master, then
     # repeats
 
-    OLD_DIR=`pwd`
-    cd ~
-    for i in `find . -type d -name ".virtualenvs" -prune -o -name ".git" | sed 's/\.git//'`; do
+    OLD_DIR=$(pwd)
+    cd ~ || return
+    for i in $(find . -type d -name ".virtualenvs" -prune -o -name ".git" | sed 's/\.git//'); do
         echo "Going into $i"
-        cd $i
+        cd $i || return
         git pull origin master
-        cd ~
+        cd ~ || return
     done
-    cd $OLD_DIR
+    cd "$OLD_DIR" || return
 }
 shell () {
-  ps | grep `echo $$` | awk '{ print $4 }'
+  ps | grep "$(echo $$)" | awk '{ print $4 }'
 }
 unegg () {
-    unzip $1 -d tmp
-    rm $1
-    mv tmp $1
+    unzip "$1" -d tmp || return
+    rm "$1"
+    mv tmp "$1"
 }
 
 unpatch () {
@@ -170,7 +178,7 @@ cs_off()  {
 
 dls () {
  # directory LS
- echo `ls -l | grep "^d" | awk '{ print $9 }' | tr -d "/"`
+ echo "$(ls -l | grep "^d" | awk '{ print $9 }' | tr -d "/")"
 }
 dgrep() {
     # A recursive, case-insensitive grep that excludes binary files
@@ -234,7 +242,7 @@ py_realpath(){
 import os
 import sys
 for item in sys.argv[1:]:
-    print(item, os.path.realpath(item). )
+    print(item, os.path.realpath(item) )
 " "$@"
 }
 
