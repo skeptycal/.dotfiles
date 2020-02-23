@@ -63,9 +63,9 @@ lower() {
     fi
 
     if [[ $force_lower == 1 ]]; then
-        for file in $* ; do  mv $file ${file:l}  ; done
+        for file in "$@" ; do  mv "$file" "${file:l}"  ; done
     else
-        for file in $* ; do  echo $file ${file:l}  ; done
+        for file in "$@" ; do  echo "$file" "${file:l}"  ; done
     fi
 }
 
@@ -145,14 +145,14 @@ update_git_dirs() {
     cd ~ || return
     for i in $(find . -type d -name ".virtualenvs" -prune -o -name ".git" | sed 's/\.git//'); do
         echo "Going into $i"
-        cd $i || return
+        cd "$i" || return
         git pull origin master
         cd ~ || return
     done
     cd "$OLD_DIR" || return
 }
 shell () {
-  ps | grep "$(echo $$)" | awk '{ print $4 }'
+  ps | grep "$$" | awk '{ print $4 }'
 }
 unegg () {
     unzip "$1" -d tmp || return
@@ -165,7 +165,7 @@ unpatch () {
   find . -name "b" -type d -exec rm -rf {} \;
 }
 set_gamma () {
-  xrandr --output eDP1 --gamma $1:$1:$1
+  xrandr --output eDP1 --gamma "$1":"$1":"$1"
 }
 
 cs_on() {
@@ -178,7 +178,7 @@ cs_off()  {
 
 dls () {
  # directory LS
- echo "$(ls -l | grep "^d" | awk '{ print $9 }' | tr -d "/")"
+ ls -l | grep "^d" | awk '{ print $9 }' | tr -d "/"
 }
 dgrep() {
     # A recursive, case-insensitive grep that excludes binary files
