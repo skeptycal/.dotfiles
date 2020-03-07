@@ -2,13 +2,15 @@
 # -*- coding: utf-8 -*-
 # shellcheck shell=bash
 # shellcheck source=/dev/null
-#* ##############################################################################
+#* ##########################################################################
 #? ${PATH//:/\\n}    - replace all colons with newlines to display as a list
 #? ${PATH// /}       - strip all spaces
 #? ${VAR##*/}        - return only final element in path (program name)
 #? ${VAR%/*}         - return only path elements in path (without program name)
 
 declare -x SHELL_BIN="${SHELL##*/}" && export SHELL_BIN
+
+echo "$SHELL_BIN"
 
 # if [[ $SHELL_BIN == 'zsh' ]]; then
     # BASH_SOURCE=${(%):-%N} # to ease the transition to zsh
@@ -20,10 +22,21 @@ declare -x SHELL_BIN="${SHELL##*/}" && export SHELL_BIN
 # *## PYTHONPATH ###########################################################
 # declare -x PYTHONHOME="$(realpath /Library/Frameworks/Python.framework/Versions/Current)"
 # declare -x PYTHONHOME="$(realpath /Library/Frameworks/Python.framework/Versions/3.8)"
-# declare -x PYTHONPATH="\
-#         $(realpath /Library/Frameworks/Python.framework/Versions/3.8/lib):\
-#         "
-# PYTHONPATH="${PYTHONPATH// /}"
+
+# PYTHONPATH
+
+# /Users/skeptycal/Documents/coding/python/modules
+# /Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8
+# /Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/lib-dynload
+# /Users/skeptycal/Library/Python/3.8/lib/python/site-packages
+# /Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/site-packages
+# /Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/site-packages/typing-3.7.4.1-py3.8.egg
+
+declare -x PYTHONPATH="\
+    /Users/skeptycal/Documents/coding/python/modules:\
+    /usr/local/opt/python@3.8/Frameworks/Python.framework/Versions/3.8/lib/python3.8/site-packages:\
+    "
+PYTHONPATH="${PYTHONPATH// /}"
 
 # PIPPATH is not part of the normal python installation. It is given by:
 # echo $(pip --version | cut -d ' ' -f 4)
@@ -68,10 +81,15 @@ MANPATH="${MANPATH// /}"
 #
 # and run
 #   /usr/local/opt/openssl/bin/c_rehash
+
 declare -x PATH="\
     /usr/local/opt/coreutils/libexec/gnubin:\
-    /Library/Frameworks/Python.framework/Versions/3.8/bin:\
-    $HOME/Library/Python/3.8/bin:\
+    /Users/skeptycal/Documents/coding/python/modules:\
+    /usr/local/opt/python@3.8/bin:\
+    /usr/local/opt/python@3.8/Frameworks/Python.framework/Versions/3.8/lib/python3.8/site-packages:\
+    /usr/local/opt/python@3.8/Frameworks/Python.framework/Versions/3.8/bin:\
+    /Users/skeptycal/Library/Python/3.8/bin:\
+    /Users/skeptycal/Library/Python/3.8/lib/python/site-packages:\
     $HOME/bin:\
     $HOME/go/bin:\
     /usr/local/bin:\
@@ -85,11 +103,11 @@ declare -x PATH="\
     /usr/local/opt/ruby/bin:\
     /usr/local/lib/ruby/gems/2.6.0/bin:\
     /usr/local/lib/node_modules:\
-    /usr/bin:\
     /bin:\
     /usr/local/opt:\
     /usr/local:\
     /usr/local/sbin:\
+    /usr/bin:\
     /usr/sbin:\
     /sbin:\
     /usr/libexec:\

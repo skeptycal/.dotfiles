@@ -31,12 +31,14 @@ declare -x VERSION_LIST && VERSION_LIST="${DOTFILES_PATH}/.VERSION_LIST.md"
 #   source /path/to/script/zsh_chrome_url.zsh
 #   or simply copy/paste the code there
 
-export OS
 OS=${$(uname):l}
-export KERNEL
+export OS
 KERNEL=$(uname -r)
-export MACH
+export KERNEL
 MACH=$(uname -m)
+export MACH
+NL="\n"
+export NL
 
 getURL(){
     # copy URL from active tab of Google Chrome to macOS clipboard
@@ -610,23 +612,14 @@ check_file() {
     echo ''
 }
 checkpath() {
-    # Usage: checkpath [-d DELIMITER] [PATH]
-    if [[ "$1" == '-d' ]]; then
-        shift
-        DELIM="$1"
-        shift
-    else
-        DELIM=':'
-    fi
-    path_param="${*:-$PATH}" # use all args ... if none, use PATH as default
-    path_param="${path_param//$DELIM/ }"  # replace DELIM
-    path_param="${path_param//  / } "     # remove duplicate spaces
+    path_param=${@:-$PATH} # use all args ... if none, use PATH as default
+    # path_param="${path_param//:/ }"  # replace DELIM
+    # path_param="${path_param//  / } "     # remove duplicate spaces
     # IFS="$'\n\t :'"
     IFS="
      :"
-    path_list=( "$(echo -e "$path_param")" )
 
-    for p in ${path_list[*]};
+    for p in ${=path_param};
     do
         # shellcheck disable=2015
         [[ -d "$p" ]] && green "$p" || attn "$p"
@@ -1152,7 +1145,7 @@ _login_message() {
 _main_loop() {
     # _run_setup
     _login_message
-    save_versions & # 2>/dev/null
+    save_versions # & # 2>/dev/null
     # echo "Travis test: $TRAVIS_TOKEN"
     # travis login --github-token "$TRAVIS_TOKEN"
     [[ $SET_DEBUG == '1' ]] && _run_debug_functions

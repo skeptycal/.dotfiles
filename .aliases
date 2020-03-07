@@ -37,7 +37,7 @@ alias lsd='ls -1Ad */'
 # change all .py files in current folder to executable
 alias modpy='chmod +x *.py -c --preserve-root -- '
 alias python='python3 '
-alias pip='/Library/Frameworks/Python.framework/Versions/3.8/bin/python3 -m pip '
+alias pip='/usr/local/opt/python@3.8/bin/pip3 '
 alias py="python -m "
 alias mine="sudo chown -R $(id -un):$(id -gn) "
 alias pret='prettier * --write --insert-pragma'

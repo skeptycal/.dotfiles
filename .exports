@@ -45,6 +45,7 @@ unset PYTHONDONTWRITEBYTECODE
 #   set hash seed to different random number every session
 declare -ix PYTHONHASHSEED && PYTHONHASHSEED=$(shuf -i1-4294967295 -n1)
 declare -x PYTHONIOENCODING='UTF-8'
+declare -x PKG_CONFIG_PATH="/usr/local/opt/python@3.8/lib/pkgconfig"
 #   python sucks ... virtual environments suck ...
 #   someone should find a better way to do this ... it's so stupid
 #   pipenv is the best alternative for now
