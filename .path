@@ -33,7 +33,7 @@ echo "$SHELL_BIN"
 # /Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/site-packages/typing-3.7.4.1-py3.8.egg
 
 declare -x PYTHONPATH="\
-    /Users/skeptycal/Documents/coding/python/modules:\
+    /Users/skeptycal/Documents/coding/python/autosys:\
     /usr/local/opt/python@3.8/Frameworks/Python.framework/Versions/3.8/lib/python3.8/site-packages:\
     "
 PYTHONPATH="${PYTHONPATH// /}"
@@ -84,12 +84,13 @@ MANPATH="${MANPATH// /}"
 
 declare -x PATH="\
     /usr/local/opt/coreutils/libexec/gnubin:\
-    /Users/skeptycal/Documents/coding/python/modules:\
+    /Users/skeptycal/Documents/coding/python/autosys:\
     /usr/local/opt/python@3.8/bin:\
     /usr/local/opt/python@3.8/Frameworks/Python.framework/Versions/3.8/lib/python3.8/site-packages:\
     /usr/local/opt/python@3.8/Frameworks/Python.framework/Versions/3.8/bin:\
     /Users/skeptycal/Library/Python/3.8/bin:\
     /Users/skeptycal/Library/Python/3.8/lib/python/site-packages:\
+    $HOME/.ghcup/bin:\
     $HOME/bin:\
     $HOME/go/bin:\
     /usr/local/bin:\
