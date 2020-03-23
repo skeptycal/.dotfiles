@@ -2,202 +2,159 @@
 # -*- coding: utf-8 -*-
 # shellcheck shell=bash
 # shellcheck source=/dev/null
-#* ##########################################################################
-#? ${PATH//:/\\n}    - replace all colons with newlines to display as a list
-#? ${PATH// /}       - strip all spaces
-#? ${VAR##*/}        - return only final element in path (program name)
-#? ${VAR%/*}         - return only path elements in path (without program name)
 
-declare -x SHELL_BIN="${SHELL##*/}" && export SHELL_BIN
+SET_DEBUG=${SET_DEBUG:-0} # set to 1 for verbose testing
 
-echo "$SHELL_BIN"
+# ?########################################## parameter expansion tips
+    #? ${PATH//:/\\n}    - replace all colons with newlines
+    #? ${PATH// /}       - strip all spaces
+    #? ${VAR##*/}        - return only final element in path (program name)
+    #? ${VAR%/*}         - return only path (without program name)
 
-# if [[ $SHELL_BIN == 'zsh' ]]; then
-    # BASH_SOURCE=${(%):-%N} # to ease the transition to zsh
-    # echo $BASH_SOURCE
-    # echo "${(%):-%N}"
-    # echo $( realpath "${(%):-%N}")
-# fi
+# ?########################################## PIPLIST
+    # PIPLIST is not part of the normal python installation. It returns a list
+    # of names of installed packages suitable for process and piping, without
+    # the header and extra fields. The function recreates the list on demand
+    # so it is always current.
+    PIPLIST() { pip list | sed 's/  */ /g' | cut -d ' ' -f 1 | tail -n +3; }
 
-# *## PYTHONPATH ###########################################################
-# declare -x PYTHONHOME="$(realpath /Library/Frameworks/Python.framework/Versions/Current)"
-# declare -x PYTHONHOME="$(realpath /Library/Frameworks/Python.framework/Versions/3.8)"
-
-# PYTHONPATH
-
-# /Users/skeptycal/Documents/coding/python/modules
-# /Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8
-# /Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/lib-dynload
-# /Users/skeptycal/Library/Python/3.8/lib/python/site-packages
-# /Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/site-packages
-# /Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/site-packages/typing-3.7.4.1-py3.8.egg
-
-declare -x PYTHONPATH="\
-    /Users/skeptycal/Documents/coding/python/autosys:\
-    /usr/local/opt/python@3.8/Frameworks/Python.framework/Versions/3.8/lib/python3.8/site-packages:\
-    "
-PYTHONPATH="${PYTHONPATH// /}"
-
-# PIPPATH is not part of the normal python installation. It is given by:
-# echo $(pip --version | cut -d ' ' -f 4)
-# declare -x PIPPATH="$(which pip3)"
-# PIPPATH="${PIPPATH// /}"
-
-# PIPLIST is not part of the normal python installation. It returns a list of installed packages.
-# The function recreates the list on demand.
-# declare -x PIPLIST=$( pip3 list | tail -n +3 | sed 's/  */ /g' | cut -d ' ' -f 1; )
-# PIPLIST() { pip list | sed 's/  */ /g' | cut -d ' ' -f 1; }
-
-# *## MANPATH ###########################################################
-declare -x MANPATH=" \
+# ?########################################## MANPATH
+    declare -x MANPATH=" \
         /usr/local/opt/coreutils/libexec/gnuman:\
         /usr/share/man:\
         /usr/local/share/man:\
         /usr/local/opt/erlang/lib/erlang/man:\
         /Library/Frameworks/Python.framework/Versions/3.8/share/man/man1:\
         "
-MANPATH="${MANPATH// /}"
+    MANPATH="${MANPATH// /}"
 
-# *## shims ################################################################
-# node v8.16.0
-# $HOME/node-v8.16.0-darwin-x64/bin:\
+# ?########################################## PATH
+    declare -x PATH="\
+        /usr/local/opt/coreutils/libexec/gnubin:\
+        $HOME/Documents/coding/python/AutoSys/autosys:\
+        $HOME/Documents/coding/python/AutoSys/bin:\
+        /usr/local/opt/python@3.8/bin:\
+        /usr/local/opt/python@3.8/Frameworks/Python.framework/Versions/3.8/lib/python3.8/site-packages:\
+        /usr/local/opt/python@3.8/Frameworks/Python.framework/Versions/3.8/bin:\
+        $HOME/Library/Python/3.8/bin:\
+        $HOME/Library/Python/3.8/lib/python/site-packages:\
+        $HOME/.ghcup/bin:\
+        $HOME/bin:\
+        $HOME/go/bin:\
+        /usr/local/bin:\
+        $HOME/bin/utilities:\
+        $HOME/bin/utilities/scripts:\
+        $HOME/bin/utilities/apps:\
+        $HOME/bin/utilities/python:\
+        $HOME/bin/utilities/php:\
+        $HOME/bin/utilities/php/includes:\
+        $HOME/.poetry/bin:\
+        /usr/local/opt/ruby/bin:\
+        /usr/local/lib/ruby/gems/2.6.0/bin:\
+        /usr/local/lib/node_modules:\
+        /bin:\
+        /usr/local/opt:\
+        /usr/local:\
+        /usr/local/sbin:\
+        /usr/bin:\
+        /usr/sbin:\
+        /sbin:\
+        /usr/libexec:\
+        $HOME/.dotfiles:\
+        $HOME/.dotfiles/git-achievements:\
+        /usr/local/opt/mysql@5.7/bin:\
+        $PWD:\
+        "
 
-# python 2.7.16 (from brew install python@2)
-# /usr/local/bin/python2
-# /usr/local/bin/pip2
-# * move up /usr/local/bin ... python is symlinked to python2 already
+    PATH="${PATH// /}"
 
-# *## path #################################################################
+# ?########################################## Dev Debugging
+    function _run_debug_paths() {
+        # list current versions of common utilities
+        ce "Script source:${MAIN} ${BASH_SOURCE}${RESET}"
+        green "\$PATH is set. Type <path> to list or <check_path> to test elements."
+        echo "$SHELL_BIN"
+        }
 
-# openssl is keg-only, which means it was not symlinked into /usr/local,
-# because Apple has deprecated use of OpenSSL in favor of its own TLS and
-# crypto libraries.
-# export PATH="/usr/local/opt/openssl/bin:$PATH"
+# ?########################################## Bam ... make the magic
+    function _main_() {
+        [[ $SET_DEBUG == 1 ]] && _run_debug_paths
+        }
 
-# A CA file has been bootstrapped using certificates from the SystemRoots
-# keychain. To add additional certificates (e.g. the certificates added in
-# the System keychain), place .pem files in
-#   /usr/local/etc/openssl/certs
-#
-# and run
-#   /usr/local/opt/openssl/bin/c_rehash
+_main_ "$@"
 
-declare -x PATH="\
-    /usr/local/opt/coreutils/libexec/gnubin:\
-    /Users/skeptycal/Documents/coding/python/autosys:\
-    /usr/local/opt/python@3.8/bin:\
-    /usr/local/opt/python@3.8/Frameworks/Python.framework/Versions/3.8/lib/python3.8/site-packages:\
-    /usr/local/opt/python@3.8/Frameworks/Python.framework/Versions/3.8/bin:\
-    /Users/skeptycal/Library/Python/3.8/bin:\
-    /Users/skeptycal/Library/Python/3.8/lib/python/site-packages:\
-    $HOME/.ghcup/bin:\
-    $HOME/bin:\
-    $HOME/go/bin:\
-    /usr/local/bin:\
-    $HOME/bin/utilities:\
-    $HOME/bin/utilities/scripts:\
-    $HOME/bin/utilities/apps:\
-    $HOME/bin/utilities/python:\
-    $HOME/bin/utilities/php:\
-    $HOME/bin/utilities/php/includes:\
-    $HOME/.poetry/bin:\
-    /usr/local/opt/ruby/bin:\
-    /usr/local/lib/ruby/gems/2.6.0/bin:\
-    /usr/local/lib/node_modules:\
-    /bin:\
-    /usr/local/opt:\
-    /usr/local:\
-    /usr/local/sbin:\
-    /usr/bin:\
-    /usr/sbin:\
-    /sbin:\
-    /usr/libexec:\
-    $HOME/.dotfiles:\
-    $HOME/.dotfiles/git-achievements:\
-    /usr/local/opt/mysql@5.7/bin:\
-    $PWD:\
-    "
+# ?########################################## OpenSSL info
+    # openssl is keg-only, which means it was not symlinked into /usr/local,
+    # because Apple has deprecated use of OpenSSL in favor of its own TLS and
+    # crypto libraries.
+    # export PATH="/usr/local/opt/openssl/bin:$PATH"
 
-PATH="${PATH// /}"
+    # A CA file has been bootstrapped using certificates from the SystemRoots
+    # keychain. To add additional certificates (e.g. the certificates added in
+    # the System keychain), place .pem files in
+    #   /usr/local/etc/openssl/certs
+    #
+    # and run
+    #   /usr/local/opt/openssl/bin/c_rehash
 
-# ! If needed, add RVM to PATH for scripting. Make sure this is the\
-# ! last PATH variable change.   $HOME/.rvm/bin:\
+# ?########################################## Notes
+    # This is what was there before I added mine (6/27/19)
+    # /usr/local/bin
+    # /usr/bin
+    # /bin
+    # /usr/sbin
+    # /sbin
+    # /Library/TeX/texbin
+    # /usr/local/share/dotnet
+    # /opt/X11/bin
+    # ~/.dotnet/tools
+    # /Library/Frameworks/Mono.framework/Versions/Current/Commands
+    # /Applications/Postgres.app/Contents/Versions/latest/bin
+    # /Applications/Xamarin Workbooks.app/Contents/SharedSupport/path-bin
+    # $HOME/perl5/bin
 
-function _run_debug_paths() {
-    # list current versions of common utilities
-    ce "Script source:${MAIN} ${BASH_SOURCE}${RESET}"
-    green "\$PATH is set. Type <path> to list or <check_path> to test elements."
-    # ${PATH//:/\\n}
-    # ${PATH// /}
-    # new() { echo -e ${1//:/\\n}; }
-}
+    #   ! This should be either first or last ... it is up for debate
+    #   I put mine first and curate what I place in here ...
+    #   I put my ~/.dotfiles directory at the end of the path ... it is handy
 
-# *############################################################################
-# * Bam ... make the magic
-function _main_paths() {
-    [[ $SET_DEBUG == 1 ]] && _run_debug_paths
-}
+    #   I put my /usr/libexec directory at the end ... sometimes handy
+    #        * $HOME/bin:\ (and several utilities directories)
 
-_main_paths "$@"
-###############################################################################
-# Notes:
+    #   Path entries that should be before all others, if possible:
+    #
+    #     1. gnubin - GNU replacements for macOS shell functions
+    #        * /usr/local/opt/coreutils/libexec/gnubin:\
 
-# This is what was there before I added mine (6/27/19)
-# /usr/local/bin
-# /usr/bin
-# /bin
-# /usr/sbin
-# /sbin
-# /Library/TeX/texbin
-# /usr/local/share/dotnet
-# /opt/X11/bin
-# ~/.dotnet/tools
-# /Library/Frameworks/Mono.framework/Versions/Current/Commands
-# /Applications/Postgres.app/Contents/Versions/latest/bin
-# /Applications/Xamarin Workbooks.app/Contents/SharedSupport/path-bin
-# $HOME/perl5/bin
+    #   Path entries that should be first - ish (before system paths):
+    #     2. Programming languages
+    #        * .dotnet
+    #        * Python / pip / pipenv / virtualenv
+    #        * anaconda / conda
+    #        * PHP (path to brew version! *probably* /usr/local/bin/php)
+    #        * Ruby / gems
+    #        * Go
+    #        * other languages or priority (non-Apple) applications
+    #        * /usr/local/bin ... this seems to be the devault Brew
+    #        *    symlink home and *should* catch everything else
+    #        * especially programs that update an apple functionality!
 
-#   ! This should be either first or last ... it is up for debate
-#   I put mine first and curate what I place in here ...
-#   I put my ~/.dotfiles directory at the end of the path ... it is handy ...
-#   I put my /usr/libexec directory at the end ... sometimes handy
-#        * $HOME/bin:\ (and several utilities directories)
+    #     3. PHP tools: If you use composer, phpunit, php_codesniffer, etc
+    #        * $HOME/.composer/vendor/bin:\
+    #        * $HOME/.composer/vendor/squizlabs/php_codesniffer/bin:\
+    #     3a.
+    #        * httpd seems to have issues with Mojave
+    #        * use path to brew version: /usr/local/bin/httpd
+    #    Path entries that should be after specific app paths
+    #     4. System bin paths (Homebrew compatible - 'local' first)
+    #        * /usr/local/bin:\
+    #        * /usr/bin:\
+    #        * /bin:\
 
-#   Path entries that should be before all others, if possible:
-#
-#     1. gnubin - GNU replacements for macOS shell functions
-#        * /usr/local/opt/coreutils/libexec/gnubin:\
+    #     5. opt's and lib's (only if needed - I symlink to 'bins' instead)
+    #        * /usr/local/opt:/opt/local/sbin:\
+    #        * /usr/local:\
 
-#   Path entries that should be first - ish (before system paths):
-#     2. Programming languages
-#        * .dotnet
-#        * Python / pip / pipenv / virtualenv
-#        * anaconda / conda
-#        * PHP (path to brew version! *probably* /usr/local/bin/php)
-#        * Ruby / gems
-#        * Go
-#        * other languages or priority (non-Apple) applications
-#        * /usr/local/bin ... this seems to be the devault Brew
-#        *    symlink home and *should* catch everything else
-#        * especially programs that update an apple functionality!
-
-#     3. PHP tools: If you use composer, phpunit, php_codesniffer, etc
-#        * $HOME/.composer/vendor/bin:\
-#        * $HOME/.composer/vendor/squizlabs/php_codesniffer/bin:\
-#     3a.
-#        * httpd seems to have issues with Mojave
-#        * use path to brew version: /usr/local/bin/httpd
-#    Path entries that should be after specific app paths
-#     4. System bin paths (Homebrew compatible - 'local' first)
-#        * /usr/local/bin:\
-#        * /usr/bin:\
-#        * /bin:\
-
-#     5. opt's and lib's (only if needed - I symlink to 'bins' instead)
-#        * /usr/local/opt:/opt/local/sbin:\
-#        * /usr/local:\
-
-#     6. System sbin paths
-#        * /usr/local/sbin:\
-#        * /usr/sbin:\
-###############################################################################
+    #     6. System sbin paths
+    #        * /usr/local/sbin:\
+    #        * /usr/sbin:\
+    ##########################################################################

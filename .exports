@@ -5,7 +5,7 @@
 # shellcheck disable=2178
 
 #? ############################# skeptycal.com ################################
-# [[ $SET_DEBUG ]] && SET_DEBUG=0 # set to 1 for verbose testing
+SET_DEBUG=${SET_DEBUG:-0}  # set to 1 for verbose testing
 BASH_SOURCE="${BASH_SOURCE:-$0}" # to ease the transition to zsh
 #? ############################################################################
 # initial settings
@@ -13,6 +13,15 @@ declare -x LANG='en_US.UTF-8'
 declare -x LC_ALL='en_US.UTF-8'
 declare -ix CGO_ENABLED=1
 declare -x LOCAL_IP && LOCAL_IP="$(ipconfig getifaddr en0)"
+
+# support colors in less
+export LESS_TERMCAP_mb=$'\E[01;31m'
+export LESS_TERMCAP_md=$'\E[01;31m'
+export LESS_TERMCAP_me=$'\E[0m'
+export LESS_TERMCAP_se=$'\E[0m'
+export LESS_TERMCAP_so=$'\E[01;44;33m'
+export LESS_TERMCAP_ue=$'\E[0m'
+export LESS_TERMCAP_us=$'\E[01;32m'
 
 # keys
 source "${HOME}/.dotfiles/.homebrew_github_private.sh"
