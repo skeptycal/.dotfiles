@@ -51,6 +51,23 @@ if type "nvim" >/dev/null; then
   alias vim=nvim
 fi
 
+alias comp='php /Users/skeptycal/bin/utilities/php/composer.phar '
+
+#- ################################
+# - utilities from https://justin.abrah.ms/dotfiles/zsh.html
+
+# Nifty extras
+alias servethis="python -c 'import SimpleHTTPServer; SimpleHTTPServer.test()'"
+alias pypath='python -c "import sys; print(sys.path)" | tr "," "\n" | grep -v "egg"'
+alias pycclean='find $PWD -name "*.pyc" -exec rm {} \; && find $PWD -name "__pycache__" -exec rm -rf {} \;'
+alias ssh='ssh -R 10999:localhost:22'
+alias nethack='telnet nethack.alt.org'
+
+# curl for useragents
+alias iecurl="curl -H \"User-Agent: Mozilla/5.0 (Windows; U; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 2.0.50727)\""
+alias ffcurl="curl -H \"User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.8) Gecko/2009032609 Firefox/3.0.0 (.NET CLR 3.5.30729)\""
+
+
 # *############################################## repo setup
 alias gi='cp ~/.dotfiles/.gitignore .'
 alias sba='source venv/bin/activate'
@@ -75,6 +92,7 @@ alias cp='nocorrect cp'       # no spelling correction on cp
 alias mkdir='nocorrect mkdir' # no spelling correction on mkdir
 
 # *############################################## directories
+alias icloud='cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/'
 alias cdc="cd $HOME/Documents/coding"
 alias cdw="cd $HOME/Documents/work"
 alias cdd="cd $HOME/Sites"
