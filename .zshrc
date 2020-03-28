@@ -14,28 +14,29 @@
   # Remove all aliases from random unexpected places
   unalias -a
 
+  # Warn on global variable creation
+  setopt WARN_CREATE_GLOBAL
+
+#? ######################## Constants
+  SET_DEBUG=${SET_DEBUG:-0}  # set to 1 for verbose testing
+
   # get name of shell program without path info
   declare -x SHELL_BIN && SHELL_BIN="${SHELL##*/}"
-
-  # get name and path of this script
-  SCRIPT_PATH=$(realpath "$0")
+  declare -x SSM_LOADED && SSM_LOADED='False'
+  declare -x SCRIPT_PATH && SCRIPT_PATH=${0%/*}
+  declare -x SCRIPT_NAME && SCRIPT_NAME=${0##*/}
 
   # to ease the transition to zsh from bash
   if [ "$SHELL_BIN" = 'zsh' ]; then
     BASH_SOURCE=${(%):-%N}
   elif [ -z "$BASH_SOURCE" ]; then
-      BASH_SOURCE="${BASH_SOURCE:-$SCRIPT_PATH}"
+      BASH_SOURCE="${BASH_SOURCE:-$0}"
   fi
 
-#? ######################## Environment Variables and Settings
-  # get the number of CPU cores
-  declare -ix number_of_cores && number_of_cores=$(sysctl -n hw.ncpu)
-  # the CPU model and speed
-  # e.g. Intel(R) Core(TM) i7-4770HQ CPU @ 2.20GHz
-  declare -x CPU && CPU=$(sysctl -n machdep.cpu.brand_string)
 
-  # launch gpg agent and enable ssh support
-  . "${HOME}/.dotfiles/gpg.zsh"
+
+  declare -x DOTFILES_PATH && DOTFILES_PATH="${HOME}/.dotfiles"
+  declare -x DOTFILES_INC && DOTFILES_INC="${DOTFILES_PATH}/zshrc_inc"
 
 #? ######################## Troubleshooting
   #? set to 1 for verbose testing ; remove -r to allow each script to set it
@@ -51,23 +52,25 @@
       declare -ix debug_log_max_size && debug_log_max_size=32768
   fi
 
-#? ######################## Dotfiles Path Info
-  declare -x DOTFILES_PATH && DOTFILES_PATH="${HOME}/.dotfiles"
+#? ######################## Source Tools
+  .() { # source with debugging info and file read check
+    if [[ -r $1 ]]; then
+      source "$1"
+      blue "Sourced file: $1"
+      [[ $SET_DEBUG = 1 ]] && blue "Source $1"
+    else
+      attn "Source error for $1"
+    fi
+  }
 
-  # set path info
-  . "${DOTFILES_PATH}/.path"
-
-  # set theme
-  . "${DOTFILES_PATH}/.theme"
+  source_dir() { # source all files in directory
+    for f in "$1"/*; do
+      . "$f"
+    done
+  }
 
 #? ######################## Load Profile settings
-
-  # . "${DOTFILES_PATH}/ssm"
-  . "${DOTFILES_PATH}/.aliases"
-  . "${DOTFILES_PATH}/.exports"
-  . "${DOTFILES_PATH}/.functions"
-  . "${DOTFILES_PATH}/.extra"
-  # . "${DOTFILES_PATH}/.git_alias" # already included
+  source_dir "$DOTFILES_INC"
 
 #? ######################## From original oh-my-zsh .zshrc
   # Path to your oh-my-zsh installation. Comments at the end of this script.
@@ -77,7 +80,7 @@
   COMPLETION_WAITING_DOTS="true"
   DISABLE_UNTRACKED_FILES_DIRTY="true"
   export plugins=(git vscode)
-  source $ZSH/oh-my-zsh.sh
+  source "$ZSH/oh-my-zsh.sh"
 
 #? ######################## Set ZSH Options
   # Using ZSH shell - http://zsh.sourceforge.net/
@@ -138,11 +141,14 @@
   eval "$(jump shell)"
 
   # Updates PATH for the Google Cloud SDK.
-  if [ -f ~/Code/google-cloud-sdk/path.zsh.inc ]; then . ~/Code/google-cloud-sdk/path.zsh.inc; fi
+  if [ -f ~/Code/google-cloud-sdk/path.zsh.inc ]; then
+    . ~/Code/google-cloud-sdk/path.zsh.inc
+  fi
 
   # The next line enables shell command completion for gcloud.
-  if [ -f ~/Code/google-cloud-sdk/completion.zsh.inc ]; then . ~/Code/google-cloud-sdk/completion.zsh.inc; fi
-  export PATH="/usr/local/opt/mysql-client/bin:$PATH"
+  if [ -f ~/Code/google-cloud-sdk/completion.zsh.inc ]; then
+    . ~/Code/google-cloud-sdk/completion.zsh.inc
+  fi
 
 #? ######################## script cleanup
   # profile end time
@@ -151,7 +157,7 @@
   printf "${MAIN}Profile took ${WARN}%.1f${MAIN} seconds to load.\n" $((t1-t0))
   printf "%s\n" "${MAIN}CPU: $CPU -> ${WARN}$number_of_cores${MAIN} cores available."
 
-  unset t1 t0 SCRIPT_PATH
+  unset t1 t0 SCRIPT_PATH SCRIPT_NAME
 
   # End of .zshrc
   # --------------------------------------------------------------------------

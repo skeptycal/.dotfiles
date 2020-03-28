@@ -2,25 +2,26 @@
 # shellcheck source=/dev/null
 # shellcheck disable=2230,2086
 
-#? ############################# skeptycal.com
-    # [[ $SET_DEBUG ]] && SET_DEBUG=0 # set to 1 for verbose testing
-    BASH_SOURCE="${BASH_SOURCE:-$0}" # to ease the transition to zsh
-    export CLICOLOR=1
-    export colorflag='--color=auto' # I use GNU core_utils; no need to test '-G'
-
+#? ############################# initial aliases
     # Use NeoVim if available
     if type "nvim" >/dev/null; then
-    alias vim=nvim
+        alias vim=nvim
     fi
 
-
+# TODO ########################################## works in progress
+    alias dj="python3 manage.py runserver"
     alias blog="cd ~/Work/blog && code ."
+    # alias lsln='ls -AF | grep '@' | cut -d '@' -f 1 ' # will include directories
+    # find . -maxdepth 1 -type l # will include directories
+    alias ll="ls -A | perl -nle 'print if -l and not -d;'"
+    alias lsd='ls -1Ad */'
+
 
 #? ############################# handy stuff
     alias cls='clear'   # because 40 year old habits die hard
     alias dir='ls'      # and I'm stubborn
     alias del="rm -rf"   #! delete all the things now! (!CAREFUL!)
-    alias reload="exec ${SHELL} -l"
+    alias reload="exec \${SHELL} -l"
     # alias path='echo -e ${PATH//:/\\n}'
     alias nis="npm install --save "
     alias cgr="composer global require"
@@ -28,7 +29,7 @@
     alias cp='nocorrect cp'       # no spelling correction on cp
     alias mkdir='nocorrect mkdir' # no spelling correction on mkdir
     alias git="git-achievements"
-    alias mine="sudo chown -R $(id -un):$(id -gn) "
+    alias mine="sudo chown -R \$(id -un):\$(id -gn) "
     alias ssh='ssh -R 10999:localhost:22'
     alias nethack='telnet nethack.alt.org'
 
@@ -46,5 +47,3 @@
     #       executable	            a	            b
     #       directory	            a	            c
     #       directory	            a	            d
-
-

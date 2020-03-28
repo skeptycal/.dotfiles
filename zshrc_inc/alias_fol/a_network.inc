@@ -2,6 +2,15 @@
 # shellcheck source=/dev/null
 # shellcheck disable=2230,2086
 
+# *############################################## php
+alias comp='php /Users/skeptycal/bin/utilities/php/composer.phar '
+
+#- ################################
+# - utilities from https://justin.abrah.ms/dotfiles/zsh.html
+
+# Nifty extras
+alias ssh='ssh -R 10999:localhost:22'
+alias nethack='telnet nethack.alt.org'
 
 # curl for useragents
     alias iecurl="curl -H \"User-Agent: Mozilla/5.0 (Windows; U; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 2.0.50727)\""

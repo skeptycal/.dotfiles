@@ -14,6 +14,7 @@ alias pret='prettier * --write --insert-pragma'
 alias pm="pygmentize"
 alias dj="python3 manage.py runserver"
 
+# nifty extras
 alias servethis="python -c 'import SimpleHTTPServer; SimpleHTTPServer.test()'"
 alias pypath='python -c "import sys; print(sys.path)" | tr "," "\n" | grep -v "egg"'
 alias pycclean='find $PWD -name "*.pyc" -exec rm {} \; && find $PWD -name "__pycache__" -exec rm -rf {} \;'

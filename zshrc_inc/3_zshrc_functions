@@ -4,9 +4,8 @@
     # shellcheck source=/dev/null
     # shellcheck disable=2230,2086
 
-#? ######################## .functions
-    #* .functions - functions for macOS with zsh
-    #* should not be run directly; called from .bash_profile or .bashrc
+#? ######################## .functions - functions for macOS with zsh
+    #* should not be run directly; called from .bash_profile / .bashrc / .zshrc
 
     #* copyright (c) 2019 Michael Treanor
     #* MIT License - https://www.github.com/skeptycal
@@ -15,12 +14,12 @@
 
 #? ######################## Include Files
     . "$(which ssm)"
-    . ~/.dotfiles/.function_folder/f_init.inc
-    . ~/.dotfiles/.function_folder/f_strings.inc
-    . ~/.dotfiles/.function_folder/f_file.inc
-    . ~/.dotfiles/.function_folder/f_git.inc
-    . ~/.dotfiles/.function_folder/f_network.inc
-    . ~/.dotfiles/.function_folder/f_third_party.inc
+    source_dir ${DOTFILES_INC}/function_fol
+    . "$(which log_urls.sh)"
+    # contents:
+        # getURL()
+        # ping_avg [COUNT] [URL]
+        # log_urls [-q] [COUNT] [SLEEP_TIME] [URL_LOG]
 
 #TODO ------------------ Works in Progress
     # generate a function list
@@ -34,6 +33,18 @@
     #     foo() { true ; }
     # }
 
+# create 'realpath' function if none exists
+command -v realpath >/dev/null 2>&1 || (
+    realpath() {
+        if [[ $1 = /* ]]; then
+            echo "$1"
+        else # echo "$PWD/${1#./}"
+            cd -P -- "$1" || return
+            pwd -P
+        fi
+        }
+        )
+
 space() {
     if [ -d $1 ]; then
         mnt=$1
@@ -41,25 +52,14 @@ space() {
         mnt=''
     fi
     df $mnt -h | awk '{print $5}' | grep % | grep -v Use | sort -n | tail -1 | cut -d "%" -f1 -
-
     }
 
-root_space() {
-    df -P | grep '\/$' | awk '{print $5}' | cut -d "%" -f1 -
-}
-
-. log_urls.sh
-# contents:
-    # getURL()
-    # ping_avg [COUNT] [URL]
-    # log_urls [-q] [COUNT] [SLEEP_TIME] [URL_LOG]
-
-
+root_space() { df -P | grep '\/$' | awk '{print $5}' | cut -d "%" -f1 -; }
 
 #? ######################## SCRIPT TESTS
     _run_debug_functions() {
         db_script_source "Functions test"
-        warn "$name"
+        warn $SCRIPT_NAME
     }
 #? ######################## Weekly Tasks
     _sunday() {
@@ -94,17 +94,17 @@ root_space() {
 
         # Reminders to try out the latest features ...
         canary "Recently added utilities: "
-        green "--------------------------
-        versions - to display program versions,
-        checkpath - display and check \$PATH,
-        checkpath.py - display and check \$PATH,
-        pc_remove.sh
-        sysctl -a
-        getURL # gets url of active Chrome tab
-        log_urls [-h] [COUNT] [SLEEP_TIME] [URL_LOG]
-        space [DEVICE]
-        root_space
-        sunday [list|add|remove|edit|help] [COMMAND]"
+        # green "--------------------------
+        # versions - to display program versions,
+        # checkpath - display and check \$PATH,
+        # checkpath.py - display and check \$PATH,
+        # pc_remove.sh
+        # sysctl -a
+        # getURL # gets url of active Chrome tab
+        # log_urls [-h] [COUNT] [SLEEP_TIME] [URL_LOG]
+        # space [DEVICE]
+        # root_space
+        # sunday [list|add|remove|edit|help] [COMMAND]"
         br
     }
 #? ######################## MAIN LOOP
@@ -115,8 +115,6 @@ root_space() {
         # travis login --github-token "$TRAVIS_TOKEN"
         [[ $SET_DEBUG == '1' ]] && _run_debug_functions
     }
-
-
 #? ######################## ENTRY POINT
     _main_ "$@"
 

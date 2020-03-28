@@ -1,7 +1,8 @@
 #!/usr/bin/env zsh
 # -*- coding: utf-8 -*-
-# shellcheck shell=bash
-# shellcheck source=/dev/null
+    # shellcheck shell=bash
+    # shellcheck source=/dev/null
+    # shellcheck disable=2128
 
 SET_DEBUG=${SET_DEBUG:-0} # set to 1 for verbose testing
 
@@ -31,6 +32,7 @@ SET_DEBUG=${SET_DEBUG:-0} # set to 1 for verbose testing
 # ?########################################## PATH
     declare -x PATH="\
         /usr/local/opt/coreutils/libexec/gnubin:\
+        /usr/local/opt/mysql-client/bin:\
         $HOME/Documents/coding/python/AutoSys/autosys:\
         $HOME/Documents/coding/python/AutoSys/bin:\
         /usr/local/opt/python@3.8/bin:\
