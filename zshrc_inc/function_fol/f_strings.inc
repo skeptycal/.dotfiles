@@ -13,24 +13,26 @@ _pretty_usage=''
 dict() { grep "$@" /usr/share/dict/words; }
 colon_list() { echo -e "${1//:/\\n}"; }
 
-lower() {
+lower() { ce "${*:l}"; } # return all args as lowercase (zsh only)
+upper() { ce "${*:u}"; } # return all args as uppercase (zsh only)
+
+lower_file() {
     # original
     #   t=$(echo $f | tr '[:upper:]' '[:lower:]')
     #   zsh uses ${file:l}
-    force_lower=0
+    local force_lower=0
     if [[ $1 == '-f' ]]; then
         force_lower=1
         echo "Forcing mv ... \$force_lower = $force_lower"
         shift
     fi
-
+    local file
     if [[ $force_lower == 1 ]]; then
         for file in "$@" ; do  mv "$file" "${file:l}"  ; done
     else
         for file in "$@" ; do  echo "$file" "${file:l}"  ; done
     fi
 }
-
 
 replace() {
     if [[ -z "$1" ]]; then
@@ -42,7 +44,7 @@ replace() {
     REPLACEMENT="${2:-}"
     FILES="${3:-'.'}"
 
-# shellcheck disable=2086,2013
+# shellcheck disable=2013,2086
 for word in $(grep -Fl $ORIGINAL $FILES)
 do
   # -------------------------------------

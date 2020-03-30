@@ -17,9 +17,9 @@
 
 declare -g GIT_AUTHOR_NAME="skeptycal"
 declare -g GIT_COMMITTER_NAME="$GIT_AUTHOR_NAME"
-declare -g git config --global user.name "$GIT_AUTHOR_NAME"
+git config --global user.name "$GIT_AUTHOR_NAME"
 declare -g GIT_AUTHOR_EMAIL="skeptycal@gmail.com"
 declare -g GIT_COMMITTER_EMAIL="$GIT_AUTHOR_EMAIL"
-declare -g git config --global user.email "$GIT_AUTHOR_EMAIL"
+git config --global user.email "$GIT_AUTHOR_EMAIL"
 
 # source $(which brew_fix.sh)

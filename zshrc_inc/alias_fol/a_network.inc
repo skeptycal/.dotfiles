@@ -24,10 +24,12 @@ alias nethack='telnet nethack.alt.org'
     alias watch="nodemon -L ~/Documents/sites"
     alias flush="sudo dscacheutil -flushcache && killall -HUP mDNSResponder"
     alias localip="ipconfig getifaddr en0"
+    declare -g method
     for method in GET HEAD POST PUT DELETE TRACE OPTIONS; do
-        # echo "${method}=lwp-request -m '${method}' "
+        # shellcheck disable=2139
         alias "${method}=lwp-request -m '${method}' "
     done
+    unset method
     alias ifactive="ifconfig | pcregrep -M -o '^[^\t:]+:([^\n]|\n\t)*status: active'"
     alias ip="dig +short myip.opendns.com @resolver1.opendns.com"
     alias ips="ifconfig -a | grep -o 'inet6\? \(addr:\)\?\s\?\(\(\([0-9]\+\.\)\{3\}[0-9]\+\)\|[a-fA-F0-9:]\+\)' | awk '{ sub(/inet6? (addr:)? ?/, \"\"); print }'"
@@ -37,6 +39,6 @@ alias nethack='telnet nethack.alt.org'
     # alias canary='/Applications/Google\ Chrome\ Canary.app/Contents/MacOS/Google\ Chrome\ Canary'
     alias chrome='/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome'
     alias chromekill="ps ux | grep '[C]hrome Helper --type=renderer' | grep -v extension-process | tr -s ' ' | cut -d ' ' -f2 | xargs kill"
-    jscbin='/System/Library/Frameworks/JavaScriptCore.framework/Versions/A/Resources/jsc'
+    declare -g jscbin='/System/Library/Frameworks/JavaScriptCore.framework/Versions/A/Resources/jsc'
     [ -e "${jscbin}" ] && alias jsc="${jscbin}"
     unset jscbin

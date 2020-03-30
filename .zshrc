@@ -18,13 +18,11 @@
   setopt WARN_CREATE_GLOBAL
 
 #? ######################## Constants
-  SET_DEBUG=${SET_DEBUG:-0}  # set to 1 for verbose testing
-
   # get name of shell program without path info
   declare -x SHELL_BIN && SHELL_BIN="${SHELL##*/}"
   declare -x SSM_LOADED && SSM_LOADED='False'
-  declare -x SCRIPT_PATH && SCRIPT_PATH=${0%/*}
-  declare -x SCRIPT_NAME && SCRIPT_NAME=${0##*/}
+  declare -xg SCRIPT_PATH && SCRIPT_PATH=${0%/*}
+  declare -xg SCRIPT_NAME && SCRIPT_NAME=${0##*/}
 
   # to ease the transition to zsh from bash
   if [ "$SHELL_BIN" = 'zsh' ]; then
@@ -33,30 +31,19 @@
       BASH_SOURCE="${BASH_SOURCE:-$0}"
   fi
 
-
-
+  # Locations of profile settings files
   declare -x DOTFILES_PATH && DOTFILES_PATH="${HOME}/.dotfiles"
   declare -x DOTFILES_INC && DOTFILES_INC="${DOTFILES_PATH}/zshrc_inc"
 
 #? ######################## Troubleshooting
   #? set to 1 for verbose testing ; remove -r to allow each script to set it
-  declare -ix SET_DEBUG=0
-  #?      log errors to text file; only functional if $SET_DEBUG=1
-  if [[ $SET_DEBUG == 1 ]]; then
-      # setopt verbose xtrace
-      #? turn on debug logging
-      declare -ix DEBUG_LOG && DEBUG_LOG=0 # set DEBUG_LOG=1 to enable logging
-      #? log file for debug logs
-      declare -x debug_log_file && debug_log_file="${HOME}/.bash_profile_error.log"
-      #? max filesize for debug_log_file
-      declare -ix debug_log_max_size && debug_log_max_size=32768
-  fi
+  declare -ix SET_DEBUG
+  SET_DEBUG=0
 
 #? ######################## Source Tools
   .() { # source with debugging info and file read check
     if [[ -r $1 ]]; then
       source "$1"
-      blue "Sourced file: $1"
       [[ $SET_DEBUG = 1 ]] && blue "Source $1"
     else
       attn "Source error for $1"
@@ -64,9 +51,16 @@
   }
 
   source_dir() { # source all files in directory
-    for f in "$1"/*; do
-      . "$f"
-    done
+    if [[ -d $1 ]]; then
+      local f
+      [[ $SET_DEBUG = 1 ]] && blue "Source Directory $1"
+      for f in "$1"/*; do
+        . "$f"
+      done
+      unset f
+    else
+      attn "Source Directory error for $1"
+    fi
   }
 
 #? ######################## Load Profile settings

@@ -63,9 +63,9 @@ root_space() { df -P | grep '\/$' | awk '{print $5}' | cut -d "%" -f1 -; }
     }
 #? ######################## Weekly Tasks
     _sunday() {
-        weekday=$(date +"%a")
-        today=$(date +"")
-        sun_file=~/.dotfiles/.sun_check
+        declare -g weekday=$(date +"%a")
+        declare -g today=$(date +"")
+        declare -g sun_file=~/.dotfiles/.sun_check
         if [[ $weekday = 'Sun' ]]; then
             if [ -f $sun_file ]; then
                 read -r line < $sun_file
@@ -86,25 +86,24 @@ root_space() { df -P | grep '\/$' | awk '{print $5}' | cut -d "%" -f1 -; }
 #? ######################## Daily Tasks
 #? ######################## Session Tasks
     _login_message() {
-        br
         me "os: ${LIME}$(uname -i) | $(sw_vers -productName) | $(sw_vers -productVersion)"
-        me "shell: ${LIME}zsh: $(zsh --version)"
+        me "shell: ${ATTN}zsh: $(zsh --version)"
         # green "  this zsh session: $ZSH_VERSION"
         br
 
         # Reminders to try out the latest features ...
         canary "Recently added utilities: "
-        # green "--------------------------
-        # versions - to display program versions,
-        # checkpath - display and check \$PATH,
-        # checkpath.py - display and check \$PATH,
-        # pc_remove.sh
-        # sysctl -a
-        # getURL # gets url of active Chrome tab
-        # log_urls [-h] [COUNT] [SLEEP_TIME] [URL_LOG]
-        # space [DEVICE]
-        # root_space
-        # sunday [list|add|remove|edit|help] [COMMAND]"
+        green "--------------------------
+        versions - to display program versions,
+        checkpath - display and check \$PATH,
+        checkpath.py - display and check \$PATH,
+        pc_remove.sh
+        sysctl -a
+        getURL # gets url of active Chrome tab
+        log_urls [-h] [COUNT] [SLEEP_TIME] [URL_LOG]
+        space [DEVICE]
+        root_space
+        sunday [list|add|remove|edit|help] [COMMAND]"
         br
     }
 #? ######################## MAIN LOOP

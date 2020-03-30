@@ -30,6 +30,10 @@ SET_DEBUG=${SET_DEBUG:-0} # set to 1 for verbose testing
     MANPATH="${MANPATH// /}"
 
 # ?########################################## PATH
+
+    # These are automatically added to the start:
+    #   /Users/skeptycal/.cabal/bin
+    #   /Users/skeptycal/.ghcup/bin
     declare -x PATH="\
         /usr/local/opt/coreutils/libexec/gnubin:\
         /usr/local/opt/mysql-client/bin:\
@@ -40,7 +44,6 @@ SET_DEBUG=${SET_DEBUG:-0} # set to 1 for verbose testing
         /usr/local/opt/python@3.8/Frameworks/Python.framework/Versions/3.8/bin:\
         $HOME/Library/Python/3.8/bin:\
         $HOME/Library/Python/3.8/lib/python/site-packages:\
-        $HOME/.ghcup/bin:\
         $HOME/bin:\
         $HOME/go/bin:\
         /usr/local/bin:\
@@ -52,7 +55,6 @@ SET_DEBUG=${SET_DEBUG:-0} # set to 1 for verbose testing
         $HOME/bin/utilities/php/includes:\
         $HOME/.poetry/bin:\
         /usr/local/opt/ruby/bin:\
-        /usr/local/lib/ruby/gems/2.6.0/bin:\
         /usr/local/lib/node_modules:\
         /bin:\
         /usr/local/opt:\
@@ -70,20 +72,6 @@ SET_DEBUG=${SET_DEBUG:-0} # set to 1 for verbose testing
 
     PATH="${PATH// /}"
 
-# ?########################################## Dev Debugging
-    function _run_debug_paths() {
-        # list current versions of common utilities
-        ce "Script source:${MAIN} ${BASH_SOURCE}${RESET}"
-        green "\$PATH is set. Type <path> to list or <check_path> to test elements."
-        echo "$SHELL_BIN"
-        }
-
-# ?########################################## Bam ... make the magic
-    function _main_() {
-        [[ $SET_DEBUG == 1 ]] && _run_debug_paths
-        }
-
-_main_ "$@"
 
 # ?########################################## OpenSSL info
     # openssl is keg-only, which means it was not symlinked into /usr/local,
@@ -145,7 +133,7 @@ _main_ "$@"
     #        * $HOME/.composer/vendor/squizlabs/php_codesniffer/bin:\
     #     3a.
     #        * httpd seems to have issues with Mojave
-    #        * use path to brew version: /usr/local/bin/httpd
+    #        * use path to brew version: /usr/local/bin/httpd and 'Brew Services Start httpd'
     #    Path entries that should be after specific app paths
     #     4. System bin paths (Homebrew compatible - 'local' first)
     #        * /usr/local/bin:\
