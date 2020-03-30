@@ -1,0 +1,126 @@
+#!/usr/bin/env zsh
+# -*- coding: utf-8 -*-
+    # shellcheck shell=bash
+    # shellcheck source=/dev/null
+    # shellcheck disable=2230,2086
+
+#? ######################## .functions - functions for macOS with zsh
+    #* should not be run directly; called from .bash_profile / .bashrc / .zshrc
+
+    #* copyright (c) 2019 Michael Treanor
+    #* MIT License - https://www.github.com/skeptycal
+
+    declare -ix SET_DEBUG && SET_DEBUG=${SET_DEBUG:-0} # set to 1 for verbose testing
+
+#? ######################## Include Files
+    . "$(which ssm)"
+    source_dir ${DOTFILES_INC}/function_fol
+    . "$(which log_urls.sh)"
+    # contents:
+        # getURL()
+        # ping_avg [COUNT] [URL]
+        # log_urls [-q] [COUNT] [SLEEP_TIME] [URL_LOG]
+
+#TODO ------------------ Works in Progress
+    # generate a function list
+    # declare -F | sed "s/declare -fx //g" >.functions_functions.txt
+    # TODO - Declare if not declared
+    # Reference: https://linuxhint.com/bash_declare_command/
+    # if foo is not declared
+    # declare it
+    # else use available foo
+    # test ! $( declare -F foo ) || {
+    #     foo() { true ; }
+    # }
+
+# create 'realpath' function if none exists
+command -v realpath >/dev/null 2>&1 || (
+    realpath() {
+        if [[ $1 = /* ]]; then
+            echo "$1"
+        else # echo "$PWD/${1#./}"
+            cd -P -- "$1" || return
+            pwd -P
+        fi
+        }
+        )
+
+space() {
+    if [ -d $1 ]; then
+        mnt=$1
+    else
+        mnt=''
+    fi
+    df $mnt -h | awk '{print $5}' | grep % | grep -v Use | sort -n | tail -1 | cut -d "%" -f1 -
+    }
+
+root_space() { df -P | grep '\/$' | awk '{print $5}' | cut -d "%" -f1 -; }
+
+#? ######################## SCRIPT TESTS
+    _run_debug_functions() {
+        db_script_source "Functions test"
+        warn $SCRIPT_NAME
+    }
+#? ######################## Weekly Tasks
+    _sunday() {
+        declare -g weekday=$(date +"%a")
+        declare -g today=$(date +"")
+        declare -g sun_file=~/.dotfiles/.sun_check
+        if [[ $weekday = 'Sun' ]]; then
+            if [ -f $sun_file ]; then
+                read -r line < $sun_file
+                line=$(tail -1 $sun_file)
+                if [[ $line = "$today" ]]; then
+                    echo 'Sunday tasks already done...'
+                fi
+            fi
+
+            rain "It's Sunday! Performing weekly updates and refreshes..."
+
+    # TODO -- add weekly update functions here ...
+            blue "Updating program version list ..."
+            save_versions # & # 2>/dev/null
+            python -m sunday
+        fi
+    }
+#? ######################## Daily Tasks
+#? ######################## Session Tasks
+    _login_message() {
+        me "os: ${LIME}$(uname -i) | $(sw_vers -productName) | $(sw_vers -productVersion)"
+        me "shell: ${ATTN}zsh: $(zsh --version)"
+        # green "  this zsh session: $ZSH_VERSION"
+        br
+
+        # Reminders to try out the latest features ...
+        canary "Recently added utilities: "
+        green "--------------------------
+        versions - to display program versions,
+        checkpath - display and check \$PATH,
+        checkpath.py - display and check \$PATH,
+        pc_remove.sh
+        sysctl -a
+        getURL # gets url of active Chrome tab
+        log_urls [-h] [COUNT] [SLEEP_TIME] [URL_LOG]
+        space [DEVICE]
+        root_space
+        sunday [list|add|remove|edit|help] [COMMAND]"
+        br
+    }
+#? ######################## MAIN LOOP
+    _main_() {
+        _login_message
+        _sunday
+        # echo "Travis test: $TRAVIS_TOKEN"
+        # travis login --github-token "$TRAVIS_TOKEN"
+        [[ $SET_DEBUG == '1' ]] && _run_debug_functions
+    }
+#? ######################## ENTRY POINT
+    _main_ "$@"
+
+#? ######################## References
+    # 	'find types' https://www.gnu.org/software/findutils/manual/html_mono/find.html#Type
+    # pipe $2 with $1 using |&  https://unix.stackexchange.com/questions/128975/why-doesnt-grep-using-pipe-work-here
+    # mkdir ref: https://www.cyberciti.biz/tips/bash-shell-parameter-substitution-2.html
+
+    # ref: get url of Chrome active tab:
+    # https://www.cyberciti.biz/faq/linux-unix-sleep-bash-scripting/

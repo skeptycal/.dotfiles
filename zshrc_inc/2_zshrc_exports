@@ -5,29 +5,48 @@
 # shellcheck disable=2178
 
 #? ############################# skeptycal.com ################################
-# [[ $SET_DEBUG ]] && SET_DEBUG=0 # set to 1 for verbose testing
+SET_DEBUG=${SET_DEBUG:-0}  # set to 1 for verbose testing
 BASH_SOURCE="${BASH_SOURCE:-$0}" # to ease the transition to zsh
 #? ############################################################################
 # initial settings
-declare -x LANG='en_US.UTF-8'
-declare -x LC_ALL='en_US.UTF-8'
-declare -ix CGO_ENABLED=1
+declare -x LANG && LANG='en_US.UTF-8'
+declare -x LC_ALL && LC_ALL='en_US.UTF-8'
+declare -ix CGO_ENABLED && CGO_ENABLED=1
 declare -x LOCAL_IP && LOCAL_IP="$(ipconfig getifaddr en0)"
 
+# get the number of CPU cores
+declare -ix number_of_cores && number_of_cores=$(sysctl -n hw.ncpu)
+# the CPU model and speed
+# e.g. Intel(R) Core(TM) i7-4770HQ CPU @ 2.20GHz
+declare -x CPU && CPU=$(sysctl -n machdep.cpu.brand_string)
+
+# support colors in less
+export LESS_TERMCAP_mb=$'\E[01;31m'
+export LESS_TERMCAP_md=$'\E[01;31m'
+export LESS_TERMCAP_me=$'\E[0m'
+export LESS_TERMCAP_se=$'\E[0m'
+export LESS_TERMCAP_so=$'\E[01;44;33m'
+export LESS_TERMCAP_ue=$'\E[0m'
+export LESS_TERMCAP_us=$'\E[01;32m'
+
 # keys
-source "${HOME}/.dotfiles/.homebrew_github_private.sh"
-source "${HOME}/.dotfiles/.travis_token_private.sh"
+. "${HOME}/.dotfiles/.homebrew_github_private.sh"
+. "${HOME}/.dotfiles/.travis_token_private.sh"
 declare -x SH_KEY_PATH && SH_KEY_PATH="${HOME}/.ssh/rsa_id"
 
 # utilities
-declare -x TESSDATA_PREFIX="/Users/skeptycal/Documents/GitHub/tesseract/tessdata"
-declare -x AZURE_WORKING_DIR && AZURE_WORKING_DIR="${HOME}/myagent"
+declare -x TESSDATA_PREFIX
+TESSDATA_PREFIX="/Users/skeptycal/Documents/GitHub/tesseract/tessdata"
+declare -x AZURE_WORKING_DIR
+AZURE_WORKING_DIR="${HOME}/myagent"
 # start Azure
 # cd $AZURE_WORKING_DIR
 # ./svc.sh start
 # cd -
-declare -x HOMEBREW_PREFIX && HOMEBREW_PREFIX="$(brew --prefix)"
-declare -x MAGICK_HOME="/usr/local/Cellar/imagemagick/7.0.8-68"
+declare -x HOMEBREW_PREFIX
+HOMEBREW_PREFIX="$(brew --prefix)"
+declare -x MAGICK_HOME
+MAGICK_HOME="/usr/local/Cellar/imagemagick/7.0.8-68"
 # shellcheck disable=2015
 [[ -n $SSH_CONNECTION ]] && declare -x EDITOR='vim' || declare -x EDITOR='nano'
 
@@ -35,21 +54,23 @@ declare -x MAGICK_HOME="/usr/local/Cellar/imagemagick/7.0.8-68"
 # declare -x LDFLAGS="-L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib"
 # LDFLAGS="-L/usr/local/opt/zlib/lib"
 # CPPFLAGS="-I/usr/local/opt/zlib/include"
-declare -x ARCHFLAGS="-arch x86_64"
-declare -ix HISTSIZE=32768
-declare -ix HISTFILESIZE="${HISTSIZE}"
-declare -x HISTCONTROL='ignoreboth'
+declare -x ARCHFLAGS && ARCHFLAGS="-arch x86_64"
+declare -ix HISTSIZE && HISTSIZE=32768
+declare -ix HISTFILESIZE && HISTFILESIZE="${HISTSIZE}"
+declare -x HISTCONTROL && HISTCONTROL='ignoreboth'
 
 # Python
 unset PYTHONDONTWRITEBYTECODE
 #   set hash seed to different random number every session
 declare -ix PYTHONHASHSEED && PYTHONHASHSEED=$(shuf -i1-4294967295 -n1)
-declare -x PYTHONIOENCODING='UTF-8'
+declare -x PYTHONIOENCODING && PYTHONIOENCODING='UTF-8'
+declare -x PKG_CONFIG_PATH && PKG_CONFIG_PATH="/usr/local/opt/python@3.8/lib/pkgconfig"
+
 #   python sucks ... virtual environments suck ...
 #   someone should find a better way to do this ... it's so stupid
 #   pipenv is the best alternative for now
-declare -x WORKON_HOME="${HOME}/.virtualenvs"
-declare -x PROJECT_HOME="${HOME}/Documents/coding/"
+declare -x WORKON_HOME && WORKON_HOME="${HOME}/.virtualenvs"
+declare -x PROJECT_HOME && PROJECT_HOME="${HOME}/Documents/coding/"
 # source $(command -v virtualenvwrapper.sh)
 [[ $(command -v pyenv >/dev/null) ]] && eval "$(pyenv init -)"
 [[ $(command -v pyenv-virtualenv-init >/dev/null) ]] && eval "$(pyenv virtualenv-init -)"
@@ -58,9 +79,12 @@ declare -x PROJECT_HOME="${HOME}/Documents/coding/"
 # Emscripten is a toolchain for compiling to asm.js and WebAssembly, built using LLVM,
 #   that lets you run C and C++ on the web at near-native speed without plugins.
 #   https://emscripten.org/
-declare -x EMSDK="/Users/skeptycal/emsdk"
-declare -x EM_CONFIG="/Users/skeptycal/.emscripten"
-declare -x EMSDK_NODE="/Users/skeptycal/emsdk/node/12.9.1_64bit/bin/node"
+declare -x EMSDK
+EMSDK="/Users/skeptycal/emsdk"
+declare -x EM_CONFIG
+EM_CONFIG="/Users/skeptycal/.emscripten"
+declare -x EMSDK_NODE
+EMSDK_NODE="/Users/skeptycal/emsdk/node/12.9.1_64bit/bin/node"
 
 # pip zsh completion start
 function _pip_completion() {
@@ -79,13 +103,18 @@ function _pip_completion() {
 compctl -K _pip_completion pip
 
 # Java
-declare -x JAVA_HOME && JAVA_HOME="$(/usr/libexec/java_home)"
-declare -x M2_HOME && M2_HOME="/usr/share/apache-maven-3.6.0"
+declare -x JAVA_HOME
+JAVA_HOME="$(/usr/libexec/java_home)"
+declare -x M2_HOME
+M2_HOME="/usr/share/apache-maven-3.6.0"
 
 # Node
-declare -x NODE_REPL_HISTORY="${HOME}/.node_history"
-declare -ix NODE_REPL_HISTORY_SIZE=32768
-declare -x NODE_REPL_MODE='sloppy'
+declare -x NODE_REPL_HISTORY
+NODE_REPL_HISTORY="${HOME}/.node_history"
+declare -ix NODE_REPL_HISTORY_SIZE
+NODE_REPL_HISTORY_SIZE=32768
+declare -x NODE_REPL_MODE
+NODE_REPL_MODE='sloppy'
 
 # Perl
 declare -x PERL_MM_OPT && PERL_MM_OPT="INSTALL_BASE=${HOME}/perl5"

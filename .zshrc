@@ -4,66 +4,77 @@
   # shellcheck source=/dev/null
   # shellcheck disable=2178,2128,2206,2034
 
+#? ######################## Shell Variables and Settings
   # profile start time
   t0=$(date "+%s.%n")
 
-#? ######################## Shell Settings
-  # to ease the transition to zsh
-  if [ -z "$BASH_SOURCE" ]; then
-    BASH_SOURCE=${(%):-%N}
-    BASH_SOURCE=${BASH_SOURCE:-$0}
-  fi
-
-
-  # use root defaults since they match web server defaults
-  umask 022
+  # use root defaults (they match web server defaults)
+  umask 022   #            !! possible security issue !!
 
   # Remove all aliases from random unexpected places
   unalias -a
 
-  declare -ix number_of_cores
-  number_of_cores=$(sysctl -n hw.ncpu)
+  # Warn on global variable creation
+  setopt WARN_CREATE_GLOBAL
 
-  . "${HOME}/.dotfiles/gpg.zsh"
+#? ######################## Constants
+  # get name of shell program without path info
+  declare -x SHELL_BIN && SHELL_BIN="${SHELL##*/}"
+  declare -x SSM_LOADED && SSM_LOADED='False'
+  declare -xg SCRIPT_PATH && SCRIPT_PATH=${0%/*}
+  declare -xg SCRIPT_NAME && SCRIPT_NAME=${0##*/}
 
-#? ######################## Troubleshooting
-  #?      set to 1 for verbose testing ; remove -r to allow each script to set it
-  declare -ix SET_DEBUG=0
-  #?      log errors to text file; only functional if $SET_DEBUG=1
-  if [[ $SET_DEBUG == 1 ]]; then
-      # setopt verbose xtrace
-      #? turn on debug logging
-      declare -ix DEBUG_LOG && DEBUG_LOG=0
-      #? log file for debug logs
-      declare -x debug_log_file && debug_log_file="${HOME}/.bash_profile_error.log"
-      #? max filesize for debug_log_file
-      declare -ix debug_log_max_size && debug_log_max_size=32768
+  # to ease the transition to zsh from bash
+  if [ "$SHELL_BIN" = 'zsh' ]; then
+    BASH_SOURCE=${(%):-%N}
+  elif [ -z "$BASH_SOURCE" ]; then
+      BASH_SOURCE="${BASH_SOURCE:-$0}"
   fi
 
-#? ######################## POSIX compliant 'source'
-  # .() {
-  #   s=$(command -v "$1")
-  #   echo "path \$1: $s"
-  #   source "$(realpath "${1}")" || echo "${0?"Unable to source script $s in $BASH_SOURCE at $LINENO"}"
-  #   }
-    # Reference: The shell shall execute commands from the file in the current environment.
+  # Locations of profile settings files
+  declare -x DOTFILES_PATH && DOTFILES_PATH="${HOME}/.dotfiles"
+  declare -x DOTFILES_INC && DOTFILES_INC="${DOTFILES_PATH}/zshrc_inc"
 
-    # If file does not contain a <slash>, the shell shall use the search path specified by PATH to find the directory containing file. Unlike normal command search, however, the file searched for by the dot utility need not be executable. If no readable file is found, a non-interactive shell shall abort; an interactive shell shall write a diagnostic message to standard error, but this condition shall not be considered a syntax error.
+#? ######################## Troubleshooting
+  #? set to 1 for verbose testing ; remove -r to allow each script to set it
+  declare -ix SET_DEBUG
+  SET_DEBUG=0
 
-#? ######################## Path Info
-  declare -x SOURCE_PATH && SOURCE_PATH="${HOME}/.dotfiles"
-  . "${SOURCE_PATH}/.path"
-  . "${SOURCE_PATH}/.theme"
+#? ######################## Source Tools
+  .() { # source with debugging info and file read check
+    if [[ -r $1 ]]; then
+      source "$1"
+      [[ $SET_DEBUG = 1 ]] && blue "Source $1"
+    else
+      attn "Source error for $1"
+    fi
+  }
 
-  # if type brew &>/dev/null; then #! removed 'brew' check
-  #   FPATH=$(brew --prefix)/share/zsh/site-functions:$FPATH
-  # fi
+  source_dir() { # source all files in directory
+    if [[ -d $1 ]]; then
+      local f
+      [[ $SET_DEBUG = 1 ]] && blue "Source Directory $1"
+      for f in "$1"/*; do
+        . "$f"
+      done
+      unset f
+    else
+      attn "Source Directory error for $1"
+    fi
+  }
 
-  fpath=(/usr/local/share/zsh/site-functions $fpath)
-  fpath=(/usr/local/share/zsh-completions $fpath)
-  fpath=($HOME/.zsh/pure $fpath)
+#? ######################## Load Profile settings
+  source_dir "$DOTFILES_INC"
 
-
+#? ######################## From original oh-my-zsh .zshrc
+  # Path to your oh-my-zsh installation. Comments at the end of this script.
+  export ZSH="$HOME/.oh-my-zsh"
+  ZSH_THEME="robbyrussell"
+  CASE_SENSITIVE="false"
+  COMPLETION_WAITING_DOTS="true"
+  DISABLE_UNTRACKED_FILES_DIRTY="true"
+  export plugins=(git vscode)
+  source "$ZSH/oh-my-zsh.sh"
 
 #? ######################## Set ZSH Options
   # Using ZSH shell - http://zsh.sourceforge.net/
@@ -79,29 +90,13 @@
     zmodload -a zsh/zprof zprof
     zmodload -a zsh/mapfile mapfile
 
-CPU=$(sysctl -n machdep.cpu.brand_string)
-
-# zsh autocomplete
-listsysctls () {
-  set -A reply $(sysctl -AN ${1%.*})
-  }
-compctl -K listsysctls sysctl
-
-
-#? ######################## Load Profile settings
-
-  # . "${SOURCE_PATH}/ssm"
-  . "${SOURCE_PATH}/.aliases"
-  . "${SOURCE_PATH}/.exports"
-  . "${SOURCE_PATH}/.functions"
-  . "${SOURCE_PATH}/.extra"
-  # . "${SOURCE_PATH}/.git_alias" # already included
-
-  # haskell config
-  [ -f "${GHCUP_INSTALL_BASE_PREFIX:=$HOME}/.ghcup/env" ] && source "${GHCUP_INSTALL_BASE_PREFIX:=$HOME}/.ghcup/env"
+#? ######################## ZSH command completions
+  # zsh autocomplete
+  _listsysctls() { set -A reply "$(sysctl -AN ${1%.*})"; }
+  compctl -K _listsysctls sysctl
 
   # pip zsh completion start
-  function _pip_completion {
+  _pip_completion() {
     local words cword
     IFS="" read -r -Ac words
     IFS="" read -r -cn cword
@@ -113,35 +108,55 @@ compctl -K listsysctls sysctl
   compctl -K _pip_completion pip
   # pip zsh completion end
 
+#? ######################## From zsh addons install
+  # messages from these installs:
+  # brew install zsh-autosuggestions
+  # brew install zsh-completions
+  # brew install zsh-syntax-highlighting
+
+  source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+  source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+  if type brew &>/dev/null; then
+    FPATH=$(brew --prefix)/share/zsh/site-functions:$FPATH
+  fi
+
   # Setup new style completion system. To see examples of the old style
   # (compctl based) programmable completion, check Misc/compctl-examples in
   # the zsh distribution.
   autoload -Uz compinit && compinit
 
-#? ######################## From .zshrc
-  # Path to your oh-my-zsh installation. Comments at the end of this script.
-  export ZSH="/Users/skeptycal/.oh-my-zsh"
-  ZSH_THEME="robbyrussell"
-  CASE_SENSITIVE="true"
-  COMPLETION_WAITING_DOTS="true"
-  DISABLE_UNTRACKED_FILES_DIRTY="true"
-  export plugins=(git vscode)
-  source $ZSH/oh-my-zsh.sh
+#? ######################## Program settings
+  # haskell config
+  [ -f "${GHCUP_INSTALL_BASE_PREFIX:=$HOME}/.ghcup/env" ] && source "${GHCUP_INSTALL_BASE_PREFIX:=$HOME}/.ghcup/env"
+
+  # brew install jump
+  # https://github.com/gsamokovarov/jump
+  eval "$(jump shell)"
+
+  # Updates PATH for the Google Cloud SDK.
+  if [ -f ~/Code/google-cloud-sdk/path.zsh.inc ]; then
+    . ~/Code/google-cloud-sdk/path.zsh.inc
+  fi
+
+  # The next line enables shell command completion for gcloud.
+  if [ -f ~/Code/google-cloud-sdk/completion.zsh.inc ]; then
+    . ~/Code/google-cloud-sdk/completion.zsh.inc
+  fi
 
 #? ######################## script cleanup
   # profile end time
   t1=$(date "+%s.%n")
   # display script time
-  printf "${MAIN}Profile took %.1f seconds to load.\n" $((t1-t0))
-  printf "%s\n" "${MAIN}CPU: $CPU -> $number_of_cores threads available."
-  unset t1 t0
-  echo ''
-  echo -e 'Try the latest features: <getURL>'
-  echo -e '<checkpath.py> <bc_remove.sh> <sysctl -a>'
+  printf "${MAIN}Profile took ${WARN}%.1f${MAIN} seconds to load.\n" $((t1-t0))
+  printf "%s\n" "${MAIN}CPU: $CPU -> ${WARN}$number_of_cores${MAIN} cores available."
 
-# End of .zshrc
-# ----------------------------------------------------------------------------
+  unset t1 t0 SCRIPT_PATH SCRIPT_NAME
 
+  # End of .zshrc
+  # --------------------------------------------------------------------------
+
+#* ----------------------------- REFERENCES and NOTES
 #? ######################## Set BASH Options
   # BASH options
   # http://tldp.org/LDP/abs/html/options.html
@@ -159,68 +174,68 @@ compctl -K listsysctls sysctl
   # set -x    # print a trace of simple commands
 
 #? ######################## Set ZSH Options
-#   # Using ZSH shell - http://zsh.sourceforge.net/
+  #   # Using ZSH shell - http://zsh.sourceforge.net/
 
-#   # zsh options
-#   # Set/unset  shell options
-#   setopt   notify globdots correct pushdtohome cdablevars autolist
-#   setopt   correctall autocd recexact longlistjobs
-#   setopt   autoresume histignoredups pushdsilent noclobber
-#   setopt   autopushd pushdminus extendedglob rcquotes mailwarning
-#   unsetopt bgnice autoparamslash
+  #   # zsh options
+  #   # Set/unset  shell options
+  #   setopt   notify globdots correct pushdtohome cdablevars autolist
+  #   setopt   correctall autocd recexact longlistjobs
+  #   setopt   autoresume histignoredups pushdsilent noclobber
+  #   setopt   autopushd pushdminus extendedglob rcquotes mailwarning
+  #   unsetopt bgnice autoparamslash
 
-#   # my options
-#   # setopt   alwaystoend all_export
+  #   # my options
+  #   # setopt   alwaystoend all_export
 
-#   # zsh completions
-#   # rm -f ~/.zcompdump;
+  #   # zsh completions
+  #   # rm -f ~/.zcompdump;
 
-#   # . "/usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
-#   # . "/usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
-#   # . "/usr/local/opt/zsh-git-prompt/zshrc.sh"
+  #   # . "/usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+  #   # . "/usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+  #   # . "/usr/local/opt/zsh-git-prompt/zshrc.sh"
 
-#   # Autoload zsh modules when they are referenced
-#     zmodload -a zsh/stat stat
-#     zmodload -a zsh/zpty zpty
-#     zmodload -a zsh/zprof zprof
-#     zmodload -a zsh/mapfile mapfile
+  #   # Autoload zsh modules when they are referenced
+  #     zmodload -a zsh/stat stat
+  #     zmodload -a zsh/zpty zpty
+  #     zmodload -a zsh/zprof zprof
+  #     zmodload -a zsh/mapfile mapfile
 
-#   # Some nice key bindings
-#     # bindkey '^X^Z' universal-argument ' ' magic-space
-#     # bindkey '^X^A' vi-find-prev-char-skip
-#     # bindkey '^Xa' _expand_alias
-#     # bindkey '^Z' accept-and-hold
-#     # bindkey -s '\M-/' \\\\
-#     # bindkey -s '\M-=' \|
-#     # bindkey -v                 # vi key bindings
-#     # bindkey -e                 # emacs key bindings
-#     # bindkey ' ' magic-space    # also do history expansion on space
-#     # bindkey '^I' complete-word # complete on tab, leave expansion to _expand
+  #   # Some nice key bindings
+  #     # bindkey '^X^Z' universal-argument ' ' magic-space
+  #     # bindkey '^X^A' vi-find-prev-char-skip
+  #     # bindkey '^Xa' _expand_alias
+  #     # bindkey '^Z' accept-and-hold
+  #     # bindkey -s '\M-/' \\\\
+  #     # bindkey -s '\M-=' \|
+  #     # bindkey -v                 # vi key bindings
+  #     # bindkey -e                 # emacs key bindings
+  #     # bindkey ' ' magic-space    # also do history expansion on space
+  #     # bindkey '^I' complete-word # complete on tab, leave expansion to _expand
 
 
-# # sysctl - Access kernel state information.
+  # # sysctl - Access kernel state information.
 
-# # Show all available variables and their values:
-# # sysctl -a
+  # # Show all available variables and their values:
+  # # sysctl -a
 
-# # Show Apple model identifier:
-# # sysctl -n hw.model
+  # # Show Apple model identifier:
+  # # sysctl -n hw.model
 
-# # Show CPU model:
-# # sysctl -n machdep.cpu.brand_string
+  # # Show CPU model:
+  # # sysctl -n machdep.cpu.brand_string
 
-# # Show available CPU features (MMX, SSE, SSE2, SSE3, AES, etc):
-# # sysctl -n machdep.cpu.feature
+  # # Show available CPU features (MMX, SSE, SSE2, SSE3, AES, etc):
+  # # sysctl -n machdep.cpu.feature
 
-# # Set a changeable kernel state variable:
-# # sysctl -w {{section.tunable}}={{value}}
-# CPU=$(sysctl -n machdep.cpu.brand_string)
+  # # Set a changeable kernel state variable:
+  # # sysctl -w {{section.tunable}}={{value}}
+  # CPU=$(sysctl -n machdep.cpu.brand_string)
 
-# # zsh autocomplete
-# listsysctls () {
-#   set -A reply $(sysctl -AN ${1%.*})
-#   }
-# compctl -K listsysctls sysctl
+  # # zsh autocomplete
+  # listsysctls () {
+  #   set -A reply $(sysctl -AN ${1%.*})
+  #   }
+  # compctl -K listsysctls sysctl
 
 #? ######################## Original .zshrc
   # # Path to your oh-my-zsh installation.
@@ -269,3 +284,12 @@ compctl -K listsysctls sysctl
 
   # source $ZSH/oh-my-zsh.sh
 
+#? ######################## POSIX compliant 'source'
+  # .() {
+  #   s=$(command -v "$1")
+  #   echo "path \$1: $s"
+  #   source "$(realpath "${1}")" || echo "${0?"Unable to source script $s in $BASH_SOURCE at $LINENO"}"
+  #   }
+    # Reference: The shell shall execute commands from the file in the current environment.
+
+    # If file does not contain a <slash>, the shell shall use the search path specified by PATH to find the directory containing file. Unlike normal command search, however, the file searched for by the dot utility need not be executable. If no readable file is found, a non-interactive shell shall abort; an interactive shell shall write a diagnostic message to standard error, but this condition shall not be considered a syntax error.
