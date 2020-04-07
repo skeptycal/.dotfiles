@@ -6,7 +6,7 @@
 # change all .py files in current folder to executable
 alias modpy='chmod +x *.py -c --preserve-root -- '
 alias python='python3 '
-alias pip='/usr/local/opt/python@3.8/bin/pip3 '
+# alias pip='/usr/local/opt/python@3.8/bin/pip3 '
 alias py="python -m "
 alias pret='prettier * --write --insert-pragma'
 # alias pwdcopy='pwd | pbcopy'
