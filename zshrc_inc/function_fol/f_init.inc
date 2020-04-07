@@ -1,8 +1,8 @@
 #!/usr/bin/env zsh
 # -*- coding: utf-8 -*-
-# shellcheck shell=bash
-# shellcheck source=/dev/null
-# shellcheck disable=2230,2086
+    # shellcheck shell=bash
+    # shellcheck source=/dev/null
+    # shellcheck disable=2230,2086
 
 # number of years the first commercial
 #   modem would take to transmit a movie: 42.251651342415241
@@ -21,9 +21,7 @@ declare -x VERSION_LIST && VERSION_LIST="${DOTFILES_PATH:-~/.dotfiles}/.VERSION_
 which() { command -v "$1"; } # use command -v instead of which ...
 exists() { command -v "$1" >/dev/null 2>&1; } # which, no output
 runif() { exists "$1" && "$@"; } # run it only if it exists
-
 flasher () { while true; do printf "\\e[?5h"; sleep 0.1; printf "\\e[?5l"; read -rs -t1 && break; done; }
-
 sudo_env() { # Turn on SUDO for remainder of current script
     # requires root authentication, of course
     #   use _SUDO_ENV=0 in main script to turn this off
@@ -64,7 +62,6 @@ update () { # System software updates (macOS - updated for Catalina)
     brew cleanup
 
     #? ############################### python updates
-    # python
     #   brew upgrade python pyenv pipenv
     pip3 install -U pip
     pip3 list --outdated | cut -d ' ' -f1 | xargs -n1 pip install -U
@@ -72,11 +69,12 @@ update () { # System software updates (macOS - updated for Catalina)
     #? ############################### npm updates
     /usr/bin/sudo npm install npm -g
     /usr/bin/sudo npm update -g
-    # ruby
+    runif brew_fix
+
+    #? ############################### ruby updates
     /usr/bin/sudo gem update --system
     /usr/bin/sudo gem update
     /usr/bin/sudo gem cleanup
-    runif brew_fix
     } # 2>/dev/null &
 
 background_update() {
@@ -95,36 +93,32 @@ cleanup () {
     }
 
 # from oh-my-zsh install script (somewhat modified)
-    RED=$WARN
+    declare -g RED=$WARN
     command_exists() { command -v "$@" >/dev/null 2>&1; }
-
-    2echo() { echo "$@" >&2; }
-
+    2echo() { ce "$@" >&2; }
     error() { warn ${RED}"Error: $@"${RESET} >&2; }
-
     setup_color() {
         # Only use colors if connected to a terminal
         if [ -t 1 ]; then
-            RED=$(printf '\033[31m')
-            GREEN=$(printf '\033[32m')
-            YELLOW=$(printf '\033[33m')
-            BLUE=$(printf '\033[34m')
-            BOLD=$(printf '\033[1m')
-            RESET=$(printf '\033[m')
+            declare -g RED=$(printf '\033[31m')
+            declare -g GREEN=$(printf '\033[32m')
+            declare -g YELLOW=$(printf '\033[33m')
+            declare -g BLUE=$(printf '\033[34m')
+            declare -g BOLD=$(printf '\033[1m')
+            declare -g RESET=$(printf '\033[m')
         else
-            RED=""
-            GREEN=""
-            YELLOW=""
-            BLUE=""
-            BOLD=""
-            RESET=""
+            declare -g RED=""
+            declare -g GREEN=""
+            declare -g YELLOW=""
+            declare -g BLUE=""
+            declare -g BOLD=""
+            declare -g RESET=""
         fi
-    }
+        }
     setup_color
 
 # - #- ################################
 # - utilities from https://justin.abrah.ms/dotfiles/zsh.html
-
 
 # Ref: https://unix.stackexchange.com/questions/22815/how-to-list-files-and-directories-with-directories-first
 
@@ -154,7 +148,6 @@ anyguard() {
     return "$ret"
 }
 
-
 get_template() {
     # TODO work in progress
     return 0
@@ -176,7 +169,6 @@ get_template() {
     #     printf "SOURCE file not found.\n\n"
     # fi
 }
-
 
 declare -x GATHER_USAGE
 GATHER_USAGE="$(
