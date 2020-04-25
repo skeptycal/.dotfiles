@@ -5,7 +5,6 @@
 *.conf
 *.save
 
-
 node_modules/
 myagent/
 Pictures/
