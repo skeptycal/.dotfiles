@@ -58,29 +58,29 @@ root_space() { df -P | grep '\/$' | awk '{print $5}' | cut -d "%" -f1 -; }
 
 #? ######################## SCRIPT TESTS
     _run_debug_functions() {
-        db_script_source "Functions test"
         warn $SCRIPT_NAME
     }
 #? ######################## Weekly Tasks
     _sunday() {
-        declare -g weekday=$(date +"%a")
-        declare -g today=$(date +"")
-        declare -g sun_file=~/.dotfiles/.sun_check
+        weekday=$(date +"%a")
+        today=$(date +"")
+        sun_file=~/.dotfiles/.sun_check
         if [[ $weekday = 'Sun' ]]; then
             if [ -f $sun_file ]; then
                 read -r line < $sun_file
                 line=$(tail -1 $sun_file)
                 if [[ $line = "$today" ]]; then
-                    echo 'Sunday tasks already done...'
+                    rain 'Sunday tasks already done...'
+                else
+                    rain "It's Sunday! Performing weekly updates and refreshes..."
+
+            # TODO -- add weekly update functions here ...
+                    #* /Users/skeptycal/.dotfiles/sunday.py
+                    blue "Updating program version list ..."
+                    save_versions & # 2>/dev/null
+                    python -m /Users/skeptycal/.dotfiles/sunday
                 fi
             fi
-
-            rain "It's Sunday! Performing weekly updates and refreshes..."
-
-    # TODO -- add weekly update functions here ...
-            blue "Updating program version list ..."
-            save_versions # & # 2>/dev/null
-            python -m sunday
         fi
     }
 #? ######################## Daily Tasks

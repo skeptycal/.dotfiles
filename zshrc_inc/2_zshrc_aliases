@@ -7,10 +7,11 @@
 #? ############################# skeptycal.com ################################
 # [[ $SET_DEBUG ]] && SET_DEBUG=0 # set to 1 for verbose testing
 BASH_SOURCE="${BASH_SOURCE:-$0}" # to ease the transition to zsh
-export CLICOLOR=1
-export colorflag='--color=always' # I use GNU core_utils; no need to test '-G'
 
 source_dir "${DOTFILES_INC}/alias_fol"
+
+export CLICOLOR=1
+export colorflag='--color=always' # I use GNU core_utils; no need to test '-G'
 
 alias ls="ls $colorflag"
 

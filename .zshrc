@@ -15,30 +15,40 @@
   unalias -a
 
   # Warn on global variable creation
-  setopt WARN_CREATE_GLOBAL
+  # setopt WARN_CREATE_GLOBAL'
+
+  #? ######################## Troubleshooting
+  #? set to 1 for verbose testing ; remove -r to allow each script to set it
+  declare -ix SET_DEBUG
+  SET_DEBUG=0
 
 #? ######################## Constants
-  # get name of shell program without path info
+  # get name of shell program without path info 
+  # e.g. instead of /bin/zsh, get zsh
   declare -x SHELL_BIN && SHELL_BIN="${SHELL##*/}"
-  declare -x SSM_LOADED && SSM_LOADED='False'
-  declare -xg SCRIPT_PATH && SCRIPT_PATH=${0%/*}
-  declare -xg SCRIPT_NAME && SCRIPT_NAME=${0##*/}
+  SHELL_LVL=$SHLVL
 
+  # flag: are personal utilities loaded? (default = False)
+  declare -x SSM_LOADED && SSM_LOADED='False'
+  declare -x SSM && SSM=/Users/skeptycal/bin/utilities/scripts/ssm
+  # load standard script modules
+  . $SSM
+  
+  # local script path and name
+  SCRIPT_PATH=${0%/*}
+  SCRIPT_NAME=${0##*/}
+
+  # provide a BASH_SOURCE variable in zsh
   # to ease the transition to zsh from bash
-  if [ "$SHELL_BIN" = 'zsh' ]; then
-    BASH_SOURCE=${(%):-%N}
-  elif [ -z "$BASH_SOURCE" ]; then
-      BASH_SOURCE="${BASH_SOURCE:-$0}"
-  fi
+  [[ "$SHELL_BIN" = 'zsh' ]] && BASH_SOURCE=${(%):-%N}
+  BASH_SOURCE="${BASH_SOURCE:-$0}"
 
   # Locations of profile settings files
   declare -x DOTFILES_PATH && DOTFILES_PATH="${HOME}/.dotfiles"
   declare -x DOTFILES_INC && DOTFILES_INC="${DOTFILES_PATH}/zshrc_inc"
 
-#? ######################## Troubleshooting
-  #? set to 1 for verbose testing ; remove -r to allow each script to set it
-  declare -ix SET_DEBUG
-  SET_DEBUG=0
+  # Location of macOS Homebrew folder
+  declare -x BREW_PREFIX && BREW_PREFIX="$(brew --prefix)"
 
 #? ######################## Source Tools
   .() { # source with debugging info and file read check
@@ -72,7 +82,7 @@
   ZSH_THEME="robbyrussell"
   CASE_SENSITIVE="false"
   COMPLETION_WAITING_DOTS="true"
-  DISABLE_UNTRACKED_FILES_DIRTY="true"
+  DISABLE_UNTRACKED_FILES_DIRTY="false"
   export plugins=(git vscode)
   source "$ZSH/oh-my-zsh.sh"
 
@@ -85,10 +95,48 @@
   unsetopt bgnice autoparamslash
 
   # Autoload zsh modules when they are referenced
-    zmodload -a zsh/stat stat
-    zmodload -a zsh/zpty zpty
-    zmodload -a zsh/zprof zprof
-    zmodload -a zsh/mapfile mapfile
+  zmodload -a zsh/stat stat
+  zmodload -a zsh/zpty zpty
+  zmodload -a zsh/zprof zprof
+  zmodload -a zsh/mapfile mapfile
+
+#? ######################## Program settings
+  # google cloud SDK
+  # The next line updates PATH for the Google Cloud SDK.
+  if [ -f '/Users/skeptycal/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/skeptycal/google-cloud-sdk/path.zsh.inc'; fi
+  # The next line enables shell command completion for gcloud.
+  if [ -f '/Users/skeptycal/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/skeptycal/google-cloud-sdk/completion.zsh.inc'; fi
+
+  # haskell config
+  [ -f "${GHCUP_INSTALL_BASE_PREFIX:=$HOME}/.ghcup/env" ] && source "${GHCUP_INSTALL_BASE_PREFIX:=$HOME}/.ghcup/env"
+
+  # brew install jump
+  # https://github.com/gsamokovarov/jump
+  eval "$(jump shell)"
+
+  # pyenv
+  [[ $(command -v pyenv >/dev/null) ]] && eval "$(pyenv init -)"
+  [[ $(command -v pyenv-virtualenv-init >/dev/null) ]] && eval "$(pyenv virtualenv-init -)"
+
+#? ######################## From zsh addons install
+  # messages from these installs:
+  # brew install zsh-autosuggestions
+  # brew install zsh-syntax-highlighting
+
+  if type brew &>/dev/null; then
+    FPATH=$BREW_PREFIX/share/zsh-completions:$FPATH
+    FPATH=$BREW_PREFIX/share/zsh/site-functions:$FPATH
+  fi
+
+  source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+
+  export ZSH_HIGHLIGHT_HIGHLIGHTERS_DIR=/usr/local/share/zsh-syntax-highlighting/highlighters
+  source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+  # Setup new style completion system. To see examples of the old style
+  # (compctl based) programmable completion, check Misc/compctl-examples in
+  # the zsh distribution.
+  autoload -Uz compinit && compinit
 
 #? ######################## ZSH command completions
   # zsh autocomplete
@@ -107,42 +155,6 @@
     }
   compctl -K _pip_completion pip
   # pip zsh completion end
-
-#? ######################## From zsh addons install
-  # messages from these installs:
-  # brew install zsh-autosuggestions
-  # brew install zsh-completions
-  # brew install zsh-syntax-highlighting
-
-  source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-  source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-
-  if type brew &>/dev/null; then
-    FPATH=$(brew --prefix)/share/zsh/site-functions:$FPATH
-  fi
-
-  # Setup new style completion system. To see examples of the old style
-  # (compctl based) programmable completion, check Misc/compctl-examples in
-  # the zsh distribution.
-  autoload -Uz compinit && compinit
-
-#? ######################## Program settings
-  # haskell config
-  [ -f "${GHCUP_INSTALL_BASE_PREFIX:=$HOME}/.ghcup/env" ] && source "${GHCUP_INSTALL_BASE_PREFIX:=$HOME}/.ghcup/env"
-
-  # brew install jump
-  # https://github.com/gsamokovarov/jump
-  eval "$(jump shell)"
-
-  # Updates PATH for the Google Cloud SDK.
-  if [ -f ~/Code/google-cloud-sdk/path.zsh.inc ]; then
-    . ~/Code/google-cloud-sdk/path.zsh.inc
-  fi
-
-  # The next line enables shell command completion for gcloud.
-  if [ -f ~/Code/google-cloud-sdk/completion.zsh.inc ]; then
-    . ~/Code/google-cloud-sdk/completion.zsh.inc
-  fi
 
 #? ######################## script cleanup
   # profile end time
@@ -293,3 +305,5 @@
     # Reference: The shell shall execute commands from the file in the current environment.
 
     # If file does not contain a <slash>, the shell shall use the search path specified by PATH to find the directory containing file. Unlike normal command search, however, the file searched for by the dot utility need not be executable. If no readable file is found, a non-interactive shell shall abort; an interactive shell shall write a diagnostic message to standard error, but this condition shall not be considered a syntax error.
+
+

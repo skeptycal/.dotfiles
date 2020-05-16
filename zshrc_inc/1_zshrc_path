@@ -30,43 +30,50 @@ SET_DEBUG=${SET_DEBUG:-0} # set to 1 for verbose testing
     MANPATH="${MANPATH// /}"
 
 # ?########################################## PATH
-
     # These are automatically added to the start:
     #   /Users/skeptycal/.cabal/bin
     #   /Users/skeptycal/.ghcup/bin
+    PATH="${PATH}"
     declare -x PATH="\
-        /usr/local/opt/coreutils/libexec/gnubin:\
-        /usr/local/bin:\
-        $HOME/Documents/coding/python/AutoSys/autosys:\
-        $HOME/Documents/coding/python/AutoSys/bin:\
-        /Library/Frameworks/Python.framework/Versions/3.9/bin:\
-        $HOME/Library/Python/3.9/bin
-        $HOME/bin:\
-        $HOME/go/bin:\
-        $HOME/bin/utilities:\
-        $HOME/bin/utilities/scripts:\
-        $HOME/bin/utilities/apps:\
-        $HOME/bin/utilities/python:\
-        $HOME/bin/utilities/php:\
-        $HOME/bin/utilities/php/includes:\
-        /usr/local/opt/ruby/bin:\
-        /usr/local/lib/node_modules:\
-        /usr/local/opt/cython/bin:\
-        /bin:\
-        /usr/local/opt:\
-        /usr/local:\
-        /usr/local/sbin:\
-        /usr/bin:\
-        /usr/sbin:\
-        /sbin:\
-        /usr/libexec:\
-        $HOME/.dotfiles:\
-        $HOME/.dotfiles/git-achievements:\
-        $PWD:\
-        "
+$HOME/.poetry/bin:\
+/Library/Frameworks/Python.framework/Versions/3.9/bin:\
+$HOME/Library/Python/3.9/bin:\
+/usr/local/opt/coreutils/libexec/gnubin:\
+/usr/local/bin:\
+$HOME/Documents/coding/python/autosys/autosys:\
+$HOME/Documents/coding/python/autosys/bin:\
+/usr/local/opt/gnu-getopt/bin:\
+/usr/local/share/dotnet:\
+$HOME/bin:\
+$HOME/go/bin:\
+$HOME/bin/utilities:\
+$HOME/bin/utilities/scripts:\
+$HOME/bin/utilities/apps:\
+$HOME/bin/utilities/python:\
+$HOME/bin/utilities/php:\
+$HOME/bin/utilities/php/includes:\
+/usr/local/opt/ruby/bin:\
+/usr/local/lib/node_modules:\
+/usr/local/opt/cython/bin:\
+/bin:\
+/usr/local/opt:\
+/usr/local:\
+/usr/local/sbin:\
+/usr/bin:\
+/usr/sbin:\
+/sbin:\
+/fake:\
+/Applications/Visual Studio Code.app/Contents/Resources/app/bin:\
+/usr/libexec:\
+$HOME/.dotfiles:\
+$HOME/.dotfiles/git-achievements::\
+$PWD\
+"
 
-    PATH="${PATH// /}"
-
+    # PATH="${PATH// /}"
+    PATH="${PATH//::/:}"
+    # PATH=$PATH':/Applications/Visual Studio Code.app/Contents/Resources/app/bin'
+    export PATH
 
 # ?########################################## OpenSSL info
     # openssl is keg-only, which means it was not symlinked into /usr/local,
