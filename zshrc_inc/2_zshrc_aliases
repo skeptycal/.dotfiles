@@ -13,5 +13,4 @@ source_dir "${DOTFILES_INC}/alias_fol"
 export CLICOLOR=1
 export colorflag='--color=always' # I use GNU core_utils; no need to test '-G'
 
-alias ls="ls $colorflag"
-
+alias ls="ls $colorflag "

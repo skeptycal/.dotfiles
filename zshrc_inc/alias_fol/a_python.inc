@@ -12,6 +12,7 @@ alias python='python3 '
 alias py="python -m "
 alias pret='prettier * --write --insert-pragma'
 # alias pwdcopy='pwd | pbcopy'
+alias piplist='pip list | tail -43 | cut -d " " -f 1'
 
 alias pm="pygmentize"
 alias dj="python3 manage.py runserver"

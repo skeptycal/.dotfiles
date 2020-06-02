@@ -12,26 +12,31 @@ _pretty_usage=''
 
 dict() { grep "$@" /usr/share/dict/words; }
 colon_list() { echo -e "${1//:/\\n}"; }
-
+in_str() { string=${@:2}; return $([ -z "${string##*$1*}" ]); }
+is_instr() { return $([[ "${@:2}" == *"$1"* ]]); }
 lower() { ce "${*:l}"; } # return all args as lowercase (zsh only)
 upper() { ce "${*:u}"; } # return all args as uppercase (zsh only)
 
 lower_file() {
-    # original
-    #   t=$(echo $f | tr '[:upper:]' '[:lower:]')
-    #   zsh uses ${file:l}
+    # set force_lower if first arg is '-f' else echo only
+
+        # original
+        #   t=$(echo $f | tr '[:upper:]' '[:lower:]')
+        #   zsh uses ${file:l}
     local force_lower=0
+    local file=
     if [[ $1 == '-f' ]]; then
         force_lower=1
-        echo "Forcing mv ... \$force_lower = $force_lower"
         shift
     fi
-    local file
-    if [[ $force_lower == 1 ]]; then
-        for file in "$@" ; do  mv "$file" "${file:l}"  ; done
-    else
-        for file in "$@" ; do  echo "$file" "${file:l}"  ; done
-    fi
+    for file in "$@"; do
+        if [[ $force_lower == 1 ]]; then
+            mv -ub "$file" "${file:l}"
+        else
+            echo "$file" "${file:l}"
+        fi
+    done
+    unset force_lower file
 }
 
 replace() {
@@ -114,4 +119,3 @@ pretty() {
         esac
     fi
 }
-

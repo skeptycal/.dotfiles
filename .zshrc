@@ -23,17 +23,17 @@
   SET_DEBUG=0
 
 #? ######################## Constants
-  # get name of shell program without path info 
+  # get name of shell program without path info
   # e.g. instead of /bin/zsh, get zsh
   declare -x SHELL_BIN && SHELL_BIN="${SHELL##*/}"
   SHELL_LVL=$SHLVL
 
   # flag: are personal utilities loaded? (default = False)
   declare -x SSM_LOADED && SSM_LOADED='False'
-  declare -x SSM && SSM=/Users/skeptycal/bin/utilities/scripts/ssm
+  declare -x SSM && SSM=$HOME/bin/ssm
   # load standard script modules
   . $SSM
-  
+
   # local script path and name
   SCRIPT_PATH=${0%/*}
   SCRIPT_NAME=${0##*/}
@@ -51,27 +51,27 @@
   declare -x BREW_PREFIX && BREW_PREFIX="$(brew --prefix)"
 
 #? ######################## Source Tools
-  .() { # source with debugging info and file read check
+.() { # source with debugging info and file read check
     if [[ -r $1 ]]; then
-      source "$1"
-      [[ $SET_DEBUG = 1 ]] && blue "Source $1"
+        source "$1"
+        [[ $SET_DEBUG = 1 ]] && blue "Source $1"
     else
-      attn "Source error for $1"
+        attn "Source error for $1"
     fi
-  }
+}
 
-  source_dir() { # source all files in directory
+source_dir() { # source all files in directory
     if [[ -d $1 ]]; then
-      local f
-      [[ $SET_DEBUG = 1 ]] && blue "Source Directory $1"
-      for f in "$1"/*; do
-        . "$f"
-      done
-      unset f
+        local f
+        [[ $SET_DEBUG = 1 ]] && blue "Source Directory $1"
+        for f in "$1"/*; do
+            . "$f"
+        done
+        unset f
     else
-      attn "Source Directory error for $1"
+        attn "Source Directory error for $1"
     fi
-  }
+}
 
 #? ######################## Load Profile settings
   source_dir "$DOTFILES_INC"
@@ -92,7 +92,7 @@
   setopt   correctall autocd recexact longlistjobs
   setopt   autoresume histignoredups pushdsilent noclobber
   setopt   autopushd pushdminus extendedglob rcquotes mailwarning
-  unsetopt bgnice autoparamslash
+  unsetopt autoparamslash bgnice
 
   # Autoload zsh modules when they are referenced
   zmodload -a zsh/stat stat
@@ -129,6 +129,7 @@
   fi
 
   source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+  source /usr/local/opt/zsh-git-prompt/zshrc.sh
 
   export ZSH_HIGHLIGHT_HIGHLIGHTERS_DIR=/usr/local/share/zsh-syntax-highlighting/highlighters
   source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
@@ -160,8 +161,10 @@
   # profile end time
   t1=$(date "+%s.%n")
   # display script time
-  printf "${MAIN}Profile took ${WARN}%.1f${MAIN} seconds to load.\n" $((t1-t0))
-  printf "%s\n" "${MAIN}CPU: $CPU -> ${WARN}$number_of_cores${MAIN} cores available."
+    printf "${ATTN:-}Profile took ${WARN:-}%.1f${ATTN:-} second(s) to load.\n" $((t1-t0))
+    printf "${MAIN:-}CPU: ${LIME:-}${CPU} ${MAIN:-}-> ${CANARY:-}${number_of_cores}${MAIN:-} cores. \n"
+    printf "${MAIN:-}LOCAL IP: ${COOL:-}${LOCAL_IP}  ${MAIN:-}SHLVL: ${WARN:-}${SHLVL}  ${MAIN:-}LANG: ${RAIN:-}${LANG}${RESET:-}"
+
 
   unset t1 t0 SCRIPT_PATH SCRIPT_NAME
 
@@ -305,5 +308,3 @@
     # Reference: The shell shall execute commands from the file in the current environment.
 
     # If file does not contain a <slash>, the shell shall use the search path specified by PATH to find the directory containing file. Unlike normal command search, however, the file searched for by the dot utility need not be executable. If no readable file is found, a non-interactive shell shall abort; an interactive shell shall write a diagnostic message to standard error, but this condition shall not be considered a syntax error.
-
-
