@@ -4,7 +4,7 @@
   # shellcheck source=/dev/null
   # shellcheck disable=2178,2128,2206,2034
 
-#? ######################## Shell Variables and Settings
+#? ######################## Shell Variables and Settings 
   # profile start time
   t0=$(date "+%s.%n")
 
@@ -48,7 +48,7 @@
   declare -x SSM_LOADED && SSM_LOADED='False'
   declare -x SSM && SSM=$HOME/bin/ssm
   # load standard script modules
-  . $SSM
+  # . $SSM
 
 #? ######################## Source Tools
   .() { # source with debugging info and file read check
@@ -75,7 +75,6 @@
 
 #? ######################## Load Profile settings
   source_dir "$DOTFILES_INC"
-  . ~/.dotfiles/.TWINE_USERNAME
 
 #? ######################## From original oh-my-zsh .zshrc
   # Path to your oh-my-zsh installation. Comments at the end of this script.

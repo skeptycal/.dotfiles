@@ -33,18 +33,20 @@ SET_DEBUG=${SET_DEBUG:-0} # set to 1 for verbose testing
     # These are automatically added to the start:
     #   /Users/skeptycal/.cabal/bin
     #   /Users/skeptycal/.ghcup/bin
-    PATH="${PATH}"
-    declare -x PATH="\
-/Library/Frameworks/Python.framework/Versions/3.8/bin:\
-$HOME/Library/Python/3.8/bin:\
+
+# /Library/Frameworks/Python.framework/Versions/3.8/bin:\
+# $HOME/Library/Python/3.8/bin:\
+# /usr/local/opt/llvm/bin:\
+# $HOME/Documents/coding/python/autosys/autosys:\
+# $HOME/Documents/coding/python/autosys/bin:\
+
+PATH="${PATH}"
+declare -x PATH="\
 /usr/local/opt/coreutils/libexec/gnubin:\
 /usr/local/bin:\
-$HOME/Documents/coding/python/autosys/autosys:\
-$HOME/Documents/coding/python/autosys/bin:\
-$HOME/bin:\
 /usr/local/lib/node_modules:\
-/usr/local/opt/llvm/bin:\
 /usr/local/opt/cython/bin:\
+$HOME/bin:\
 /bin:\
 /usr/local/opt:\
 /usr/local:\
@@ -55,13 +57,13 @@ $HOME/bin:\
 /usr/libexec:\
 $HOME/.dotfiles:\
 $HOME/.dotfiles/git-achievements:\
-$PWD\
+$PWD:\
 "
 
-    PATH="${PATH// /}"
-    PATH="${PATH//::/:}"
-    PATH="$PATH:/Applications/Visual Studio Code - Insiders.app/Contents/Resources/app/bin:/Applications/Visual Studio Code.app/Contents/Resources/app/bin:"
-    export PATH
+PATH="${PATH// /}"
+PATH="${PATH//::/:}"
+# PATH="$PATH:/Applications/Visual Studio Code - Insiders.app/Contents/Resources/app/bin:/Applications/Visual Studio Code.app/Contents/Resources/app/bin:"
+export PATH
 
 # ?########################################## OpenSSL info
     # openssl is keg-only, which means it was not symlinked into /usr/local,
