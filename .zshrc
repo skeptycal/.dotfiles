@@ -75,6 +75,7 @@ source_dir() { # source all files in directory
 
 #? ######################## Load Profile settings
   source_dir "$DOTFILES_INC"
+  . ~/.dotfiles/.TWINE_USERNAME
 
 #? ######################## From original oh-my-zsh .zshrc
   # Path to your oh-my-zsh installation. Comments at the end of this script.
@@ -308,3 +309,6 @@ source_dir() { # source all files in directory
     # Reference: The shell shall execute commands from the file in the current environment.
 
     # If file does not contain a <slash>, the shell shall use the search path specified by PATH to find the directory containing file. Unlike normal command search, however, the file searched for by the dot utility need not be executable. If no readable file is found, a non-interactive shell shall abort; an interactive shell shall write a diagnostic message to standard error, but this condition shall not be considered a syntax error.
+
+zstyle ':completion:*' menu select
+fpath+=~/.zfunc
