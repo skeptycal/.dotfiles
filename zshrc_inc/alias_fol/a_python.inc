@@ -1,3 +1,5 @@
+#!/usr/bin/env zsh
+# -*- coding: utf-8 -*-
 # shellcheck shell=bash
 # shellcheck source=/dev/null
 # shellcheck disable=2230,2086
@@ -6,10 +8,11 @@
 # change all .py files in current folder to executable
 alias modpy='chmod +x *.py -c --preserve-root -- '
 alias python='python3 '
-alias pip='/usr/local/opt/python@3.8/bin/pip3 '
+# alias pip='/usr/local/opt/python@3.8/bin/pip3 '
 alias py="python -m "
 alias pret='prettier * --write --insert-pragma'
 # alias pwdcopy='pwd | pbcopy'
+alias piplist='pip list | tail -43 | cut -d " " -f 1'
 
 alias pm="pygmentize"
 alias dj="python3 manage.py runserver"

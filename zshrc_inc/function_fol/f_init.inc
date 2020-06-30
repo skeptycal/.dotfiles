@@ -1,8 +1,8 @@
 #!/usr/bin/env zsh
 # -*- coding: utf-8 -*-
-# shellcheck shell=bash
-# shellcheck source=/dev/null
-# shellcheck disable=2230,2086
+    # shellcheck shell=bash
+    # shellcheck source=/dev/null
+    # shellcheck disable=2230,2086
 
 # number of years the first commercial
 #   modem would take to transmit a movie: 42.251651342415241
@@ -17,12 +17,35 @@ if [ ! "$(uname -s)" = 'Darwin' ]; then
 fi
 
 declare -x VERSION_LIST && VERSION_LIST="${DOTFILES_PATH:-~/.dotfiles}/.VERSION_LIST.md"
+setup_color() {
+    # Only use colors if connected to a terminal
+    if [ -t 1 ]; then
+        declare -g RED=$(printf '\033[31m')
+        declare -g GREEN=$(printf '\033[32m')
+        declare -g YELLOW=$(printf '\033[33m')
+        declare -g BLUE=$(printf '\033[34m')
+        declare -g BOLD=$(printf '\033[1m')
+        declare -g RESET=$(printf '\033[m')
+    else
+        declare -g RED=""
+        declare -g GREEN=""
+        declare -g YELLOW=""
+        declare -g BLUE=""
+        declare -g BOLD=""
+        declare -g RESET=""
+    fi
+    }
+setup_color
+# from oh-my-zsh install script (somewhat modified)
+    RED=$WARN
+    which() { command -v "$1"; }                            # use command -v instead of `which` ...
+    runif() { exists "$1" && "$@"; }                        # run it only if "$!" exists
+    command_exists() { command -v "$@" >/dev/null 2>&1; }   # which, no output # pass all - $@
+            exists() { command -v "$1" >/dev/null 2>&1; }   # which, no output # pass only $1
+    2echo() { ce "$@" >&2; }                                # echo to stderr
+    error() { warn ${RED}"Error: $@"${RESET} >&2; }         # Red text to stderr
 
-which() { command -v "$1"; } # use command -v instead of which ...
-exists() { command -v "$1" >/dev/null 2>&1; } # which, no output
-runif() { exists "$1" && "$@"; } # run it only if it exists
-
-flasher () { while true; do printf "\\e[?5h"; sleep 0.1; printf "\\e[?5l"; read -rs -t1 && break; done; }
+    flasher () { while true; do printf "\\e[?5h"; sleep 0.1; printf "\\e[?5l"; read -rs -t1 && break; done; }
 
 sudo_env() { # Turn on SUDO for remainder of current script
     # requires root authentication, of course
@@ -48,8 +71,15 @@ update () { # System software updates (macOS - updated for Catalina)
 
     #? ############################### Close 'Systemm Preferences'
     # Close any open System Preferences panes, to prevent them from overriding
-    # settings we’re about to change
+    # settings weâ€™re about to change
     osascript -e 'tell application "System Preferences" to quit'
+
+    #? ############################### Homebrew updates
+    # Brew does not like 'sudo'
+    brew update
+    brew upgrade
+    brew doctor
+    brew cleanup
 
     #? ############################### Use sudo for remainder of the script
     sudo_env
@@ -57,33 +87,32 @@ update () { # System software updates (macOS - updated for Catalina)
     #? ############################### macOS updates
     /usr/bin/sudo softwareupdate -i -a
 
-    #? ############################### Homebrew updates
-    brew update
-    brew upgrade
-    brew doctor
-    brew cleanup
-
     #? ############################### python updates
-    # python
     #   brew upgrade python pyenv pipenv
     pip3 install -U pip
     pip3 list --outdated | cut -d ' ' -f1 | xargs -n1 pip install -U
 
     #? ############################### npm updates
-    /usr/bin/sudo npm install npm -g
-    /usr/bin/sudo npm update -g
-    # ruby
-    /usr/bin/sudo gem update --system
-    /usr/bin/sudo gem update
-    /usr/bin/sudo gem cleanup
+    # /usr/bin/sudo
+    npm install npm -g
+    # /usr/bin/sudo
+    npm update -g
     runif brew_fix
+
+    #? ############################### ruby updates
+    # /usr/bin/sudo
+    gem update --system
+    # /usr/bin/sudo
+    gem update
+    # /usr/bin/sudo
+    gem cleanup
     } # 2>/dev/null &
 
-background_update() {
-    update >/dev/null 2>&1 &
-    }
+background_update() { update >/dev/null 2>&1 &; }
 
 cleanup () {
+    # init sudo environment
+    sudo_env
     # maintenance
     update &
     # cleanup .DS_Store files
@@ -94,37 +123,12 @@ cleanup () {
     /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user && killall Finder
     }
 
-# from oh-my-zsh install script (somewhat modified)
-    RED=$WARN
-    command_exists() { command -v "$@" >/dev/null 2>&1; }
+maintenance() { cleanup && update; }
 
-    2echo() { echo "$@" >&2; }
 
-    error() { warn ${RED}"Error: $@"${RESET} >&2; }
-
-    setup_color() {
-        # Only use colors if connected to a terminal
-        if [ -t 1 ]; then
-            RED=$(printf '\033[31m')
-            GREEN=$(printf '\033[32m')
-            YELLOW=$(printf '\033[33m')
-            BLUE=$(printf '\033[34m')
-            BOLD=$(printf '\033[1m')
-            RESET=$(printf '\033[m')
-        else
-            RED=""
-            GREEN=""
-            YELLOW=""
-            BLUE=""
-            BOLD=""
-            RESET=""
-        fi
-    }
-    setup_color
 
 # - #- ################################
 # - utilities from https://justin.abrah.ms/dotfiles/zsh.html
-
 
 # Ref: https://unix.stackexchange.com/questions/22815/how-to-list-files-and-directories-with-directories-first
 
@@ -154,7 +158,6 @@ anyguard() {
     return "$ret"
 }
 
-
 get_template() {
     # TODO work in progress
     return 0
@@ -176,7 +179,6 @@ get_template() {
     #     printf "SOURCE file not found.\n\n"
     # fi
 }
-
 
 declare -x GATHER_USAGE
 GATHER_USAGE="$(

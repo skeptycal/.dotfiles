@@ -1,3 +1,5 @@
+#!/usr/bin/env zsh
+# -*- coding: utf-8 -*-
 # shellcheck shell=bash
 # shellcheck source=/dev/null
 # shellcheck disable=2230,2086
@@ -25,6 +27,8 @@
     # alias path='echo -e ${PATH//:/\\n}'
     alias nis="npm install --save "
     alias cgr="composer global require"
+    alias code="nocorrect code"
+
     alias mv='nocorrect mv'       # no spelling correction on mv
     alias cp='nocorrect cp'       # no spelling correction on cp
     alias mkdir='nocorrect mkdir' # no spelling correction on mkdir

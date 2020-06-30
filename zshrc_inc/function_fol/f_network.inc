@@ -59,7 +59,7 @@ getcertnames() {
         return 1
     fi
     local domain="${1}"
-    echo "Testing ${domain}…"
+    echo "Testing ${domain}â€¦"
     echo ""
     local tmp
     local certText

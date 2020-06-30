@@ -81,8 +81,8 @@ l1() { # nice sorting ... #TODO no color ...
     ls -l "$@" | sort -r | awk 'NF==9 { if ($1~/^d/) { print $9 "/" } else { print $9 } }'
 }
 
-_mkdir(){
-        [ $# -eq 0 ] && { echo "$0: dirname"; return; }
+mkd(){
+        [ $# -eq 0 ] && { echo "$0: (DIRNAME) [MODE]    - default MODE=755"; return; }
         local d="$1"               # get dir name
         local m=${2:-0755}         # get permission, set default to 0755
         # shellcheck disable=2174
@@ -111,34 +111,46 @@ cdf() {
     cd "$(osascript -e 'tell app "Finder" to POSIX path of (insertion location as alias)')" || return 1
 }
 check_file() {
-    local name="${1##*/}"
-    local path="${1%/*}"
+    #? ${VAR##*/}        - return only final element in path (program name)
+    #? ${VAR%/*}         - return only path (without program name)
+    filename=$(py_realpath $1)
+    local name="${filename##*/}"
+    local path="${filename%/*}"
     echo "name: $name"
     echo "path: $path"
     local tmp_chk=''
-    [[ -e "$path" ]] && tmp_chk="${tmp_chk} exists" || tmp_chk="${tmp_chk} does-not-exist"
-    [[ -f "$path" ]] && tmp_chk="${tmp_chk} regular"
-    [[ -L "$path" ]] && tmp_chk="${tmp_chk} link"
-    [[ -d "$path" ]] && tmp_chk="${tmp_chk} directory"
-    [[ -r "$path" ]] && tmp_chk="${tmp_chk} readable"
-    [[ -s "$path" ]] && tmp_chk="${tmp_chk} size>0"
-    [[ -w "$path" ]] && tmp_chk="${tmp_chk} writable"
-    [[ -x "$path" ]] && tmp_chk="${tmp_chk} executable"
-    [[ -O "$path" ]] && tmp_chk="${tmp_chk} owned-by-me"
-    [[ -N "$path" ]] && tmp_chk="${tmp_chk} dirty"
-    [[ -k "$path" ]] && tmp_chk="${tmp_chk} sticky"
-    echo " ->$tmp_chk"
+    [[ -e "$path" ]] && tmp_chk="${tmp_chk}$GO" || tmp_chk="${tmp_chk}$ATTN"
+    tmp_chk="${tmp_chk} exists"
+    [[ -d "$path" ]] && tmp_chk="${tmp_chk}$GO" || tmp_chk="${tmp_chk}$ATTN"
+    tmp_chk="${tmp_chk} d"
+    [[ -r "$path" ]] && tmp_chk="${tmp_chk}$GO" || tmp_chk="${tmp_chk}$ATTN"
+    tmp_chk="${tmp_chk}-r"
+    [[ -w "$path" ]] && tmp_chk="${tmp_chk}$GO" || tmp_chk="${tmp_chk}$ATTN"
+    tmp_chk="${tmp_chk}-w"
+    [[ -x "$path" ]] && tmp_chk="${tmp_chk}$GO" || tmp_chk="${tmp_chk}$ATTN"
+    tmp_chk="${tmp_chk}-e"
+    [[ -f "$path" ]] && tmp_chk="${tmp_chk}$GO" || tmp_chk="${tmp_chk}$ATTN"
+    tmp_chk="${tmp_chk} norm"
+    [[ -L "$path" ]] && tmp_chk="${tmp_chk}$GO" || tmp_chk="${tmp_chk}$ATTN"
+    tmp_chk="${tmp_chk} link"
+    [[ -s "$path" ]] && tmp_chk="${tmp_chk}$GO" || tmp_chk="${tmp_chk}$ATTN"
+    tmp_chk="${tmp_chk} size>0"
+    [[ -O "$path" ]] && tmp_chk="${tmp_chk}$GO" || tmp_chk="${tmp_chk}$ATTN"
+    tmp_chk="${tmp_chk} mine"
+    [[ -N "$path" ]] && tmp_chk="${tmp_chk}$GO" || tmp_chk="${tmp_chk}$ATTN"
+    tmp_chk="${tmp_chk} dirty"
+    [[ -k "$path" ]] && tmp_chk="${tmp_chk}$GO" || tmp_chk="${tmp_chk}$ATTN"
+    tmp_chk="${tmp_chk} sticky$RESET"
+    echo -e " ->$tmp_chk"
     echo ''
 }
-checkpath() {
+path() {
     path_param=${*:-$PATH} # use all args ... if none, use PATH as default
     # path_param="${path_param//:/ }"  # replace DELIM
     # path_param="${path_param//  / } "     # remove duplicate spaces
     # IFS="$'\n\t :'"
-    IFS="
-     :"
 
-    for p in ${=path_param};
+    IFS=':'; for p in ${=path_param};
     do
         # shellcheck disable=2015
         [[ -d "$p" ]] && green "$p" || attn "$p"
@@ -219,12 +231,17 @@ find_broken() {
     # use safety feature $1 == '-d' to actually delete them
     # interesting method:
     # https://stackoverflow.com/a/26887762/9878098
-    if [[ "$1" == "-d" ]]; then
-        echo "Deleting Broken Symlinks ..."
-        find -L "$PWD" -type l -exec rm -- {} +
-    else
-        echo "Listing Broken Symlinks (use -d to delete links)..."
-        find -L "$PWD" -type l -print 2>&1
+
+    if [ -z "$1" ]; then 
+        echo "Usage: $0 [-d]"
+    else 
+        if [[ "$1" == "-d" ]]; then
+            echo "Deleting Broken Symlinks ..."
+            find -L "$PWD" -type l -exec rm -- {} +
+        else
+            echo "Listing Broken Symlinks (use -d to delete links)..."
+            find -L ${1:-$PWD} -type l -print 2>&1
+        fi
     fi
 }
 fix_list() {
@@ -266,7 +283,7 @@ targz() {
             cmd="gzip"
         fi
     fi
-    echo "Compressing .tar ($((size / 1000)) kB) using \`${cmd}\`…"
+    echo "Compressing .tar ($((size / 1000)) kB) using \`${cmd}\`âŚ"
     "${cmd}" -v "${tmpFile}" || return 1
     [ -f "${tmpFile}" ] && rm "${tmpFile}"
     zippedSize=$(
@@ -314,10 +331,10 @@ web_chmod() {
 
 py_realpath(){
     python3 -c "
-import os
-import sys
-for item in sys.argv[1:]:
-    print(item, os.path.realpath(item) )
+from os.path import realpath
+from sys import argv
+for item in argv[1:]:
+    print(f'{item} \'{realpath(item)}\'')
 " "$@"
 }
 
@@ -435,7 +452,7 @@ path() { # alias path='echo -e ${PATH//:/\\n}'
         done
         unset 'path_list[-1]'
 
-        # ???❯ for line in ${PATH//:/ } ; do; echo $RANDOM$line; done;
+        # ???âŻ for line in ${PATH//:/ } ; do; echo $RANDOM$line; done;
     else #  if $1 is not a directory, treat it as a : delimited list ($1 is search term)
         needle="$1"
         shift
