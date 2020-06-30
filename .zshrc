@@ -80,7 +80,8 @@ source_dir() { # source all files in directory
 #? ######################## From original oh-my-zsh .zshrc
   # Path to your oh-my-zsh installation. Comments at the end of this script.
   export ZSH="$HOME/.oh-my-zsh"
-  ZSH_THEME="robbyrussell"
+  ZSH_THEME="spaceship"
+  # ZSH_THEME="robbyrussell"
   CASE_SENSITIVE="false"
   COMPLETION_WAITING_DOTS="true"
   DISABLE_UNTRACKED_FILES_DIRTY="false"
