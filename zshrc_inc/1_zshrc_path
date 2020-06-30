@@ -35,18 +35,15 @@ SET_DEBUG=${SET_DEBUG:-0} # set to 1 for verbose testing
     #   /Users/skeptycal/.ghcup/bin
     PATH="${PATH}"
     declare -x PATH="\
-$HOME/.poetry/bin:\
 /Library/Frameworks/Python.framework/Versions/3.8/bin:\
-/Users/skeptycal/Library/Python/3.8/bin:\
+$HOME/Library/Python/3.8/bin:\
 /usr/local/opt/coreutils/libexec/gnubin:\
 /usr/local/bin:\
 $HOME/Documents/coding/python/autosys/autosys:\
 $HOME/Documents/coding/python/autosys/bin:\
-/usr/local/opt/gnu-getopt/bin:\
-/usr/local/share/dotnet:\
 $HOME/bin:\
-/usr/local/opt/ruby/bin:\
 /usr/local/lib/node_modules:\
+/usr/local/opt/llvm/bin:\
 /usr/local/opt/cython/bin:\
 /bin:\
 /usr/local/opt:\
@@ -57,7 +54,7 @@ $HOME/bin:\
 /sbin:\
 /usr/libexec:\
 $HOME/.dotfiles:\
-$HOME/.dotfiles/git-achievements::\
+$HOME/.dotfiles/git-achievements:\
 $PWD\
 "
 

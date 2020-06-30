@@ -28,20 +28,14 @@
   declare -x SHELL_BIN && SHELL_BIN="${SHELL##*/}"
   SHELL_LVL=$SHLVL
 
-  # flag: are personal utilities loaded? (default = False)
-  declare -x SSM_LOADED && SSM_LOADED='False'
-  declare -x SSM && SSM=$HOME/bin/ssm
-  # load standard script modules
-  . $SSM
-
-  # local script path and name
-  SCRIPT_PATH=${0%/*}
-  SCRIPT_NAME=${0##*/}
-
   # provide a BASH_SOURCE variable in zsh
   # to ease the transition to zsh from bash
   [[ "$SHELL_BIN" = 'zsh' ]] && BASH_SOURCE=${(%):-%N}
   BASH_SOURCE="${BASH_SOURCE:-$0}"
+
+  # local script path and name
+  SCRIPT_PATH=${BASH_SOURCE%/*}
+  SCRIPT_NAME=${BASH_SOURCE##*/}
 
   # Locations of profile settings files
   declare -x DOTFILES_PATH && DOTFILES_PATH="${HOME}/.dotfiles"
@@ -50,28 +44,34 @@
   # Location of macOS Homebrew folder
   declare -x BREW_PREFIX && BREW_PREFIX="$(brew --prefix)"
 
-#? ######################## Source Tools
-.() { # source with debugging info and file read check
-    if [[ -r $1 ]]; then
-        source "$1"
-        [[ $SET_DEBUG = 1 ]] && blue "Source $1"
-    else
-        attn "Source error for $1"
-    fi
-}
+  # flag: are personal utilities loaded? (default = False)
+  declare -x SSM_LOADED && SSM_LOADED='False'
+  declare -x SSM && SSM=$HOME/bin/ssm
+  # load standard script modules
+  . $SSM
 
-source_dir() { # source all files in directory
-    if [[ -d $1 ]]; then
-        local f
-        [[ $SET_DEBUG = 1 ]] && blue "Source Directory $1"
-        for f in "$1"/*; do
-            . "$f"
-        done
-        unset f
-    else
-        attn "Source Directory error for $1"
-    fi
-}
+#? ######################## Source Tools
+  .() { # source with debugging info and file read check
+      if [[ -r $1 ]]; then
+          source "$1"
+          [[ $SET_DEBUG = 1 ]] && blue "Source $1"
+      else
+          attn "Source error for $1"
+      fi
+    }
+
+  source_dir() { # source all files in directory
+      if [[ -d $1 ]]; then
+          local f
+          [[ $SET_DEBUG = 1 ]] && blue "Source Directory $1"
+          for f in "$1"/*; do
+              . "$f"
+          done
+          unset f
+      else
+          attn "Source Directory error for $1"
+      fi
+    }
 
 #? ######################## Load Profile settings
   source_dir "$DOTFILES_INC"
@@ -155,7 +155,7 @@ source_dir() { # source all files in directory
     reply=( $( COMP_WORDS="$words[*]" \
               COMP_CWORD=$(( cword-1 )) \
               PIP_AUTO_COMPLETE=1 "$words[1]" 2>/dev/null ))
-    }
+      }
   compctl -K _pip_completion pip
   # pip zsh completion end
 
