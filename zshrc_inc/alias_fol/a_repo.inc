@@ -1,3 +1,5 @@
+#!/usr/bin/env zsh
+# -*- coding: utf-8 -*-
 # shellcheck shell=bash
 # shellcheck source=/dev/null
 # shellcheck disable=2230,2086
@@ -5,6 +7,7 @@
 # *############################################## repo setup
 alias gi='cp ~/.dotfiles/.gitignore .'
 alias sba='source venv/bin/activate'
+alias sda='deactivate'
 alias d="docker "
 alias pe='pipenv'
 alias pes='pipenv shell'

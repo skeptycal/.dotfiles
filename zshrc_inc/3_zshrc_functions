@@ -1,4 +1,4 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env false zsh
 # -*- coding: utf-8 -*-
     # shellcheck shell=bash
     # shellcheck source=/dev/null
@@ -13,7 +13,10 @@
     declare -ix SET_DEBUG && SET_DEBUG=${SET_DEBUG:-0} # set to 1 for verbose testing
 
 #? ######################## Include Files
+    # standard script modules for macOS
     . "$(which ssm)"
+
+    # source files in directory containing functions by category
     source_dir ${DOTFILES_INC}/function_fol
     . "$(which log_urls.sh)"
     # contents:
@@ -21,20 +24,8 @@
         # ping_avg [COUNT] [URL]
         # log_urls [-q] [COUNT] [SLEEP_TIME] [URL_LOG]
 
-#TODO ------------------ Works in Progress
-    # generate a function list
-    # declare -F | sed "s/declare -fx //g" >.functions_functions.txt
-    # TODO - Declare if not declared
-    # Reference: https://linuxhint.com/bash_declare_command/
-    # if foo is not declared
-    # declare it
-    # else use available foo
-    # test ! $( declare -F foo ) || {
-    #     foo() { true ; }
-    # }
-
-# create 'realpath' function if none exists
 command -v realpath >/dev/null 2>&1 || (
+    # create 'realpath' function if none exists
     realpath() {
         if [[ $1 = /* ]]; then
             echo "$1"
@@ -58,7 +49,6 @@ root_space() { df -P | grep '\/$' | awk '{print $5}' | cut -d "%" -f1 -; }
 
 #? ######################## SCRIPT TESTS
     _run_debug_functions() {
-        db_script_source "Functions test"
         warn $SCRIPT_NAME
     }
 #? ######################## Weekly Tasks
@@ -71,40 +61,44 @@ root_space() { df -P | grep '\/$' | awk '{print $5}' | cut -d "%" -f1 -; }
                 read -r line < $sun_file
                 line=$(tail -1 $sun_file)
                 if [[ $line = "$today" ]]; then
-                    echo 'Sunday tasks already done...'
+                    rain 'Sunday tasks already done...'
+                else
+                    rain "It's Sunday! Performing weekly updates and refreshes..."
+
+            # TODO -- add weekly update functions here ...
+                    blue "Updating pip ..."
+                    pip install --upgrade pip
+                    cleanup
+                    blue "Updating program version list ..."
+                    save_versions & # 2>/dev/null
+                    python -m ${DOTFILES_INC}/sunday
                 fi
             fi
-
-            rain "It's Sunday! Performing weekly updates and refreshes..."
-
-    # TODO -- add weekly update functions here ...
-            blue "Updating program version list ..."
-            save_versions # & # 2>/dev/null
-            python -m sunday
         fi
     }
 #? ######################## Daily Tasks
 #? ######################## Session Tasks
     _login_message() {
-        br
         me "os: ${LIME}$(uname -i) | $(sw_vers -productName) | $(sw_vers -productVersion)"
-        me "shell: ${LIME}zsh: $(zsh --version)"
+        me "shell: ${ATTN}zsh: $(zsh --version)"
         # green "  this zsh session: $ZSH_VERSION"
         br
 
         # Reminders to try out the latest features ...
         canary "Recently added utilities: "
-        # green "--------------------------
-        # versions - to display program versions,
-        # checkpath - display and check \$PATH,
-        # checkpath.py - display and check \$PATH,
-        # pc_remove.sh
-        # sysctl -a
-        # getURL # gets url of active Chrome tab
-        # log_urls [-h] [COUNT] [SLEEP_TIME] [URL_LOG]
-        # space [DEVICE]
-        # root_space
-        # sunday [list|add|remove|edit|help] [COMMAND]"
+        green "--------------------------
+        versions            - to display program versions,
+        checkpath           - display and check \$PATH,
+        checkpath.py        - display and check \$PATH (alternate version),
+        pc_remove.sh
+        sysctl -a
+        getURL              - gets url of active Chrome tab
+        ping_avg            - average of ping times over 'COUNT' attempts
+        log_urls            - logs urls from chrome constantly
+        space [DEVICE]      - space remaining on drive (just the number from 'df')
+        sunday              - weekly maintenance scripts [list|add|remove|edit|help]
+        login_message       - this message!! [list|add|remove|edit|help]
+        "
         br
     }
 #? ######################## MAIN LOOP
