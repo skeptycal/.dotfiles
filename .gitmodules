@@ -1,6 +1,3 @@
 [submodule "git-achievements"]
 	path = git-achievements
 	url = https://github.com/skeptycal/git-achievements.git
-[submodule ".oh-my-zsh"]
-	path = .oh-my-zsh
-	url = https://github.com/skeptycal/oh_my_zsh.git
