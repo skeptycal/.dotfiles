@@ -1,3 +1,6 @@
 [submodule "git-achievements"]
 	path = git-achievements
 	url = https://github.com/skeptycal/git-achievements.git
+[submodule "ohmyzsh"]
+	path = ohmyzsh
+	url = git@github.com:skeptycal/ohmyzsh.git
