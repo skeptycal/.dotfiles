@@ -17,7 +17,7 @@ SET_DEBUG=${SET_DEBUG:-0} # set to 1 for verbose testing
     # of names of installed packages suitable for process and piping, without
     # the header and extra fields. The function recreates the list on demand
     # so it is always current.
-    PIPLIST() { pip list | sed 's/  */ /g' | cut -d ' ' -f 1 | tail -n +3; }
+    PIPLIST() { pip3 list | sed 's/  */ /g' | cut -d ' ' -f 1 | tail -n +3; }
 
 # ?########################################## MANPATH
     declare -x MANPATH=" \
@@ -42,6 +42,7 @@ SET_DEBUG=${SET_DEBUG:-0} # set to 1 for verbose testing
 
 PATH="${PATH}"
 declare -x PATH="\
+/usr/local/Cellar/python@3.8/3.8.3/bin:\
 /usr/local/opt/coreutils/libexec/gnubin:\
 /usr/local/bin:\
 /usr/local/lib/node_modules:\

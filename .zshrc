@@ -312,3 +312,6 @@
 
 zstyle ':completion:*' menu select
 fpath+=~/.zfunc
+
+test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+
