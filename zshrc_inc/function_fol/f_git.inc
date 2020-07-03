@@ -23,6 +23,10 @@ gs() {
   git status >/dev/null 2>&1
 }
 
+gsok() {
+  git status | grep 'nothing to commit'
+}
+
 # use git diff if available
 if [[ "$(hash git &>/dev/null)" -eq 0 ]]; then
     function diff() {
@@ -39,22 +43,25 @@ gstdir(){
 gitit() {
     if ! [ -d "$PWD/.git" ]; then
         warn "Git repo not found in .../${PWD##*/}/.git"
-    elif [ $(gs) <> 0 ]; then
-            warn "Git status error: $PWD"
     else
-        # -m "${*:-'Gitit bot: minor updates and formatting.'}"
-        message="${*:-$(cat ~/.dotfiles/.stCommitMsg)}"
-        blue "GitIt - add and commit all updates."
-        green "  repo: ${PWD##*/}"
-        green "  message: "
-        green "$message"
-        git add --all >/dev/null 2>&1
-        pre-commit >/dev/null 2>&1
-        git add --all
-        pre-commit
-        git commit -m "$message" --gpg-sign=$(git_gpg.php)
-        git push --set-upstream origin "$(git_current_branch)"
-        git status
+        git status | grep 'nothing to commit'
+        if [ $? = 0 ]; then
+            canary "Git status OK: $PWD"
+        else
+            # -m "${*:-'Gitit bot: minor updates and formatting.'}"
+            message="${*:-$(cat ~/.dotfiles/.stCommitMsg)}"
+            blue "GitIt - add and commit all updates."
+            green "  repo: ${PWD##*/}"
+            green "  message: "
+            green "$message"
+            git add --all >/dev/null 2>&1
+            pre-commit >/dev/null 2>&1
+            git add --all
+            pre-commit
+            git commit -m "$message" --gpg-sign=$(git_gpg.php)
+            git push --set-upstream origin "$(git_current_branch)"
+            git status
+        fi
     fi
     }
 
