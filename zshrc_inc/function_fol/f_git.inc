@@ -4,15 +4,32 @@
     # shellcheck source=/dev/null
     # shellcheck disable=2230,2086
 
+# ------------------------- gitit -------------------------
+#   Automatic repo pre-commit, commit, and push
+#
+#   Usage: gitit [message]
+# ---------------------- Requirements ---------------------
+#
+#   gpg key generator:          git_gpg.php
+#   default status message:     ~/.dotfiles/.stCommitMsg
+#
+#   example .stCommitMsg:
+#       (Gitit Bot): minor updates and formatting.
+#       https://www.github.com/skeptycal
+# ---------------------------------------------------------
+
 # use git diff if available
 if [[ "$(hash git &>/dev/null)" -eq 0 ]]; then
     function diff() {
         git diff --no-index --color-words "$@"
     }
 fi
-gst(){
-    echo "if [ -n $1 ]; then cd $1; $(git status >/dev/null 2>&1; echo $?;)"
-    }
+gstdir(){
+    if [ -n $1 ]; then
+        cd $1;
+        $(git status >/dev/null 2>&1; echo $?;)
+    fi
+}
 
 gitit() {
     if ! [ -d "$PWD/.git" ]; then
@@ -22,6 +39,7 @@ gitit() {
         if "$?"; then # >/dev/null 2>&1
             warn "Git status error: $PWD"
         else
+            # -m "${*:-'Gitit bot: minor updates and formatting.'}"
             message="${*:-$(cat ~/.dotfiles/.stCommitMsg)}"
             blue "GitIt - add and commit all updates."
             green "  repo: ${PWD##*/}"
@@ -31,8 +49,9 @@ gitit() {
             pre-commit >/dev/null 2>&1
             git add --all
             pre-commit
-            git commit -m "$message"
+            git commit -m "$message" --gpg-sign=$(git_gpg.php)
             git push --set-upstream origin "$(git_current_branch)"
+            git status
         fi
     fi
     }

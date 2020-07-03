@@ -17,7 +17,7 @@
     # find . -maxdepth 1 -type l # will include directories
     alias ll="ls -A | perl -nle 'print if -l and not -d;'"
     alias lsd='ls -1Ad */'
-
+    alias code='/Applications/Visual Studio Code.app'
 
 #? ############################# handy stuff
     alias cls='clear'   # because 40 year old habits die hard
