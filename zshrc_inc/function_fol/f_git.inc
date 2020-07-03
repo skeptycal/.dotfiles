@@ -46,7 +46,7 @@ gitit() {
     else
         git status | grep 'nothing to commit'
         if [ $? = 0 ]; then
-            canary "Git status OK: $PWD"
+            canary "Git status ${GO:-}OK${RESET:-}: $PWD"
         else
             # -m "${*:-'Gitit bot: minor updates and formatting.'}"
             message="${*:-$(cat ~/.dotfiles/.stCommitMsg)}"
