@@ -41,7 +41,7 @@ gitit() {
         warn "Git repo not found in .../${PWD##*/}/.git"
     else
 
-        if [ $(gs) != 0 ]; then
+        if [ $(gs) <> 0 ]; then
             warn "Git status error: $PWD"
         else
             # -m "${*:-'Gitit bot: minor updates and formatting.'}"
