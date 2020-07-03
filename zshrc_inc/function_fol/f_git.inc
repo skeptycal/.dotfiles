@@ -35,7 +35,7 @@ gitit() {
     if ! [ -d "$PWD/.git" ]; then
         warn "Git repo not found in .../${PWD##*/}/.git"
     else
-        /usr/local/bin/git status
+        git status
         if "$?"; then # >/dev/null 2>&1
             warn "Git status error: $PWD"
         else
@@ -161,5 +161,3 @@ parse_git_dirty() {
         echo ""
     fi
     }
-
-
