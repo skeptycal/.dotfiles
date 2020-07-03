@@ -44,7 +44,8 @@ gitit() {
     if ! [ -d "$PWD/.git" ]; then
         warn "Git repo not found in .../${PWD##*/}/.git"
     else
-        if (( gsok = 0 )); then
+        gsok
+        if [ $? -eq 0 ]; then
             canary "Git status ${GO:-}OK${RESET:-}: $PWD"
         else
             # -m "${*:-'Gitit bot: minor updates and formatting.'}"
