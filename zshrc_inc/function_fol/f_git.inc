@@ -33,10 +33,11 @@ gstdir(){
 
 gitit() {
     if ! [ -d "$PWD/.git" ]; then
+        echo $!
         warn "Git repo not found in .../${PWD##*/}/.git"
     else
         git status
-        if "$?"; then # >/dev/null 2>&1
+        if [ $? -ne 0 ]; then # >/dev/null 2>&1
             warn "Git status error: $PWD"
         else
             # -m "${*:-'Gitit bot: minor updates and formatting.'}"
