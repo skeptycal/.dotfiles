@@ -4,7 +4,7 @@
   # shellcheck source=/dev/null
   # shellcheck disable=2178,2128,2206,2034
 
-#? ######################## Shell Variables and Settings
+#? ######################## Shell Variables and Settings 
   # profile start time
   t0=$(date "+%s.%n")
 
@@ -28,20 +28,14 @@
   declare -x SHELL_BIN && SHELL_BIN="${SHELL##*/}"
   SHELL_LVL=$SHLVL
 
-  # flag: are personal utilities loaded? (default = False)
-  declare -x SSM_LOADED && SSM_LOADED='False'
-  declare -x SSM && SSM=$HOME/bin/ssm
-  # load standard script modules
-  . $SSM
-
-  # local script path and name
-  SCRIPT_PATH=${0%/*}
-  SCRIPT_NAME=${0##*/}
-
   # provide a BASH_SOURCE variable in zsh
   # to ease the transition to zsh from bash
   [[ "$SHELL_BIN" = 'zsh' ]] && BASH_SOURCE=${(%):-%N}
   BASH_SOURCE="${BASH_SOURCE:-$0}"
+
+  # local script path and name
+  SCRIPT_PATH=${BASH_SOURCE%/*}
+  SCRIPT_NAME=${BASH_SOURCE##*/}
 
   # Locations of profile settings files
   declare -x DOTFILES_PATH && DOTFILES_PATH="${HOME}/.dotfiles"
@@ -50,28 +44,34 @@
   # Location of macOS Homebrew folder
   declare -x BREW_PREFIX && BREW_PREFIX="$(brew --prefix)"
 
-#? ######################## Source Tools
-.() { # source with debugging info and file read check
-    if [[ -r $1 ]]; then
-        source "$1"
-        [[ $SET_DEBUG = 1 ]] && blue "Source $1"
-    else
-        attn "Source error for $1"
-    fi
-}
+  # flag: are personal utilities loaded? (default = False)
+  declare -x SSM_LOADED && SSM_LOADED='False'
+  declare -x SSM && SSM=$HOME/bin/ssm
+  # load standard script modules
+  # . $SSM
 
-source_dir() { # source all files in directory
-    if [[ -d $1 ]]; then
-        local f
-        [[ $SET_DEBUG = 1 ]] && blue "Source Directory $1"
-        for f in "$1"/*; do
-            . "$f"
-        done
-        unset f
-    else
-        attn "Source Directory error for $1"
-    fi
-}
+#? ######################## Source Tools
+  .() { # source with debugging info and file read check
+      if [[ -r $1 ]]; then
+          source "$1"
+          [[ $SET_DEBUG = 1 ]] && blue "Source $1"
+      else
+          attn "Source error for $1"
+      fi
+    }
+
+  source_dir() { # source all files in directory
+      if [[ -d $1 ]]; then
+          local f
+          [[ $SET_DEBUG = 1 ]] && blue "Source Directory $1"
+          for f in "$1"/*; do
+              . "$f"
+          done
+          unset f
+      else
+          attn "Source Directory error for $1"
+      fi
+    }
 
 #? ######################## Load Profile settings
   source_dir "$DOTFILES_INC"
@@ -79,7 +79,8 @@ source_dir() { # source all files in directory
 #? ######################## From original oh-my-zsh .zshrc
   # Path to your oh-my-zsh installation. Comments at the end of this script.
   export ZSH="$HOME/.oh-my-zsh"
-  ZSH_THEME="robbyrussell"
+  ZSH_THEME="spaceship"
+  # ZSH_THEME="robbyrussell"
   CASE_SENSITIVE="false"
   COMPLETION_WAITING_DOTS="true"
   DISABLE_UNTRACKED_FILES_DIRTY="false"
@@ -153,7 +154,7 @@ source_dir() { # source all files in directory
     reply=( $( COMP_WORDS="$words[*]" \
               COMP_CWORD=$(( cword-1 )) \
               PIP_AUTO_COMPLETE=1 "$words[1]" 2>/dev/null ))
-    }
+      }
   compctl -K _pip_completion pip
   # pip zsh completion end
 
@@ -308,3 +309,9 @@ source_dir() { # source all files in directory
     # Reference: The shell shall execute commands from the file in the current environment.
 
     # If file does not contain a <slash>, the shell shall use the search path specified by PATH to find the directory containing file. Unlike normal command search, however, the file searched for by the dot utility need not be executable. If no readable file is found, a non-interactive shell shall abort; an interactive shell shall write a diagnostic message to standard error, but this condition shall not be considered a syntax error.
+
+zstyle ':completion:*' menu select
+fpath+=~/.zfunc
+
+test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+

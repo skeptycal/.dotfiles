@@ -1,22 +1,19 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env false zsh
 # -*- coding: utf-8 -*-
-# shellcheck shell=bash
-# shellcheck source=/dev/null
-# shellcheck disable=2230,2086
+    # shellcheck shell=bash
+    # shellcheck source=/dev/null
+    # shellcheck disable=2230,2086
 
 #TODO find this text ... _pretty_usage
 _pretty_usage=''
 
-
 #TODO ------------------ Works in Progress
-
 dict() { grep "$@" /usr/share/dict/words; }
 colon_list() { echo -e "${1//:/\\n}"; }
 in_str() { string=${@:2}; return $([ -z "${string##*$1*}" ]); }
 is_instr() { return $([[ "${@:2}" == *"$1"* ]]); }
 lower() { ce "${*:l}"; } # return all args as lowercase (zsh only)
 upper() { ce "${*:u}"; } # return all args as uppercase (zsh only)
-
 lower_file() {
     # set force_lower if first arg is '-f' else echo only
 
@@ -37,7 +34,7 @@ lower_file() {
         fi
     done
     unset force_lower file
-}
+    }
 
 replace() {
     if [[ -z "$1" ]]; then
@@ -61,7 +58,7 @@ EOF
   # :wq is write-and-quit.
   # -------------------------------------
 done
-}
+    }
 
 safe_split() {
     # use custom IFS for safe word splitting of oddly formatted strings
@@ -72,7 +69,7 @@ safe_split() {
         shift
         ce "$*"
     fi
-}
+    }
 
 prettier_here() {
     # $1 = path (default $PWD); $2 = filenames ( default '*')
@@ -84,7 +81,7 @@ prettier_here() {
     else
         find -L "${1:-$PWD}" -name "${2:-'*'}" -type f -print0 | xargs -0 prettier --write | grep -e '[[:space:]]\?[[:digit:]]\+ms'
     fi
-}
+    }
 pretty() {
     # Use prettier to format all compatible selected files
     # Use $1 for pattern, -m (github diff) or default is '*'
@@ -118,4 +115,4 @@ pretty() {
             ;;
         esac
     fi
-}
+    }

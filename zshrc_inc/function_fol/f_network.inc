@@ -1,25 +1,25 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env false zsh
 # -*- coding: utf-8 -*-
-# shellcheck shell=bash
-# shellcheck source=/dev/null
-# shellcheck disable=2230,2086
+    # shellcheck shell=bash
+    # shellcheck source=/dev/null
+    # shellcheck disable=2230,2086
 
 killit() {
     # Kills any process that matches a regexp passed to it
     ps aux | grep -v "grep" | grep "$@" | awk '{print $2}' | xargs sudo kill
-}
+    }
 portslay () {
     kill -9 "$(lsof -i tcp:"$1" | tail -1 | awk '{ print $2;}')"
-}
+    }
 exip () {
     # gather external ip address
     echo -n "Current External IP: "
     curl -s -m 5 http://myip.dk | grep "ha4" | sed -e 's/.*ha4">//g' -e 's/<\/span>.*//g'
-}
+    }
 ipaddr () {
     # determine local IP address
     ifconfig | grep "inet " | awk '{ print $2 }'
-}
+    }
 
 azure_agent() {
     # svc.sh only seems to work when run from its own directory ...
@@ -31,7 +31,7 @@ azure_agent() {
     cd "$temp_pwd" || return
     unset temp_pwd
     return $result
-}
+    }
 
 
 dataurl() {
@@ -41,7 +41,7 @@ dataurl() {
         mimeType="${mimeType};charset=utf-8"
     fi
     echo "data:${mimeType};base64,$(openssl base64 -in "$1" | tr -d '\n')"
-}
+    }
 
 digga() { dig +nocmd "$1" any +multiline +noall +answer; }
 dist_hook() {
@@ -51,7 +51,7 @@ dist_hook() {
     # find -regextype posix-egrep -regex ".*(\.([chyl]|def|cpy|cob|conf|cfg)|(README|ChangeLog|AUTHORS|ABOUT-NLS|NEWS|THANKS|TODO|COPYING.*))$" -exec sed -i -e 's/\r*$/\r/' {} \;
     # OR
     # for F in Documents/*.{py,html}; do ...something with each '$F'... ; done
-}
+    }
 
 getcertnames() {
     if [ -z "${1}" ]; then
@@ -82,4 +82,4 @@ getcertnames() {
         echo "ERROR: Certificate not found."
         return 1
     fi
-}
+    }

@@ -204,7 +204,7 @@ brew link --overwrite docker &> /dev/null
 brew reinstall pinentry &> /dev/null
 
 
-git config --global user.signingkey $(php $HOME/Documents/current_projects/git_gpg/git_gpg.php)
+git config --global user.signingkey $(php $HOME/.dotfiles/git_gpg.php)
 
 # Cleanup and checkup
 # * Warning: Calling 'brew prune' is deprecated! Use 'brew cleanup' instead.

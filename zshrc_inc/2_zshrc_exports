@@ -1,8 +1,8 @@
 #!/usr/bin/env zsh
 # -*- coding: utf-8 -*-
-# shellcheck shell=bash
-# shellcheck source=/dev/null
-# shellcheck disable=2178
+    # shellcheck shell=bash
+    # shellcheck source=/dev/null
+    # shellcheck disable=2178
 
 #? ############################# skeptycal.com ################################
 SET_DEBUG=${SET_DEBUG:-0}  # set to 1 for verbose testing

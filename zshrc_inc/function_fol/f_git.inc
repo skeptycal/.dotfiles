@@ -1,8 +1,22 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env false zsh
 # -*- coding: utf-8 -*-
-# shellcheck shell=bash
-# shellcheck source=/dev/null
-# shellcheck disable=2230,2086
+    # shellcheck shell=bash
+    # shellcheck source=/dev/null
+    # shellcheck disable=2230,2086
+
+# ------------------------- gitit -------------------------
+#   Automatic repo pre-commit, commit, and push
+#
+#   Usage: gitit [message]
+# ---------------------- Requirements ---------------------
+#
+#   gpg key generator:          git_gpg.php
+#   default status message:     ~/.dotfiles/.stCommitMsg
+#
+#   example .stCommitMsg:
+#       (Gitit Bot): minor updates and formatting.
+#       https://www.github.com/skeptycal
+# ---------------------------------------------------------
 
 # use git diff if available
 if [[ "$(hash git &>/dev/null)" -eq 0 ]]; then
@@ -10,19 +24,22 @@ if [[ "$(hash git &>/dev/null)" -eq 0 ]]; then
         git diff --no-index --color-words "$@"
     }
 fi
-
-gst(){
-    echo "if [ -n $1 ]; then cd $1; $(git status >/dev/null 2>&1; echo $?;)"
+gstdir(){
+    if [ -n $1 ]; then
+        cd $1;
+        $(git status >/dev/null 2>&1; echo $?;)
+    fi
 }
 
 gitit() {
     if ! [ -d "$PWD/.git" ]; then
         warn "Git repo not found in .../${PWD##*/}/.git"
     else
-        /usr/local/bin/git status
+        git status
         if "$?"; then # >/dev/null 2>&1
             warn "Git status error: $PWD"
         else
+            # -m "${*:-'Gitit bot: minor updates and formatting.'}"
             message="${*:-$(cat ~/.dotfiles/.stCommitMsg)}"
             blue "GitIt - add and commit all updates."
             green "  repo: ${PWD##*/}"
@@ -32,11 +49,12 @@ gitit() {
             pre-commit >/dev/null 2>&1
             git add --all
             pre-commit
-            git commit -m "$message"
+            git commit -m "$message" --gpg-sign=$(git_gpg.php)
             git push --set-upstream origin "$(git_current_branch)"
+            git status
         fi
     fi
-}
+    }
 
 ghget () {
     # input: rails/rails
@@ -45,15 +63,15 @@ ghget () {
     mcd "$HOME/src/github.com/$USER" || return
     hub clone "$@" || return
     cd "$REPO" || return
-}
+    }
 
 parse_git_branch(){
     git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/[\1] /';
-}
+    }
 
 parse_svn_rev(){
     svn info 2> /dev/null | grep "Revision" | sed 's/Revision: \(.*\)/[r\1] /';
-}
+    }
 
 update_git_dirs() {
     # so what the below does is finds all files named .git in my home
@@ -70,7 +88,7 @@ update_git_dirs() {
         cd ~ || return
     done
     cd "$OLD_DIR" || return
-}
+    }
 
 git_one() {
     # TODO work in progress
@@ -81,7 +99,7 @@ git_one() {
         fixed_file=${file/5/-1}
         echo "$fixed_file"
     done
-}
+    }
 
 parse_git_branch() {
     BRANCH=$(git branch 2>/dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')
@@ -91,7 +109,7 @@ parse_git_branch() {
     else
         echo ""
     fi
-}
+    }
 parse_git_dirty() {
     status=$(git status 2>&1 | tee)
     dirty=$(
@@ -142,6 +160,4 @@ parse_git_dirty() {
     else
         echo ""
     fi
-}
-
-
+    }

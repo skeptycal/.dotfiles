@@ -1,18 +1,18 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env false zsh
 # -*- coding: utf-8 -*-
-# shellcheck shell=bash
-# shellcheck source=/dev/null
-# shellcheck disable=2230,2086
+    # shellcheck shell=bash
+    # shellcheck source=/dev/null
+    # shellcheck disable=2230,2086
 
 set_gamma () {
   xrandr --output eDP1 --gamma "$1":"$1":"$1"
-}
+    }
 cs_on() {
   set_gamma 1.7
-}
+    }
 cs_off()  {
   set_gamma 1.0
-}
+    }
 phpserver() {
     local port
     port="${1:-4000}"
@@ -20,18 +20,18 @@ phpserver() {
     ip=$(ipconfig getifaddr en0)
     sleep 1 && open "http://${ip}:${port}/" &
     php -S -c "$PWD" "${ip}:${port}" -
-}
+    }
 pk() { pkill -9 -u "$(id -u "$1")"; } # kill another user's processes
 pyver() {
     # silly function to address the lack of correct output from
     #   python 2.7 executable in this sitation 'python --version'
     python -c "print('.'.join(str(i).strip() for i in __import__('sys').version_info[:3]))"
-}
+    }
 server() {
     local port="${1:-8000}"
     sleep 1 && open "http://localhost:${port}/" &
     python2 -c 'import SimpleHTTPServer;\nmap = SimpleHTTPServer.SimpleHTTPRequestHandler.extensions_map;\nmap[""] = "text/plain";\nfor key, value in map.items():\n\tmap[key] = value + ";charset=UTF-8";\nSimpleHTTPServer.test();' "$port"
-}
+    }
 setup_tools() {
     # TODO Work in progress
     return 0
@@ -47,7 +47,7 @@ setup_tools() {
     else
         return 1
     fi
-}
+    }
 
 travis_trigger() {
     # TODO needs more testing - strange errors
@@ -79,4 +79,4 @@ travis_trigger() {
     #     -H "Authorization: token $TRAVIS_TOKEN" \
     #     -d "$body" \
     #     "https://api.travis-ci.org/repo/${org}%2F${repo}/requests"
-}
+    }

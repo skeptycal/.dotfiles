@@ -7,31 +7,42 @@
 import datetime as dt
 from appdirs import AppDirs
 
-APPNAME='IsSunday'
-APPAUTHOR='Skeptycal'
-VERSION='1.0.0'
+APPNAME = "IsSunday"
+APPAUTHOR = "Skeptycal"
+VERSION = "1.0.0"
 
-def which_day(): return dt.datetime.now().isoweekday()
 
-def is_day(day: int): return which_day() == day
+def which_day():
+    return dt.datetime.now().isoweekday()
 
-def is_sunday() -> bool: return is_day(7)
 
-def is_monday() -> bool: return is_day(1)
+def is_day(day: int):
+    return which_day() == day
+
+
+def is_sunday() -> bool:
+    return is_day(7)
+
+
+def is_monday() -> bool:
+    return is_day(1)
+
 
 def do_sunday_tasks():
     pass
 
+
 def do_monday_tasks():
-    print('Monday')
+    print("Monday")
     pass
 
-def main():
-    '''
-    CLI script main entry point.
-    '''
 
-    print (which_day())
+def main():
+    """
+    CLI script main entry point.
+    """
+
+    print(which_day())
 
     if is_sunday():
         do_sunday_tasks()
@@ -40,9 +51,7 @@ def main():
 
 
 if __name__ == "__main__":  # if script is loaded directly from CLI
-    dirs = AppDirs(APPNAME,
-                   APPAUTHOR,
-                   version=VERSION,
-                   roaming=True,
-                   multipath=True)
+    dirs = AppDirs(
+        APPNAME, APPAUTHOR, version=VERSION, roaming=True, multipath=True
+    )
     main()

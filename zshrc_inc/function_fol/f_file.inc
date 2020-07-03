@@ -1,8 +1,8 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env false zsh
 # -*- coding: utf-8 -*-
-# shellcheck shell=bash
-# shellcheck source=/dev/null
-# shellcheck disable=2230,2086
+    # shellcheck shell=bash
+    # shellcheck source=/dev/null
+    # shellcheck disable=2230,2086
 
 
 #? ######################## Program Versions Reporting
@@ -43,30 +43,30 @@ write_versions_file() {
     # attn "  $(lein --version | sed 's/Leiningen/lein version/g' | sed 's/version /       v/g')"
 
     # me "Travis CI   v$(travis version)"
-} >"$VERSION_LIST"
+    } >"$VERSION_LIST"
 save_versions() {
     # echo "VERSION_LIST: $VERSION_LIST"
     rm -rf "$VERSION_LIST" >/dev/null
     # touch $VERSION_LIST
     write_versions_file
-}
+    }
 versions() {
     cat ~/.dotfiles/.VERSION_LIST.md
-}
+    }
 #? ######################## Directory Utilities
 dls () {
  # directory LS
  ls -l | grep "^d" | awk '{ print $9 }' | tr -d "/"
-}
+    }
 dgrep() {
     # A recursive, case-insensitive grep that excludes binary files
     grep -iR "$@" -- * | grep -v "Binary"
-}
+    }
 dfgrep() {
     # A recursive, case-insensitive grep that excludes binary files
     # and returns only unique filenames
     grep -iR "$@" -- * | grep -v "Binary" | sed 's/:/ /g' | awk '{ print $1 }' | sort | uniq
-}
+    }
 psgrep() {
     if [ -n "$1" ] ; then
         echo "Grepping for processes matching $1..."
@@ -74,29 +74,24 @@ psgrep() {
     else
         echo "!! Need name to grep for"
     fi
-}
-
+    }
 l1() { # nice sorting ... #TODO no color ...
     # shellcheck disable=2012
     ls -l "$@" | sort -r | awk 'NF==9 { if ($1~/^d/) { print $9 "/" } else { print $9 } }'
-}
-
+    }
 mkd(){
         [ $# -eq 0 ] && { echo "$0: (DIRNAME) [MODE]    - default MODE=755"; return; }
         local d="$1"               # get dir name
         local m=${2:-0755}         # get permission, set default to 0755
         # shellcheck disable=2174
         [ ! -d "$d" ] && mkdir -m "$m" -p "$d"
-}
-
+    }
 unbak(){
     find . -name "*.bak" -type f -print0 | xargs -0 /bin/rm -f
-}
-
+    }
 gather_del() {
     find . -name "${1:-}" -type f -print0 | xargs -0 /bin/rm -f
-}
-
+    }
 bak() {
     FILES="$*"
     [[ -d "$PWD/bak" ]] || mkdir "$PWD/bak"
@@ -106,10 +101,10 @@ bak() {
         [[ -f "$file" ]] && cp -f "$file" "bak/${file}.bak" || echo -e "${WARN}backup unsuccessful - ${MAIN}${file}${RESET_FG}"
         echo ''
     done
-}
+    }
 cdf() {
     cd "$(osascript -e 'tell app "Finder" to POSIX path of (insertion location as alias)')" || return 1
-}
+    }
 check_file() {
     #? ${VAR##*/}        - return only final element in path (program name)
     #? ${VAR%/*}         - return only path (without program name)
@@ -143,7 +138,7 @@ check_file() {
     tmp_chk="${tmp_chk} sticky$RESET"
     echo -e " ->$tmp_chk"
     echo ''
-}
+    }
 path() {
     path_param=${*:-$PATH} # use all args ... if none, use PATH as default
     # path_param="${path_param//:/ }"  # replace DELIM
@@ -155,7 +150,7 @@ path() {
         # shellcheck disable=2015
         [[ -d "$p" ]] && green "$p" || attn "$p"
     done
-}
+    }
 chmod_all() {
     # chmod matching files to given mode
     # $1 is path (default $PWD);
@@ -173,7 +168,7 @@ chmod_all() {
         return 1
     fi
     find -L "${1:-$PWD}" -name "${2:-'*'}" -type f -print0 | xargs -0 chmod "${3:-644}"
-}
+    }
 datelog() {
     # create a logfile with the date as part of the file_name
     [[ -z $1 ]] && exit 1
@@ -185,7 +180,7 @@ datelog() {
     eval "$command_text" | tee -a "$file_name"
     # shellcheck disable=2091 #! exec / eval warning ...
     $("$*") | tee -a "$file_name"
-}
+    }
 fileop() {
     # TODO work in progress
     return 0
@@ -225,16 +220,16 @@ fileop() {
     #     echo "Invalid option"
     #     ;;
     # esac
-}
+    }
 find_broken() {
     # Find and delete all broken symbolic links in current directiry
     # use safety feature $1 == '-d' to actually delete them
     # interesting method:
     # https://stackoverflow.com/a/26887762/9878098
 
-    if [ -z "$1" ]; then 
+    if [ -z "$1" ]; then
         echo "Usage: $0 [-d]"
-    else 
+    else
         if [[ "$1" == "-d" ]]; then
             echo "Deleting Broken Symlinks ..."
             find -L "$PWD" -type l -exec rm -- {} +
@@ -243,7 +238,7 @@ find_broken() {
             find -L ${1:-$PWD} -type l -print 2>&1
         fi
     fi
-}
+    }
 fix_list() {
     # TODO work in progress
     return 0
@@ -253,7 +248,7 @@ fix_list() {
     # oe $function_list
     # < ~/.dotfiles/.functions | grep -e " function " | awk '{ print $2 }'
     # echo $function_list >function_list.txt
-}
+    }
 fs() {
     if du -b /dev/null >/dev/null 2>&1; then
         local arg=-sbh
@@ -265,7 +260,7 @@ fs() {
     else
         du $arg .[^.]* ./*
     fi
-}
+    }
 targz() {
     local tmpFile="${*%/}.tar"
     tar -cvf "${tmpFile}" --exclude=".DS_Store" "${@}" || return 1
@@ -291,10 +286,10 @@ targz() {
         stat -c"%s" "${tmpFile}.gz" 2>/dev/null
     )
     echo "${tmpFile}.gz ($((zippedSize / 1000)) kB) created successfully."
-}
+    }
 tre() {
     tree -axC -I '.git|node_modules|bower_components' --dirsfirst "$@" -- | less -FRNX
-}
+    }
 trw() {
     # TODO work in progress
     return 0
@@ -304,18 +299,18 @@ trw() {
     #     var="${var#"${var&&[!'/']*}"}"
     #     var="${var%"${var##*[![:space:]]}"}"
     #     echo -n "$var"
-}
+    }
 tt() {
     # alias treetop='tree -L 1'
     tree -L 1 -- "$@"
-}
+    }
 tree_html() {
     tree -ahlsAFRHD --prune --du --si --dirsfirst >tree.html
-}
+    }
 unpatch () {
   find . -name "*.orig" -o -name "*.rej"  -type f -exec rm {} \;
   find . -name "b" -type d -exec rm -rf {} \;
-}
+    }
 web_chmod() {
     # Set default permissions for a folder that will be uploaded to the web.
     # default directory is PWD
@@ -326,9 +321,7 @@ web_chmod() {
     find -LX "$dir" -type d -print0 | xargs -0 chmod 755
     echo "Changing permissions of all regular directories to 0755."
     # ls "$dir" -ARlh
-}
-
-
+    }
 py_realpath(){
     python3 -c "
 from os.path import realpath
@@ -336,8 +329,7 @@ from sys import argv
 for item in argv[1:]:
     print(f'{item} \'{realpath(item)}\'')
 " "$@"
-}
-
+    }
 extract () {
     if [ -f "$1" ] ; then
         case $1 in
@@ -357,16 +349,16 @@ extract () {
     else
         echo "'$1' is not a valid file"
     fi
-}
+    }
 shell () {
   # an odd alternative to using the $SHELL variable
   ps | grep "^$$" | awk '{ print $4 }' | cut -d '-' -f 2
-}
+    }
 unegg () {
     unzip "$1" -d tmp || return
     rm "$1"
     mv tmp "$1"
-}
+    }
 # hardlink_dotfiles(){
 #     -  convert symlinks to hardlinks
 #     ls "$HOME/.dotfiles" -A | perl -nle 'print if -l and not -d;'
@@ -379,8 +371,6 @@ unegg () {
 #         ln "$HOME/.dotfiles/$p" "$HOME"
 #     done < lsln.txt
 # }
-
-
 ind() {
     lime Indirect Variable Tests
 
@@ -417,7 +407,7 @@ ind() {
     # shellcheck disable=SC2016,SC2086
     attn '  printf "\$$1":'"\t"
     eval echo -e "\$$1"
-}
+    }
 path() { # alias path='echo -e ${PATH//:/\\n}'
     if [[ -z "$1" ]]; then  # no arguments given ... print path
         green "$( echo -e "${PATH//:/\\n}" )"
@@ -458,8 +448,7 @@ path() { # alias path='echo -e ${PATH//:/\\n}'
         shift
         echo -e ${${@}//:/\\n} | grep --color ''"$needle"
     fi
-}
-
+    }
 gather() {
     # gather - an easy way to gather similar files and do something with them
     #   designed for xargs (GNU findutils) 4.7.0 on macOS Catalina. ymmv
@@ -531,9 +520,7 @@ gather() {
     # issue final command to shell functions - pipe output where you like
     canary "$(find . -name "$gather_pattern" -print0 | xargs "$option_string" "$command_string")"
     # find . -name $gather_pattern -print0 |xargs -0
-}
-
-
+    }
 time_script() {
     count=${1:-2}
     shift
@@ -555,8 +542,7 @@ time_script() {
             _t1=$_tn
         done < $file_name
     done
-}
-
+    }
 time_it() {
     _t0=$(date +%s%3N)
     # process code here ...
@@ -565,4 +551,4 @@ time_it() {
     _t1=$(date +%s%3N)
     _dt=$((_t1-_t0))
     printf "${MAIN}Code block took ${WARN}%.1f${MAIN}s to run.\n" $_dt
-}
+    }

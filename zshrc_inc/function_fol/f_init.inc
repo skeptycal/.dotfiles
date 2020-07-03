@@ -1,4 +1,4 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env false zsh
 # -*- coding: utf-8 -*-
     # shellcheck shell=bash
     # shellcheck source=/dev/null
@@ -15,7 +15,6 @@ if [ ! "$(uname -s)" = 'Darwin' ]; then
         alias open='xdg-open'
     fi
 fi
-
 declare -x VERSION_LIST && VERSION_LIST="${DOTFILES_PATH:-~/.dotfiles}/.VERSION_LIST.md"
 setup_color() {
     # Only use colors if connected to a terminal
@@ -109,7 +108,6 @@ update () { # System software updates (macOS - updated for Catalina)
     } # 2>/dev/null &
 
 background_update() { update >/dev/null 2>&1 &; }
-
 cleanup () {
     # init sudo environment
     sudo_env
@@ -124,21 +122,15 @@ cleanup () {
     }
 
 maintenance() { cleanup && update; }
-
-
-
 # - #- ################################
 # - utilities from https://justin.abrah.ms/dotfiles/zsh.html
 
 # Ref: https://unix.stackexchange.com/questions/22815/how-to-list-files-and-directories-with-directories-first
-
 a() { alias | grep "$1"; }
-
 allopen() { sudo lsof -i -P | grep "$1"; }
-
 anybar_message() {
     echo -n "$1" | nc -4u -w0 localhost "${2:-1738}"
-}
+    }
 anyguard() {
     ANYBAR_PORT="$(jot -r 1 1700 1900)"
     ANYBAR_PORT="$ANYBAR_PORT" open -n /Applications/AnyBar.app
@@ -156,7 +148,7 @@ anyguard() {
     IFS="" read -r ENTER
     anybar quit "$ANYBAR_PORT"
     return "$ret"
-}
+    }
 
 get_template() {
     # TODO work in progress
@@ -178,7 +170,7 @@ get_template() {
     # else
     #     printf "SOURCE file not found.\n\n"
     # fi
-}
+    }
 
 declare -x GATHER_USAGE
 GATHER_USAGE="$(
