@@ -20,6 +20,8 @@ declare -ix number_of_cores && number_of_cores=$(sysctl -n hw.ncpu)
 # e.g. Intel(R) Core(TM) i7-4770HQ CPU @ 2.20GHz
 declare -x CPU && CPU=$(sysctl -n machdep.cpu.brand_string)
 
+declare -x GIT_DISCOVERY_ACROSS_FILESYSTEM && GIT_DISCOVERY_ACROSS_FILESYSTEM=1
+
 # support colors in less
 export LESS_TERMCAP_mb=$'\E[01;31m'
 export LESS_TERMCAP_md=$'\E[01;31m'
