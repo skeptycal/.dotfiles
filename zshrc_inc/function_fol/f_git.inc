@@ -18,6 +18,11 @@
 #       https://www.github.com/skeptycal
 # ---------------------------------------------------------
 
+# git status exit code only
+gs() {
+  git status >/dev/null 2>&1
+}
+
 # use git diff if available
 if [[ "$(hash git &>/dev/null)" -eq 0 ]]; then
     function diff() {
@@ -33,11 +38,10 @@ gstdir(){
 
 gitit() {
     if ! [ -d "$PWD/.git" ]; then
-        echo $!
         warn "Git repo not found in .../${PWD##*/}/.git"
     else
-        git status
-        if [ $? -ne 0 ]; then # >/dev/null 2>&1
+
+        if [ gs -ne 0 ]; then
             warn "Git status error: $PWD"
         else
             # -m "${*:-'Gitit bot: minor updates and formatting.'}"
