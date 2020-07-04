@@ -72,5 +72,5 @@
   CASE_SENSITIVE="false"
   COMPLETION_WAITING_DOTS="true"
   DISABLE_UNTRACKED_FILES_DIRTY="false"
-  export plugins=(git vscode)
+  export plugins=(git vscode django autopep8)
   source "$ZSH/oh-my-zsh.sh"
