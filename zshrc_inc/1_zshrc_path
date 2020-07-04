@@ -58,7 +58,8 @@ $HOME/bin:\
 /usr/libexec:\
 $HOME/.dotfiles:\
 $HOME/.dotfiles/git-achievements:\
-/Applications/Visual Studio Code.app/Contents/Resources/app/bin
+/Applications/Visual Studio Code.app/Contents/Resources/app/bin:\
+/usr/local/opt/openjdk/bin:\
 $PWD:\
 "
 
