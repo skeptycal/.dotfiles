@@ -44,10 +44,10 @@ PATH="${PATH}"
 declare -x PATH="\
 /usr/local/Cellar/python@3.8/3.8.3/bin:\
 /usr/local/opt/coreutils/libexec/gnubin:\
+$HOME/bin:\
 /usr/local/bin:\
 /usr/local/lib/node_modules:\
 /usr/local/opt/cython/bin:\
-$HOME/bin:\
 /bin:\
 /usr/local/opt:\
 /usr/local:\

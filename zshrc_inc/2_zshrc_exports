@@ -1,4 +1,4 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env false zsh
 # -*- coding: utf-8 -*-
     # shellcheck shell=bash
     # shellcheck source=/dev/null
@@ -123,10 +123,6 @@
 
 #? ######################## Go
   declare -x GOPATH && GOPATH="$HOME/go"
-
-#? ######################## Heroku
-#   Heroku autocomplete setup
-  # heroku autocomplete --refresh-cache # one time use after above is loaded
 
 #? ######################## Postgres setup
   declare -x DATABASE_URL && DATABASE_URL="postgres://$(whoami)"

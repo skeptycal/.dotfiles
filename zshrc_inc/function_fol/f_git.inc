@@ -18,27 +18,27 @@
 #       https://www.github.com/skeptycal
 # ---------------------------------------------------------
 
-# git status exit code only
-gs() {
-  git status >/dev/null 2>&1
-}
-
-gsok() {
-  git status | grep 'nothing to commit'
-}
-
 # use git diff if available
 if [[ "$(hash git &>/dev/null)" -eq 0 ]]; then
     function diff() {
         git diff --no-index --color-words "$@"
     }
 fi
+
+gs() {
+  git status >/dev/null 2>&1
+    }
+
+gsok() {
+  git status | grep 'nothing to commit'
+    }
+
 gstdir(){
     if [ -n $1 ]; then
         cd $1;
         $(git status >/dev/null 2>&1; echo $?;)
     fi
-}
+    }
 
 gitit() {
     if ! [ -d "$PWD/.git" ]; then
