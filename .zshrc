@@ -4,7 +4,7 @@
   # shellcheck source=/dev/null
   # shellcheck disable=2178,2128,2206,2034
 
-#? ######################## Shell Variables and Settings 
+#? ######################## Shell Variables and Settings
   # profile start time
   t0=$(date "+%s.%n")
 
@@ -60,7 +60,7 @@
       fi
     }
 
-  source_dir() { # source all files in directory
+  source_dir() { # 'source' all files in directory
       if [[ -d $1 ]]; then
           local f
           [[ $SET_DEBUG = 1 ]] && blue "Source Directory $1"
@@ -76,18 +76,13 @@
 #? ######################## Load Profile settings
   source_dir "$DOTFILES_INC"
 
-#? ######################## From original oh-my-zsh .zshrc
-  # Path to your oh-my-zsh installation. Comments at the end of this script.
-  export ZSH="$HOME/.oh-my-zsh"
-  ZSH_THEME="spaceship"
-  # ZSH_THEME="robbyrussell"
-  CASE_SENSITIVE="false"
-  COMPLETION_WAITING_DOTS="true"
-  DISABLE_UNTRACKED_FILES_DIRTY="false"
-  export plugins=(git vscode)
-  source "$ZSH/oh-my-zsh.sh"
-
 #? ######################## Set ZSH Options
+
+  zstyle ':completion:*' menu select
+  fpath+=~/.zfunc
+
+  test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+
   # Using ZSH shell - http://zsh.sourceforge.net/
   setopt   notify globdots correct pushdtohome cdablevars autolist
   setopt   correctall autocd recexact longlistjobs
@@ -101,24 +96,6 @@
   zmodload -a zsh/zprof zprof
   zmodload -a zsh/mapfile mapfile
 
-#? ######################## Program settings
-  # google cloud SDK
-  # The next line updates PATH for the Google Cloud SDK.
-  if [ -f '/Users/skeptycal/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/skeptycal/google-cloud-sdk/path.zsh.inc'; fi
-  # The next line enables shell command completion for gcloud.
-  if [ -f '/Users/skeptycal/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/skeptycal/google-cloud-sdk/completion.zsh.inc'; fi
-
-  # haskell config
-  [ -f "${GHCUP_INSTALL_BASE_PREFIX:=$HOME}/.ghcup/env" ] && source "${GHCUP_INSTALL_BASE_PREFIX:=$HOME}/.ghcup/env"
-
-  # brew install jump
-  # https://github.com/gsamokovarov/jump
-  eval "$(jump shell)"
-
-  # pyenv
-  [[ $(command -v pyenv >/dev/null) ]] && eval "$(pyenv init -)"
-  [[ $(command -v pyenv-virtualenv-init >/dev/null) ]] && eval "$(pyenv virtualenv-init -)"
-
 #? ######################## From zsh addons install
   # messages from these installs:
   # brew install zsh-autosuggestions
@@ -128,17 +105,14 @@
     FPATH=$BREW_PREFIX/share/zsh-completions:$FPATH
     FPATH=$BREW_PREFIX/share/zsh/site-functions:$FPATH
   fi
+    [ -f /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh ] && . /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 
-  source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-  source /usr/local/opt/zsh-git-prompt/zshrc.sh
+    if [ -f /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
+        . /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+        export ZSH_HIGHLIGHT_HIGHLIGHTERS_DIR=/usr/local/share/zsh-syntax-highlighting/highlighters
+    fi
 
-  export ZSH_HIGHLIGHT_HIGHLIGHTERS_DIR=/usr/local/share/zsh-syntax-highlighting/highlighters
-  source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-
-  # Setup new style completion system. To see examples of the old style
-  # (compctl based) programmable completion, check Misc/compctl-examples in
-  # the zsh distribution.
-  autoload -Uz compinit && compinit
+    [ -f /usr/local/opt/zsh-git-prompt/zshrc.sh ] && . /usr/local/opt/zsh-git-prompt/zshrc.sh
 
 #? ######################## ZSH command completions
   # zsh autocomplete
@@ -158,6 +132,22 @@
   compctl -K _pip_completion pip
   # pip zsh completion end
 
+  # Setup new style completion system. To see examples of the old style
+  # (compctl based) programmable completion, check Misc/compctl-examples in
+  # the zsh distribution.
+  autoload -Uz compinit && compinit
+
+#? ######################## From original oh-my-zsh .zshrc
+  # Path to your oh-my-zsh installation. Comments at the end of this script.
+  export ZSH="$HOME/.oh-my-zsh"
+  ZSH_THEME="spaceship"
+  # ZSH_THEME="robbyrussell"
+  CASE_SENSITIVE="false"
+  COMPLETION_WAITING_DOTS="true"
+  DISABLE_UNTRACKED_FILES_DIRTY="false"
+  export plugins=(git vscode)
+  source "$ZSH/oh-my-zsh.sh"
+
 #? ######################## script cleanup
   # profile end time
   t1=$(date "+%s.%n")
@@ -166,11 +156,9 @@
     printf "${MAIN:-}CPU: ${LIME:-}${CPU} ${MAIN:-}-> ${CANARY:-}${number_of_cores}${MAIN:-} cores. \n"
     printf "${MAIN:-}LOCAL IP: ${COOL:-}${LOCAL_IP}  ${MAIN:-}SHLVL: ${WARN:-}${SHLVL}  ${MAIN:-}LANG: ${RAIN:-}${LANG}${RESET:-}"
 
+   unset t1 t0 SCRIPT_PATH SCRIPT_NAME
 
-  unset t1 t0 SCRIPT_PATH SCRIPT_NAME
-
-  # End of .zshrc
-  # --------------------------------------------------------------------------
+ #? ######################## End of .zshrc
 
 #* ----------------------------- REFERENCES and NOTES
 #? ######################## Set BASH Options
@@ -309,9 +297,3 @@
     # Reference: The shell shall execute commands from the file in the current environment.
 
     # If file does not contain a <slash>, the shell shall use the search path specified by PATH to find the directory containing file. Unlike normal command search, however, the file searched for by the dot utility need not be executable. If no readable file is found, a non-interactive shell shall abort; an interactive shell shall write a diagnostic message to standard error, but this condition shall not be considered a syntax error.
-
-zstyle ':completion:*' menu select
-fpath+=~/.zfunc
-
-test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
-

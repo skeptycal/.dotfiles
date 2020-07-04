@@ -58,6 +58,7 @@ $HOME/bin:\
 /usr/libexec:\
 $HOME/.dotfiles:\
 $HOME/.dotfiles/git-achievements:\
+/Applications/Visual Studio Code.app/Contents/Resources/app/bin
 $PWD:\
 "
 

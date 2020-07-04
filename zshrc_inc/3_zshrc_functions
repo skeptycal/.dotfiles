@@ -10,7 +10,7 @@
     #* copyright (c) 2019 Michael Treanor
     #* MIT License - https://www.github.com/skeptycal
 
-    declare -ix SET_DEBUG && SET_DEBUG=${SET_DEBUG:-0} # set to 1 for verbose testing
+    SET_DEBUG=${SET_DEBUG:-0} # set to 1 for verbose testing
 
 #? ######################## Include Files
     # standard script modules for macOS
