@@ -72,5 +72,5 @@
   CASE_SENSITIVE="false"
   COMPLETION_WAITING_DOTS="true"
   DISABLE_UNTRACKED_FILES_DIRTY="false"
-  export plugins=(git vscode django autopep8)
+  export plugins=(git vscode django autopep8 docker gpg-agent golang)
   source "$ZSH/oh-my-zsh.sh"
