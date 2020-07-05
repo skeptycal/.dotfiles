@@ -8,38 +8,44 @@
 # license   - MIT <https://opensource.org/licenses/MIT>
 # github    - https://www.github.com/skeptycal
 ###############################################################################
-# Identify default settings path
-#   default is the folder that this global script is running from
-#
-#   (location for default copies of .info.cfg, .gitignore, README.md
-#   .travis.yml, bitbucket_pipelines.yml, codedov.yml, gpg_public.txt
-#   requirements.txt, Pipfile, setup.py, .pre-commit-config.yaml, etc)
-#
-#   you may adjust as needed to use a separate settings folder,
-#   (e.g.) bin_path="$HOME/bin/utilities/",
+. $(which ssm) >/dev/null 2>&1  # import standard script modules, if available
 
-# bin_path=$(realpath $0)
-# bin_path="${bin_path%/*}"
-#! (CHANGE THIS TO YOURS)
-[[ -z "$bin_path" ]] && export bin_path="/Volumes/Data/skeptycal/bin/utilities/pc_bak"
-[[ -z "$script_path" ]] && export script_path="/Volumes/Data/skeptycal/bin/utilities/scripts"
+#! ############################################ (CHANGE THESE TO YOURS)
+    # Identify default settings path
+    # default is the folder that this global script is running from
 
-# echo $bin_path
-# echo $script_path
+    # (location for default copies of .info.cfg, .gitignore, README.md
+    # .travis.yml, bitbucket_pipelines.yml, codedov.yml, gpg_public.txt
+    # requirements.txt, Pipfile, setup.py, .pre-commit-config.yaml, etc)
 
-###############################################################################
-# utilities
-[[ -z "${script_path}/basic_text_colors.sh" ]] && source "${script_path}/basic_text_colors.sh" &>/dev/null
+    # you may adjust as needed to use a separate settings folder
+    # (e.g.) template_path="$HOME/path/to/my/settings/"
 
-# set boolean whether color is available or not
-[[ $? ]] && export USE_COLOR=true || USE_COLOR=false
+    # user's ~/bin folder
+    declare -x BIN_DIR && BIN_DIR=$(realpath $HOME/bin)
+    # directory where project defaults are stored
+    declare -x template_path=${template_path:-"$HOME/Documents/coding/template"}
+    # current directory
+    export here=$PWD
+    # backup directory (non source control - for dev tests only)
+    declare -x backup_dir="${here}/bak"
 
-we $USE_COLOR
+    # set backup directory; create if needed
+    [[ -d "${backup_dir}" ]] || mkdir -p "$backup_dir" >/dev/null 2>&1
 
-[[ -z "${script_path}/file_utils.sh" ]] && source "${script_path}/file_utils.sh" &>/dev/null
 
-###############################################################################
-# project_defaults
+    # Set default readme file (usually <md> or <rst>)
+    #    (<1st>, <now>, <txt>, or <asc> are older forms.)
+    export readme="${here}/README.md"
+
+    ME=${0##*/}                     # name of this script
+    ARGS=( ${@:1} )                 # list of cli arguments passed, including FILES to link
+
+    # is color available or not
+    declare -ix USE_COLOR
+    [[ -t 0 ]] && USE_COLOR=1 || USE_COLOR=0
+
+#* ############################################ utilities
 function check_file() {
     # testing file properties
     # parameter: $1 - name of file to check
@@ -65,48 +71,23 @@ function check_file() {
     check_file_output=$tmp_chk
 }
 
-function initialize() {
-    # set boolean whether color is available or not
-    if [[ $? ]]; then
-        USE_COLOR=true
-    else
-        USE_COLOR=false
-    fi
-
-    # parameter expansion to remove trailing /filename
-    # _path="${0%/*}"
-    # current directory
-    export here=$PWD
-    print $here
-
-    # directory where I store project defaults
-    #! (CHANGE THIS TO YOURS)
-    export bin_path="/Volumes/Data/skeptycal/bin/utilities/pc_bak"
-
-    # set backup directory; create if needed
-    export backup_dir="${here}/bak"
-    [[ -d "${backup_dir}" ]] || mkdir -pv "$backup_dir" &>/dev/null
-
-    # Set default readme file (usually <md> or <rst>)
-    #    (<1st>, <now>, <txt>, or <asc> are older forms.)
-    export readme="${here}/README.md"
-
-    # source local configuration file (.info.cfg) or default
-    [[ -f "${here}/.info.cfg" ]] && info_file="${here}/.info.cfg"
-    source "${info_file}" &>/dev/null || source "${bin_path}/.info.cfg" &>/dev/null
-}
-
-bak() { # backup $1 to bak/$1.bak
-    #    add extension .bak
-    bak_file="$here/$1"
-    if [[ -z "$backup_dir" ]]; then
-        we "Error: backup directory not available for ${bak_file}."
-    else
-
-        [ -r "$bak_file" ] && cp -f "$bak_file" "$backup_dir/$1.bak" &>/dev/null || we "Not able to create backup for ${bak_file}."
-        # echo "copy text: $here/$1 $backup_dir/$1.bak "
-
-    fi
+bak() {
+    # backup files to backup directory
+    #   (while this is a handy thing on some occasions, please prefer source
+    #   control using Git/GitHub or similar)
+    #   if no backup directory is set, use ./bak/
+    #   add extension .bak to all files
+    backup_dir=${backup_dir:-"${here}/bak"}
+    for f in $*; do
+        bak_file=${f##*/}
+        source=$(realpath $f)
+        target="${backup_dir}/${f##*/}.bak"
+        if [[ -r "$f" ]]; then
+            cp -f $source $target &>/dev/null
+        else
+            attn "Cannot backup $f"
+        fi
+    done
 }
 
 ###############################################################################
@@ -119,20 +100,3 @@ else
     # non-interactive
     initialize
 fi
-###############################################################################
-# basic_text_colors info
-#
-# color codes available - e.g. to use WARN in a string, type $WARN
-# MAIN, WARN, COOL, GO, CHERRY, CANARY, ATTN, PURPLE, RESET
-#
-# function list
-# test_color_output # test_color_output - print samples of available colors
-# echo # This makes echo more consistent and portable
-# br # yes, this is a fake cli version of <br />
-# ce # ce - generic color echo (used manually or called from specific function)
-# me # MAIN echo
-# we # red WARN echo
-# be # COOL blue echo
-# ge # GO green echo
-# oe # orange ATTN echo
-# pe # purple PURPLE echo

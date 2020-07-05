@@ -76,8 +76,6 @@
 #? ######################## Load Profile settings
   source_dir "$DOTFILES_INC"
 
-
-
 #? ######################## script cleanup
   # profile end time
   t1=$(date "+%s.%n")
