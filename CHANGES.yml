@@ -1,30 +1,40 @@
+- version: 2.1.0
+  date: July 6, 2020
+  notes: >
+    - Reduce the number of environment variables
+    - BASH_SCRIPT is now available for zsh
+    - settings are organized in folders and source_dir grabs them in sets
+    - Python 2 compatibility is dropped
+    - Python 3.7+ is required
+    - Ruby 2.6 and PHP 7+ are recommended
+
 - version: 2.0.0
   date: September 19, 2019
   notes: >
-    Refactor.
+    - Refactor with zsh and other updates
 
 - version: 1.1.8
   date: June 2, 2017
   notes: >
-    Added branch coverage metric. 100%, like line
+    - Added branch coverage metric. 100%, like line
     coverage.
 
 - version: 1.1.7
   date: June 2, 2017
   notes: >
-    Tweaks to testing and Python 2/3 compatibility
+    - Tweaks to testing and Python 2/3 compatibility
     strategy to make it more Python 3-centered and
     more future-proofed.
 
-    Fixed bug with handling of Unicode strings
+    - Fixed bug with handling of Unicode strings
     (affected Python 2 only).
 
 - version: 1.1.6
   date: May 26, 2017
   notes: >
-    Updated with testing and extensions.
+    - Updated with testing and extensions.
 
-    API remains largely identical, though
+    - API remains largely identical, though
     now supports many more colors via 24-bit
     RGB support and built-in knowledge of the
     CSS color names. New ``ansilen`` API.
@@ -32,10 +42,10 @@
 - version: 1.0.2
   date: April 18, 2012
   notes: >
-    Last release of package for several years.
+    - Last release of package for several years.
     Most users know this release best.
 
 - version: 1.0.0
   date: April 3, 2012
   notes: >
-    First release to PyPI.
+    - First release to PyPI.

@@ -20,7 +20,7 @@
   declare -ix HISTFILESIZE && HISTFILESIZE="${HISTSIZE}"
   declare -x HISTCONTROL && HISTCONTROL='ignoreboth'
 
-  # default shell editor
+  # default shell editor for standard and ssh sessions
   [[ -n $SSH_CONNECTION ]] && declare -x EDITOR='nano' || declare -x EDITOR='nano'
 
   # get the number of CPU cores

@@ -1,6 +1,6 @@
 {
   "name": "dotfiles",
-  "version": "1.0.0",
+  "version": "2.1.0",
   "description": "macos zsh dotfiles",
   "main": "prettier.config.js",
   "scripts": {
@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/skeptycal/.dotfiles#readme",
   "dependencies": {
+    "prettier": "^2.0.5",
     "pygments": "^0.2.1"
   }
 }

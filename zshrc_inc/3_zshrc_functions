@@ -13,44 +13,41 @@
     SET_DEBUG=${SET_DEBUG:-0} # set to 1 for verbose testing
 
 #? ######################## Include Files
-    # standard script modules for macOS
-    . "$(which ssm)"
-
     # source files in directory containing functions by category
     source_dir ${DOTFILES_INC}/function_fol
-    . "$(which log_urls.sh)"
-    # contents:
-        # getURL()
-        # ping_avg [COUNT] [URL]
-        # log_urls [-q] [COUNT] [SLEEP_TIME] [URL_LOG]
 
-command -v realpath >/dev/null 2>&1 || (
+    # log urls
+    . "$(which log_urls.sh)"
+
+    # PIPLIST is not part of the normal python installation. It returns a list
+    # of names of installed packages suitable for process and piping, without
+    # the header and extra fields. The function recreates the list on demand
+    # so it is always current.
+    PIPLIST() { pip3 list | sed 's/  */ /g' | cut -d ' ' -f 1 | tail -n +3; }
+
     # create 'realpath' function if none exists
-    realpath() {
-        if [[ $1 = /* ]]; then
-            echo "$1"
-        else # echo "$PWD/${1#./}"
-            cd -P -- "$1" || return
-            pwd -P
-        fi
+    command -v realpath >/dev/null 2>&1 || (
+        realpath() {
+            if [[ $1 = /* ]]; then
+                echo "$1"
+            else # echo "$PWD/${1#./}"
+                cd -P -- "$1" || return
+                pwd -P
+            fi
         }
         )
 
-space() {
-    if [ -d $1 ]; then
-        mnt=$1
-    else
-        mnt=''
-    fi
-    df $mnt -h | awk '{print $5}' | grep % | grep -v Use | sort -n | tail -1 | cut -d "%" -f1 -
-    }
+    space() {
+        if [ -d $1 ]; then
+            mnt=$1
+        else
+            mnt=''
+        fi
+        df $mnt -h | awk '{print $5}' | grep % | grep -v Use | sort -n | tail -1 | cut -d "%" -f1 -
+        }
 
-root_space() { df -P | grep '\/$' | awk '{print $5}' | cut -d "%" -f1 -; }
+    root_space() { df -P | grep '\/$' | awk '{print $5}' | cut -d "%" -f1 -; }
 
-#? ######################## SCRIPT TESTS
-    _run_debug_functions() {
-        warn $SCRIPT_NAME
-    }
 #? ######################## Weekly Tasks
     _sunday() {
         weekday=$(date +"%a")
@@ -107,7 +104,6 @@ root_space() { df -P | grep '\/$' | awk '{print $5}' | cut -d "%" -f1 -; }
         _sunday
         # echo "Travis test: $TRAVIS_TOKEN"
         # travis login --github-token "$TRAVIS_TOKEN"
-        [[ $SET_DEBUG == '1' ]] && _run_debug_functions
     }
 #? ######################## ENTRY POINT
     _main_ "$@"

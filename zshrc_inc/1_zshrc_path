@@ -1,72 +1,16 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env false zsh
 # -*- coding: utf-8 -*-
     # shellcheck shell=bash
     # shellcheck source=/dev/null
     # shellcheck disable=2128
 
-SET_DEBUG=${SET_DEBUG:-0} # set to 1 for verbose testing
+# SET_DEBUG=${SET_DEBUG:-0} # set to 1 for verbose testing
 
 # ?########################################## parameter expansion tips
     #? ${PATH//:/\\n}    - replace all colons with newlines
     #? ${PATH// /}       - strip all spaces
     #? ${VAR##*/}        - return only final element in path (program name)
     #? ${VAR%/*}         - return only path (without program name)
-
-# ?########################################## PIPLIST
-    # PIPLIST is not part of the normal python installation. It returns a list
-    # of names of installed packages suitable for process and piping, without
-    # the header and extra fields. The function recreates the list on demand
-    # so it is always current.
-    PIPLIST() { pip3 list | sed 's/  */ /g' | cut -d ' ' -f 1 | tail -n +3; }
-
-# ?########################################## MANPATH
-    declare -x MANPATH=" \
-        /usr/local/opt/coreutils/libexec/gnuman:\
-        /usr/share/man:\
-        /usr/local/share/man:\
-        /usr/local/opt/erlang/lib/erlang/man:\
-        /Library/Frameworks/Python.framework/Versions/3.8/share/man/man1:\
-        "
-    MANPATH="${MANPATH// /}"
-
-# ?########################################## PATH
-    # These are automatically added to the start:
-    #   /Users/skeptycal/.cabal/bin
-    #   /Users/skeptycal/.ghcup/bin
-
-# /Library/Frameworks/Python.framework/Versions/3.8/bin:\
-# $HOME/Library/Python/3.8/bin:\
-# /usr/local/opt/llvm/bin:\
-# $HOME/Documents/coding/python/autosys/autosys:\
-# $HOME/Documents/coding/python/autosys/bin:\
-
-PATH="${PATH}"
-declare -x PATH="\
-/usr/local/Cellar/python@3.8/3.8.3/bin:\
-/usr/local/opt/coreutils/libexec/gnubin:\
-$HOME/bin:\
-/usr/local/bin:\
-/usr/local/lib/node_modules:\
-/usr/local/opt/cython/bin:\
-/bin:\
-/usr/local/opt:\
-/usr/local:\
-/usr/local/sbin:\
-/usr/bin:\
-/usr/sbin:\
-/sbin:\
-/usr/libexec:\
-$HOME/.dotfiles:\
-$HOME/.dotfiles/git-achievements:\
-/Applications/Visual Studio Code.app/Contents/Resources/app/bin:\
-/usr/local/opt/openjdk/bin:\
-$PWD:\
-"
-
-PATH="${PATH// /}"
-PATH="${PATH//::/:}"
-# PATH="$PATH:/Applications/Visual Studio Code - Insiders.app/Contents/Resources/app/bin:/Applications/Visual Studio Code.app/Contents/Resources/app/bin:"
-export PATH
 
 # ?########################################## OpenSSL info
     # openssl is keg-only, which means it was not symlinked into /usr/local,

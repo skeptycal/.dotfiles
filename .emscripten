@@ -1,7 +1,0 @@
-LLVM_ROOT = '/Users/skeptycal/emsdk/upstream/bin'
-BINARYEN_ROOT = '/Users/skeptycal/emsdk/upstream'
-EMSCRIPTEN_ROOT = '/Users/skeptycal/emsdk/upstream/emscripten'
-NODE_JS = '/Users/skeptycal/emsdk/node/12.9.1_64bit/bin/node'
-TEMP_DIR = '/var/folders/sv/_4cpr0px23b4mn3k40nv46z40000gn/T'
-COMPILER_ENGINE = NODE_JS
-JS_ENGINES = [NODE_JS]

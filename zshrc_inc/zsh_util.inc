@@ -12,7 +12,7 @@
 
   # Using ZSH shell - http://zsh.sourceforge.net/
   setopt   notify globdots correct pushdtohome cdablevars autolist
-  setopt   correctall autocd recexact longlistjobs
+  setopt   correctall autocd recexact longlistjobs nocaseglob
   setopt   autoresume histignoredups pushdsilent noclobber
   setopt   autopushd pushdminus extendedglob rcquotes mailwarning
   unsetopt autoparamslash bgnice
