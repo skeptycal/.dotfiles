@@ -5,8 +5,6 @@
   # shellcheck disable=2178
 
   SET_DEBUG=${SET_DEBUG:-0} # set to 1 for verbose testing
-  OLD_DEBUG=$SET_DEBUG
-  SET_DEBUG=1
 
   if (( SET_DEBUG == 1 )); then
     echo ${ATTN:-}$(gpgconf)${RESET:-}
@@ -31,5 +29,3 @@
       export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
     fi
   fi
-
-    SET_DEBUG=$OLD_DEBUG

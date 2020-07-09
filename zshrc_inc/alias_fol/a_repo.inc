@@ -1,8 +1,10 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env false zsh
 # -*- coding: utf-8 -*-
-# shellcheck shell=bash
-# shellcheck source=/dev/null
-# shellcheck disable=2230,2086
+    # shellcheck shell=bash
+    # shellcheck source=/dev/null
+    # shellcheck disable=2230,2086
+
+    set -a
 
 # *############################################## repo setup
 alias gi='cp ~/.dotfiles/.gitignore .'

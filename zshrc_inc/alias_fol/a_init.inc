@@ -1,8 +1,10 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env false zsh
 # -*- coding: utf-8 -*-
-# shellcheck shell=bash
-# shellcheck source=/dev/null
-# shellcheck disable=2230,2086
+    # shellcheck shell=bash
+    # shellcheck source=/dev/null
+    # shellcheck disable=2230,2086
+
+    set -a
 
 #? ############################# initial aliases
     # Use NeoVim if available
@@ -17,7 +19,7 @@
     # find . -maxdepth 1 -type l # will include directories
     alias ll="ls -A | perl -nle 'print if -l and not -d;'"
     alias lsd='ls -1Ad */'
-    alias code='/Applications/Visual Studio Code.app'
+    alias code=" cd '/Applications/Visual Studio Code.app'"
 
 #? ############################# handy stuff
     alias cls='clear'   # because 40 year old habits die hard
@@ -27,11 +29,11 @@
     # alias path='echo -e ${PATH//:/\\n}'
     alias nis="npm install --save "
     alias cgr="composer global require"
-    alias code="nocorrect code"
+    # alias code="nocorrect code"
 
-    alias mv='nocorrect mv'       # no spelling correction on mv
-    alias cp='nocorrect cp'       # no spelling correction on cp
-    alias mkdir='nocorrect mkdir' # no spelling correction on mkdir
+    # alias mv='nocorrect mv'       # no spelling correction on mv
+    # alias cp='nocorrect cp'       # no spelling correction on cp
+    # alias mkdir='nocorrect mkdir' # no spelling correction on mkdir
     alias git="git-achievements"
     alias mine="sudo chown -R \$(id -un):\$(id -gn) "
     alias ssh='ssh -R 10999:localhost:22'

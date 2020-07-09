@@ -4,6 +4,8 @@
     # shellcheck source=/dev/null
     # shellcheck disable=2230,2086
 
+    set -a
+
 # ------------------------- gitit -------------------------
 #   Automatic repo pre-commit, commit, and push
 #
@@ -54,11 +56,12 @@ gitit() {
             green "  repo: ${PWD##*/}"
             green "  message: "
             green "$message"
+            [ -f .pre-commit-config.yaml ] || pre-commit sample-config >.pre-commit-config.yaml
             git add --all >/dev/null 2>&1
             pre-commit >/dev/null 2>&1
             git add --all
             pre-commit
-            git commit -m "$message" --gpg-sign=$(git_gpg.php)
+            git commit -m "$message" --gpg-sign=$(which git_gpg.php)
             git push --set-upstream origin "$(git_current_branch)"
             git status
         fi

@@ -4,6 +4,8 @@
     # shellcheck source=/dev/null
     # shellcheck disable=2230,2086
 
+    set -a
+
 
 #? ######################## Program Versions Reporting
 write_versions_file() {
@@ -58,15 +60,15 @@ dls () {
  # directory LS
  ls -l | grep "^d" | awk '{ print $9 }' | tr -d "/"
     }
-dgrep() {
-    # A recursive, case-insensitive grep that excludes binary files
-    grep -iR "$@" -- * | grep -v "Binary"
-    }
-dfgrep() {
-    # A recursive, case-insensitive grep that excludes binary files
-    # and returns only unique filenames
-    grep -iR "$@" -- * | grep -v "Binary" | sed 's/:/ /g' | awk '{ print $1 }' | sort | uniq
-    }
+# dgrep() {
+#     # A recursive, case-insensitive grep that excludes binary files
+#     grep -iR "$@" -- * | grep -v "Binary"
+#     }
+# dfgrep() {
+#     # A recursive, case-insensitive grep that excludes binary files
+#     # and returns only unique filenames
+#     grep -iR "$@" -- * | grep -v "Binary" | sed 's/:/ /g' | awk '{ print $1 }' | sort | uniq
+#     }
 psgrep() {
     if [ -n "$1" ] ; then
         echo "Grepping for processes matching $1..."
@@ -75,70 +77,70 @@ psgrep() {
         echo "!! Need name to grep for"
     fi
     }
-l1() { # nice sorting ... #TODO no color ...
-    # shellcheck disable=2012
-    ls -l "$@" | sort -r | awk 'NF==9 { if ($1~/^d/) { print $9 "/" } else { print $9 } }'
-    }
-mkd(){
-        [ $# -eq 0 ] && { echo "$0: (DIRNAME) [MODE]    - default MODE=755"; return; }
-        local d="$1"               # get dir name
-        local m=${2:-0755}         # get permission, set default to 0755
-        # shellcheck disable=2174
-        [ ! -d "$d" ] && mkdir -m "$m" -p "$d"
-    }
-unbak(){
-    find . -name "*.bak" -type f -print0 | xargs -0 /bin/rm -f
-    }
-gather_del() {
-    find . -name "${1:-}" -type f -print0 | xargs -0 /bin/rm -f
-    }
-bak() {
-    FILES="$*"
-    [[ -d "$PWD/bak" ]] || mkdir "$PWD/bak"
-    for file in $FILES; do
-        [[ -d "$file" ]] && bak "$file"
-        printf "Backup file %s " "$file"
-        [[ -f "$file" ]] && cp -f "$file" "bak/${file}.bak" || echo -e "${WARN}backup unsuccessful - ${MAIN}${file}${RESET_FG}"
-        echo ''
-    done
-    }
-cdf() {
-    cd "$(osascript -e 'tell app "Finder" to POSIX path of (insertion location as alias)')" || return 1
-    }
-check_file() {
-    #? ${VAR##*/}        - return only final element in path (program name)
-    #? ${VAR%/*}         - return only path (without program name)
-    filename=$(py_realpath $1)
-    local name="${filename##*/}"
-    local path="${filename%/*}"
-    echo "name: $name"
-    echo "path: $path"
-    local tmp_chk=''
-    [[ -e "$path" ]] && tmp_chk="${tmp_chk}$GO" || tmp_chk="${tmp_chk}$ATTN"
-    tmp_chk="${tmp_chk} exists"
-    [[ -d "$path" ]] && tmp_chk="${tmp_chk}$GO" || tmp_chk="${tmp_chk}$ATTN"
-    tmp_chk="${tmp_chk} d"
-    [[ -r "$path" ]] && tmp_chk="${tmp_chk}$GO" || tmp_chk="${tmp_chk}$ATTN"
-    tmp_chk="${tmp_chk}-r"
-    [[ -w "$path" ]] && tmp_chk="${tmp_chk}$GO" || tmp_chk="${tmp_chk}$ATTN"
-    tmp_chk="${tmp_chk}-w"
-    [[ -x "$path" ]] && tmp_chk="${tmp_chk}$GO" || tmp_chk="${tmp_chk}$ATTN"
-    tmp_chk="${tmp_chk}-e"
-    [[ -f "$path" ]] && tmp_chk="${tmp_chk}$GO" || tmp_chk="${tmp_chk}$ATTN"
-    tmp_chk="${tmp_chk} norm"
-    [[ -L "$path" ]] && tmp_chk="${tmp_chk}$GO" || tmp_chk="${tmp_chk}$ATTN"
-    tmp_chk="${tmp_chk} link"
-    [[ -s "$path" ]] && tmp_chk="${tmp_chk}$GO" || tmp_chk="${tmp_chk}$ATTN"
-    tmp_chk="${tmp_chk} size>0"
-    [[ -O "$path" ]] && tmp_chk="${tmp_chk}$GO" || tmp_chk="${tmp_chk}$ATTN"
-    tmp_chk="${tmp_chk} mine"
-    [[ -N "$path" ]] && tmp_chk="${tmp_chk}$GO" || tmp_chk="${tmp_chk}$ATTN"
-    tmp_chk="${tmp_chk} dirty"
-    [[ -k "$path" ]] && tmp_chk="${tmp_chk}$GO" || tmp_chk="${tmp_chk}$ATTN"
-    tmp_chk="${tmp_chk} sticky$RESET"
-    echo -e " ->$tmp_chk"
-    echo ''
-    }
+# l1() { # nice sorting ... #TODO no color ...
+#     # shellcheck disable=2012
+#     ls -l "$@" | sort -r | awk 'NF==9 { if ($1~/^d/) { print $9 "/" } else { print $9 } }'
+#     }
+# mkd(){
+#         [ $# -eq 0 ] && { echo "$0: (DIRNAME) [MODE]    - default MODE=755"; return; }
+#         local d="$1"               # get dir name
+#         local m=${2:-0755}         # get permission, set default to 0755
+#         # shellcheck disable=2174
+#         [ ! -d "$d" ] && mkdir -m "$m" -p "$d"
+#     }
+# unbak(){
+#     find . -name "*.bak" -type f -print0 | xargs -0 /bin/rm -f
+#     }
+# gather_del() {
+#     find . -name "${1:-}" -type f -print0 | xargs -0 /bin/rm -f
+#     }
+# bak() {
+#     FILES="$*"
+#     [[ -d "$PWD/bak" ]] || mkdir "$PWD/bak"
+#     for file in $FILES; do
+#         [[ -d "$file" ]] && bak "$file"
+#         printf "Backup file %s " "$file"
+#         [[ -f "$file" ]] && cp -f "$file" "bak/${file}.bak" || echo -e "${WARN}backup unsuccessful - ${MAIN}${file}${RESET_FG}"
+#         echo ''
+#     done
+#     }
+# cdf() {
+#     cd "$(osascript -e 'tell app "Finder" to POSIX path of (insertion location as alias)')" || return 1
+#     }
+# check_file() {
+#     #? ${VAR##*/}        - return only final element in path (program name)
+#     #? ${VAR%/*}         - return only path (without program name)
+#     filename=$(py_realpath $1)
+#     local name="${filename##*/}"
+#     local path="${filename%/*}"
+#     echo "name: $name"
+#     echo "path: $path"
+#     local tmp_chk=''
+#     [[ -e "$path" ]] && tmp_chk="${tmp_chk}$GO" || tmp_chk="${tmp_chk}$ATTN"
+#     tmp_chk="${tmp_chk} exists"
+#     [[ -d "$path" ]] && tmp_chk="${tmp_chk}$GO" || tmp_chk="${tmp_chk}$ATTN"
+#     tmp_chk="${tmp_chk} d"
+#     [[ -r "$path" ]] && tmp_chk="${tmp_chk}$GO" || tmp_chk="${tmp_chk}$ATTN"
+#     tmp_chk="${tmp_chk}-r"
+#     [[ -w "$path" ]] && tmp_chk="${tmp_chk}$GO" || tmp_chk="${tmp_chk}$ATTN"
+#     tmp_chk="${tmp_chk}-w"
+#     [[ -x "$path" ]] && tmp_chk="${tmp_chk}$GO" || tmp_chk="${tmp_chk}$ATTN"
+#     tmp_chk="${tmp_chk}-e"
+#     [[ -f "$path" ]] && tmp_chk="${tmp_chk}$GO" || tmp_chk="${tmp_chk}$ATTN"
+#     tmp_chk="${tmp_chk} norm"
+#     [[ -L "$path" ]] && tmp_chk="${tmp_chk}$GO" || tmp_chk="${tmp_chk}$ATTN"
+#     tmp_chk="${tmp_chk} link"
+#     [[ -s "$path" ]] && tmp_chk="${tmp_chk}$GO" || tmp_chk="${tmp_chk}$ATTN"
+#     tmp_chk="${tmp_chk} size>0"
+#     [[ -O "$path" ]] && tmp_chk="${tmp_chk}$GO" || tmp_chk="${tmp_chk}$ATTN"
+#     tmp_chk="${tmp_chk} mine"
+#     [[ -N "$path" ]] && tmp_chk="${tmp_chk}$GO" || tmp_chk="${tmp_chk}$ATTN"
+#     tmp_chk="${tmp_chk} dirty"
+#     [[ -k "$path" ]] && tmp_chk="${tmp_chk}$GO" || tmp_chk="${tmp_chk}$ATTN"
+#     tmp_chk="${tmp_chk} sticky$RESET"
+#     echo -e " ->$tmp_chk"
+#     echo ''
+#     }
 path() {
     path_param=${*:-$PATH} # use all args ... if none, use PATH as default
     # path_param="${path_param//:/ }"  # replace DELIM
@@ -181,9 +183,9 @@ datelog() {
     # shellcheck disable=2091 #! exec / eval warning ...
     $("$*") | tee -a "$file_name"
     }
-fileop() {
-    # TODO work in progress
-    return 0
+# fileop() {
+#     # TODO work in progress
+#     return 0
     # File counter, filter, and editor for word or line matches
     # Check 3 arguments are given #
     # if [ "$#" -lt 3 ]; then
@@ -220,7 +222,7 @@ fileop() {
     #     echo "Invalid option"
     #     ;;
     # esac
-    }
+    # }
 find_broken() {
     # Find and delete all broken symbolic links in current directiry
     # use safety feature $1 == '-d' to actually delete them
@@ -239,78 +241,78 @@ find_broken() {
         fi
     fi
     }
-fix_list() {
-    # TODO work in progress
-    return 0
+# fix_list() {
+#     # TODO work in progress
+#     return 0
     # https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html#Command-Substitution
     # function_list=$(<~/.dotfiles/.functions | grep -e 'function () { ' | awk '{ printf "%s\\n",$2 }')
     # me "\nAvailable BASH functions (function_list):\n"
     # oe $function_list
     # < ~/.dotfiles/.functions | grep -e " function " | awk '{ print $2 }'
     # echo $function_list >function_list.txt
-    }
-fs() {
-    if du -b /dev/null >/dev/null 2>&1; then
-        local arg=-sbh
-    else
-        local arg=-sh
-    fi
-    if [[ -n "$*" ]]; then
-        du $arg -- "$*"
-    else
-        du $arg .[^.]* ./*
-    fi
-    }
-targz() {
-    local tmpFile="${*%/}.tar"
-    tar -cvf "${tmpFile}" --exclude=".DS_Store" "${@}" || return 1
-    size=$(
-        stat -f"%z" "${tmpFile}" 2>/dev/null
-        stat -c"%s" "${tmpFile}" 2>/dev/null
-    )
-    local cmd=""
-    if ((size < 52428800)) && hash zopfli 2>/dev/null; then
-        cmd="zopfli"
-    else
-        if hash pigz 2>/dev/null; then
-            cmd="pigz"
-        else
-            cmd="gzip"
-        fi
-    fi
-    echo "Compressing .tar ($((size / 1000)) kB) using \`${cmd}\`âŚ"
-    "${cmd}" -v "${tmpFile}" || return 1
-    [ -f "${tmpFile}" ] && rm "${tmpFile}"
-    zippedSize=$(
-        stat -f"%z" "${tmpFile}.gz" 2>/dev/null
-        stat -c"%s" "${tmpFile}.gz" 2>/dev/null
-    )
-    echo "${tmpFile}.gz ($((zippedSize / 1000)) kB) created successfully."
-    }
-tre() {
-    tree -axC -I '.git|node_modules|bower_components' --dirsfirst "$@" -- | less -FRNX
-    }
-trw() {
-    # TODO work in progress
-    return 0
-    # -     # trim leading and trailing whitespace
-    #     local var="$*"
-    #     var="${var#"${var%%[![:space:]]*}"}"
-    #     var="${var#"${var&&[!'/']*}"}"
-    #     var="${var%"${var##*[![:space:]]}"}"
-    #     echo -n "$var"
-    }
-tt() {
-    # alias treetop='tree -L 1'
-    tree -L 1 -- "$@"
-    }
-tree_html() {
-    tree -ahlsAFRHD --prune --du --si --dirsfirst >tree.html
-    }
-unpatch () {
-  find . -name "*.orig" -o -name "*.rej"  -type f -exec rm {} \;
-  find . -name "b" -type d -exec rm -rf {} \;
-    }
+    # }
+# fs() {
+#     if du -b /dev/null >/dev/null 2>&1; then
+#         local arg=-sbh
+#     else
+#         local arg=-sh
+#     fi
+#     if [[ -n "$*" ]]; then
+#         du $arg -- "$*"
+#     else
+#         du $arg .[^.]* ./*
+#     fi
+#     }
+# targz() {
+#     local tmpFile="${*%/}.tar"
+#     tar -cvf "${tmpFile}" --exclude=".DS_Store" "${@}" || return 1
+#     size=$(
+#         stat -f"%z" "${tmpFile}" 2>/dev/null
+#         stat -c"%s" "${tmpFile}" 2>/dev/null
+#     )
+#     local cmd=""
+#     if ((size < 52428800)) && hash zopfli 2>/dev/null; then
+#         cmd="zopfli"
+#     else
+#         if hash pigz 2>/dev/null; then
+#             cmd="pigz"
+#         else
+#             cmd="gzip"
+#         fi
+#     fi
+#     echo "Compressing .tar ($((size / 1000)) kB) using \`${cmd}\`âŚ"
+#     "${cmd}" -v "${tmpFile}" || return 1
+#     [ -f "${tmpFile}" ] && rm "${tmpFile}"
+#     zippedSize=$(
+#         stat -f"%z" "${tmpFile}.gz" 2>/dev/null
+#         stat -c"%s" "${tmpFile}.gz" 2>/dev/null
+#     )
+#     echo "${tmpFile}.gz ($((zippedSize / 1000)) kB) created successfully."
+#     }
+# tre() {
+#     tree -axC -I '.git|node_modules|bower_components' --dirsfirst "$@" -- | less -FRNX
+#     }
+# trw() {
+#     # TODO work in progress
+#     return 0
+#     # -     # trim leading and trailing whitespace
+#     #     local var="$*"
+#     #     var="${var#"${var%%[![:space:]]*}"}"
+#     #     var="${var#"${var&&[!'/']*}"}"
+#     #     var="${var%"${var##*[![:space:]]}"}"
+#     #     echo -n "$var"
+#     }
+# tt() {
+#     # alias treetop='tree -L 1'
+#     tree -L 1 -- "$@"
+#     }
+# tree_html() {
+#     tree -ahlsAFRHD --prune --du --si --dirsfirst >tree.html
+#     }
+# unpatch () {
+#   find . -name "*.orig" -o -name "*.rej"  -type f -exec rm {} \;
+#   find . -name "b" -type d -exec rm -rf {} \;
+#     }
 web_chmod() {
     # Set default permissions for a folder that will be uploaded to the web.
     # default directory is PWD
@@ -322,14 +324,14 @@ web_chmod() {
     echo "Changing permissions of all regular directories to 0755."
     # ls "$dir" -ARlh
     }
-py_realpath(){
-    python3 -c "
-from os.path import realpath
-from sys import argv
-for item in argv[1:]:
-    print(f'{item} \'{realpath(item)}\'')
-" "$@"
-    }
+# py_realpath(){
+#     python3 -c "
+# from os.path import realpath
+# from sys import argv
+# for item in argv[1:]:
+#     print(f'{item} \'{realpath(item)}\'')
+# " "$@"
+#     }
 extract () {
     if [ -f "$1" ] ; then
         case $1 in
@@ -350,15 +352,15 @@ extract () {
         echo "'$1' is not a valid file"
     fi
     }
-shell () {
-  # an odd alternative to using the $SHELL variable
-  ps | grep "^$$" | awk '{ print $4 }' | cut -d '-' -f 2
-    }
-unegg () {
-    unzip "$1" -d tmp || return
-    rm "$1"
-    mv tmp "$1"
-    }
+# shell () {
+#   # an odd alternative to using the $SHELL variable
+#   ps | grep "^$$" | awk '{ print $4 }' | cut -d '-' -f 2
+#     }
+# unegg () {
+#     unzip "$1" -d tmp || return
+#     rm "$1"
+#     mv tmp "$1"
+#     }
 # hardlink_dotfiles(){
 #     -  convert symlinks to hardlinks
 #     ls "$HOME/.dotfiles" -A | perl -nle 'print if -l and not -d;'
@@ -371,43 +373,43 @@ unegg () {
 #         ln "$HOME/.dotfiles/$p" "$HOME"
 #     done < lsln.txt
 # }
-ind() {
-    lime Indirect Variable Tests
+# ind() {
+#     lime Indirect Variable Tests
 
-    value of
+#     value of
 
-    me "echo tests"
-    br
-    # shellcheck disable=SC2016,SC2086
-    ce '  var name (\$1):'"\t\t"            \$$1
-    # shellcheck disable=SC2016,SC2086
-    ce '  printf "$1":'"\t\t"           "$1"
-    # shellcheck disable=SC2016,SC2086
-    ce "  printf '\$1':""\t\t"          '$1'
-    # shellcheck disable=SC2016,SC2086
-    ce '  printf \$1:'"\t\t"         \$$1
-    # shellcheck disable=SC2016,SC2086
-    ce '  printf "\$$1":'"\t"       "\$$1"
-    br
-    me "eval tests"
-    br
-    # shellcheck disable=SC2016,SC2086
-    attn '  printf $1:'"\t\t"
-    # shellcheck disable=SC2016,SC2086
-    eval echo -e $1
-    # shellcheck disable=SC2016,SC2086
-    attn '  printf "$1":'"\t"
-    eval echo -e "$1"
-    attn "  printf '\$1':""\t"
-    eval echo -e '$1'
-    # shellcheck disable=SC2016,SC2086
-    attn '  printf \$1:'"\t\t"
-    # shellcheck disable=SC2016,SC2086
-    eval echo -e \$$1
-    # shellcheck disable=SC2016,SC2086
-    attn '  printf "\$$1":'"\t"
-    eval echo -e "\$$1"
-    }
+#     me "echo tests"
+#     br
+#     # shellcheck disable=SC2016,SC2086
+#     ce '  var name (\$1):'"\t\t"            \$$1
+#     # shellcheck disable=SC2016,SC2086
+#     ce '  printf "$1":'"\t\t"           "$1"
+#     # shellcheck disable=SC2016,SC2086
+#     ce "  printf '\$1':""\t\t"          '$1'
+#     # shellcheck disable=SC2016,SC2086
+#     ce '  printf \$1:'"\t\t"         \$$1
+#     # shellcheck disable=SC2016,SC2086
+#     ce '  printf "\$$1":'"\t"       "\$$1"
+#     br
+#     me "eval tests"
+#     br
+#     # shellcheck disable=SC2016,SC2086
+#     attn '  printf $1:'"\t\t"
+#     # shellcheck disable=SC2016,SC2086
+#     eval echo -e $1
+#     # shellcheck disable=SC2016,SC2086
+#     attn '  printf "$1":'"\t"
+#     eval echo -e "$1"
+#     attn "  printf '\$1':""\t"
+#     eval echo -e '$1'
+#     # shellcheck disable=SC2016,SC2086
+#     attn '  printf \$1:'"\t\t"
+#     # shellcheck disable=SC2016,SC2086
+#     eval echo -e \$$1
+#     # shellcheck disable=SC2016,SC2086
+#     attn '  printf "\$$1":'"\t"
+#     eval echo -e "\$$1"
+#     }
 path() { # alias path='echo -e ${PATH//:/\\n}'
     if [[ -z "$1" ]]; then  # no arguments given ... print path
         green "$( echo -e "${PATH//:/\\n}" )"
@@ -521,34 +523,34 @@ gather() {
     canary "$(find . -name "$gather_pattern" -print0 | xargs "$option_string" "$command_string")"
     # find . -name $gather_pattern -print0 |xargs -0
     }
-time_script() {
-    count=${1:-2}
-    shift
-    _t0=$(date +%s%3N)
-    _t1=_t0
-    for file_name in $@; do
-        printf "  ${WARN}line${MAIN} (ms) / ${WARN}cummulative${MAIN} - code  (averaging $count trials)\n" 'line'
-        printf "-------------------------------------------------------------\n"
-        while read -r _line; do
-            # process code here ...
-            for ((i = 0 ; i <= count ; i++)); do
-                eval $_line &>/dev/null     # process code line
-            done
-            _tn=$(date +%s%3N)      # get time data
-            _tt=$((_tn-_t1))       # time in this step
-            _t21=$((_tt / count))
-            _dt=$((_tn-_t0))        # time elapsed since start
-            printf "${WARN}%8d${MAIN} ms / ${WARN}%8d${MAIN} ms - ${_line}\n" _t21 _dt
-            _t1=$_tn
-        done < $file_name
-    done
-    }
-time_it() {
-    _t0=$(date +%s%3N)
-    # process code here ...
-    eval "$@" #! this is stupid and dangerous
+# time_script() {
+#     count=${1:-2}
+#     shift
+#     _t0=$(date +%s%3N)
+#     _t1=_t0
+#     for file_name in $@; do
+#         printf "  ${WARN}line${MAIN} (ms) / ${WARN}cummulative${MAIN} - code  (averaging $count trials)\n" 'line'
+#         printf "-------------------------------------------------------------\n"
+#         while read -r _line; do
+#             # process code here ...
+#             for ((i = 0 ; i <= count ; i++)); do
+#                 eval $_line &>/dev/null     # process code line
+#             done
+#             _tn=$(date +%s%3N)      # get time data
+#             _tt=$((_tn-_t1))       # time in this step
+#             _t21=$((_tt / count))
+#             _dt=$((_tn-_t0))        # time elapsed since start
+#             printf "${WARN}%8d${MAIN} ms / ${WARN}%8d${MAIN} ms - ${_line}\n" _t21 _dt
+#             _t1=$_tn
+#         done < $file_name
+#     done
+#     }
+# time_it() {
+#     _t0=$(date +%s%3N)
+#     # process code here ...
+#     eval "$@" #! this is stupid and dangerous
 
-    _t1=$(date +%s%3N)
-    _dt=$((_t1-_t0))
-    printf "${MAIN}Code block took ${WARN}%.1f${MAIN}s to run.\n" $_dt
-    }
+#     _t1=$(date +%s%3N)
+#     _dt=$((_t1-_t0))
+#     printf "${MAIN}Code block took ${WARN}%.1f${MAIN}s to run.\n" $_dt
+#     }
