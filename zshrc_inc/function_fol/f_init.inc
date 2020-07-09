@@ -4,17 +4,19 @@
     # shellcheck source=/dev/null
     # shellcheck disable=2230,2086
 
+    set -a
+
 # number of years the first commercial
 #   modem would take to transmit a movie: 42.251651342415241
 
 # get name for 'open' if linux or windows
-if [ ! "$(uname -s)" = 'Darwin' ]; then
-    if grep -q Microsoft /proc/version; then
-        alias open='explorer.exe'
-    else
-        alias open='xdg-open'
-    fi
-fi
+# if [ ! "$(uname -s)" = 'Darwin' ]; then
+#     if grep -q Microsoft /proc/version; then
+#         alias open='explorer.exe'
+#     else
+#         alias open='xdg-open'
+#     fi
+# fi
 declare -x VERSION_LIST && VERSION_LIST="${DOTFILES_PATH:-~/.dotfiles}/.VERSION_LIST.md"
 setup_color() {
     # Only use colors if connected to a terminal
@@ -34,37 +36,38 @@ setup_color() {
         declare -g RESET=""
     fi
     }
-setup_color
+# setup_color
+
 # from oh-my-zsh install script (somewhat modified)
-    RED=$WARN
-    which() { command -v "$1"; }                            # use command -v instead of `which` ...
-    runif() { exists "$1" && "$@"; }                        # run it only if "$!" exists
-    command_exists() { command -v "$@" >/dev/null 2>&1; }   # which, no output # pass all - $@
-            exists() { command -v "$1" >/dev/null 2>&1; }   # which, no output # pass only $1
-    2echo() { ce "$@" >&2; }                                # echo to stderr
-    error() { warn ${RED}"Error: $@"${RESET} >&2; }         # Red text to stderr
+    # RED=$WARN
+    # which() { command -v "$1"; }                            # use command -v instead of `which` ...
+    # runif() { exists "$1" && "$@"; }                        # run it only if "$!" exists
+    # command_exists() { command -v "$@" >/dev/null 2>&1; }   # which, no output # pass all - $@
+    #         exists() { command -v "$1" >/dev/null 2>&1; }   # which, no output # pass only $1
+    # 2echo() { ce "$@" >&2; }                                # echo to stderr
+    # error() { warn ${RED}"Error: $@"${RESET} >&2; }         # Red text to stderr
 
-    flasher () { while true; do printf "\\e[?5h"; sleep 0.1; printf "\\e[?5l"; read -rs -t1 && break; done; }
+    # flasher () { while true; do printf "\\e[?5h"; sleep 0.1; printf "\\e[?5l"; read -rs -t1 && break; done; }
 
-sudo_env() { # Turn on SUDO for remainder of current script
-    # requires root authentication, of course
-    #   use _SUDO_ENV=0 in main script to turn this off
-    #   if it is not explicitly set, it will be turned on
-    #   this makes it implicit with a function call ...
-    _SUDO_ENV=${_SUDO_ENV:-1}
-    if [[ $_SUDO_ENV == 1 ]]; then
-        # warn "Using SUDO for this script ..."
-        # Ask for the root password upfront
-        sudo -v
+# sudo_env() { # Turn on SUDO for remainder of current script
+#     # requires root authentication, of course
+#     #   use _SUDO_ENV=0 in main script to turn this off
+#     #   if it is not explicitly set, it will be turned on
+#     #   this makes it implicit with a function call ...
+#     _SUDO_ENV=${_SUDO_ENV:-1}
+#     if [[ $_SUDO_ENV == 1 ]]; then
+#         # warn "Using SUDO for this script ..."
+#         # Ask for the root password upfront
+#         sudo -v
 
-        # Keep-alive: update existing `sudo` time stamp until script has finished
-        while true; do
-            sudo -n true
-            sleep 60
-            kill -0 "$$" || exit
-        done 2>/dev/null &
-    fi
-    }
+#         # Keep-alive: update existing `sudo` time stamp until script has finished
+#         while true; do
+#             sudo -n true
+#             sleep 60
+#             kill -0 "$$" || exit
+#         done 2>/dev/null &
+#     fi
+#     }
 
 update () { # System software updates (macOS - updated for Catalina)
 

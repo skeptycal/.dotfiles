@@ -1,8 +1,10 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env false zsh
 # -*- coding: utf-8 -*-
-# shellcheck shell=bash
-# shellcheck source=/dev/null
-# shellcheck disable=2230,2086
+    # shellcheck shell=bash
+    # shellcheck source=/dev/null
+    # shellcheck disable=2230,2086
+
+    set -a
 
 # *############################################## directories
     alias icloud='cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/'
@@ -64,7 +66,7 @@
     alias ls="ls --group-directories-first \${colorflag}"           # normal wide
     alias lsd="ls -dh \${colorflag} -- */"                          # dirs only
     alias l.="ls -lhFAd .* --group-directories-first \${colorflag}" # dotfiles
-    alias la="ls -lhFA --group-directories-first \{colorflag}"     # all files
+    alias la="ls -lhFA --group-directories-first \${colorflag}"     # all files
     alias ll="ls -lhF --group-directories-first \${colorflag}"      # normal list
     alias lsa="ls -lhFArt \${colorflag}"                            # sort by date
     alias lss="ls -lhFArs \${colorflag}"                            # sort by size

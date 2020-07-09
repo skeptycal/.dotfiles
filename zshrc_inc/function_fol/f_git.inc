@@ -4,6 +4,8 @@
     # shellcheck source=/dev/null
     # shellcheck disable=2230,2086
 
+    set -a
+
 # ------------------------- gitit -------------------------
 #   Automatic repo pre-commit, commit, and push
 #
@@ -24,20 +26,29 @@ if [[ "$(hash git &>/dev/null)" -eq 0 ]]; then
         git diff --no-index --color-words "$@"
     }
 fi
+
+gs() {
+  git status >/dev/null 2>&1
+    }
+
+gsok() {
+  git status | grep 'nothing to commit'
+    }
+
 gstdir(){
     if [ -n $1 ]; then
         cd $1;
         $(git status >/dev/null 2>&1; echo $?;)
     fi
-}
+    }
 
 gitit() {
     if ! [ -d "$PWD/.git" ]; then
         warn "Git repo not found in .../${PWD##*/}/.git"
     else
-        git status
-        if "$?"; then # >/dev/null 2>&1
-            warn "Git status error: $PWD"
+        gsok
+        if [ $? -eq 0 ]; then
+            canary "Git status ${GO:-}OK${RESET:-}: $PWD"
         else
             # -m "${*:-'Gitit bot: minor updates and formatting.'}"
             message="${*:-$(cat ~/.dotfiles/.stCommitMsg)}"
@@ -45,11 +56,12 @@ gitit() {
             green "  repo: ${PWD##*/}"
             green "  message: "
             green "$message"
+            [ -f .pre-commit-config.yaml ] || pre-commit sample-config >.pre-commit-config.yaml
             git add --all >/dev/null 2>&1
             pre-commit >/dev/null 2>&1
             git add --all
             pre-commit
-            git commit -m "$message" --gpg-sign=$(git_gpg.php)
+            git commit -m "$message" --gpg-sign=$(which git_gpg.php)
             git push --set-upstream origin "$(git_current_branch)"
             git status
         fi

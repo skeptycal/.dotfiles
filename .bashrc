@@ -3,6 +3,4 @@
   # shellcheck shell=bash
   # shellcheck source=/dev/null
 
-if [ -f ~/.zshrc ]; then
-   source ~/.zshrc
-fi
+[ -f ~/.zshrc ] && . ~/.zshrc
