@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from autosys.pathlib import Path
-from dataclasses import dataclass, field, Field
+from pathlib import Path
+# from dataclasses import dataclass, field, Field
 
 
 class PathPackError(IOError):
@@ -15,16 +15,15 @@ class PathPack(Path):
     path_name: (Path) = '.'
     # _path: Field = field(init=False)
 
-    def __i(self):
-        Path().__init__()
-        # self._path: Path = None
-        pass
-        # self._path: Path = self.path(self.path_name)
+    def __init__(self, path_name):
+        super().__init__()
+        self.path_name = path_name
+        self._path: Path = Path(self.path_name)
 
     @property
     def path(self):
         if not self._path:
-            self._path = self.path(self.path_name)
+            self._path = Path(self.path_name)
         return self._path
 
     @path.setter
