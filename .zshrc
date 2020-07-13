@@ -39,6 +39,7 @@
 
 #? ######################## PATH
     declare -x PATH="\
+        $HOME/Library/Python/3.8/bin:\
         /usr/local/Cellar/python@3.8/3.8.3/bin:\
         /usr/local/Cellar/gnupg/2.2.20/bin/:\
         /usr/local/opt/coreutils/libexec/gnubin:\
