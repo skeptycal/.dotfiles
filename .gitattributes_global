@@ -1,0 +1,51 @@
+# git normalization file
+# @see http://www.kernel.org/pub/software/scm/git/docs/gitattributes.html
+# further info:
+# https://github.com/ocaml/opam/blob/master/.gitattributes
+##############################################################################
+
+# Shorthand for text files.
+# - Treat them as text.
+# - Ensure no CRLF line-endings, neither on checkout nor on checkin.
+# - Detect whitespace errors.
+#   - Exposed by default in `git diff --color` on the CLI.
+#   - Validate with `git diff --check`.
+#   - Deny applying with `git apply --whitespace=error-all`.
+#   - Fix automatically with `git apply --whitespace=fix`.
+[attr]text text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=4
+
+# Shorthand for binary files.
+# - Do not treat them as text.
+# - Include binary diff in patches instead of "binary files differ."
+[attr]binary -text diff
+
+# Auto-detect text files, ensure they use LF.
+* text=auto eol=lf
+# (When text is set to "auto", the path is marked for automatic end-of-line conversion. If Git decides that the content is text, its line endings are converted to LF on checkin.)
+# **When the file has been committed with CRLF, no conversion is done.**
+
+# Shell scripts, autoconf, etc. must have LF endings, even on Windows
+*.sh text eol=lf
+*.zsh text eol=lf
+configure text eol=lf
+configure.ac text eol=lf
+msvs-detect text eol=lf
+check_linker text eol=lf
+*.m4 text eol=lf
+
+# Define text file attributes.
+*.py text diff=python
+*.php text diff=php
+
+# Treat patches as binary for safety
+*.patch binary
+
+# Define binary file attributes.
+# Actual binary files
+*.pdf binary
+*.gif binary
+*.gz binary
+*.ico binary
+*.jpg binary
+*.png binary
+*.phar binary
