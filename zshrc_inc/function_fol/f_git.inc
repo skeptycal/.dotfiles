@@ -61,7 +61,7 @@ gitit() {
             pre-commit >/dev/null 2>&1
             git add --all
             pre-commit
-            git commit -m "$message" --gpg-sign=$(which git_gpg.php)
+            git commit -m "$message" # --gpg-sign=$(which git_gpg.php)
             git push --set-upstream origin "$(git_current_branch)"
             git status
         fi
