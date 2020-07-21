@@ -43,7 +43,7 @@ gstdir(){
     }
 
 gitit() {
-    if ! [ -d "$PWD/.git" ]; then
+    if ! [ -r "$PWD/.git" ]; then
         warn "Git repo not found in .../${PWD##*/}/.git"
     else
         gsok
