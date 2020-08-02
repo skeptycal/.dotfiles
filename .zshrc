@@ -38,25 +38,28 @@
     MANPATH="${MANPATH// /}"
 
 #? ######################## PATH
+    # /usr/local/Cellar/python@3.8/3.8.5/Frameworks/Python.framework/Versions/3.8/bin/:\
+
     declare -x PATH="\
-        $HOME/Library/Python/3.8/bin:\
-        /usr/local/Cellar/python@3.8/3.8.3/bin:\
-        /usr/local/Cellar/gnupg/2.2.20/bin/:\
+        /usr/local/Cellar/gnupg/2.2.21/bin/:\
         /usr/local/opt/coreutils/libexec/gnubin:\
         $HOME/bin:\
         $HOME/bin/bin:\
         /usr/local/bin:\
+        /usr/local/opt:\
+        $HOME/.poetry/bin:\
+        $HOME/Library/Python/3.8/bin:\
         /usr/local/lib/node_modules:\
         /usr/local/Cellar/ruby/2.7.1_2/bin:\
         /usr/local/opt/cython/bin:\
         /bin:\
-        /usr/local/opt:\
         /usr/local:\
         /usr/local/sbin:\
         /usr/bin:\
         /usr/sbin:\
         /sbin:\
         /usr/libexec:\
+        /usr/local/opt/sphinx-doc/bin:\
         $HOME/.dotfiles:\
         $HOME/.dotfiles/git-achievements:\
         $PWD:\
@@ -73,7 +76,7 @@
 
 #? ######################## Utilities
     # standard script modules for macOS
-    . ~/bin/bin/ssm
+    . ~/bin/ssm
 
     .() { # source with debugging info and file read check
         if [[ -r $1 ]]; then

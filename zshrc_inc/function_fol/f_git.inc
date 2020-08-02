@@ -27,21 +27,12 @@ if [[ "$(hash git &>/dev/null)" -eq 0 ]]; then
     }
 fi
 
-gs() {
-  git status >/dev/null 2>&1
-    }
-
-gsok() {
-  git status | grep 'nothing to commit'
-    }
-
-gstdir(){
-    if [ -n $1 ]; then
-        cd $1;
-        $(git status >/dev/null 2>&1; echo $?;)
-    fi
-    }
-
+gs() { git status >/dev/null 2>&1; }
+gsok() { git status | grep 'nothing to commit'; }
+gstdir(){ [[ -n $1 ]] && ( cd $1; gs ); }
+_which_gpg_private=$(which gpg_private)
+export GPG_PRIVATE && GPG_PRIVATE=$($_which_gpg_private)
+echo GPG_PRIVATE
 gitit() {
     if ! [ -r "$PWD/.git" ]; then
         warn "Git repo not found in .../${PWD##*/}/.git"
@@ -56,12 +47,17 @@ gitit() {
             green "  repo: ${PWD##*/}"
             green "  message: "
             green "$message"
-            [ -f .pre-commit-config.yaml ] || pre-commit sample-config >.pre-commit-config.yaml
+            [ -f .pre-commit-config.yaml ] || cp  $TEMPLATE_DIR/.pre-commit-config.yaml .
+
+            # first run through catches errors that are autofixed
             git add --all >/dev/null 2>&1
             pre-commit >/dev/null 2>&1
+
+            # second time shows persistent errors ...
             git add --all
             pre-commit
-            git commit -m "$message" # --gpg-sign=$(which git_gpg.php)
+
+            git commit -m "$message" # --gpg-sign=$(which gpg_private)
             git push --set-upstream origin "$(git_current_branch)"
             git status
         fi

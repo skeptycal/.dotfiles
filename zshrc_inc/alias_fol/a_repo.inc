@@ -8,7 +8,7 @@
 
 # *############################################## repo setup
 alias gi='cp ~/.dotfiles/.gitignore .'
-alias sba='source venv/bin/activate'
+alias sba='source .venv/bin/activate || source venv/bin/activate'
 alias sda='deactivate'
 alias d="docker "
 alias pe='pipenv'

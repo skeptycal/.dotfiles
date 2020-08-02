@@ -28,16 +28,16 @@
   # brew install zsh-autosuggestions
   # brew install zsh-syntax-highlighting
 
-#   if type brew &>/dev/null; then
-#     FPATH=$BREW_PREFIX/share/zsh-completions:$FPATH
-#     FPATH=$BREW_PREFIX/share/zsh/site-functions:$FPATH
-#   fi
-#     [ -f /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh ] && . /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+  if type brew &>/dev/null; then
+    FPATH=$BREW_PREFIX/share/zsh-completions:$FPATH
+    FPATH=$BREW_PREFIX/share/zsh/site-functions:$FPATH
+  fi
+    [ -f /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh ] && . /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 
-#     if [ -f /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
-#         . /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-#         export ZSH_HIGHLIGHT_HIGHLIGHTERS_DIR=/usr/local/share/zsh-syntax-highlighting/highlighters
-#     fi
+    if [ -f /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
+        . /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+        export ZSH_HIGHLIGHT_HIGHLIGHTERS_DIR=/usr/local/share/zsh-syntax-highlighting/highlighters
+    fi
 
 #     [ -f /usr/local/opt/zsh-git-prompt/zshrc.sh ] && . /usr/local/opt/zsh-git-prompt/zshrc.sh
 
@@ -46,7 +46,7 @@
 #   _listsysctls() { set -A reply "$(sysctl -AN ${1%.*})"; }
 #   compctl -K _listsysctls sysctl
 
-  # pip zsh completion start
+#   pip zsh completion start
 #   _pip_completion() {
 #     local words cword
 #     IFS="" read -r -Ac words
@@ -57,12 +57,11 @@
 #               PIP_AUTO_COMPLETE=1 "$words[1]" 2>/dev/null ))
 #       }
 #   compctl -K _pip_completion pip
-  # pip zsh completion end
+#   pip zsh completion end
 
   # Setup new style completion system. To see examples of the old style
   # (compctl based) programmable completion, check Misc/compctl-examples in
   # the zsh distribution.
-#   autoload -Uz compinit && compinit
 
 #? ######################## From original oh-my-zsh .zshrc
   # Path to your oh-my-zsh installation. Comments at the end of this script.
@@ -72,5 +71,6 @@
   CASE_SENSITIVE="false"
   COMPLETION_WAITING_DOTS="true"
   DISABLE_UNTRACKED_FILES_DIRTY="false"
-  export plugins=(git colorize vscode django autopep8)
+  export plugins=(git colorize vscode django autopep8 poetry)
   source "$ZSH/oh-my-zsh.sh"
+  autoload -Uz compinit && compinit

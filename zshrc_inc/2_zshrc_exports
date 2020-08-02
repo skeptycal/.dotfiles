@@ -47,21 +47,23 @@ SET_DEBUG=${SET_DEBUG:-0}  # set to 1 for verbose testing
 
   declare -x GIT_DISCOVERY_ACROSS_FILESYSTEM && GIT_DISCOVERY_ACROSS_FILESYSTEM=1
 
-    export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl@1.1)"
+  export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl@1.1)"
     eval "$(rbenv init -)"
-  # google cloud SDK
-  # The next line updates PATH for the Google Cloud SDK.
-#   [ -f '/Users/skeptycal/google-cloud-sdk/path.zsh.inc' ] && . '/Users/skeptycal/google-cloud-sdk/path.zsh.inc'
-  # The next line enables shell command completion for gcloud.
-#   [ -f '/Users/skeptycal/google-cloud-sdk/completion.zsh.inc' ] && . '/Users/skeptycal/google-cloud-sdk/completion.zsh.inc'
+
+  #   google cloud SDK
+  #   The next line updates PATH for the Google Cloud SDK.
+  [ -f '/Users/skeptycal/google-cloud-sdk/path.zsh.inc' ] && . '/Users/skeptycal/google-cloud-sdk/path.zsh.inc'
+
+  #   The next line enables shell command completion for gcloud.
+  [ -f '/Users/skeptycal/google-cloud-sdk/completion.zsh.inc' ] && . '/Users/skeptycal/google-cloud-sdk/completion.zsh.inc'
 
   # brew install jump
   # https://github.com/gsamokovarov/jump
 #   eval "$(jump shell)"
 
-  # pyenv
-#   [[ $(command -v pyenv >/dev/null) ]] && eval "$(pyenv init -)"
-#   [[ $(command -v pyenv-virtualenv-init >/dev/null) ]] && eval "$(pyenv virtualenv-init -)"
+#   pyenv
+  [[ $(command -v pyenv >/dev/null) ]] && eval "$(pyenv init -)"
+  [[ $(command -v pyenv-virtualenv-init >/dev/null) ]] && eval "$(pyenv virtualenv-init -)"
 
 #? ######################## Utilities
 #   declare -x TESSDATA_PREFIX

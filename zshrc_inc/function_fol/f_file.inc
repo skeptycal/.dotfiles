@@ -60,15 +60,7 @@ dls () {
  # directory LS
  ls -l | grep "^d" | awk '{ print $9 }' | tr -d "/"
     }
-# dgrep() {
-#     # A recursive, case-insensitive grep that excludes binary files
-#     grep -iR "$@" -- * | grep -v "Binary"
-#     }
-# dfgrep() {
-#     # A recursive, case-insensitive grep that excludes binary files
-#     # and returns only unique filenames
-#     grep -iR "$@" -- * | grep -v "Binary" | sed 's/:/ /g' | awk '{ print $1 }' | sort | uniq
-#     }
+
 psgrep() {
     if [ -n "$1" ] ; then
         echo "Grepping for processes matching $1..."
@@ -77,22 +69,18 @@ psgrep() {
         echo "!! Need name to grep for"
     fi
     }
-# l1() { # nice sorting ... #TODO no color ...
-#     # shellcheck disable=2012
-#     ls -l "$@" | sort -r | awk 'NF==9 { if ($1~/^d/) { print $9 "/" } else { print $9 } }'
-#     }
-# mkd(){
-#         [ $# -eq 0 ] && { echo "$0: (DIRNAME) [MODE]    - default MODE=755"; return; }
-#         local d="$1"               # get dir name
-#         local m=${2:-0755}         # get permission, set default to 0755
-#         # shellcheck disable=2174
-#         [ ! -d "$d" ] && mkdir -m "$m" -p "$d"
-#     }
-# unbak(){
-#     find . -name "*.bak" -type f -print0 | xargs -0 /bin/rm -f
-#     }
+
+mkd(){
+        [ $# -eq 0 ] && { echo "${LIME:-}$0: ${MAIN:-}(DIRNAME) [MODE - default=755]${RESET:-}"; return; }
+        local d="$1"               # get DIRNAME
+        local m=${2:-0755}         # get MODE, set default to 0755
+        # shellcheck disable=2174
+        [ -r "$d" ] && { echo "${WARN:-}Error: '$d' already exists ..."; return 1; } || mkdir -pv -m "$m" "$d"
+        cd $d
+    }
+
 # gather_del() {
-#     find . -name "${1:-}" -type f -print0 | xargs -0 /bin/rm -f
+#     find . -name "${1:-*}" -type f -print0 | xargs -0 /bin/rm -f ;
 #     }
 # bak() {
 #     FILES="$*"
@@ -104,9 +92,7 @@ psgrep() {
 #         echo ''
 #     done
 #     }
-# cdf() {
-#     cd "$(osascript -e 'tell app "Finder" to POSIX path of (insertion location as alias)')" || return 1
-#     }
+
 # check_file() {
 #     #? ${VAR##*/}        - return only final element in path (program name)
 #     #? ${VAR%/*}         - return only path (without program name)
