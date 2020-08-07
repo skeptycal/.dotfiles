@@ -20,7 +20,7 @@
     # alias lsln='ls -AF | grep '@' | cut -d '@' -f 1 ' # will include directories
     # find . -maxdepth 1 -type l # will include directories
     alias ll="ls -A | perl -nle 'print if -l and not -d;'"
-    alias lsd='ls -1Ad */'
+    # alias lsd='ls -1Ad */'
 
 # *############################################## search, filter, list
     alias ducks='du -ck * | sort -rn | head -11'
