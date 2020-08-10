@@ -32,7 +32,7 @@ gsok() { git status | grep 'nothing to commit'; }
 gstdir(){ [[ -n $1 ]] && ( cd $1; gs ); }
 _which_gpg_private=$(which gpg_private)
 export GPG_PRIVATE && GPG_PRIVATE=$($_which_gpg_private)
-echo GPG_PRIVATE
+# echo $GPG_PRIVATE
 gitit() {
     if ! [ -r "$PWD/.git" ]; then
         warn "Git repo not found in .../${PWD##*/}/.git"
