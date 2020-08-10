@@ -14,6 +14,7 @@ alias sda='deactivate'
 alias d="docker "
 alias pc='pre-commit '
 alias pci='pre-commit install && pre-commit install-hooks && pre-commit autoupdate'
+alias pca='pre-commit run --all-files'
 
 # *############################################## python
 # change all .py files in current folder to executable

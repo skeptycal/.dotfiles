@@ -8,7 +8,7 @@
 ##############################################
 [gpg]
 	# location of homebrew gpg install
-    # use brew install 
+    # use brew install
     program = /usr/local/bin/gpg
 ##############################################
 [achievement]
