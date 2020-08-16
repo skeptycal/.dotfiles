@@ -44,12 +44,11 @@
         /usr/local/Cellar/gnupg/2.2.21/bin/:\
         /usr/local/opt/coreutils/libexec/gnubin:\
         $HOME/bin:\
-        $HOME/bin/bin:\
         /usr/local/bin:\
         /usr/local/opt:\
         $HOME/.poetry/bin:\
         $HOME/Library/Python/3.8/bin:\
-        /usr/local/lib/node_modules:\
+        /usr/local/lib/node_modules/bin:\
         /usr/local/Cellar/ruby/2.7.1_2/bin:\
         /usr/local/opt/cython/bin:\
         /bin:\
@@ -68,8 +67,8 @@
     # PATH="$PATH:/Applications/Visual Studio Code - Insiders.app/Contents/Resources/app/bin:"
     PATH="$PATH:/Applications/Visual Studio Code.app/Contents/Resources/app/bin:"
 
-    PATH="${PATH// /}"
-    PATH="${PATH//::/:}"
+    PATH="${PATH// /}" # remove spaces
+    PATH="${PATH//::/:}" # remove double colons ... you know you've done it, too
 
     export PATH
 
@@ -109,7 +108,7 @@
     # display script time
     printf "${ATTN:-}Profile took ${WARN:-}%.1f${ATTN:-} second(s) to load.\n" $((t1-t0))
     printf "${MAIN:-}CPU: ${LIME:-}${CPU} ${MAIN:-}-> ${CANARY:-}${number_of_cores}${MAIN:-} cores. \n"
-    printf "${MAIN:-}LOCAL IP: ${COOL:-}${LOCAL_IP}  ${MAIN:-}SHLVL: ${WARN:-}${SHLVL}  ${MAIN:-}LANG: ${RAIN:-}${LANG}${RESET:-}"
+    printf "${MAIN:-}LOCAL IP: ${COOL:-}${LOCAL_IP}  ${MAIN:-}SHLVL: ${WARN:-}${SHLVL}  ${MAIN:-}LANG: ${RAIN:-}${LANG}${RESET:-}\n"
     unset t1 t0
 
  #? ######################## End of .zshrc
