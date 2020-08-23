@@ -1,16 +1,16 @@
 #!/usr/bin/env zsh
 # -*- coding: utf-8 -*-
-# shellcheck shell=bash
-# shellcheck source=/dev/null
-# shellcheck disable=2178,2139
+    # shellcheck shell=bash
+    # shellcheck source=/dev/null
+    # shellcheck disable=2178,2139
 
 #? ############################# skeptycal.com ################################
 # [[ $SET_DEBUG ]] && SET_DEBUG=0 # set to 1 for verbose testing
 BASH_SOURCE="${BASH_SOURCE:-$0}" # to ease the transition to zsh
 
-source_dir "${DOTFILES_INC}/alias_fol"
-
 export CLICOLOR=1
 export colorflag='--color=always' # I use GNU core_utils; no need to test '-G'
 
 alias ls="ls $colorflag "
+
+source_dir "${DOTFILES_INC}/alias_fol"

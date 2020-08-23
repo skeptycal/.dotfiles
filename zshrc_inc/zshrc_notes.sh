@@ -1,7 +1,8 @@
 #!/usr/bin/env false zsh
 # -*- coding: utf-8 -*-
-  # shellcheck shell=bash
-  # shellcheck source=/dev/null
+    # shellcheck shell=bash
+    # shellcheck source=/dev/null
+    # shellcheck disable=2230,2086
 
 #* ----------------------------- REFERENCES and NOTES
 #? ######################## Set BASH Options

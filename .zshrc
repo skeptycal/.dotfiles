@@ -4,6 +4,11 @@
   # shellcheck source=/dev/null
   # shellcheck disable=2178,2128,2206,2034
 
+  # number of years the first commercial
+  #   modem would take to transmit a movie: 42.251651342415241
+  #   this is very nearly the time since I wrote my first program
+  #   I'm glad I didn't watch that movie instead ...
+
 #? ######################## Shell Variables and Settings
     # profile start time
     t0=$(date "+%s.%n")
@@ -14,19 +19,20 @@
     # Remove all aliases from random unexpected places
     unalias -a
 
+    # standard script modules for macOS
+    . ~/bin/ssm
+
+#? ######################## Config
+    export SET_DEBUG=${SET_DEBUG:-0}  # set to 1 for verbose testing
+    [[ ${SHELL##*/} = 'zsh' ]] && BASH_SOURCE=${(%):-%N} || "${BASH_SOURCE:-$0}"
+    export BASH_SOURCE
+
     # Warn on global variable creation
     # setopt WARN_CREATE_GLOBAL
     set -a
     # set -x
 
-#? ######################## Troubleshooting
-    #? set to 1 for verbose testing ; remove -r to allow each script to set it
-    declare -ix SET_DEBUG
-    SET_DEBUG=0
-
-    [[ ${SHELL##*/} = 'zsh' ]] && BASH_SOURCE=${(%):-%N} || "${BASH_SOURCE:-$0}"
-
-    # ZDOTDIR=$HOME/.dotfiles
+    ZDOTDIR=$HOME/.dotfiles
 #? ######################## MANPATH
     declare -x MANPATH=" \
         /usr/local/opt/coreutils/libexec/gnuman:\
@@ -72,17 +78,13 @@
 
     export PATH
 
-
 #? ######################## Utilities
-    # standard script modules for macOS
-    . ~/bin/ssm
-
     .() { # source with debugging info and file read check
         if [[ -r $1 ]]; then
             source "$1"
-            [[ $SET_DEBUG = 1 ]] && blue "Source $1"
+            [[ $SET_DEBUG = 1 ]] && blue "SUCCESS: << source $1 >>"
         else
-            attn "Source error for $1"
+            attn "ERROR: << source >> command => cannot locate $1"
         fi
         }
 

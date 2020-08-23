@@ -14,15 +14,15 @@
 
 ### Install using Git
 
-- Clone the repository:
+-   Clone the repository:
 
-  ```bash
-  git clone https://github.com/skeptycal/iterm2-afterglow.git &
-  ```
+    ```bash
+    git clone https://github.com/skeptycal/iterm2-afterglow.git &
+    ```
 
 ### Install manually
 
-- Download the [GitHub .zip](https://github.com/skeptycal/iterm2-afterglow/archive/master.zip) and unzip them.
+-   Download the [GitHub .zip](https://github.com/skeptycal/iterm2-afterglow/archive/master.zip) and unzip them.
 
 ## Activating theme
 

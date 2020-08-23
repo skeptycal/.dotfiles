@@ -6,11 +6,6 @@
 
   set -a
 
-#* ### CLI utilities
-br() {
-    echo ''
-}
-
 #* ### Load ANSI colors, prompt, and themes
     # terminal identification
         if [[ $COLORTERM = gnome-* && $TERM = xterm ]] && infocmp gnome-256color >/dev/null 2>&1; then
@@ -30,10 +25,38 @@ br() {
         declare -x WS="$(git config --get-color color.diff.whitespace "blue reverse")"
         declare -x RESET="$(git config --get-color "" "reset")"
 
+    # ANSI Colors
+        declare -x CLICOLOR=1
+        RED=$WARN
+        setup_color() {
+            # Only use colors if connected to a terminal
+            if [ -t 1 ]; then
+                declare -g RED=$(printf '\033[31m')
+                declare -g GREEN=$(printf '\033[32m')
+                declare -g YELLOW=$(printf '\033[33m')
+                declare -g BLUE=$(printf '\033[34m')
+                declare -g BOLD=$(printf '\033[1m')
+                declare -g RESET=$(printf '\033[m')
+            else
+                declare -g RED=""
+                declare -g GREEN=""
+                declare -g YELLOW=""
+                declare -g BLUE=""
+                declare -g BOLD=""
+                declare -g RESET=""
+            fi
+            }
+
+        setup_color
+
+    # CLI utilities
+        br() { echo ''; }
 
 
-#* ### ANSI color flags
-    declare -x CLICOLOR=1
+
+
+
+
     # Detect which `ls` flavor is in use
     # if ls --color > /dev/null 2>&1; then # GNU `ls`
     # declare -x colorflag=" --color=always"
