@@ -3,19 +3,52 @@
 # top-most EditorConfig file
 root = true
 
-# Tab indentation
+# Tab indentation defaults
 [*]
+charset = utf-8
 end_of_line = lf
-indent_style = space
 indent_size = 4
-trim_trailing_whitespace = true
+indent_style = space
 insert_final_newline = true
+trim_trailing_whitespace = true
 
 [{.gitattributes,.gitignore,.gitmodules}]
 indent_style = tab
+
+[*.bat]
+indent_style = tab
+end_of_line = crlf
+
+# shell script HEREDOCS work better with tabs
+# makefiles *require* tabs
+[{*.*sh, Makefile}]
+indent_style = tab
+
+[LICENSE]
+insert_final_newline = false
+
+# Set default charset
+[*.{js,css}]
+indent_size = 2
+indent_style = space
+charset = utf-8
+
+[*.html]
+indent_style = space
+indent_size = 2
+
+[*.py]
+indent_style = space
+indent_size = 4
 
 # The indent size used in the `package.json` file cannot be changed
 # https://github.com/npm/npm/pull/3180#issuecomment-16336516
 [{.travis.yml,npm-shrinkwrap.json,package.json}]
 indent_style = space
 indent_size = 2
+
+[*.{diff,patch}]
+trim_trailing_whitespace = false
+
+[.editorconfig]
+charset = utf-8
