@@ -1,0 +1,243 @@
+#!/usr/bin/env false zsh
+# -*- coding: utf-8 -*-
+	# shellcheck shell=bash
+	# shellcheck source=/dev/null
+	# shellcheck disable=2230,2086
+
+#? ######################## .functions - functions for macOS with zsh
+	#* should not be run directly; called from .bash_profile / .bashrc / .zshrc
+
+	#* copyright (c) 2019 Michael Treanor
+	#* MIT License - https://www.github.com/skeptycal
+
+	export weekday=$(date +%a) # e.g. Sun
+	export monthday=$(date +%d) # e.g. 23
+	export year=$(date +%Y) # e.g. 2020
+	export today=$(date +%F) # e.g. 2020-08-23
+
+#? ######################## Program Versions Reporting
+    write_versions_file() {
+        br
+        me "# Program Versions List"
+        me "-------------------------------------------------------------"
+        # green "## VERSION_LIST path: $VERSION_LIST"
+        blue "**os: $(uname -i) | $(sw_vers -productName) | $(sw_vers -productVersion)**"
+        me "### shell:"
+        lime "- zsh:            $(zsh --version)"
+        # green "- current shell:  $ZSH_VERSION"
+        rain "- VSCode:         $(code --version | head -n 1)"
+        br
+        me "### utilities:"
+        warn   "- $(clang --version | grep version | sed 's/version //g')"
+        attn   "- $(git --version | sed 's/version //g') with $(hub --version | grep hub | sed 's/version //g')"
+        canary "- $(bash --version | grep bash | cut -d ',' -f 1)  ($(bash --version | grep bash | cut -d ' ' -f 4 | cut -d '(' -f 1))${WHITE} with ${GO}GNU grep ($(grep --version | head -n 1 | cut -d ' ' -f 4))${WHITE} and ${CHERRY}GNU coreutils ($(brew list coreutils --versions | cut -d ' ' -f 2))"
+        # lime "- homebrew ($(brew --version | tail -n 3 | head -n 1 | cut -d ' ' -f 2))" # and conda ($(conda -V | cut -d ' ' -f 2))"
+        canary "- prettier ($(prettier --version))"
+        # purple "- stack ($(stack --version | cut -d ',' -f 1 | cut -d ' ' -f 2))"
+        blue "- mkdocs ($(mkdocs --version | cut -d ' ' -f 3))"
+        # green "- TeXLive(tlmgr)  v$(tlmgr --version | head -n 1 | cut -d ' ' -f 3-4))"
+        br
+
+        me "### languages:"
+        blue   "- GO      ($(go version | cut -d ' ' -f 3 | sed 's/go//g'))"
+        # attn   "- rustc   ($(rustc --version | cut -d ' ' -f 2)) with rustup ($(rustup --version | cut -d ' ' -f 2))"
+        warn   "- ruby    ($(ruby -v 2>/dev/null | cut -d ' ' -f 2 | cut -d 'p' -f 1)) with gem ($(gem -v))"
+        # purple "- php     ($(php -v 2>/dev/null | grep '(cli)' | cut -d ' ' -f 2)) with composer ($(composer --version | cut -d ' ' -f 3))"
+        printf "%s\n" "${COOL}- python  ($(python --version | cut -d ' ' -f 2)) with pip ($(pip --version | cut -d ' ' -f 2)) and pipenv ($(pipenv --version | cut -d ' ' -f 3)) ${RESET_FG}"
+        canary "- node    ($(node -v | sed 's/v//g')) with npm ($(npm -v))"
+        cherry "- Xcode   ($(/Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -version | grep Xcode | sed 's/Xcode //g'))"
+        # attn   "- Clojure ($(clojure -Sdescribe | grep version | sed 's/{://g' | sed 's/"//g' | sed 's/version //g')) with lein"
+        br
+
+        # attn "- cargo ($(cargo --version | cut -d ' ' -f 2))"
+        # attn "  $(lein --version | sed 's/Leiningen/lein version/g' | sed 's/version /       v/g')"
+
+        # me "Travis CI   v$(travis version)"
+        } >"$VERSION_LIST"
+    save_versions() {
+        # echo "VERSION_LIST: $VERSION_LIST"
+        rm -rf "$VERSION_LIST" >/dev/null
+        # touch $VERSION_LIST
+        write_versions_file
+        }
+    versions() { cat ~/.dotfiles/.VERSION_LIST.md; }
+#? ######################## Maintenance
+	export VERSION_LIST="${DOTFILES_PATH:-~/.dotfiles}/.VERSION_LIST.md"
+
+	update() { # System software updates (macOS - updated for Big Sur)
+		#? ############################### Close 'Systemm Preferences'
+		# Close any open System Preferences panes, to prevent them from overriding
+		# settings we are about to change
+		osascript -e 'tell application "System Preferences" to quit'
+
+		#? ############################### Homebrew updates
+		# Brew does not like 'sudo'
+		brew update
+		brew upgrade
+		brew doctor
+		brew cleanup
+
+		#? ############################### Use sudo for remainder of the script
+		# Brew does not like 'sudo'
+		sudo_env
+
+		#? ############################### macOS updates
+		/usr/bin/sudo softwareupdate -i -a
+
+		#? ############################### python updates
+		#   brew upgrade python pyenv pipenv
+		cd ~
+		deactivate || sleep 1 # exit venv ... if needed
+		repip
+
+		#? ############################### npm updates
+		# /usr/bin/sudo
+		npm install npm -g
+		# /usr/bin/sudo
+		npm update -g
+		runif brew_fix
+
+		#? ############################### ruby updates
+		# /usr/bin/sudo
+		gem update --system
+		# /usr/bin/sudo
+		gem update
+		# /usr/bin/sudo
+		gem cleanup
+	    } # 2>/dev/null &
+
+	cleanup() {
+		# init sudo environment
+		sudo_env
+		# cleanup .DS_Store files
+		find . -type f -name '*.DS_Store' -ls -delete
+		# empty trashes
+		/usr/bin/sudo rm -rfv /Volumes/*/.Trashes; sudo rm -rfv ~/.Trash; sudo rm -rfv /private/var/log/asl/*.asl; sqlite3 ~/Library/Preferences/com.apple.LaunchServices.QuarantineEventsV* 'delete from LSQuarantineEvent'
+		# lscleanup
+		/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user && killall Finder
+		}
+
+	maintenance() { cleanup && update; }
+	background_update() { update >/dev/null 2>&1 &; }
+	background_cleanup() { cleanup >/dev/null 2>&1 &; }
+	background_maintenance() { background_cleanup && background_update >/dev/null 2>&1 &; }
+
+#? ######################## Session Tasks
+	_login_message() {
+		cherry "========================================================"
+		me "os: ${LIME:-}$(uname -i) | $(sw_vers -productName) | $(sw_vers -productVersion)"
+		me "shell: ${ATTN:-}zsh: $(zsh --version)"
+		me "python: ${BLUE:-}$(python -V)"
+		# green "  this zsh session: $ZSH_VERSION"
+		cherry "========================================================"
+		br
+
+		# Reminders to try out the latest features ...
+		canary "Recently added utilities: "
+		attn "  recent              - see *more* utility additions / changes."
+		lime "--------------------------"
+		green "Selected recently added utilities:
+		binit               - link and chmod a file to ~/bin
+		do_over [target]    - repeat something over and over ... and over
+		log_urls            - logs urls from chrome constantly
+		update_git_dirs     - update all git repos
+		"
+	}
+
+	recent () {
+		lime "--------------------------"
+		green "Recently added:
+		binit               - link and chmod a file to ~/bin
+		checkpath           - display and check \$PATH,
+		checkpath.py        - display and check \$PATH (alternate version),
+		do_over [target]    - repeat something over and over ... and over
+		getURL              - gets url of active Chrome tab
+		gitit               - add and commit all changes with default message
+		log_urls            - logs urls from chrome constantly
+		login_message       - this message!!
+		ping_avg            - average of ping times over 'COUNT' attempts
+		rc                  - (repo_clean) remove temporary dev files
+		repip               - repair and update pip packages in current env
+		space [DEVICE]      - space remaining on drive
+		sunday              - weekly maintenance scripts
+		sysctl -a           - display a ton of system settings
+		update_git_dirs     - update all git repos
+		versions            - to display program versions
+		" }
+#? ######################## Daily Tasks
+	_daily() {
+		# really, this should be a cron job ... but, eh ...
+		daily_log_file=~/.dotfiles/.daily_check
+		touch $daily_log_file
+		if [[ $weekday = 'Sun' ]]; then
+			if [ -f $daily_log_file ]; then
+				# read -r line < $daily_log_file
+				line=$(tail -1 $daily_log_file)
+				if [[ $line = "$today" ]]; then
+					rain 'Daily tasks already done...'
+				else
+					rain "It's a new day! Performing daily updates and refreshes..."
+					printf "%s" $today >>$daily_log_file
+
+					# TODO -- add daily update functions here ...
+
+
+					background_cleanup
+					update_git_dirs
+				fi
+			fi
+		fi
+	}
+#? ######################## Weekly Tasks
+	sunday() {
+		# really, this should be a cron job ... but, eh ...
+		sun_file=~/.dotfiles/.sun_check
+		touch $sun_file
+		if [[ $weekday = 'Sun' ]]; then
+			if [ -f $sun_file ]; then
+				read -r line < $sun_file
+				line=$(tail -1 $sun_file)
+				if [[ $line = "$today" ]]; then
+					rain 'Sunday tasks already done...'
+				else
+					rain "It's Sunday! Performing weekly updates and refreshes..."
+					printf "%s" $today >>$sun_file
+
+			# TODO -- add weekly update functions here ...
+					cd ~
+
+                    # Find and delete all broken symbolic links in current directiry
+                    find_broken . -d
+
+					attn "Running system cleanup and update chores ..."
+					cleanup &
+
+					attn "Running RepoClean chores ..."
+					rc &
+
+					blue "Running python chores"
+					python -m ${DOTFILES_INC}/sunday.py
+
+					blue "Updating program version list <versions> ..."
+					save_versions & # 2>/dev/null
+				fi
+			fi
+		fi
+	}
+#? ######################## MAIN LOOP
+	_main_() {
+		_login_message
+		_daily
+		sunday
+	}
+#? ######################## ENTRY POINT
+	_main_ "$@"
+
+
+#? ######################## References
+	# 'find types' https://www.gnu.org/software/findutils/manual/html_mono/find.html#Type
+	# pipe $2 with $1 using |&  https://unix.stackexchange.com/questions/128975/why-doesnt-grep-using-pipe-work-here
+	# mkdir ref: https://www.cyberciti.biz/tips/bash-shell-parameter-substitution-2.html
+
+	# ref: get url of Chrome active tab:
+	# https://www.cyberciti.biz/faq/linux-unix-sleep-bash-scripting/

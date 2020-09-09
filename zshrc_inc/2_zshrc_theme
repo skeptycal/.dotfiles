@@ -1,0 +1,57 @@
+#!/usr/bin/env zsh
+# -*- coding: utf-8 -*-
+  # shellcheck shell=bash
+  # shellcheck source=/dev/null
+  # shellcheck disable=2178,2155
+
+    set -a
+
+#? ######################## Terminal
+    # I use GNU core_utils; no need to test '-G'
+    export CLICOLOR=1
+    export colorflag='--color=always'
+
+    alias ls="ls $colorflag "
+
+	# terminal identification
+    if [[ $COLORTERM = gnome-* && $TERM = xterm ]] && infocmp gnome-256color >/dev/null 2>&1; then
+        declare -x TERM='gnome-256color';
+    elif infocmp xterm-256color >/dev/null 2>&1; then
+        declare -x TERM='xterm-256color';
+    fi;
+
+	# Highlight the user name when logged in as root.
+    if [[ "${USER}" == "root" ]]; then
+        declare -x userStyle="\${red}"
+    else
+        declare -x userStyle="\${orange}"
+    fi
+
+#? ######################## Terminal Colors
+	# GIT colors
+    declare -x WS="$(git config --get-color color.diff.whitespace "blue reverse")"
+    declare -x RESET="$(git config --get-color "" "reset")"
+
+    # Archived
+
+    # RED=$WARN
+    # setup_color() {
+    #     # Only use colors if connected to a terminal
+    #     if [ -t 1 ]; then
+    #         declare -g RED=$(printf '\033[31m')
+    #         declare -g GREEN=$(printf '\033[32m')
+    #         declare -g YELLOW=$(printf '\033[33m')
+    #         declare -g BLUE=$(printf '\033[34m')
+    #         declare -g BOLD=$(printf '\033[1m')
+    #         declare -g RESET=$(printf '\033[m')
+    #     else
+    #         declare -g RED=""
+    #         declare -g GREEN=""
+    #         declare -g YELLOW=""
+    #         declare -g BLUE=""
+    #         declare -g BOLD=""
+    #         declare -g RESET=""
+    #     fi
+    #     }
+
+    # setup_color

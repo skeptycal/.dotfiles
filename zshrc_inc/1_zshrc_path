@@ -1,89 +1,62 @@
 #!/usr/bin/env false zsh
 # -*- coding: utf-8 -*-
-    # shellcheck shell=bash
-    # shellcheck source=/dev/null
-    # shellcheck disable=2128
-
-# SET_DEBUG=${SET_DEBUG:-0} # set to 1 for verbose testing
+	# shellcheck shell=bash
+	# shellcheck source=/dev/null
+	# shellcheck disable=2128
 
 # ?########################################## parameter expansion tips
-    #? ${PATH//:/\\n}    - replace all colons with newlines
-    #? ${PATH// /}       - strip all spaces
-    #? ${VAR##*/}        - return only final element in path (program name)
-    #? ${VAR%/*}         - return only path (without program name)
+	#? ${PATH//:/\\n}    - replace all colons with newlines
+	#? ${PATH// /}       - strip all spaces
+	#? ${VAR##*/}        - return only final element in path (program name)
+	#? ${VAR%/*}         - return only path (without program name)
 
-# ?########################################## OpenSSL info
-    # openssl is keg-only, which means it was not symlinked into /usr/local,
-    # because Apple has deprecated use of OpenSSL in favor of its own TLS and
-    # crypto libraries.
-    # export PATH="/usr/local/opt/openssl/bin:$PATH"
+#? ######################## MANPATH
+    declare -x MANPATH=" \
+        /usr/local/opt/coreutils/libexec/gnuman:\
+        /usr/share/man:\
+        /usr/local/share/man:\
+        /usr/local/opt/erlang/lib/erlang/man:\
+        /Library/Frameworks/Python.framework/Versions/3.8/share/man/man1:\
+        /usr/local/texlive/2020/texmf-dist/doc/man:\
+        "
+    MANPATH="${MANPATH// /}"
 
-    # A CA file has been bootstrapped using certificates from the SystemRoots
-    # keychain. To add additional certificates (e.g. the certificates added in
-    # the System keychain), place .pem files in
-    #   /usr/local/etc/openssl/certs
-    #
-    # and run
-    #   /usr/local/opt/openssl/bin/c_rehash
+    export INFOPATH="/usr/local/texlive/2020/texmf-dist/doc/info:$INFOPATH"
 
-# ?########################################## Notes
-    # This is what was there before I added mine (6/27/19)
-    # /usr/local/bin
-    # /usr/bin
-    # /bin
-    # /usr/sbin
-    # /sbin
-    # /Library/TeX/texbin
-    # /usr/local/share/dotnet
-    # /opt/X11/bin
-    # ~/.dotnet/tools
-    # /Library/Frameworks/Mono.framework/Versions/Current/Commands
-    # /Applications/Postgres.app/Contents/Versions/latest/bin
-    # /Applications/Xamarin Workbooks.app/Contents/SharedSupport/path-bin
-    # $HOME/perl5/bin
+#? ######################## PATH
+    # /usr/local/Cellar/python@3.8/3.8.5/Frameworks/Python.framework/Versions/3.8/bin/:\
 
-    #   ! This should be either first or last ... it is up for debate
-    #   I put mine first and curate what I place in here ...
-    #   I put my ~/.dotfiles directory at the end of the path ... it is handy
+    declare -x PATH="\
+        /usr/local/Cellar/gnupg/2.2.21/bin/:\
+        /usr/local/opt/coreutils/libexec/gnubin:\
+        $HOME/bin:\
+        /usr/local/bin:\
+        /usr/local/opt:\
+        $HOME/.poetry/bin:\
+        $HOME/Library/Python/3.8/bin:\
+        /usr/local/lib/node_modules/bin:\
+        /usr/local/texlive/2020/texmf-dist/doc/info:\
+        /usr/local/Cellar/ruby/2.7.1_2/bin:\
+        /usr/local/opt/cython/bin:\
+        /bin:\
+        /usr/local:\
+        /usr/local/sbin:\
+        /usr/bin:\
+        /usr/sbin:\
+        /sbin:\
+        /usr/libexec:\
+        /usr/local/opt/sphinx-doc/bin:\
+        $HOME/.dotfiles:\
+        $HOME/.dotfiles/git-achievements:"
+        # '$PWD'
 
-    #   I put my /usr/libexec directory at the end ... sometimes handy
-    #        * $HOME/bin:\ (and several utilities directories)
+    PATH="${PATH// /}" # remove spaces
 
-    #   Path entries that should be before all others, if possible:
-    #
-    #     1. gnubin - GNU replacements for macOS shell functions
-    #        * /usr/local/opt/coreutils/libexec/gnubin:\
+    # vscode is kinda odd sometimes ... someitmes with spaces, sometimes not ???
+    #   so ... I'm putting the 'space remover' before it ...
+    # PATH="$PATH:/Applications/Visual Studio Code - Insiders.app/Contents/Resources/app/bin:"
+    PATH=$PATH'/Applications/Visual Studio Code.app/Contents/Resources/app/bin:'
 
-    #   Path entries that should be first - ish (before system paths):
-    #     2. Programming languages
-    #        * .dotnet
-    #        * Python / pip / pipenv / virtualenv
-    #        * anaconda / conda
-    #        * PHP (path to brew version! *probably* /usr/local/bin/php)
-    #        * Ruby / gems
-    #        * Go
-    #        * other languages or priority (non-Apple) applications
-    #        * /usr/local/bin ... this seems to be the devault Brew
-    #        *    symlink home and *should* catch everything else
-    #        * especially programs that update an apple functionality!
+    PATH="${PATH/::/:/}" # remove double colons ... you know you've done it, too
 
-    #     3. PHP tools: If you use composer, phpunit, php_codesniffer, etc
-    #        * $HOME/.composer/vendor/bin:\
-    #        * $HOME/.composer/vendor/squizlabs/php_codesniffer/bin:\
-    #     3a.
-    #        * httpd seems to have issues with Mojave
-    #        * use path to brew version: /usr/local/bin/httpd and 'Brew Services Start httpd'
-    #    Path entries that should be after specific app paths
-    #     4. System bin paths (Homebrew compatible - 'local' first)
-    #        * /usr/local/bin:\
-    #        * /usr/bin:\
-    #        * /bin:\
-
-    #     5. opt's and lib's (only if needed - I symlink to 'bins' instead)
-    #        * /usr/local/opt:/opt/local/sbin:\
-    #        * /usr/local:\
-
-    #     6. System sbin paths
-    #        * /usr/local/sbin:\
-    #        * /usr/sbin:\
-    ##########################################################################
+    export PATH

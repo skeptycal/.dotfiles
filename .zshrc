@@ -10,107 +10,112 @@
   #   I'm glad I didn't watch that movie instead ...
 
 #? ######################## Shell Variables and Settings
-    # profile start time
-    t0=$(date "+%s.%n")
-
-    # use root defaults (they match web server defaults)
-    umask 022   #            !! possible security issue !!
-
     # Remove all aliases from random unexpected places
     unalias -a
 
-    # standard script modules for macOS
-    . ~/bin/ssm
+    # By default, zsh does not do word splitting for unquoted parameter
+        # expansions. You can enable "normal" word splitting by setting the
+        # SH_WORD_SPLIT option or by using the = flag on an individual expansion.
+        # e.g. ls ${=args}
 
-#? ######################## Config
-    export SET_DEBUG=${SET_DEBUG:-0}  # set to 1 for verbose testing
-    [[ ${SHELL##*/} = 'zsh' ]] && BASH_SOURCE=${(%):-%N} || "${BASH_SOURCE:-$0}"
-    export BASH_SOURCE
+    setopt SH_WORD_SPLIT
 
     # Warn on global variable creation
     # setopt WARN_CREATE_GLOBAL
-    set -a
-    # set -x
 
-    ZDOTDIR=$HOME/.dotfiles
-#? ######################## MANPATH
-    declare -x MANPATH=" \
-        /usr/local/opt/coreutils/libexec/gnuman:\
-        /usr/share/man:\
-        /usr/local/share/man:\
-        /usr/local/opt/erlang/lib/erlang/man:\
-        /Library/Frameworks/Python.framework/Versions/3.8/share/man/man1:\
-        "
-    MANPATH="${MANPATH// /}"
+    set -a # export all
+    # set -x # show all commands
 
-#? ######################## PATH
-    # /usr/local/Cellar/python@3.8/3.8.5/Frameworks/Python.framework/Versions/3.8/bin/:\
+    # use root defaults (they match most web server defaults)
+    umask 022   #          !! possible security issue !!
 
-    declare -x PATH="\
-        /usr/local/Cellar/gnupg/2.2.21/bin/:\
-        /usr/local/opt/coreutils/libexec/gnubin:\
-        $HOME/bin:\
-        /usr/local/bin:\
-        /usr/local/opt:\
-        $HOME/.poetry/bin:\
-        $HOME/Library/Python/3.8/bin:\
-        /usr/local/lib/node_modules/bin:\
-        /usr/local/Cellar/ruby/2.7.1_2/bin:\
-        /usr/local/opt/cython/bin:\
-        /bin:\
-        /usr/local:\
-        /usr/local/sbin:\
-        /usr/bin:\
-        /usr/sbin:\
-        /sbin:\
-        /usr/libexec:\
-        /usr/local/opt/sphinx-doc/bin:\
-        $HOME/.dotfiles:\
-        $HOME/.dotfiles/git-achievements:\
-        $PWD:\
-        "
+    # setup PATH early
+    . ~/.dotfiles/zshrc_inc/1_zshrc_path
 
-    # PATH="$PATH:/Applications/Visual Studio Code - Insiders.app/Contents/Resources/app/bin:"
-    PATH="$PATH:/Applications/Visual Studio Code.app/Contents/Resources/app/bin:"
+    # personal 'standard script modules' for macOS
+    . $(which ssm) || . $(which ansi_colors)
+    ~/bin/ssm
 
-    PATH="${PATH// /}" # remove spaces
-    PATH="${PATH//::/:}" # remove double colons ... you know you've done it, too
+#? ######################## script timers
+    # millisecond timer at this instant
+    ms() { echo $(( $(gdate +%s%0N)/1000000 )) }
+    lap() {
+        # report nanoseconds (ns) passed since last 'lap_n' call
+        t1=$(gdate +%s%0N)
+        dt=$(( t1-t0 ))
+        t0=$(gdate +%s%0N)
+        echo $dt1
+        }
+    lap_ms() { echo (( $(lap)/1000000 )); } # report milliseconds (ms) passed since last 'lap' call
+    lap_sec() { echo (( $(lap)/1000000000 )); } # report seconds (s) passed since last 'lap' call
+#? ######################## script cleanup
+    script_exit_cleanup() {
+        # cleanup and exit script
 
-    export PATH
+        # calculate and display script time
+		# sleep 1 # timer test for ~ 1 second (1000 ms)
+        dt=$(lap_ms)
+        printf '\n%b %d %b\n\n' "${GREEN:-}Script ${SCRIPT_NAME} took" ${dt} "ms to load.${RESET:-}"
+        printf "${ATTN:-}Profile took ${WARN:-}%d${ATTN:-} ms to load.\n" $dt
+        unset t0 t1 dt
 
-#? ######################## Utilities
+        printf "${MAIN:-}CPU: ${LIME:-}${CPU} ${MAIN:-}-> ${CANARY:-}${number_of_cores}${MAIN:-} cores. \n"
+        printf "${MAIN:-}LOCAL IP: ${COOL:-}${LOCAL_IP}  ${MAIN:-}SHLVL: ${WARN:-}${SHLVL}  ${MAIN:-}LANG: ${RAIN:-}${LANG}${RESET:-}\n"
+        }
+    trap script_exit_cleanup EXIT
+#? ######################## config
+    declare -ix SET_DEBUG=0 # ${SET_DEBUG:-0}  # set to 1 for verbose testing
+    [[ ${SHELL##*/} = 'zsh' ]] && BASH_SOURCE=${(%):-%N} || "${BASH_SOURCE:-$0}"
+
+    export BASH_SOURCE
+    export BREW_PREFIX=$(brew --prefix)
+
+    export ZDOTDIR=$HOME/.dotfiles
+#? ######################## utilities
     .() { # source with debugging info and file read check
         if [[ -r $1 ]]; then
             source "$1"
-            [[ $SET_DEBUG = 1 ]] && blue "SUCCESS: << source $1 >>"
+            (( SET_DEBUG=1 )) && blue "SUCCESS: source ${1##*/}"
         else
-            attn "ERROR: << source >> command => cannot locate $1"
+            attn "ERROR: cannot source ${1##*/}"
         fi
         }
 
     source_dir() { # 'source' all files in directory
+        local f
         if [[ -d $1 ]]; then
-            local f
-            [[ $SET_DEBUG = 1 ]] && blue "Source Directory $1"
-            for f in "$1"/*; do
+            for f in "$@"/*; do
                 . "$f"
             done
-            unset f
+            (( SET_DEBUG = 1 )) && blue "SUCCESS: Directory ${1##*/}"
         else
-            attn "Source Directory error for $1"
+            attn "ERROR: cannot source ${1##*/}"
         fi
-    }
+        unset f
+        }
+#? ######################## timer in CLI prompt
+    function preexec() { timer=$(ms); }
+    function precmd() {
+        if [ $timer ]; then
+            elapsed=$(($(ms)-$timer))
 
-#? ######################## Load Profile settings
+            export RPROMPT="%F{cyan}${elapsed}ms %{$reset_color%}"
+            unset timer
+        fi
+        }
+
+#? ######################## load profile settings
     source_dir "$DOTFILES_INC"
+	source_dir ${DOTFILES_INC}/function_fol
 
-#? ######################## script cleanup
-    # profile end time
-    t1=$(date "+%s.%n")
-    # display script time
-    printf "${ATTN:-}Profile took ${WARN:-}%.1f${ATTN:-} second(s) to load.\n" $((t1-t0))
-    printf "${MAIN:-}CPU: ${LIME:-}${CPU} ${MAIN:-}-> ${CANARY:-}${number_of_cores}${MAIN:-} cores. \n"
-    printf "${MAIN:-}LOCAL IP: ${COOL:-}${LOCAL_IP}  ${MAIN:-}SHLVL: ${WARN:-}${SHLVL}  ${MAIN:-}LANG: ${RAIN:-}${LANG}${RESET:-}\n"
-    unset t1 t0
+
+#! ######################## Install issues on macOS Big Sur
+    # Reference: https://github.com/pyenv/pyenv/issues/1219
+
+    export LDFLAGS="-L$(brew --prefix readline)/readline/lib -L$(brew --prefix openssl)/openssl/lib -L$(brew --prefix zlib)/zlib/lib"
+    export CFLAGS="-I$(brew --prefix readline)/include -I$(brew --prefix zlib)/include -I$(brew --prefix openssl)/openssl/include -I$(xcrun --show-sdk-path)/usr/include"
+    export CPPFLAGS=${CFLAGS}
+    export PYTHON_CONFIGURE_OPTS="--enable-unicode=ucs2"
+    # pyenv install -v 3.6.0
 
  #? ######################## End of .zshrc

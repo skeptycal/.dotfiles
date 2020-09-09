@@ -7,13 +7,13 @@
   SET_DEBUG=${SET_DEBUG:-0} # set to 1 for verbose testing
 
   if (( SET_DEBUG == 1 )); then
-    echo ${ATTN:-}$(gpgconf)${RESET:-}
+	echo ${ATTN:-}$(gpgconf)${RESET:-}
   fi
 
 
 # Avoid init unless gpg commands are available.
   if (( ! $+commands[gpgconf] )) || (( ! $+commands[gpg-connect-agent] )); then
-    return 0
+	return 0
   fi
 
 # This will launch a new gpg-agent if one isn't running, unless a gpg-agent
@@ -24,8 +24,8 @@
 
 # Change the SSH_AUTH_SOCK if enable-ssh-support is on for gpg-agent.
   if grep -q enable-ssh-support $HOME/.gnupg/gpg-agent.conf 2>/dev/null; then
-    unset SSH_AGENT_PID
-    if [[ ${gnupg_SSH_AUTH_SOCK_by:-0} -ne $$ ]]; then
-      export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
-    fi
+	unset SSH_AGENT_PID
+	if [[ ${gnupg_SSH_AUTH_SOCK_by:-0} -ne $$ ]]; then
+	  export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+	fi
   fi

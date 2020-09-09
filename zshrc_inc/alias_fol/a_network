@@ -6,13 +6,7 @@
 
     set -a
 
-# *############################################## php
-alias comp='php /Users/skeptycal/bin/utilities/php/composer.phar '
-
-#- ################################
-# - utilities from https://justin.abrah.ms/dotfiles/zsh.html
-
-# curl for useragents
+# *############################################## curl for useragents
     alias iecurl="curl -H \"User-Agent: Mozilla/5.0 (Windows; U; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 2.0.50727)\""
     alias ffcurl="curl -H \"User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.8) Gecko/2009032609 Firefox/3.0.0 (.NET CLR 3.5.30729)\""
 
@@ -21,7 +15,7 @@ alias comp='php /Users/skeptycal/bin/utilities/php/composer.phar '
     alias whichmac="uname -a"
 
 # *############################################## network
-    alias watch="nodemon -L ~/Documents/sites"
+    # alias watch="nodemon -L ~/Documents/sites"
     alias flush="sudo dscacheutil -flushcache && killall -HUP mDNSResponder"
     alias localip="ipconfig getifaddr en0"
     declare -g method

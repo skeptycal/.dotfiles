@@ -11,7 +11,7 @@
     if type "nvim" >/dev/null; then
         alias vim=nvim
     fi
-    alias git="git-achievements"
+    alias git="git-achievements "
     alias mine="sudo chown -R \$(id -un):\$(id -gn) "
 
 # TODO ########################################## works in progress

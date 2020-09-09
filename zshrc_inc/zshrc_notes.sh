@@ -1,8 +1,8 @@
 #!/usr/bin/env false zsh
 # -*- coding: utf-8 -*-
-    # shellcheck shell=bash
-    # shellcheck source=/dev/null
-    # shellcheck disable=2230,2086
+	# shellcheck shell=bash
+	# shellcheck source=/dev/null
+	# shellcheck disable=2230,2086
 
 #* ----------------------------- REFERENCES and NOTES
 #? ######################## Set BASH Options
@@ -138,6 +138,6 @@
   #   echo "path \$1: $s"
   #   source "$(realpath "${1}")" || echo "${0?"Unable to source script $s in $BASH_SOURCE at $LINENO"}"
   #   }
-    # Reference: The shell shall execute commands from the file in the current environment.
+	# Reference: The shell shall execute commands from the file in the current environment.
 
-    # If file does not contain a <slash>, the shell shall use the search path specified by PATH to find the directory containing file. Unlike normal command search, however, the file searched for by the dot utility need not be executable. If no readable file is found, a non-interactive shell shall abort; an interactive shell shall write a diagnostic message to standard error, but this condition shall not be considered a syntax error.
+	# If file does not contain a <slash>, the shell shall use the search path specified by PATH to find the directory containing file. Unlike normal command search, however, the file searched for by the dot utility need not be executable. If no readable file is found, a non-interactive shell shall abort; an interactive shell shall write a diagnostic message to standard error, but this condition shall not be considered a syntax error.
