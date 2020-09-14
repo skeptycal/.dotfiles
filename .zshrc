@@ -24,27 +24,34 @@
     # setopt WARN_CREATE_GLOBAL
 
     set -a # export all
+    # set -v # verbose
     # set -x # show all commands
+
+    declare -ix SET_DEBUG=0 # ${SET_DEBUG:-0}  # set to 1 for verbose testing
+
+    # setup PATH early
+    . ~/.dotfiles/zshrc_inc_manual/zsh_set_path
+
+    # personal 'standard script modules' for macOS
+    . $(which ssm)
+
+    # millisecond timer at this instant
+    ms() { echo $(( $(gdate +%s%0N)/1000000 )) }
+
+    # log to ~/.bootlog_xxxxxxx
+    [[ -z $BOOT_LOG ]] && BOOT_LOG="$HOME/.bootlog_$(ms).log"
 
     # use root defaults (they match most web server defaults)
     umask 022   #          !! possible security issue !!
 
-    # setup PATH early
-    . ~/.dotfiles/zshrc_inc/1_zshrc_path
-
-    # personal 'standard script modules' for macOS
-    . $(which ssm) || . $(which ansi_colors)
-    ~/bin/ssm
-
 #? ######################## script timers
-    # millisecond timer at this instant
     ms() { echo $(( $(gdate +%s%0N)/1000000 )) }
     lap() {
         # report nanoseconds (ns) passed since last 'lap_n' call
         t1=$(gdate +%s%0N)
         dt=$(( t1-t0 ))
         t0=$(gdate +%s%0N)
-        echo $dt1
+        echo $dt
         }
     lap_ms() { echo (( $(lap)/1000000 )); } # report milliseconds (ms) passed since last 'lap' call
     lap_sec() { echo (( $(lap)/1000000000 )); } # report seconds (s) passed since last 'lap' call
@@ -64,18 +71,17 @@
         }
     trap script_exit_cleanup EXIT
 #? ######################## config
-    declare -ix SET_DEBUG=0 # ${SET_DEBUG:-0}  # set to 1 for verbose testing
     [[ ${SHELL##*/} = 'zsh' ]] && BASH_SOURCE=${(%):-%N} || "${BASH_SOURCE:-$0}"
 
     export BASH_SOURCE
-    export BREW_PREFIX=$(brew --prefix)
+    # export BREW_PREFIX=$(brew --prefix) #! this takes a LONG time
 
     export ZDOTDIR=$HOME/.dotfiles
 #? ######################## utilities
     .() { # source with debugging info and file read check
         if [[ -r $1 ]]; then
             source "$1"
-            (( SET_DEBUG=1 )) && blue "SUCCESS: source ${1##*/}"
+            (( SET_DEBUG > 0 )) && blue "SUCCESS: source ${1##*/}"
         else
             attn "ERROR: cannot source ${1##*/}"
         fi
@@ -87,7 +93,7 @@
             for f in "$@"/*; do
                 . "$f"
             done
-            (( SET_DEBUG = 1 )) && blue "SUCCESS: Directory ${1##*/}"
+            (( SET_DEBUG > 0 )) && blue "SUCCESS: Directory ${1##*/}"
         else
             attn "ERROR: cannot source ${1##*/}"
         fi
@@ -106,8 +112,15 @@
 
 #? ######################## load profile settings
     source_dir "$DOTFILES_INC"
-	source_dir ${DOTFILES_INC}/function_fol
 
+    # if type brew &>/dev/null; then
+    #     FPATH=$(brew --prefix)/share/zsh-completions:$FPATH
+
+    #     autoload -Uz compinit
+    #     compinit
+    # fi
+
+    # . /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 
 #! ######################## Install issues on macOS Big Sur
     # Reference: https://github.com/pyenv/pyenv/issues/1219

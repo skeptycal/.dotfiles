@@ -1,8 +1,23 @@
-#!/usr/bin/env false zsh
+#!/usr/bin/env zsh
 # -*- coding: utf-8 -*-
-	# shellcheck shell=bash
-	# shellcheck source=/dev/null
-	# shellcheck disable=2178
+    # shellcheck shell=bash
+    # shellcheck source=/dev/null
+    # shellcheck disable=2178,2128,2206,2034
+#? ################# .functions - functions for macOS with zsh ###############
+	#* copyright (c) 2019 Michael Treanor     -----     MIT License
+	#* should not be run directly; called from .bash_profile / .bashrc / .zshrc
+#? ######################## https://www.github.com/skeptycal #################
+	SET_DEBUG=${SET_DEBUG:-0} # set to 1 for verbose testing
+	SCRIPT_NAME=${0##*/}
+	set -a
+	_debug_tests() {
+		if (( SET_DEBUG == 1 )); then
+			printf '%b\n' "${WARN:-}Debug Mode Details for ${CANARY}${SCRIPT_NAME##*/}${RESET:-}"
+			green "ZSH_THEME: $ZSH_THEME"
+		fi
+	}
+#? ###################### copyright (c) 2019 Michael Treanor #################
+
 
 #? ######################## Set ZSH Options
   zstyle ':completion:*' menu select
@@ -28,16 +43,16 @@
   # brew install zsh-autosuggestions
   # brew install zsh-syntax-highlighting
 
-  if type brew &>/dev/null; then
-	FPATH=$BREW_PREFIX/share/zsh-completions:$FPATH
-	FPATH=$BREW_PREFIX/share/zsh/site-functions:$FPATH
-  fi
-	[ -f /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh ] && . /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+#   if type brew &>/dev/null; then
+# 	FPATH=$BREW_PREFIX/share/zsh-completions:$FPATH
+# 	FPATH=$BREW_PREFIX/share/zsh/site-functions:$FPATH
+#   fi
+# 	[ -f /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh ] && . /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 
-	if [ -f /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
-		. /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-		export ZSH_HIGHLIGHT_HIGHLIGHTERS_DIR=/usr/local/share/zsh-syntax-highlighting/highlighters
-	fi
+# 	if [ -f /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
+# 		. /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+# 		export ZSH_HIGHLIGHT_HIGHLIGHTERS_DIR=/usr/local/share/zsh-syntax-highlighting/highlighters
+# 	fi
 
 #     [ -f /usr/local/opt/zsh-git-prompt/zshrc.sh ] && . /usr/local/opt/zsh-git-prompt/zshrc.sh
 
@@ -75,3 +90,5 @@
 	export plugins=(git golang vscode django autopep8 poetry)
 	source "$ZSH/oh-my-zsh.sh"
 	autoload -Uz compinit && compinit
+
+_debug_tests

@@ -2,7 +2,12 @@
 # -*- coding: utf-8 -*-
 	# shellcheck shell=bash
 	# shellcheck source=/dev/null
-	# shellcheck disable=SC2034
+	# shellcheck disable=2230,2086
+#? ######################## .functions - functions for macOS with zsh
+	#* should not be run directly; called from .bash_profile / .bashrc / .zshrc
+
+	#* copyright (c) 2019 Michael Treanor
+	#* MIT License - https://www.github.com/skeptycal
 
 #? ######################## Heroku
 	# Heroku autocomplete setup

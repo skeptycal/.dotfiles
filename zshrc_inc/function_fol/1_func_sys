@@ -1,41 +1,49 @@
-#!/usr/bin/env false zsh
+#!/usr/bin/env zsh
 # -*- coding: utf-8 -*-
-	# shellcheck shell=bash
-	# shellcheck source=/dev/null
-	# shellcheck disable=2230,2086
+    # shellcheck shell=bash
+    # shellcheck source=/dev/null
+    # shellcheck disable=2178,2128,2206,2034
+#?----------------------------->----------------------------->----------------------------->####
+#*	systemm functions
+#*  tested on macOS Big Sur and zsh 5.8
+#*	copyright (c) 2019 Michael Treanor
+#*	MIT License - https://www.github.com/skeptycal
+#?----------------------------->----------------------------->----------------------------->####
+#? -----------------------------> environment
+    SCRIPT_NAME=${0##*/}
+	set -a # export all
+	declare -ix SET_DEBUG=${SET_DEBUG:-0}  		# set to 1 for verbose testing
 
-	set -a
+#? -----------------------------> BASH compatibility
+	if [[ ${SHELL##*/} == 'zsh' ]]; then
+    	setopt interactivecomments
+        setopt SH_WORD_SPLIT # 'BASH style' word splitting
+        BASH_SOURCE=${(%):-%N}
+    else
+        BASH_SOURCE=${BASH_SOURCE:=$0}
+    fi
+#? -----------------------------> debug
+	_debug_tests() {
+        printf '%b\n' "${WARN:-}Debug Mode Details for ${CANARY}${SCRIPT_NAME##*/}${RESET:-}"
 
-# ------------------------- gitit -------------------------
-#   Automatic repo pre-commit, commit, and push
-#
-#   Usage: gitit [message]
-# ---------------------- Requirements ---------------------
-#
-#   gpg key generator:          git_gpg.php
-#   default status message:     ~/.dotfiles/.stCommitMsg
-#
-#   example .stCommitMsg:
-#       (Gitit Bot): minor updates and formatting.
-#       https://www.github.com/skeptycal
-# ---------------------------------------------------------
-
-#? ######################## .functions - functions for macOS with zsh
-	#* should not be run directly; called from .bash_profile / .bashrc / .zshrc
-
-	#* copyright (c) 2019 Michael Treanor
-	#* MIT License - https://www.github.com/skeptycal
+        # script specific debug info and tests
+        green "timestamp: $(timestamp)"
+        }
+#? -----------------------------> copyright (c) 2019 Michael Treanor
+    main() {
+        (( SET_DEBUG > 0 )) && _debug_tests "$@"
+    }
+#? ###################### copyright (c) 2019 Michael Treanor #################
 
     # number of years the first commercial
     #   modem would take to transmit a movie: 42.251651342415241
-#? ######################## system checks and reporting
-    set -a
 
-	# recognize comments
-	setopt interactivecomments
-    setopt SH_WORD_SPLIT
-
-#? ######################## RealPath
+#? -----------------------------> git housekeeping (TODO)
+    #TODO - wip ...
+    _housekeeping () {
+        git fetch -p && git branch -vv | awk '/: gone]/ {print $1}' | xargs git branch -d
+        }
+#? -----------------------------> RealPath
 	# create 'realpath' function if none exists
 	command -v realpath >/dev/null 2>&1 || (
 		realpath() {
@@ -48,21 +56,15 @@
 		}
 	)
 
-
-    #TODO - wip ...
-    _housekeeping () {
-        git fetch -p && git branch -vv | awk '/: gone]/ {print $1}' | xargs git branch -d
-        }
-
-#? ######################## cli utilities
+#? -----------------------------> cli utilities
     # Some References:
     # - utilities from https://justin.abrah.ms/dotfiles/zsh.html
     # from oh-my-zsh install script (somewhat modified)
-    br() { echo ''; }
 	which() { command -v "$1"; }                          # use command -v
 	command_exists() { command -v "$@" >/dev/null 2>&1; } # pass all params
 			exists() { command -v "$1" >/dev/null 2>&1; } # pass only $1
 	runif() { exists "$1" && "$@"; }                      # run if $1 exists
+#? -----------------------------> stdout & stderr
 	echo() {
 		# more portable 'echo'
 		if [ -n "$1" ]; then
@@ -76,26 +78,16 @@
 		}
 	2echo() { ce "$@" >&2; }
 	error() { warn ${RED}"Error: $@"${RESET} >&2; }
-	db_echo() { (( SET_DEBUG=1 )) && warn "debug info ($(date +"%D %T")) - $*" >&2; }
-    dprintf() {
-        printf '%b' "$WARN"
-        if [ -n "$1" ]; then
-            printf ' -> %b' "$1"
-            shift
-        fi
-        for arg in "$@"; do
-            printf ' %b' "$arg"
-        done
-        printf '%b\n' ''
-        }
-#? ######################## Strings and arrays
+	db_echo() { (( SET_DEBUG > 0 )) && warn "debug info ($(date +"%D %T")) - $*" >&2; }
+    br() { echo ''; }
+#? -----------------------------> Strings and arrays
     dict() { grep "$@" /usr/share/dict/words; }
     colon_list() { echo -e "${1//:/\\n}"; }
     in_str() { string=${@:2}; return $([ -z "${string##*$1*}" ]); }
     is_instr() { return $([[ "${@:2}" == *"$1"* ]]); }
     lower() { ce "${*:l}"; } # return all args as lowercase (zsh only)
     upper() { ce "${*:u}"; } # return all args as uppercase (zsh only)
-#? ######################## Functions
+#? -----------------------------> Functions
 	a() { alias | grep "$1"; }
     timestamp() { printf "%s\n" $(date +"%D %T"); }
     # log internet speedtest results over time (runs until stopped)
@@ -213,7 +205,7 @@
         return $result
         }
 
-#? ######################## Directory Utilities
+#? -----------------------------> Directory Utilities
     # directory LS
     dls () { ls -l | grep "^d" | awk '{ print $9 }' | tr -d "/"; }
     mkd(){
@@ -227,18 +219,70 @@
             cd $d
         fi
         }
-    path() {
-        path_param=${*:-$PATH} # use all args ... if none, use PATH as default
-        # path_param="${path_param//:/ }"  # replace DELIM
-        # path_param="${path_param//  / } "     # remove duplicate spaces
-        # IFS="$'\n\t :'"
+    # path() { # TODO - work in progress ...
+    #     path_usage() { lime "path ${GO:-}[-d 'DELIM'] [-f 'FIND'] [-r 'REPL'] [PATH string]"; }
+    #     path_options() {
+    #         (( $# < 2 )) && {path_usage && exit 1}
+    #         while (( $# > 0 )); do
+    #             case $1 in
+    #                 -h|--help)
+    #                     path_usage
+    #                     exit 0
+    #                     ;;
+    #                 -d|--delimiter)
+    #                     shift
+    #                     DELIM="$1"
+    #                     ;;
+    #                 -f|--find)
+    #                     shift
+    #                     FIND="$1"
+    #                     ;;
+    #                 -r|--replace)
+    #                     shift
+    #                     REPL="$1"
+    #                     ;;
+    #                 *)
+    #                     ARGS="${ARGS}:${1}" # temp delimiter is ':'
+    #                     ;;
+    #             esac
+    #             shift
+    #         done
+    #         }
 
-        IFS=':'; for p in ${=path_param}; do
-            # shellcheck disable=2015
-            [[ -d "$p" ]] && green "$p" || attn "$p"
-        done
-        }
-#? ######################## Permissions Utilities
+    #     ARGS=
+    #     DELIM=':'
+    #     FIND=
+    #     REPL=
+    #     HILT="${CANARY:-}${FIND}${RESET:-}"
+
+    #     path_options
+
+    #     path_param=${ARGS:-$PATH} # use PATH as default
+    #     path_param="${path_param//\:/$DELIM}" # replace temp delimiter
+
+    #     if [ -n $FIND ]; then
+    #         if [ -n $REPL ]; then # if FIND and REPL are true -> replace stuff
+    #             path_param="${path_param//$FIND/$REPL}" # replace FIND with REPL
+    #         else # if FIND and NOT REPL -> highlight only
+    #             HILT="${CANARY:-}${FIND}${RESET:-}"
+    #             path_param="${path_param//$FIND/$HILT}" # replace FIND with HILT
+    #         fi
+    #     else
+    #         if [ -n $REPL ]; then # if REPL and NOT FIND -> remove only
+    #             path_param="${path_param//$REPL/}" # replace REPL with ''
+    #         else # if neither FIND nor REPL are true -> remove duplicate DELIM's
+    #             path_param="${path_param//${DELIM}${DELIM}/$DELIM}"
+    #         fi
+    #     fi
+
+    #     echo $path_param
+    #     # IFS="$'\n\t :'"
+    #     IFS=$DELIM; for p in ${=path_param}; do
+    #         # shellcheck disable=2015
+    #         [[ -d "$p" ]] && green "$p" || attn "$p"
+    #     done
+    #     }
+#? -----------------------------> Permissions Utilities
     psgrep() {
         if [ -n "$1" ] ; then
             echo "Grepping for processes matching $1..."
@@ -319,7 +363,9 @@
         echo "Changing permissions of all regular directories to 0755."
         # ls "$dir" -ARlh
         }
-#? ######################## Archived Commands (inactive)
+#? -----------------------------> main
+main "$@"
+#? -----------------------------> Archived Commands (inactive)
     # get name for 'open' if linux or windows
     # if [ ! "$(uname -s)" = 'Darwin' ]; then
     #     if grep -q Microsoft /proc/version; then
@@ -389,7 +435,7 @@
 
 	# root_space() { df -P | grep '\/$' | awk '{print $5}' | cut -d "%" -f1 -; }
 
-    # #?######################## program control
+    # #?-----------------------------> program control
 	# null_it () { eval "$@" 2>/dev/null; }
 	# 	To suppress the error message any output to standard error
 	# 	  is sent to /dev/null using 2>/dev/null.
@@ -400,12 +446,12 @@
 	# 	  returned even if tHERE is an error.
 
 	# die_now() { exit "$1"; }
-    # #?######################## error reporting
+    # #?-----------------------------> error reporting
 	# errcho(){ >&2 echo "$@"; }
 	# 	# REF: https://stackoverflow.com/questions/2990414/echo-that-outputs-to-stderr
 
 
-    # #?######################## program debugging / logging / trace functions
+    # #?-----------------------------> program debugging / logging / trace functions
 
 	# exit_usage() {
 	# 	# Print script usage and exit
@@ -434,7 +480,7 @@
 	# 	}
 
 
-    # #?######################## error handling
+    # #?-----------------------------> error handling
 	# _set_traps() {
 	# 	cur_opts="$-"
 	# 	debug_opts="axET"
@@ -640,7 +686,7 @@
     #     fi
     #     }
 
-    #? ######################## Archived
+    #? -----------------------------> Archived
     # space() {
     #     if [ -d $1 ]; then
     #         mnt=$1

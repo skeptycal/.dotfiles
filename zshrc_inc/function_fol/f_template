@@ -1,83 +1,94 @@
 #!/usr/bin/env zsh
 # -*- coding: utf-8 -*-
-	# shellcheck shell=bash
-	# shellcheck source=/dev/null
-	# shellcheck disable=2178,2128,2206,2034
-
-# ssm - standard script modules
-. "$(which ssm)"
-
+    # shellcheck shell=bash
+    # shellcheck source=/dev/null
+    # shellcheck disable=2178,2128,2206,2034
+#? ################# .functions - functions for macOS with zsh ###############
+	#* copyright (c) 2019 Michael Treanor     -----     MIT License
+	#* should not be run directly; called from .bash_profile / .bashrc / .zshrc
+#? ######################## https://www.github.com/skeptycal #################
+	SET_DEBUG=${SET_DEBUG:-0} # set to 1 for verbose testing
+	SCRIPT_NAME=${0##*/}
+	set -a
+	_debug_tests() {
+		if (( SET_DEBUG == 1 )); then
+			printf '%b\n' "${WARN:-}Debug Mode Details for ${CANARY}${SCRIPT_NAME##*/}${RESET:-}"
+			green "Template Repo Location: $REPO_TEMPLATE_LOCATION"
+		fi
+	}
+#? ###################### copyright (c) 2019 Michael Treanor #################
 export YEAR=$(date +%Y)
 export REPO_TEMPLATE_LOCATION=~/Documents/coding/template
 
-export DEFAULT_REPO_FILE_LIST=( .editorconfig .pre-commit-config.yaml AUTHORS CHANGELOG.md CODE_OF_CONDUCT.md LICENSE azure-pipelines.yml conftest.py pytest.ini requirements-dev.txt setup.py setup.sh tox.ini toxcov.ini README.md .gitignore pyproject.toml )
+# export DEFAULT_REPO_FILE_LIST=( .editorconfig .pre-commit-config.yaml AUTHORS CHANGELOG.md CODE_OF_CONDUCT.md LICENSE azure-pipelines.yml conftest.py pytest.ini requirements-dev.txt setup.py setup.sh tox.ini toxcov.ini README.md .gitignore pyproject.toml )
 
-link_tmp_to_repo() {
-	# create files in current directory based on template repo
-	echo $LIME
-	for f in $@; do
-		# copy with hard links as 1st choice
-		# interactice, recursive, verbose
-		cp -irv --link "${REPO_TEMPLATE_LOCATION}/${f}" .
+# link_tmp_to_repo() {
+# 	# create files in current directory based on template repo
+# 	echo $LIME
+# 	for f in $@; do
+# 		# copy with hard links as 1st choice
+# 		# interactice, recursive, verbose
+# 		cp -irv --link "${REPO_TEMPLATE_LOCATION}/${f}" .
 
-		if [ ! -r $f ]; then # copy with symlinks as 2nd choice
-			# no-clobber, recursive, verbose
-			cp -nrv --symbolic-link "${REPO_TEMPLATE_LOCATION}/${f}" .
-		fi
+# 		if [ ! -r $f ]; then # copy with symlinks as 2nd choice
+# 			# no-clobber, recursive, verbose
+# 			cp -nrv --symbolic-link "${REPO_TEMPLATE_LOCATION}/${f}" .
+# 		fi
 
-		if [ ! -r $f ]; then # copy files as 3rd choice
-			# no-clobber, recursive, verbose
-			cp -nrv "${REPO_TEMPLATE_LOCATION}/${f}" .
-		fi
-	done;
-	echo $RESET
-    }
-send_to_temp() {
-	# update files in template repo based on current directory
-	for f in $@; do
-		# force, recursive, verbose
-		cp -frv "${f}" "${REPO_TEMPLATE_LOCATION}/"
-	done;
-    }
+# 		if [ ! -r $f ]; then # copy files as 3rd choice
+# 			# no-clobber, recursive, verbose
+# 			cp -nrv "${REPO_TEMPLATE_LOCATION}/${f}" .
+# 		fi
+# 	done;
+# 	echo $RESET
+#     }
+# send_to_temp() {
+# 	# update files in template repo based on current directory
+# 	for f in $@; do
+# 		# force, recursive, verbose
+# 		cp -frv "${f}" "${REPO_TEMPLATE_LOCATION}/"
+# 	done;
+#     }
 
-_get_repo_template() {
-	#TODO This is a preset template directory - prefer github repo
-	for f in $repo_file_list; do
-		if [ -e "$f" ]; then
-			attn "$f already exists in the destination folder."
-		else
-			echo "cp -ri" "${REPO_TEMPLATE_LOCATION}/${f}" "$repo_path"
-            #! not activated ... remove <echo> ...
-		fi
-	done
+# _get_repo_template() {
+# 	#TODO This is a preset template directory - prefer github repo
+# 	for f in $repo_file_list; do
+# 		if [ -e "$f" ]; then
+# 			attn "$f already exists in the destination folder."
+# 		else
+# 			echo "cp -ri" "${REPO_TEMPLATE_LOCATION}/${f}" "$repo_path"
+#             #! not activated ... remove <echo> ...
+# 		fi
+# 	done
 
 
-	# github repo template
-	}
-_config() {
-	# Setup path names and constants
-	[[ $SET_DEBUG == 1 ]] && _set_debug "$@"
-	SHELL_BIN="${SHELL##*/}" && export SHELL_BIN
+# 	# github repo template
+# 	}
+# _config() {
+# 	# Setup path names and constants
+# 	[[ $SET_DEBUG == 1 ]] && _set_debug "$@"
+# 	SHELL_BIN="${SHELL##*/}" && export SHELL_BIN
 
-	#TODO - check for $1 repo name, etc
-	repo_path=$PWD
-	repo_name=${PWD##*/}
-	dprintf "\$repo_path = $repo_path"
-	dprintf "\$repo_name = $repo_name"
-	}
+# 	#TODO - check for $1 repo name, etc
+# 	repo_path=$PWD
+# 	repo_name=${PWD##*/}
+# 	dprintf "\$repo_path = $repo_path"
+# 	dprintf "\$repo_name = $repo_name"
+# 	}
 
-main() {
-	SET_DEBUG=1
-	br
-	lime "**************************  Setup Github/Python repo **************************"
-	_config "$@"
-	dprintf "\$repo_path = $repo_path"
-	dprintf "\$repo_name = $repo_name"
-	_get_repo_template
-	br
+# main() {
+# 	SET_DEBUG=1
+# 	br
+# 	lime "**************************  Setup Github/Python repo **************************"
+# 	_config "$@"
+# 	dprintf "\$repo_path = $repo_path"
+# 	dprintf "\$repo_name = $repo_name"
+# 	_get_repo_template
+# 	br
 
-	blue "Template location:"
-	ls $repo_template_location
-	blue "Repo location:"
-	ls "$repo_path"
-    }
+# 	blue "Template location:"
+# 	ls $repo_template_location
+# 	blue "Repo location:"
+# 	ls "$repo_path"
+#     }
+_debug_tests

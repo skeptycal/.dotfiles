@@ -1,23 +1,42 @@
-#!/usr/bin/env false zsh
+#!/usr/bin/env zsh
 # -*- coding: utf-8 -*-
-	# shellcheck shell=bash
-	# shellcheck source=/dev/null
-	# shellcheck disable=2178
+    # shellcheck shell=bash
+    # shellcheck source=/dev/null
+    # shellcheck disable=2178,2128,2206,2034
+#?############################################################################
+#*	standard script modules
+#*	    Colors ... shortcuts ... the pathway to an easier life ...
+#*      tested on macOS Big Sur and zsh 5.8
+#*	copyright (c) 2019 Michael Treanor
+#*	MIT License - https://www.github.com/skeptycal
+#?############################################################################
+	set -a # export all
+	declare -ix SET_DEBUG=${SET_DEBUG:-0}  		# set to 1 for verbose testing
 
-	set -a
+#? ######################## environment
+	SCRIPT_NAME=${0##*/}
 
-#? ######################## skeptycal.com
-    SET_DEBUG=${SET_DEBUG:-0}  # set to 1 for verbose testing
-    [[ ${SHELL##*/} = 'zsh' ]] && BASH_SOURCE=${(%):-%N} || "${BASH_SOURCE:-$0}"
+	# compatibility with many 'bash' scripts
+	if [[ ${SHELL##*/} == 'zsh' ]]; then
+        set -o shwordsplit 	# 'BASH style' word splitting
+        BASH_SOURCE=${(%):-%N}
+    else
+        BASH_SOURCE=${BASH_SOURCE:=$0}
+    fi
+	_debug_tests() {
+        printf '%b\n' "${WARN:-}Debug Mode Details for ${CANARY}${SCRIPT_NAME##*/}${RESET:-}"
+        green "\$LANG is set to $LANG."
+        green "\$LOCAL_IP is set to and exported as $LOCAL_IP."
+        }
+    main() { # call 'main' from the end of the script
+        (( SET_DEBUG > 0 )) && _debug_tests "$@"
+    }
+
+#? ###################### copyright (c) 2019 Michael Treanor #################
+
+
 #? ######################## Shell settings
-    #   declare -x LANG && LANG='en_US.UTF-8'
-    #   declare -x LC_ALL && LC_ALL='en_US.UTF-8'
-    #   declare -ix CGO_ENABLED && CGO_ENABLED=1
     declare -x LOCAL_IP && LOCAL_IP="$(ipconfig getifaddr en0)"
-    #   declare -x LDFLAGS && LDFLAGS="-L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib"
-    # LDFLAGS="-L/usr/local/opt/zlib/lib"
-    # CPPFLAGS="-I/usr/local/opt/zlib/include"
-    #   declare -x ARCHFLAGS && ARCHFLAGS="-arch x86_64"
     declare -ix HISTSIZE && HISTSIZE=32768
     declare -ix HISTFILESIZE && HISTFILESIZE="${HISTSIZE}"
     #   declare -x HISTCONTROL && HISTCONTROL='ignoreboth'
@@ -25,41 +44,41 @@
     # default shell editor for standard and ssh sessions
     [[ -n $SSH_CONNECTION ]] && declare -x EDITOR='nano' || declare -x EDITOR='nano'
 
-    # get the number of CPU cores
-    declare -ix number_of_cores && number_of_cores=$(sysctl -n hw.ncpu)
     # the CPU model and speed
     # e.g. Intel(R) Core(TM) i7-4770HQ CPU @ 2.20GHz
     declare -x CPU && CPU=$(sysctl -n machdep.cpu.brand_string)
+    declare -ix number_of_cores && number_of_cores=$(sysctl -n hw.ncpu)
 
     # support colors in less
-    export LESS_TERMCAP_mb=$'\E[01;31m'
-    export LESS_TERMCAP_md=$'\E[01;31m'
-    export LESS_TERMCAP_me=$'\E[0m'
-    export LESS_TERMCAP_se=$'\E[0m'
-    export LESS_TERMCAP_so=$'\E[01;44;33m'
-    export LESS_TERMCAP_ue=$'\E[0m'
-    export LESS_TERMCAP_us=$'\E[01;32m'
+    declare -x LESS_TERMCAP_mb && LESS_TERMCAP_mb=$'\E[01;31m'
+    declare -x LESS_TERMCAP_md && LESS_TERMCAP_md=$'\E[01;31m'
+    declare -x LESS_TERMCAP_me && LESS_TERMCAP_me=$'\E[0m'
+    declare -x LESS_TERMCAP_se && LESS_TERMCAP_se=$'\E[0m'
+    declare -x LESS_TERMCAP_so && LESS_TERMCAP_so=$'\E[01;44;33m'
+    declare -x LESS_TERMCAP_ue && LESS_TERMCAP_ue=$'\E[0m'
+    declare -x LESS_TERMCAP_us && LESS_TERMCAP_us=$'\E[01;32m'
 
 #? ######################## Load Environ Vars
     declare -x SH_KEY_PATH && SH_KEY_PATH="${HOME}/.ssh/rsa_id"
 
 #? ######################## Program settings
 
-    declare -x GIT_DISCOVERY_ACROSS_FILESYSTEM && GIT_DISCOVERY_ACROSS_FILESYSTEM=1
+    # declare -x GIT_DISCOVERY_ACROSS_FILESYSTEM && GIT_DISCOVERY_ACROSS_FILESYSTEM=1
 
-    export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl@1.1)"
-	eval "$(rbenv init -)"
-
-    #   google cloud SDK
-    #   The next line updates PATH for the Google Cloud SDK.
-    [ -f '/Users/skeptycal/google-cloud-sdk/path.zsh.inc' ] && . '/Users/skeptycal/google-cloud-sdk/path.zsh.inc'
-
-    #   The next line enables shell command completion for gcloud.
-    [ -f '/Users/skeptycal/google-cloud-sdk/completion.zsh.inc' ] && . '/Users/skeptycal/google-cloud-sdk/completion.zsh.inc'
+    # declare -x RUBY_CONFIGURE_OPTS && RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl@1.1)"
+	# eval "$(rbenv init -)"
 
     # brew install jump
     # https://github.com/gsamokovarov/jump
     #   eval "$(jump shell)"
+
+#? ######################## Google Cloud SDK
+    #   google cloud SDK
+    #   The next line updates PATH for the Google Cloud SDK.
+    # [ -f '/Users/skeptycal/google-cloud-sdk/path.zsh.inc' ] && . '/Users/skeptycal/google-cloud-sdk/path.zsh.inc'
+
+    #   The next line enables shell command completion for gcloud.
+    # [ -f '/Users/skeptycal/google-cloud-sdk/completion.zsh.inc' ] && . '/Users/skeptycal/google-cloud-sdk/completion.zsh.inc'
 
 #? ######################## Utilities
     #   export TESSDATA_PREFIX="/Users/skeptycal/Documents/GitHub/tesseract/tessdata"
@@ -90,12 +109,12 @@
 	# M2_HOME="/usr/share/apache-maven-3.6.0"
 
 #? ######################## Node
-    declare -x NODE_REPL_HISTORY
-    NODE_REPL_HISTORY="${HOME}/.node_history"
-    declare -ix NODE_REPL_HISTORY_SIZE
-    NODE_REPL_HISTORY_SIZE=32768
-    declare -x NODE_REPL_MODE
-    NODE_REPL_MODE='sloppy'
+    # declare -x NODE_REPL_HISTORY
+    # NODE_REPL_HISTORY="${HOME}/.node_history"
+    # declare -ix NODE_REPL_HISTORY_SIZE
+    # NODE_REPL_HISTORY_SIZE=32768
+    # declare -x NODE_REPL_MODE
+    # NODE_REPL_MODE='sloppy'
 
 #? ######################## Perl
     #   declare -x PERL_MM_OPT && PERL_MM_OPT="INSTALL_BASE=${HOME}/perl5"
@@ -107,14 +126,6 @@
 #? ######################## Postgres setup
     #   export DATABASE_URL="postgres://$(whoami)"
 
-_run_tests() {
-	# list current versions of common utilities
-	ce "Script source:$MAIN ${BASH_SOURCE[*]}$RESET"
-	green "\$LANG is set to $LANG."
-	green "\$LOCAL_IP is set to and exported as $LOCAL_IP."
-}
-main_exports() {
-	[[ $SET_DEBUG == 1 ]] && _run_tests "$@"
-}
 
-main_exports "$@"
+
+main "$@"
