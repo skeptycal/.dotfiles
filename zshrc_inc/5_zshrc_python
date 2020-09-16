@@ -43,8 +43,11 @@
 	# As of pip 20.2.2
 	# 	this is a new option to resolve dependencies
 	# 	--use-feature=2020-resolver
-	alias pip='pip --use-feature=2020-resolver || pip '
-	alias piu='pip install -U --use-feature=2020-resolver '
+	# alias pip='pip --use-feature=2020-resolver || pip ' # causes errors
+	# alias piu='pip install -U --use-feature=2020-resolver '
+
+    pip() { /usr/local/bin/pip --use-feature=2020-resolver "$@"; }
+    piu() { /usr/local/bin/pip install -U --use-feature=2020-resolver "$@"; }
 
 	# 'piplist' is not part of the normal python installation. It returns a
 	# list of names of installed packages suitable for process and piping,
@@ -75,11 +78,11 @@
 	alias servethis="python -c 'import SimpleHTTPServer; SimpleHTTPServer.test()'"
 
 # *############################################## python virtual environment
-    DEFAULT_ENVIRONMENT_FOLDER_NAME='.venv'
+    # DEFAULT_ENVIRONMENT_FOLDER_NAME=./.venv/
     # older path was 'venv'
 
-	alias pyv="python -m venv ${DEFAULT_ENVIRONMENT_FOLDER_NAME}"
-	alias sba="source .${DEFAULT_ENVIRONMENT_FOLDER_NAME}/bin/activate || source venv/bin/activate"
+	alias pyv='python -m venv .venv'
+	alias sba='. .venv/bin/activate'
 	alias sda='deactivate'
 
 	# ! these hide configuration errors where aliases are ignored in poetry

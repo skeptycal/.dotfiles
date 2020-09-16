@@ -3,12 +3,13 @@
     # shellcheck shell=bash
     # shellcheck source=/dev/null
     # shellcheck disable=2178,2128,2206,2034
-#?----------------------------->----------------------------->----------------------------->####
-#*	systemm functions
+#? -----------------------------> .functions - functions for macOS with zsh
+#*	system functions
 #*  tested on macOS Big Sur and zsh 5.8
 #*	copyright (c) 2019 Michael Treanor
 #*	MIT License - https://www.github.com/skeptycal
-#?----------------------------->----------------------------->----------------------------->####
+#? -----------------------------> https://www.github.com/skeptycal
+
 #? -----------------------------> environment
     SCRIPT_NAME=${0##*/}
 	set -a # export all

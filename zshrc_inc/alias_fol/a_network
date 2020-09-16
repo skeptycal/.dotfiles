@@ -11,7 +11,7 @@
 	SCRIPT_NAME=${0##*/}
 	set -a
 	_debug_tests() {
-		if (( SET_DEBUG == 1 )); then
+		if (( SET_DEBUG )); then
 			printf '%b\n' "${WARN:-}Debug Mode Details for ${CANARY}${SCRIPT_NAME##*/}${RESET:-}"
             green $(which whichmac)
 		fi

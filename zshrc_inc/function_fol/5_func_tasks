@@ -147,17 +147,20 @@
 		canary "Recently added utilities: "
 		attn "  recent              - see *more* utility additions / changes."
 		lime "--------------------------"
-		green "Selected recently added utilities:
-		binit               - link a file to ~/bin and and chmod +x it
-        rc                  - repo clean (removes cache and temp files recursively)
-        repip               - reinstall updated pip and update all dependencies
-        bump                - update repo version (and changelog...)
-        ldoc [source]       - local docs (moves docs to local docs folder - our of iCloud)
-		do_over [target]    - repeat something over and over ... and over
-		log_urls            - logs urls from chrome constantly
-		update_git_dirs     - update all git repos (!! I mean ALL !!)
-		"
-	}
+        echo "$GO"
+		cat <<- "EOF"
+        Selected recently added utilities:
+
+            binit               - link a file to ~/bin and and chmod +x it
+            rc                  - repo clean (removes cache and temp files recursively)
+            repip               - reinstall updated pip and update all dependencies
+            bump                - update repo version (and changelog...)
+            ldoc [FILES]        - local docs (move FILES out of iCloud)
+            do_over [target]    - repeat something over and over ... and over
+            log_urls            - logs urls from chrome constantly
+            update_git_dirs     - update all git repos (!! I mean ALL !!)
+EOF
+}
 
 	recent () {
 		lime "--------------------------"
