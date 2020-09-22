@@ -1,4 +1,4 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env false zsh
 # -*- coding: utf-8 -*-
     # shellcheck shell=bash
     # shellcheck source=/dev/null
@@ -8,16 +8,8 @@
 	#* should not be run directly; called from .bash_profile / .bashrc / .zshrc
 #? ######################## https://www.github.com/skeptycal #################
 	# SET_DEBUG=${SET_DEBUG:-0} # set to 1 for verbose testing
-	SCRIPT_NAME=${0##*/}
-	set -a
-	_debug_tests() {
-		if (( SET_DEBUG == 1 )); then
-			printf '%b\n' "${WARN:-}Debug Mode Details for ${CANARY}${SCRIPT_NAME##*/}${RESET:-}"
-			green $PATH
-		fi
-	}
-#? ###################### copyright (c) 2019 Michael Treanor #################
 
+#? ###################### copyright (c) 2019 Michael Treanor #################
 
 # ?########################################## parameter expansion tips
 	#? ${PATH//:/\\n}    - replace all colons with newlines
@@ -27,11 +19,12 @@
 
 #? ######################## MANPATH
     declare -x MANPATH=" \
+        /usr/local/man:\
         /usr/local/opt/coreutils/libexec/gnuman:\
         /usr/share/man:\
         /usr/local/share/man:\
-        /usr/local/opt/erlang/lib/erlang/man:\
         /Library/Frameworks/Python.framework/Versions/3.8/share/man/man1:\
+        /usr/local/opt/erlang/lib/erlang/man:\
         /usr/local/texlive/2020/texmf-dist/doc/man:\
         "
     MANPATH="${MANPATH// /}"
@@ -42,7 +35,7 @@
     # /usr/local/Cellar/python@3.8/3.8.5/Frameworks/Python.framework/Versions/3.8/bin/:\
 
     declare -x PATH="\
-        /usr/local/Cellar/gnupg/2.2.21/bin/:\
+        /usr/local/Cellar/gnupgcd /2.2.23/bin/:\
         /usr/local/opt/coreutils/libexec/gnubin:\
         $HOME/bin:\
         /usr/local/bin:\
@@ -67,7 +60,7 @@
 
     PATH="${PATH// /}" # remove spaces
 
-    # vscode is kinda odd sometimes ... someitmes with spaces, sometimes not ???
+    # vscode is kinda odd sometimes ... sometimes with spaces, sometimes not ???
     #   so ... I'm putting the 'space remover' before it ...
     # PATH="$PATH:/Applications/Visual Studio Code - Insiders.app/Contents/Resources/app/bin:"
     PATH=$PATH'/Applications/Visual Studio Code.app/Contents/Resources/app/bin:'
@@ -75,5 +68,3 @@
     PATH="${PATH/::/:/}" # remove double colons ... you know you've done it, too
 
     export PATH
-
-_debug_tests

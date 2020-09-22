@@ -41,8 +41,15 @@
     declare -ix HISTFILESIZE && HISTFILESIZE="${HISTSIZE}"
     #   declare -x HISTCONTROL && HISTCONTROL='ignoreboth'
 
+    # You may need to manually set your language environment
+    export LANG=en_US.UTF-8
+
     # default shell editor for standard and ssh sessions
     [[ -n $SSH_CONNECTION ]] && declare -x EDITOR='nano' || declare -x EDITOR='nano'
+
+
+    # Compilation flags
+    export ARCHFLAGS="-arch x86_64"
 
     # the CPU model and speed
     # e.g. Intel(R) Core(TM) i7-4770HQ CPU @ 2.20GHz

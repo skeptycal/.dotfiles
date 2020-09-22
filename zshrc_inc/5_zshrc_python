@@ -46,21 +46,28 @@
 	# alias pip='pip --use-feature=2020-resolver || pip ' # causes errors
 	# alias piu='pip install -U --use-feature=2020-resolver '
 
-    pip() { /usr/local/bin/pip --use-feature=2020-resolver "$@"; }
-    piu() { /usr/local/bin/pip install -U --use-feature=2020-resolver "$@"; }
-
 	# 'piplist' is not part of the normal python installation. It returns a
 	# list of names of installed packages suitable for process and piping,
 	# without the header and extra fields. The function recreates the list on
 	# demand so it is always current.
-	piplist() { pip list | sed 's/  */ /g' | cut -d ' ' -f 1 | tail -n +3; }
+	piplist() { pip3 list | sed 's/  */ /g' | cut -d ' ' -f 1 | tail -n +3; }
 
 	# This constant version is precalculated once at boot time and will always
 	# contain the global pip list from shell start time.
-	PIPLIST="$( pip list | sed 's/  */ /g' | cut -d ' ' -f 1 | tail -n +3; )"
+	PIPLIST="$(pip3 list | sed 's/  */ /g' | cut -d ' ' -f 1 | tail -n +3; )"
+
+
+	# TODO - conflicts with venv ... python environments alway suck
+    pip4() { pip3 --use-feature=2020-resolver "$@"; }
+    piu() { pip3 install -U --use-feature=2020-resolver "$@"; }
+    alias pipup="piplist | xargs pip3 install -U ;"
+
+
 
 # *############################################## python related
 	alias py="python -m "
+
+	alias quickpret='prettier -uw * 2>/dev/null'
 
 	# change all .py files in current folder to executable
 	alias modpy='chmod +x *.py -c --preserve-root -- '
@@ -69,7 +76,7 @@
 	alias pypath='python -c "import sys; print(sys.path)" | tr "," "\n" | grep -v "egg"'
 
 	# clean out stale pycache files
-	alias pycclean='find $PWD -name "*.pyc" -exec rm {} \; && find $PWD -name "__pycache__" -exec rm -rf {} \;'
+	alias pycclean='find $PWD -name "*.pyc" -exec rm -rf {} \; && find $PWD -name "__pycache__" -exec rm -rf {} \;'
 
     alias pret='prettier * --write --insert-pragma'
     alias pm="pygmentize"

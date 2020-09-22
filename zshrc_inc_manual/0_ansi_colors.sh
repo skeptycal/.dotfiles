@@ -45,3 +45,5 @@
 		_debug_tests
 		unset set_basic_colors set_color_functions _debug_tests
 	fi
+
+_debug_tests
