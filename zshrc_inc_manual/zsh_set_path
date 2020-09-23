@@ -18,13 +18,14 @@
 	#? ${VAR%/*}         - return only path (without program name)
 
 #? ######################## MANPATH
+    # /usr/local/opt/erlang/lib/erlang/man:\
+
     declare -x MANPATH=" \
         /usr/local/man:\
         /usr/local/opt/coreutils/libexec/gnuman:\
         /usr/share/man:\
         /usr/local/share/man:\
-        /Library/Frameworks/Python.framework/Versions/3.8/share/man/man1:\
-        /usr/local/opt/erlang/lib/erlang/man:\
+        /Library/Frameworks/Python.framework/Versions/Current/share/man/man1:\
         /usr/local/texlive/2020/texmf-dist/doc/man:\
         "
     MANPATH="${MANPATH// /}"
@@ -65,6 +66,6 @@
     # PATH="$PATH:/Applications/Visual Studio Code - Insiders.app/Contents/Resources/app/bin:"
     PATH=$PATH'/Applications/Visual Studio Code.app/Contents/Resources/app/bin:'
 
-    PATH="${PATH/::/:/}" # remove double colons ... you know you've done it, too
+    PATH="${PATH//::/:}" # remove double colons ... you know you've done it, too
 
     export PATH

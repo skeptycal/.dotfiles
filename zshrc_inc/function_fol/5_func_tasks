@@ -26,6 +26,68 @@
     alias nowdate='date +"%m-%d-%Y"'                    # 09-12-2020
     alias week='date +"%V"'                             # 37
 
+    # performance timestamp
+    alias seconds='date +"%s"'                          # 1600377174 s
+    alias timestamp='date +"%s%N"'                      # 1600377060096604000 ns
+    logfile=~/".boot_log_$(date +"%s%N")".log
+
+    echolog() {
+        echo "$@"
+        echo "$@" >>$logfile
+    } # tee replacement ...
+
+    perf_test(){
+        logfile=~/".perf_test_$(date +"%s%N")".log
+        touch $logfile
+        SEARCH_PATH=${1:-~/}
+
+        hr() { echolog "============================================================================="; }
+        sr() { echolog "-----------------------------------------------------------------------------"; }
+        br() { echolog ""; }
+
+        # initial run example data
+        hr
+        echolog "Test various search, sort, and cleanup routines"
+        sr
+        echolog "Logging performance results to: $logfile"
+        echolog "'time' will print the total time taken for the command to finish"
+        sr
+        echolog "Total space of search area ($SEARCH_PATH)."
+        echolog 'du -hd0 >>logfile'
+        du -hd0 >>$logfile                        # 52G
+        sr
+        echolog '# find -exec \;'
+        echolog "time find $SEARCH_PATH -name \*.pyc -type f -exec grep -Hn 'def' {} \; >>logfile"
+        time find $SEARCH_PATH -name \*.pyc -type f -exec grep -Hn 'def' {} \; >>$logfile
+        sr
+        echolog '# find -exec \+'
+        echolog "find $SEARCH_PATH -name \*.pyc -type f -exec grep -Hn 'def' {} \+ >>logfile"
+        time find $SEARCH_PATH -name \*.pyc -type f -exec grep -Hn 'def' {} \+ >>$logfile
+        sr
+        echolog '# find | xargs -n1'
+        echolog "time find $SEARCH_PATH -name \*.pyc -type f -print0 | xargs -0 -n1 grep -Hn 'def' >>logfile"
+        time find $SEARCH_PATH -name \*.pyc -type f -print0 | xargs -0 -n1 grep -Hn 'def' >>$logfile
+        sr
+        echolog '# find | xargs'
+        echolog "time find $SEARCH_PATH -name \*.pyc -type f -print0 | xargs -0 grep -Hn 'def' >>logfile"
+        time find $SEARCH_PATH -name \*.pyc -type f -print0 | xargs -0 grep -Hn 'def' >>$logfile
+        hr
+        echolog "# find broken symlinks"
+        sr
+        echolog '# find | xargs'
+        echolog "time find -L $SEARCH_PATH -type l -print0 | xargs -0 grep -Hn 'def' >>logfile"
+        time find -L $SEARCH_PATH -type l -print0 | xargs -0 grep -Hn '/' >>$logfile
+        sr
+        echolog '# find -exec'
+        echolog "time find -L $SEARCH_PATH -type l -exec grep -Hn 'def' -- {} + >>logfile"
+        time find -L $SEARCH_PATH -type l -exec grep -Hn '/' -- {} + >>$logfile
+        hr
+
+    	# find $PWD -name "*.pyc" -exec rm -rf {} \;
+        # find $PWD -name "__pycache__" -exec rm -rf {} \;'
+
+    }
+
 #? ######################## Program Versions Reporting
     write_versions_file() {
         br
@@ -54,7 +116,7 @@
         # attn   "- rustc   ($(rustc --version | cut -d ' ' -f 2)) with rustup ($(rustup --version | cut -d ' ' -f 2))"
         warn   "- ruby    ($(ruby -v 2>/dev/null | cut -d ' ' -f 2 | cut -d 'p' -f 1)) with gem ($(gem -v))"
         # purple "- php     ($(php -v 2>/dev/null | grep '(cli)' | cut -d ' ' -f 2)) with composer ($(composer --version | cut -d ' ' -f 3))"
-        printf "%s\n" "${COOL}- python  ($(python --version | cut -d ' ' -f 2)) with pip ($(pip --version | cut -d ' ' -f 2)) and pipenv ($(pipenv --version | cut -d ' ' -f 3)) ${RESET_FG}"
+        printf "%b\n" "${COOL}- python  ($(python --version | cut -d ' ' -f 2)) with pip ($(pip --version | cut -d ' ' -f 2)) and pipenv ($(pipenv --version | cut -d ' ' -f 3)) ${RESET_FG}"
         canary "- node    ($(node -v | sed 's/v//g')) with npm ($(npm -v))"
         cherry "- Xcode   ($(/Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -version | grep Xcode | sed 's/Xcode //g'))"
         # attn   "- Clojure ($(clojure -Sdescribe | grep version | sed 's/{://g' | sed 's/"//g' | sed 's/version //g')) with lein"
@@ -151,14 +213,16 @@
 		cat <<- "EOF"
         Selected recently added utilities:
 
-            binit               - link a file to ~/bin and and chmod +x it
-            rc                  - repo clean (removes cache and temp files recursively)
-            repip               - reinstall updated pip and update all dependencies
-            bump                - update repo version (and changelog...)
-            ldoc [FILES]        - local docs (move FILES out of iCloud)
-            do_over [target]    - repeat something over and over ... and over
-            log_urls            - logs urls from chrome constantly
-            update_git_dirs     - update all git repos (!! I mean ALL !!)
+        perf_test           - performance tests logged to ~/.perf_test_1600377060096604000.log
+        quickpret           - prettier (write, ignore unknown, hide errors)
+        binit               - link a file to ~/bin and and chmod +x it
+        rc                  - repo clean (removes cache and temp files recursively)
+        repip               - reinstall updated pip and update all dependencies
+        bump                - update repo version (and changelog...)
+        ldoc [FILES]        - local docs (move FILES out of iCloud)
+        do_over [target]    - repeat something over and over ... and over
+        log_urls            - logs urls from chrome constantly
+        update_git_dirs     - update all git repos (!! I mean ALL !!)
 EOF
 }
 

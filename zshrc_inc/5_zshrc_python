@@ -31,7 +31,7 @@
 
 # *############################################## repo setup
     alias please='sudo '
-    alias gi='cp ~/.dotfiles/.gitignore .'
+    alias gi='cp $HOME/.dotfiles/.gitignore .'
 
     alias d="docker "
 
@@ -123,11 +123,11 @@
 	#   python sucks ... virtual environments suck ...
 	#   someone should find a better way to do this ... it's so stupid
 	#   'poetry' is the best alternative for now
-	export POETRY_REPOSITORIES_TESTPYPI_URL=https://test.pypi.org/legacy/
+	export POETRY_REPOSITORIES_TESTPYPI_URL="https://test.pypi.org/legacy/"
 	export POETRY_PYPI_TOKEN_TESTPYPI='<token>'
 
-	export POETRY_CACHE_DIR=~/Library/Caches/pypoetry
-	export POETRY_VIRTUALENVS_PATH=${POETRY_CACHE_DIR}/virtualenvs
+	export POETRY_CACHE_DIR="$HOME/Library/Caches/pypoetry"
+	export POETRY_VIRTUALENVS_PATH="${POETRY_CACHE_DIR}/virtualenvs"
 	export POETRY_PYPI_TOKEN_PYPI=my-token
 
 # *############################################## pipenv

@@ -90,7 +90,7 @@
     upper() { ce "${*:u}"; } # return all args as uppercase (zsh only)
 #? -----------------------------> Functions
 	a() { alias | grep "$1"; }
-    timestamp() { printf "%s\n" $(date +"%D %T"); }
+    _timestamp() { printf "%s\n" $(date +"%D %T"); }
     # log internet speedtest results over time (runs until stopped)
 	speedlog() { while true; do speedtest --format=csv >>${1:-~/.speedtest.csv}; done; }
     anybar_message() { echo -n "$1" | nc -4u -w0 localhost "${2:-1738}"; }
@@ -208,7 +208,7 @@
 
 #? -----------------------------> Directory Utilities
     # directory LS
-    dls () { ls -l | grep "^d" | awk '{ print $9 }' | tr -d "/"; }
+    # lsd () { ls -la | grep "^d" | awk '{ print $9 }' | tr -d "/"; }
     mkd(){
         if [ $# -eq 0 ]; then
             echo "${LIME:-}$0: ${MAIN:-}(DIRNAME) [MODE - default=755]${RESET:-}"

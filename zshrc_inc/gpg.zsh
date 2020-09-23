@@ -15,7 +15,7 @@
 			printf '%b\n' "${WARN:-}Debug Mode Details for ${CANARY}${SCRIPT_NAME##*/}${RESET:-}"
 			green "GPG_TTY: $GPG_TTY"
 		fi
-	}
+		}
 #? ###################### copyright (c) 2019 Michael Treanor #################
 
 
@@ -33,13 +33,12 @@ gpg-connect-agent updatestartuptty /bye &>/dev/null
 set_sock() {
 	# Change the SSH_AUTH_SOCK if enable-ssh-support is on for gpg-agent.
 	# if grep -q enable-ssh-support $HOME/.gnupg/gpg-agent.conf 2>/dev/null; then
-		unset SSH_AGENT_PID
-		if [[ ${gnupg_SSH_AUTH_SOCK_by:-0} -ne $$ ]]; then
-			export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
-		fi
+	unset SSH_AGENT_PID
+	if [[ ${gnupg_SSH_AUTH_SOCK_by:-0} -ne $$ ]]; then
+		export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+	fi
 }
 
 grep -q enable-ssh-support $HOME/.gnupg/gpg-agent.conf 2>/dev/null && set_sock
 
 _debug_tests
-unset set_tty set_sock
