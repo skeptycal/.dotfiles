@@ -16,7 +16,7 @@
 
     set -a          # export all
     # set -v        # verbose
-    # set -x        # show all commands
+    set -x        # show all commands
 
     # By default, zsh does not do word splitting for unquoted parameter
         # expansions. You can enable "normal" word splitting by setting the
@@ -144,7 +144,7 @@
 #? -----------------------------> oh-my-zsh config
 	# Path to your oh-my-zsh installation.
     # oh-my-zsh config
-    # export ZSH=$HOME/.dotfiles/.oh-my-zsh
+    export ZSH=$HOME/.dotfiles/.oh-my-zsh
     
     # # Using ZSH shell - http://zsh.sourceforge.net/
     # setopt   notify globdots correct pushdtohome cdablevars autolist
