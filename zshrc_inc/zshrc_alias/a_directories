@@ -18,6 +18,7 @@
 	}
 #? ###################### copyright (c) 2019 Michael Treanor #################
 
+
 # *############################################## directories
     alias icloud="cd $HOME/Library/Mobile\ Documents/com~apple~CloudDocs/"
     alias cdc="cd $HOME/Documents/coding"
@@ -91,3 +92,4 @@
     alias 9='cd -9'
 
 _debug_tests
+true

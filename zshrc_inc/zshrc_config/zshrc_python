@@ -140,3 +140,4 @@
 	# alias vew="virtualenvwrapper"
 
 _debug_tests
+true

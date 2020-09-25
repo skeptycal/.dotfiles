@@ -92,3 +92,4 @@ export REPO_TEMPLATE_LOCATION=~/Documents/coding/template
 # 	ls "$repo_path"
 #     }
 _debug_tests
+true

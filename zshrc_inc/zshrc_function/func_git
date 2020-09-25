@@ -207,3 +207,4 @@ parse_git_dirty() {
 	}
 
 _debug_tests
+true

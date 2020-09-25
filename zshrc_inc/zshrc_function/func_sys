@@ -51,7 +51,7 @@
 			fi
 		}
 	)
-    
+
     #? -----------------------------> git housekeeping (TODO)
     #TODO - wip ...
     _housekeeping () {
@@ -67,17 +67,17 @@
 			exists() { command -v "$1" >/dev/null 2>&1; } # pass only $1
 	runif() { exists "$1" && "$@"; }                      # run if $1 exists
 #? -----------------------------> stdout & stderr
-	echo() {
-		# more portable 'echo'
-		if [ -n "$1" ]; then
-			printf '%b' "$1"
-			shift
-		fi
-		for arg in "$@"; do
-			printf ' %b' "$arg"
-		done
-		printf '%b\n' ''
-		}
+	# echo() {
+	# 	# more portable 'echo'
+	# 	if [ -n "$1" ]; then
+	# 		printf '%b' "$1"
+	# 		shift
+	# 	fi
+	# 	for arg in "$@"; do
+	# 		printf ' %b' "$arg"
+	# 	done
+	# 	printf '%b\n' ''
+	# 	}
 	2echo() { ce "$@" >&2; }
 	error() { warn ${RED}"Error: $@"${RESET} >&2; }
 	db_echo() { (( SET_DEBUG > 0 )) && warn "debug info ($(date +"%D %T")) - $*" >&2; }
@@ -367,3 +367,4 @@
         }
 #? -----------------------------> main
 main "$@"
+true

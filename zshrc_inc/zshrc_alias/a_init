@@ -51,6 +51,7 @@
     alias nethack='telnet nethack.alt.org'
 
 _debug_tests
+true
 #? ############################# CLICOLOR Details
     #   exfxcxdxbxegedabagacad
     #

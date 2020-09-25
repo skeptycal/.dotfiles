@@ -50,3 +50,4 @@
     unset jscbin
 
 _debug_tests
+true

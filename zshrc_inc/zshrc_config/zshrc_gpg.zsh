@@ -42,3 +42,4 @@ set_sock() {
 grep -q enable-ssh-support $HOME/.gnupg/gpg-agent.conf 2>/dev/null && set_sock
 
 _debug_tests
+true

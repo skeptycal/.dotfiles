@@ -16,7 +16,7 @@
 
     set -a          # export all
     # set -v        # verbose
-    set -x        # show all commands
+    # set -x        # show all commands
 
     # By default, zsh does not do word splitting for unquoted parameter
         # expansions. You can enable "normal" word splitting by setting the
@@ -24,17 +24,23 @@
         # e.g. ls ${=args}
 
 	if [[ ${SHELL##*/} == 'zsh' ]]; then
-    	setopt interactivecomments
-        setopt SH_WORD_SPLIT # 'BASH style' word splitting
+    	# setopt interactivecomments
+        # setopt SH_WORD_SPLIT # 'BASH style' word splitting
         declare -x BASH_SOURCE=${(%):-%N}
     else
         declare -x BASH_SOURCE=${BASH_SOURCE:=$0}
     fi
 
-    # Warn on global variable creation
-    # setopt WARN_CREATE_GLOBAL
+    loggedInUserID=$( scutil <<< "show State:/Users/ConsoleUser"  | awk '/UID : / && ! /loginwindow/ { print $3 }' )
 
-    BREW_PREFIX=/usr/local
+    loggedInUser=$( scutil <<< "show State:/Users/ConsoleUser" | awk '/Name :/ && ! /loginwindow/ { print $3 }' )
+
+    HostName=$( scutil --get LocalHostName )
+
+    stuff=$( )
+
+    export BREW_PREFIX=/usr/local # $(brew --prefix) # is slow...
+    export ZDOTDIR=$HOME/.dotfiles
 
     # use root defaults (they match most web server defaults)
     umask 022   #          !! possible security issue !!
@@ -72,10 +78,10 @@
     declare -ix SET_LOGGER=0
 
     if (( SET_LOGGER )); then
-        # TODO - case SET_LOGGER ... 
+        # TODO - case SET_LOGGER ...
 
         # Path to log file e.g. ~/.bootlog_xxxxxxx.log
-        if [[ -z $BOOT_LOG ]]; then 
+        if [[ -z $BOOT_LOG ]]; then
             LOG_PATH_PREFIX="$HOME/.bootlog_"
             LOG_PATH_SUFFIX='.log'
             BOOT_LOG="${LOG_PATH_TEMPLATE}$(ms)${LOG_PATH_SUFFIX}"
@@ -86,7 +92,7 @@
         # cleanup and exit script
 
         # calculate and display script time
-		# sleep 1 # timer test for ~ 1 second (1000 ms) 
+		# sleep 1 # timer test for ~ 1 second (1000 ms)
         dt=$(lap_ms)
         printf '\n%b %d %b\n\n' "${GREEN:-}Script ${SCRIPT_NAME} took" ${dt} "ms to load.${RESET:-}"
         printf "${ATTN:-}Profile took ${WARN:-}%d${ATTN:-} ms to load.\n" $dt
@@ -99,10 +105,13 @@
 
 #? -----------------------------> utilities
     .() { # source with debugging info and file read check
-        if [[ -r "$1" ]]; then
-            # echo " 'source : $1"
-            source "$1" || attn "ERROR: cannot source ${1##*/}"
-            # (( SET_DEBUG > 0 )) && blue "SUCCESS: source ${1##*/}"            
+        local f
+        f="$1"
+        if [[ -r "$f" ]]; then
+            # echo " 'source : $f"
+            source "$f"
+            (( $? )) && attn "ERROR: cannot source ${f##*/}" || blue "SUCCESS: source ${f##*/}"
+            # (( SET_DEBUG > 0 )) && blue "SUCCESS: source ${f##*/}"
         fi
         }
 
@@ -111,7 +120,7 @@
         for f in $(find "$@" -type f -print; ); do
             if [[ -f "$f" ]]; then
                 . "$f" || attn "ERROR: failed to source ${f##*/}"
-                # (( SET_DEBUG > 0 )) && blue "SUCCESS: Directory ${f##*/}" 
+                # (( SET_DEBUG > 0 )) && blue "SUCCESS: Directory ${f##*/}"
             fi
         done;
         unset f
@@ -145,35 +154,88 @@
 	# Path to your oh-my-zsh installation.
     # oh-my-zsh config
     export ZSH=$HOME/.dotfiles/.oh-my-zsh
-    
-    # # Using ZSH shell - http://zsh.sourceforge.net/
-    # setopt   notify globdots correct pushdtohome cdablevars autolist
-    # setopt   correctall autocd recexact longlistjobs nocaseglob
-    # setopt   autoresume histignoredups pushdsilent noclobber
-    # setopt   autopushd pushdminus extendedglob rcquotes mailwarning
-    # unsetopt autoparamslash bgnice
 
-    # # Autoload zsh modules when they are referenced
-    # zmodload -a zsh/stat stat
-    # zmodload -a zsh/zpty zpty
-    # zmodload -a zsh/zprof zprof
-    # zmodload -a zsh/mapfile mapfile
+	# golang /Users/michaeltreanor/.dotfiles/ohmyzsh/plugins/golang/README.md
+    plugins=( git copyfile cp django golang gpg-agent poetry colored-man-pages )
 
-    # # ZSH_THEME="spaceship"
-	# # ZSH_THEME="robbyrussell"
-	# CASE_SENSITIVE="false"
-	# COMPLETION_WAITING_DOTS="true"
-    # DISABLE_UNTRACKED_FILES_DIRTY="true"
+    unsetopt SH_WORD_SPLIT # 'BASH style' word splitting OFF
 
-	# # golang /Users/michaeltreanor/.dotfiles/ohmyzsh/plugins/golang/README.md
-    # plugins=(git, copyfile, cp, django, golang, gpg-agent, poetry)
+    # Using ZSH shell - http://zsh.sourceforge.net/
 
-    # zstyle ':completion:*' menu select
-    # fpath+="$HOME/.zfunc"
+    # HISTORY options are set in zshrc_exports 'history' section
+    setopt no_case_glob auto_cd correct correct_all
 
-	# autoload -Uz compinit && compinit
-    # . $ZSH/oh-my-zsh.sh
-    # export ZDOTDIR=$HOME/.dotfiles
+
+
+    setopt   notify globdots  pushdtohome cdablevars autolist
+    setopt    recexact longlistjobs
+    setopt   autoresume pushdsilent noclobber
+    setopt   autopushd pushdminus extendedglob rcquotes mailwarning
+    unsetopt autoparamslash bgnice
+
+
+    # allexport
+    # alwaystoend
+    # autocd
+    # noautoparamslash
+    # autopushd
+    # autoresume
+    # nobgnice
+    # nocaseglob
+    # cdablevars
+    # noclobber
+    # combiningchars
+    # completeinword
+    # correct
+    # correctall
+    # extendedglob
+    # extendedhistory
+    # noflowcontrol
+    # globdots
+    # histexpiredupsfirst
+    # histignoredups
+    # histignorespace
+    # histverify
+    # interactive
+    # interactivecomments
+    # login
+    # longlistjobs
+    # mailwarning
+    # monitor
+    # promptsubst
+    # pushdignoredups
+    # pushdminus
+    # pushdsilent
+    # pushdtohome
+    # rcquotes
+    # recexact
+    # sharehistory
+    # shinstdin
+    # shwordsplit
+    # zle
+
+    # Autoload zsh modules when they are referenced
+    zmodload -a zsh/stat stat
+    zmodload -a zsh/zpty zpty
+    zmodload -a zsh/zprof zprof
+    zmodload -a zsh/mapfile mapfile
+
+    ZSH_THEME="spaceship"
+	# ZSH_THEME="robbyrussell"
+	CASE_SENSITIVE="false"
+	COMPLETION_WAITING_DOTS="true"
+    DISABLE_UNTRACKED_FILES_DIRTY="true"
+
+    zstyle ':completion:*' menu select
+    fpath+="$HOME/.zfunc"
+
+	autoload -Uz compinit && compinit
+
+    . $ZSH/plugins/git/git.plugin.zsh
+
+    . $ZSH/oh-my-zsh.sh
+
+    setopt SH_WORD_SPLIT # 'BASH style' word splitting ON
 
     alias ls='ls $colorflag'
 
@@ -185,5 +247,32 @@
     export CFLAGS="-I${BPO}readline/include -I${BPO}openssl/include -I${BPO}zlib/include -I$(xcrun --show-sdk-path)/usr/include"
     export CPPFLAGS=${CFLAGS}
     export PYTHON_CONFIGURE_OPTS="--enable-unicode=ucs2"
+
+#? zsh notes
+
+# ALL_EXPORT (-a, ksh: -a)
+# All parameters subsequently defined are automatically exported.
+# GLOBAL_EXPORT (<Z>)
+# If this option is set, passing the -x flag to the builtins declare, float,
+# integer, readonly and typeset (but not local) will also set the -g flag; hence
+# parameters exported to the environment will not be made local to the enclosing
+# function, unless they were already or the flag +g is given explicitly. If the
+# option is unset, exported parameters will be made local in just the same way
+# as any other parameter. This option is set by default for backward
+# compatibility; it is not recommended that its behaviour be relied upon. Note
+# that the builtin export always sets both the -x and -g flags, and hence its
+# effect extends beyond the scope of the enclosing function; this is the most
+# portable way to achieve this behaviour.
+
+# default shell to handle /bin/sh shebangs reference:
+# https://scriptingosx.com/2019/06/moving-to-zsh/
+# As Apple’s support article mentions, Catalina also adds a new mechanism for
+# users and admins to change which shell handles sh invocations. MacAdmins or
+# users can change the symbolic link stored in /var/select/sh to point to a
+# shell other than /bin/bash. This changes which shell interprets scripts the
+# #!/bin/sh shebang or scripts invoked with sh -c. Changing the interpreter for
+# sh should not, but may change the behavior of several crucial scripts in the
+# system, management tools, and in installers, but may be very useful for
+# testing purposes.
 
 #? -----------------------------> END OF .ZSHRC

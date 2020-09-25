@@ -92,3 +92,4 @@
 	# autoload -Uz compinit && compinit
 
 # _debug_tests
+true

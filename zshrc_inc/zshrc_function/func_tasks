@@ -228,16 +228,16 @@ EOF
 
 	recent () {
 		lime "--------------------------"
-		green "Recently added:
+		green 'Recently added:
 		binit               - link and chmod a file to ~/bin
-		checkpath           - display and check \$PATH,
-		checkpath.py        - display and check \$PATH (alternate version),
+		checkpath           - display and check $PATH,
+		checkpath.py        - display and check $PATH (alternate version),
 		do_over [target]    - repeat something over and over ... and over
 		getURL              - gets url of active Chrome tab
 		gitit               - add and commit all changes with default message
 		log_urls            - logs urls from chrome constantly
 		login_message       - this message!!
-		ping_avg            - average of ping times over 'COUNT' attempts
+		ping_avg            - average of ping times over COUNT attempts
 		rc                  - (repo_clean) remove temporary dev files
 		repip               - repair and update pip packages in current env
 		space [DEVICE]      - space remaining on drive
@@ -245,7 +245,9 @@ EOF
 		sysctl -a           - display a ton of system settings
 		update_git_dirs     - update all git repos
 		versions            - to display program versions
-		" }
+        ff                  - find "$PWD" -type f -name "$1";
+        fd                  - find "$PWD" -type d -name "$1";
+		' }
 #? ######################## Daily Tasks
 	_daily() {
 		# really, this should be a cron job ... but, eh ...
@@ -315,7 +317,7 @@ EOF
 	}
 #? ######################## ENTRY POINT
 	_main_ "$@"
-
+	true
 
 #? ######################## References
 	# 'find types' https://www.gnu.org/software/findutils/manual/html_mono/find.html#Type
