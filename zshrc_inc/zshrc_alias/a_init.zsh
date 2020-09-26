@@ -9,25 +9,27 @@
 #? ######################## https://www.github.com/skeptycal #################
 	SET_DEBUG=${SET_DEBUG:-0} # set to 1 for verbose testing
 	SCRIPT_NAME=${0##*/}
-	set -a
 	_debug_tests() {
 		if (( SET_DEBUG )); then
 			printf '%b\n' "${WARN:-}Debug Mode Details for ${CANARY}${SCRIPT_NAME##*/}${RESET:-}"
 			green $(which mine)
 		fi
-	}
+		}
 #? ###################### copyright (c) 2019 Michael Treanor #################
 
 #? ############################# initial aliases
     # Use NeoVim if available
-    if type "nvim" >/dev/null; then
-        alias vim=nvim
-    fi
+    type "nvim" >/dev/null && alias vim='nvim '
     alias git="git-achievements "
     alias mine="sudo chown -R \$(id -un):\$(id -gn) "
 
 # TODO ########################################## works in progress
-    # alias lsln='ls -AF | grep '@' | cut -d '@' -f 1 ' # will include directories
+    # alias lsln='ls -AF | grep '@' | cut -d '@' -f 1 ' # will include
+    # directories
+
+    # ref: https://scriptingosx.com/2017/04/on-viewing-man-pages/
+    preman() { man -t "$@" | open -f -a "Preview" ;}
+    alias c='code .'
 
 #? ############################# handy stuff
     alias cls='clear'   # because 40 year old habits die hard
@@ -35,17 +37,18 @@
     alias del="rm -rf"   #! delete all the things now! (!CAREFUL!)
     alias pwdcopy='pwd | pbcopy'
     alias reload="exec \${SHELL} -l"
-    # alias path='echo -e ${PATH//:/\\n}'
+    alias path="printf '%b\n' ${PATH//:/\\n}"
 
-    alias blog="cd ~/Work/blog && code ."
-    alias auto="cd ~/Documents/coding/python/autosys && code ."
+    alias blog="cd ~/Work/blog && code . || attn 'no blog folder found ...'"
+    alias auto="cd ~/Documents/coding/python/autosys && code . || attn 'no autosys folder found ...'"
+
     alias nis="npm install --save "
     alias cgr="composer global require"
-    # alias code="nocorrect code"
 
-    # alias mv='nocorrect mv'       # no spelling correction on mv
-    # alias cp='nocorrect cp'       # no spelling correction on cp
-    # alias mkdir='nocorrect mkdir' # no spelling correction on mkdir
+    # alias code="nocorrect code"
+    alias mv='nocorrect mv'       # no spelling correction on mv
+    alias cp='nocorrect cp'       # no spelling correction on cp
+    alias mkdir='nocorrect mkdir' # no spelling correction on mkdir
 
     alias ssh='ssh -R 10999:localhost:22'
     alias nethack='telnet nethack.alt.org'

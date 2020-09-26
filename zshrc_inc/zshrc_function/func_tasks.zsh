@@ -30,6 +30,7 @@
     alias seconds='date +"%s"'                          # 1600377174 s
     alias timestamp='date +"%s%N"'                      # 1600377060096604000 ns
     logfile=~/".boot_log_$(date +"%s%N")".log
+	VERSION_LIST="${DOTFILES_PATH:-~/.dotfiles}/.VERSION_LIST.md"
 
     echolog() {
         echo "$@"
@@ -135,8 +136,6 @@
         }
     versions() { cat ~/.dotfiles/.VERSION_LIST.md; }
 #? ######################## Maintenance
-	export VERSION_LIST="${DOTFILES_PATH:-~/.dotfiles}/.VERSION_LIST.md"
-
 	update() { # System software updates (macOS - updated for Big Sur)
 		#? ############################### Close 'Systemm Preferences'
 		# Close any open System Preferences panes, to prevent them from overriding
@@ -197,80 +196,82 @@
 
 #? ######################## Session Tasks
 	_login_message() {
-		cherry "========================================================"
-		me "os: ${LIME:-}$(uname -i) | $(sw_vers -productName) | $(sw_vers -productVersion)"
-		me "shell: ${ATTN:-}zsh: $(zsh --version)"
-		me "python: ${BLUE:-}$(python -V)"
-		# green "  this zsh session: $ZSH_VERSION"
-		cherry "========================================================"
-		br
-
-		# Reminders to try out the latest features ...
-		canary "Recently added utilities: "
-		attn "  recent              - see *more* utility additions / changes."
-		lime "--------------------------"
-        echo "$GO"
-		cat <<- "EOF"
-        Selected recently added utilities:
-
-        perf_test           - performance tests logged to ~/.perf_test_1600377060096604000.log
-        quickpret           - prettier (write, ignore unknown, hide errors)
-        binit               - link a file to ~/bin and and chmod +x it
-        rc                  - repo clean (removes cache and temp files recursively)
-        repip               - reinstall updated pip and update all dependencies
-        bump                - update repo version (and changelog...)
-        ldoc [FILES]        - local docs (move FILES out of iCloud)
-        do_over [target]    - repeat something over and over ... and over
-        log_urls            - logs urls from chrome constantly
-        update_git_dirs     - update all git repos (!! I mean ALL !!)
+        cat <<- EOF
+${CHERRY:-}
+========================================================${MAIN:-}
+os: ${LIME:-}$(uname -i) | $(sw_vers -productName) | $(sw_vers -productVersion)${MAIN:-}
+shell: ${ATTN:-}$(zsh --version | cut -d '(' -f 1))${MAIN:-}
+go: ${COOL:-}$(go version | cut -d ' ' -f 3 | cut -d 'o' -f 2)${MAIN:-}
+python: ${CANARY:-}$(python -V)${CHERRY:-}
+========================================================
+${LIME}
+--------------------------------------------------------${CANARY}
+Selected recently added utilities:${RESET}${ITALIC}${DIM}
+    # Reminders to try out the latest features ...${RESET}
+    ${ATTN}
+    recent              - see *more* utility additions / changes.${DARKGREEN}
+    preman              - open man pages nicely formatted in Preview
+    zsh_stats           - (from oh-my-zsh) list cli stats
+    perf_test           - performance tests logged to ~/.perf_test_xxx.log
+    repip               - reinstall updated pip and update all dependencies
+    ldoc [FILES]        - local docs (move FILES out of iCloud)
+    do_over [target]    - repeat something over and over ... and over
+    log_urls            - logs urls from chrome constantly${RED}
+    update_git_dirs     - update all git repos (!! I mean ALL !!)${RESET}
 EOF
 }
 
-	recent () {
-		lime "--------------------------"
-		green 'Recently added:
-		binit               - link and chmod a file to ~/bin
-		checkpath           - display and check $PATH,
-		checkpath.py        - display and check $PATH (alternate version),
-		do_over [target]    - repeat something over and over ... and over
-		getURL              - gets url of active Chrome tab
-		gitit               - add and commit all changes with default message
-		log_urls            - logs urls from chrome constantly
-		login_message       - this message!!
-		ping_avg            - average of ping times over COUNT attempts
-		rc                  - (repo_clean) remove temporary dev files
-		repip               - repair and update pip packages in current env
-		space [DEVICE]      - space remaining on drive
-		sunday              - weekly maintenance scripts
-		sysctl -a           - display a ton of system settings
-		update_git_dirs     - update all git repos
-		versions            - to display program versions
-        ff                  - find "$PWD" -type f -name "$1";
-        fd                  - find "$PWD" -type d -name "$1";
-		' }
+recent () {
+    cat <<- EOF
+	${LIME}
+    --------------------------------------------------------${CANARY}
+    Selected recently added utilities:
+    ${GREEN:-}
+    Recently added:
+        binit               - link a file to ~/bin and and chmod +x it
+        bump                - update repo version (and changelog...)
+        checkpath           - display and check \$PATH,
+        checkpath.py        - display and check \$PATH (alternate version),
+        do_over [target]    - repeat something over and over ... and over
+        fd                  - find "\$PWD" -type d -name "\$1";
+        ff                  - find "\$PWD" -type f -name "\$1";
+        getURL              - gets url of active Chrome tab
+        gitit               - add and commit all changes
+        log_urls            - logs urls from chrome constantly
+        login_message       - this message!!
+        ping_avg            - average of ping times over COUNT attempts
+        preman              - open man pages nicely formatted in Preview
+        quickpret           - prettier (write, ignore unknown, hide errors)
+        rc                  - repo clean (cache and temp files)
+        repip               - repair and update pip packages in current env
+        space [DEVICE]      - space remaining on drive
+        sunday              - weekly maintenance scripts
+        sysctl -a           - display a ton of system settings
+        update_git_dirs     - update all git repos ${WARN}${REVERSED}DANGER${RESET}${LIME}
+        versions            - to display program versions
+EOF
+}
 #? ######################## Daily Tasks
 	_daily() {
-		# really, this should be a cron job ... but, eh ...
+		# TODO - really, this should be a cron job ... but, eh ...
 		daily_log_file=~/.dotfiles/.daily_check
 		touch $daily_log_file
-		if [[ $weekday = 'Sun' ]]; then
-			if [ -f $daily_log_file ]; then
-				# read -r line < $daily_log_file
-				line=$(tail -1 $daily_log_file)
-				if [[ $line = "$today" ]]; then
-					rain 'Daily tasks already done...'
-				else
-					rain "It's a new day! Performing daily updates and refreshes..."
-					printf "%s" $today >>$daily_log_file
+        if [ -f $daily_log_file ]; then
+            # read -r line < $daily_log_file
+            line=$(tail -1 $daily_log_file)
+            if [[ $line = "$today" ]]; then
+                rain 'Daily tasks already done...'
+            else
+                rain "It's a new day! Performing daily updates and refreshes..."
+                printf "%s" $today >>$daily_log_file
 
-					# TODO -- add daily update functions here ...
+                # TODO -- add daily update functions here ...
 
 
-					background_cleanup
-					update_git_dirs
-				fi
-			fi
-		fi
+                background_cleanup
+                # update_git_dirs -fetch_only
+            fi
+        fi
 	}
 #? ######################## Weekly Tasks
 	sunday() {

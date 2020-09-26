@@ -9,7 +9,6 @@
 #? ######################## https://www.github.com/skeptycal #################
 	SET_DEBUG=${SET_DEBUG:-0} # set to 1 for verbose testing
 	SCRIPT_NAME=${0##*/}
-	set -a
 	_debug_tests() {
 		if (( SET_DEBUG == 1 )); then
 			printf '%b\n' "${WARN:-}Debug Mode Details for ${CANARY}${SCRIPT_NAME##*/}${RESET:-}"
@@ -18,16 +17,13 @@
 	}
 #? ###################### copyright (c) 2019 Michael Treanor #################
 
-
-#? ######################## pyenv setup
-    [[ $(command -v pyenv >/dev/null) ]] && eval "$(pyenv init -)"
-    [[ $(command -v pyenv-virtualenv-init >/dev/null) ]] && eval "$(pyenv virtualenv-init -)"
-
 #? ######################## Python
 	#   set hash seed to different random number every session
 	unset PYTHONDONTWRITEBYTECODE
-	declare -ix PYTHONHASHSEED && PYTHONHASHSEED="$(shuf -i1-4294967295 -n1)"
-	declare -x PYTHONIOENCODING && PYTHONIOENCODING='UTF-8'
+	export PYTHONHASHSEED="$(shuf -i1-4294967295 -n1)"
+	export PYTHONIOENCODING='UTF-8'
+
+    # export PYTHON_CONFIGURE_OPTS="--enable-unicode=ucs2"
 
 # *############################################## repo setup
     alias please='sudo '
@@ -62,27 +58,28 @@
     piu() { pip3 install -U --use-feature=2020-resolver "$@"; }
     alias pipup="piplist | xargs pip3 install -U ;"
 
-
-
 # *############################################## python related
-	alias py="python -m "
-
-	alias quickpret='prettier -uw * 2>/dev/null'
+	alias py="python3 -m "
 
 	# change all .py files in current folder to executable
 	alias modpy='chmod +x *.py -c --preserve-root -- '
 
 	# display current python path
-	alias pypath='python -c "import sys; print(sys.path)" | tr "," "\n" | grep -v "egg"'
+	alias pypath='python3 -c "import sys; print(sys.path)" | tr "," "\n" | grep -v "egg"'
 
 	# clean out stale pycache files
 	alias pycclean='find $PWD -name "*.pyc" -exec rm -rf {} \; && find $PWD -name "__pycache__" -exec rm -rf {} \;'
 
     alias pret='prettier * --write --insert-pragma'
+	alias quickpret='prettier -uw * 2>/dev/null'
     alias pm="pygmentize"
 
 	alias dj="python3 manage.py runserver"
 	alias servethis="python -c 'import SimpleHTTPServer; SimpleHTTPServer.test()'"
+
+#? ######################## pyenv setup
+    [[ $(command -v pyenv >/dev/null) ]] && eval "$(pyenv init -)"
+    [[ $(command -v pyenv-virtualenv-init >/dev/null) ]] && eval "$(pyenv virtualenv-init -)"
 
 # *############################################## python virtual environment
     # DEFAULT_ENVIRONMENT_FOLDER_NAME=./.venv/

@@ -36,11 +36,12 @@
     # /usr/local/Cellar/python@3.8/3.8.5/Frameworks/Python.framework/Versions/3.8/bin/:\
 
     declare -x PATH="\
-        /usr/local/Cellar/gnupgcd /2.2.23/bin/:\
+        /usr/local/Cellar/gnupg/2.2.23/bin:\
         /usr/local/opt/coreutils/libexec/gnubin:\
         $HOME/bin:\
         /usr/local/bin:\
         /usr/local/opt:\
+        $HOME/.dotfiles/.oh-my-zsh:\
         $HOME/.poetry/bin:\
         $HOME/Library/Python/3.8/bin:\
         /usr/local/lib/node_modules/bin:\

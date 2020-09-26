@@ -1,3 +1,10 @@
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.dotfiles/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
 #!/usr/bin/env zsh
 # -*- coding: utf-8 -*-
   # shellcheck shell=bash
@@ -10,11 +17,13 @@
   #   I'm glad I didn't watch that movie instead ...
 
 #? -----------------------------> Shell Variables and Settings
-    # Remove all aliases from random unexpected places
+    # Remove all aliases from unexpected places
     unalias -a
-    alias reload="exec \${SHELL} -l"
 
-    set -a          # export all
+    # use root defaults (they match most web server defaults)
+    umask 022   #          !! possible security issue !!
+
+    # set -a        # export all (zsh default)
     # set -v        # verbose
     # set -x        # show all commands
 
@@ -23,56 +32,66 @@
         # SH_WORD_SPLIT option or by using the = flag on an individual expansion.
         # e.g. ls ${=args}
 
-	if [[ ${SHELL##*/} == 'zsh' ]]; then
-    	# setopt interactivecomments
-        # setopt SH_WORD_SPLIT # 'BASH style' word splitting
-        declare -x BASH_SOURCE=${(%):-%N}
+	if [[ "${SHELL##*/}" == 'zsh' ]]; then
+    	setopt interactivecomments
+        setopt SH_WORD_SPLIT # 'BASH style' word splitting
+        BASH_SOURCE="${(%):-%N}"
     else
-        declare -x BASH_SOURCE=${BASH_SOURCE:=$0}
+        BASH_SOURCE="${BASH_SOURCE:=$0}"
     fi
 
-    loggedInUserID=$( scutil <<< "show State:/Users/ConsoleUser"  | awk '/UID : / && ! /loginwindow/ { print $3 }' )
-
-    loggedInUser=$( scutil <<< "show State:/Users/ConsoleUser" | awk '/Name :/ && ! /loginwindow/ { print $3 }' )
-
-    HostName=$( scutil --get LocalHostName )
-
-    stuff=$( )
-
-    export BREW_PREFIX=/usr/local # $(brew --prefix) # is slow...
-    export ZDOTDIR=$HOME/.dotfiles
-
-    # use root defaults (they match most web server defaults)
-    umask 022   #          !! possible security issue !!
-
-#? -----------------------------> environment config
+#? -----------------------------> constants
     declare -ix SET_DEBUG=0 # ${SET_DEBUG:-0}  # set to 1 for verbose testing
+
+    # secure and precise id of user info
+    loggedInUserID="$( scutil <<< "show State:/Users/ConsoleUser"  | awk '/UID : / && ! /loginwindow/ { print $3 }' )"
+    loggedInUser="$( scutil <<< "show State:/Users/ConsoleUser" | awk '/Name :/ && ! /loginwindow/ { print $3 }' )"
+    HostName="$( scutil --get LocalHostName )"
+
+    BREW_PREFIX=/usr/local      # BREW_PREFIX=$(brew --prefix)  #! too slow...
 
     # automatic and manual source directories
     DOTFILES_PATH="$HOME/.dotfiles"
     DOTFILES_INC="${DOTFILES_PATH}/zshrc_inc"
     DOTFILES_INC_MANUAL="${DOTFILES_PATH}/zshrc_inc_manual"
 
-    # export BREW_PREFIX=$(brew --prefix) #! this takes a LONG time
+    # oh-my-zsh paths
+    ZSH=$HOME/.dotfiles/.oh-my-zsh
+    ZDOTDIR=$HOME/.dotfiles
 
     # setup PATH early
-    source "${DOTFILES_INC_MANUAL}/ansi_colors.sh"
-    source "${DOTFILES_INC_MANUAL}/zsh_set_path"
+    . "${DOTFILES_INC_MANUAL}/zsh_set_path.sh"
 
+#? -----------------------------> utilities
     # personal 'standard script modules' for macOS
-    source "$HOME/bin/ssm"
+    source $(which ssm)
+
+    .() { # source with debugging info and file read check
+        source "$1"
+        if (( $? )); then
+            attn "ERROR: cannot source ${1##*/}"
+        else
+            (( SET_DEBUG )) && blue "SUCCESS: source ${1##*/}"
+        fi
+        }
+
+    source_dir() { # 'source' all files in directories
+        for f in $(find "$@" -type f -print; ); do
+            [[ -r "$f" ]] && . "$f"
+        done;
+        }
 
 #? -----------------------------> script timers
-    ms() { echo $(( $(gdate +%s%0N)/1000000 )) }
+    ms() { printf '%i\n' "$(( $(gdate +%s%0N)/1000000 ))" }
+    t0=$(ms)
     lap() {
-        # report nanoseconds (ns) passed since last 'lap_n' call
-        t1=$(gdate +%s%0N)
-        dt=$(( t1-t0 ))
-        t0=$(gdate +%s%0N)
-        echo $dt
+        # report time (ns) since last 'lap' call
+        dt=$(( $(ms) - t0 ))
+        t0=$(ms)
+        printf '%i\n' "$dt"
         }
-    lap_ms() { echo (( $(lap)/1000000 )); } # report milliseconds (ms) passed since last 'lap' call
-    lap_sec() { echo (( $(lap)/1000000000 )); } # report seconds (s) passed since last 'lap' call
+    lap_ms() { printf '%i\n' "$(( $(lap)/1000000 ))"; } # report time (ms) since last 'lap' call
+    lap_sec() { printf '%i\n' "$(( $(lap)/1000000000 ))"; } # report time (s) since last 'lap' call
 #? -----------------------------> logging
     # Set to an integer to add logging
     declare -ix SET_LOGGER=0
@@ -90,51 +109,27 @@
 #? -----------------------------> script cleanup
     script_exit_cleanup() {
         # cleanup and exit script
-
-        # calculate and display script time
-		# sleep 1 # timer test for ~ 1 second (1000 ms)
-        dt=$(lap_ms)
-        printf '\n%b %d %b\n\n' "${GREEN:-}Script ${SCRIPT_NAME} took" ${dt} "ms to load.${RESET:-}"
-        printf "${ATTN:-}Profile took ${WARN:-}%d${ATTN:-} ms to load.\n" $dt
-        unset t0 t1 dt
-
         printf "${MAIN:-}CPU: ${LIME:-}${CPU} ${MAIN:-}-> ${CANARY:-}${number_of_cores}${MAIN:-} cores. \n"
         printf "${MAIN:-}LOCAL IP: ${COOL:-}${LOCAL_IP}  ${MAIN:-}SHLVL: ${WARN:-}${SHLVL}  ${MAIN:-}LANG: ${RAIN:-}${LANG}${RESET:-}\n"
+        # calculate and display script time
+		# sleep 1 # timer test for ~ 1 second (1000 ms)
+        SCRIPT_TIME=$(lap_ms)
+        printf "${GREEN:-}Script ${SCRIPT_NAME} took ${BOLD:-}${ATTN:-}${SCRIPT_TIME}${RESET:-}${GREEN:-} ms to load.${RESET:-}\n\n"
+        unset t0 t1 dt SCRIPT_NAME SCRIPT_TIME
         }
     trap script_exit_cleanup EXIT
 
-#? -----------------------------> utilities
-    .() { # source with debugging info and file read check
-        local f
-        f="$1"
-        if [[ -r "$f" ]]; then
-            # echo " 'source : $f"
-            source "$f"
-            (( $? )) && attn "ERROR: cannot source ${f##*/}" || blue "SUCCESS: source ${f##*/}"
-            # (( SET_DEBUG > 0 )) && blue "SUCCESS: source ${f##*/}"
-        fi
-        }
 
-    source_dir() { # 'source' all files in directory
-        local f
-        for f in $(find "$@" -type f -print; ); do
-            if [[ -f "$f" ]]; then
-                . "$f" || attn "ERROR: failed to source ${f##*/}"
-                # (( SET_DEBUG > 0 )) && blue "SUCCESS: Directory ${f##*/}"
-            fi
-        done;
-        unset f
-        }
 #? -----------------------------> timer in CLI prompt
-    function preexec() { timer=$(ms); }
-    function precmd() {
-        if [ $timer ]; then
-            elapsed=$(($(ms)-$timer))
+    # function preexec() { timer=$(ms); }
+    # function precmd() {
+    #     if [ $timer ]; then
+    #         elapsed=$(($(ms)-$timer))
 
-            export RPROMPT="%F{cyan}${elapsed}ms %{$reset_color%}"
-            unset timer
-        fi
-        }
+    #         RPROMPT="%F{cyan}${elapsed}ms %{$reset_color%}"
+    #         unset timer
+    #     fi
+    #     }
 
 #? -----------------------------> load profile settings
     source_dir "$DOTFILES_INC"
@@ -151,14 +146,11 @@
     #   test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
 #? -----------------------------> oh-my-zsh config
-	# Path to your oh-my-zsh installation.
-    # oh-my-zsh config
-    export ZSH=$HOME/.dotfiles/.oh-my-zsh
 
 	# golang /Users/michaeltreanor/.dotfiles/ohmyzsh/plugins/golang/README.md
     plugins=( git copyfile cp django golang gpg-agent poetry colored-man-pages )
 
-    unsetopt SH_WORD_SPLIT # 'BASH style' word splitting OFF
+    # setopt NO_SH_WORD_SPLIT # 'BASH style' word splitting OFF
 
     # Using ZSH shell - http://zsh.sourceforge.net/
 
@@ -220,33 +212,41 @@
     zmodload -a zsh/zprof zprof
     zmodload -a zsh/mapfile mapfile
 
-    ZSH_THEME="spaceship"
-	# ZSH_THEME="robbyrussell"
+    # PowerLevel10k Theme
+    ZSH_THEME="powerlevel10k/powerlevel10k"
+    # POWERLEVEL9K_MODE="nerdfont-complete"
+    # POWERLEVEL9K_DISABLE_RPROMPT=true
+    # POWERLEVEL9K_PROMPT_ON_NEWLINE=true
+    # POWERLEVEL9K_MULTILINE_LAST_PROMPT_PREFIX="▶ "
+    # POWERLEVEL9K_MULTILINE_FIRST_PROMPT_PREFIX=""
+
+    # OMZ config
 	CASE_SENSITIVE="false"
 	COMPLETION_WAITING_DOTS="true"
     DISABLE_UNTRACKED_FILES_DIRTY="true"
+    ENABLE_CORRECTION="true"
+    DISABLE_MAGIC_FUNCTIONS="true"
+    # ZSH_THEME="spaceship"
+	# ZSH_THEME="robbyrussell"
 
     zstyle ':completion:*' menu select
     fpath+="$HOME/.zfunc"
 
 	autoload -Uz compinit && compinit
 
-    . $ZSH/plugins/git/git.plugin.zsh
-
-    . $ZSH/oh-my-zsh.sh
+    . "$ZSH/oh-my-zsh.sh"
 
     setopt SH_WORD_SPLIT # 'BASH style' word splitting ON
 
-    alias ls='ls $colorflag'
+    alias ls="ls $colorflag"
 
 #! -----------------------------> Install issues on macOS Big Sur
     # Reference: https://github.com/pyenv/pyenv/issues/1219
 
     BPO="${BREW_PREFIX}/opt/"
-    export LDFLAGS="-L${BPO}readline/lib -L${BPO}openssl/lib -L${BPO}zlib/lib"
-    export CFLAGS="-I${BPO}readline/include -I${BPO}openssl/include -I${BPO}zlib/include -I$(xcrun --show-sdk-path)/usr/include"
-    export CPPFLAGS=${CFLAGS}
-    export PYTHON_CONFIGURE_OPTS="--enable-unicode=ucs2"
+    LDFLAGS="-L${BPO}readline/lib -L${BPO}openssl/lib -L${BPO}zlib/lib"
+    CFLAGS="-I${BPO}readline/include -I${BPO}openssl/include -I${BPO}zlib/include -I$(xcrun --show-sdk-path)/usr/include"
+    CPPFLAGS=${CFLAGS}
 
 #? zsh notes
 
@@ -276,3 +276,6 @@
 # testing purposes.
 
 #? -----------------------------> END OF .ZSHRC
+
+# To customize prompt, run `p10k configure` or edit ~/.dotfiles/.p10k.zsh.
+[[ ! -f ~/.dotfiles/.p10k.zsh ]] || source ~/.dotfiles/.p10k.zsh
