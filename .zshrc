@@ -214,6 +214,8 @@ fi
 
     # PowerLevel10k Theme
     ZSH_THEME="powerlevel10k/powerlevel10k"
+    # To customize prompt, run `p10k configure` or edit ~/.dotfiles/.p10k.zsh.
+    [[ ! -f ~/.dotfiles/.p10k.zsh ]] || source ~/.dotfiles/.p10k.zsh
     # POWERLEVEL9K_MODE="nerdfont-complete"
     # POWERLEVEL9K_DISABLE_RPROMPT=true
     # POWERLEVEL9K_PROMPT_ON_NEWLINE=true
@@ -223,7 +225,7 @@ fi
     # OMZ config
 	CASE_SENSITIVE="false"
 	COMPLETION_WAITING_DOTS="true"
-    DISABLE_UNTRACKED_FILES_DIRTY="true"
+    # DISABLE_UNTRACKED_FILES_DIRTY="true"
     ENABLE_CORRECTION="true"
     DISABLE_MAGIC_FUNCTIONS="true"
     # ZSH_THEME="spaceship"
@@ -276,6 +278,3 @@ fi
 # testing purposes.
 
 #? -----------------------------> END OF .ZSHRC
-
-# To customize prompt, run `p10k configure` or edit ~/.dotfiles/.p10k.zsh.
-[[ ! -f ~/.dotfiles/.p10k.zsh ]] || source ~/.dotfiles/.p10k.zsh
