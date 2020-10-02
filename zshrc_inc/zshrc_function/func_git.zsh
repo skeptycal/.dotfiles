@@ -9,7 +9,6 @@
 #? ######################## https://www.github.com/skeptycal #################
 	SET_DEBUG=${SET_DEBUG:-0} # set to 1 for verbose testing
 	SCRIPT_NAME=${0##*/}
-	set -a
 	_debug_tests() {
 		if (( SET_DEBUG == 1 )); then
 			printf '%b\n' "${WARN:-}Debug Mode Details for ${CANARY}${SCRIPT_NAME##*/}${RESET:-}"
@@ -92,23 +91,25 @@ if [[ "$(hash git &>/dev/null)" -eq 0 ]]; then
     # 	hub clone "$@" || return
     # 	cd "$REPO" || return
     # 	}
+    update_git_dirs() { #! careful ...
+        #! this function does a lot of automated git updates!
+        # - finds all git repos in user's home directory
+        # - changes to each directory
+        # - performs 'git add -all'
+        # - commits all files with an automated message
+        # - pull --rebase to update then push to remote
 
-    update_git_dirs() {
-        #! careful - this function does a lot of automated git updates
-        # so what the below does is finds all files named .git in my home
-        # directory, but excludes the .virtualenvs folder then strips the .git from
-        # the end, cd's into the directory, pulls from the origin master,
+        # - all stdout and stderr is silenced
+        # - use &6 to force output to terminal
 
         TEMPLATE_DIR=~/Documents/coding/cc_template
+        EXCLUDES='.virtualenvs node_modules .venv'
 
-        trap "exec 1>&6 6>&-" EXIT
-        exec 6>&1 1>/dev/null
-
-        OLD_DIR=$(pwd)
-        cd ~ || return
+        OLD_DIR=$PWD
+        cd "$HOME" || return
         lime "Locating all git repos in home directory ..." >&6
-        # git_dirs=$(find . -type d -name ".virtualenvs" -prune -o -name ".git" | sed 's/\.git//')
-        # green git_dirs | sed 's/ /\\n/' >&6
+        git_dirs=$(find . -type d -name ".virtualenvs" -prune -o -name ".git" | sed 's/\.git//')
+        green ${git_dirs//.\//\\n}
         for i in $(find . -type d -name ".virtualenvs" -prune -o -name ".git" | sed 's/\.git//'); do
             attn "Going into $i" >&6
             cd "$i" || return
@@ -126,8 +127,7 @@ if [[ "$(hash git &>/dev/null)" -eq 0 ]]; then
             cd ~
         done
         cd "$OLD_DIR"
-        }
-fi
+        } 6>&1 >/dev/null 2>&1
     git_one() {
         # TODO work in progress
         # to keep from delaying a commit due to one file that won't pass pre-commit
@@ -138,8 +138,12 @@ fi
             echo "$fixed_file"
         done
         }
-    parse_git_branch(){ git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/[\1] /'; }
-    parse_svn_rev(){ svn info 2> /dev/null | grep "Revision" | sed 's/Revision: \(.*\)/[r\1] /'; }
+    parse_git_branch(){
+        git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/[\1] /';
+        }
+    parse_svn_rev(){
+        svn info 2> /dev/null | grep "Revision" | sed 's/Revision: \(.*\)/[r\1] /';
+        }
     parse_git_branch() {
         BRANCH=$(git branch 2>/dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')
         if [ ! "${BRANCH}" == "" ]; then
@@ -200,6 +204,6 @@ fi
             echo ""
         fi
         }
-
+fi
 _debug_tests
 true

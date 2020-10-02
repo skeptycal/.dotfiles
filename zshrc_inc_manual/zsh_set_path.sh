@@ -17,23 +17,17 @@
 	#? ${VAR##*/}        - return only final element in path (program name)
 	#? ${VAR%/*}         - return only path (without program name)
 
-#? ######################## MANPATH
-    # /usr/local/opt/erlang/lib/erlang/man:\
-
-    declare -x MANPATH=" \
-        /usr/local/man:\
-        /usr/local/opt/coreutils/libexec/gnuman:\
-        /usr/share/man:\
-        /usr/local/share/man:\
-        /Library/Frameworks/Python.framework/Versions/Current/share/man/man1:\
-        /usr/local/texlive/2020/texmf-dist/doc/man:\
-        "
-    MANPATH="${MANPATH// /}"
-
-    export INFOPATH="/usr/local/texlive/2020/texmf-dist/doc/info:$INFOPATH"
-
 #? ######################## PATH
-    # /usr/local/Cellar/python@3.8/3.8.5/Frameworks/Python.framework/Versions/3.8/bin/:\
+    # expand path with newlines
+    alias path="echo ${PATH//:/'\n'}"
+
+    # list path elements with color coded (green is ok, orange is broken)
+    checkpath() {
+        IFS=':'
+        for p in $PATH; do
+            [ -d $p ] && lime $p || attn $p
+        done
+        }
 
     declare -x PATH="\
         /usr/local/Cellar/gnupg/2.2.23/bin:\
@@ -45,7 +39,6 @@
         $HOME/.poetry/bin:\
         $HOME/Library/Python/3.8/bin:\
         /usr/local/lib/node_modules/bin:\
-        /usr/local/texlive/2020/texmf-dist/doc/info:\
         /usr/local/Cellar/ruby/2.7.1_2/bin:\
         /usr/local/opt/cython/bin:\
         /bin:\
@@ -70,3 +63,18 @@
     PATH="${PATH//::/:}" # remove double colons ... you know you've done it, too
 
     export PATH
+
+#? ######################## MANPATH
+    # /usr/local/opt/erlang/lib/erlang/man:\
+
+    declare -x MANPATH=" \
+        /usr/local/man:\
+        /usr/local/opt/coreutils/libexec/gnuman:\
+        /usr/share/man:\
+        /usr/local/share/man:\
+        /Library/Frameworks/Python.framework/Versions/Current/share/man/man1:\
+        /usr/local/texlive/2020/texmf-dist/doc/man:\
+        "
+    MANPATH="${MANPATH// /}"
+
+    export INFOPATH="/usr/local/texlive/2020/texmf-dist/doc/info:$INFOPATH"

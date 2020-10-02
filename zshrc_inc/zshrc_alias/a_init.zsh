@@ -37,7 +37,7 @@
     alias del="rm -rf"   #! delete all the things now! (!CAREFUL!)
     alias pwdcopy='pwd | pbcopy'
     alias reload="exec \${SHELL} -l"
-    alias path="printf '%b\n' ${PATH//:/\\n}"
+
 
     alias blog="cd ~/Work/blog && code . || attn 'no blog folder found ...'"
     alias auto="cd ~/Documents/coding/python/autosys && code . || attn 'no autosys folder found ...'"

@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+
+# move_comments.py
 
 from pathlib import Path
 # from dataclasses import dataclass, field, Field
 
 
-p = PathPack('.')
+p = Path('.')
 
 
 script_path = Path(__file__).resolve().parents

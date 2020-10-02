@@ -28,18 +28,27 @@
     alias dl="cd $HOME/Downloads"
     alias dt="cd $HOME/Desktop"
 
+    alias ls="ls --group-directories-first ${colorflag}"           # normal wide
+    alias lsd="ls -1Adh ${colorflag} -- */"                        # dirs only
+    alias l.="ls -lhFAd .* --group-directories-first ${colorflag}" # dotfiles
+    alias la="ls -lhFA --group-directories-first ${colorflag}"     # all files
+    alias lag="ls -lhFAgG --group-directories-first ${colorflag}"  # la - no names
+    alias ll="ls -lhF --group-directories-first ${colorflag}"      # normal list
+    alias lsa="ls -lhFArt ${colorflag}"                            # sort by date
+    alias lss="ls -lhFArs ${colorflag}"                            # sort by size
+    alias lw="ls -hF --group-directories-first ${colorflag}"       # detailed wide
+
+	# directory LS
+    # lsd () { ls -la | grep "^d" | awk '{ print $9 }' | tr -d "/"; }
+
     alias ftree="find . -print | sed -e 's;[^/]*/;|____;g;s;____|; |;g'"
     alias filetree="ls -R | grep ':$' | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/ /' -e 's/-/|/'"
-
-    alias ll="ls -A | perl -nle 'print if -l and not -d;'"
 
 # *############################################## search, filter, list
     alias ducks='du -ck * | sort -rn | head -20'
     alias toomuch='du -sh ~'
     alias howmuch='du -sh '
     alias treetotal='tree | tail -1' # needs 'brew install tree'
-    # alias fd="find \$PWD -type d -name "
-    # alias ff="find \$PWD -type f -name "
 
     ff() { find "$PWD" -type f -name "$1"; }
     fd() { find "$PWD" -type d -name "$1"; }
@@ -60,18 +69,6 @@
     # command -v hd >/dev/null || alias hd="hexdump -C"
     # command -v md5sum >/dev/null || alias md5sum="md5"
     # command -v sha1sum >/dev/null || alias sha1sum="shasum"
-
-
-# *###########################################################################
-    alias ls="ls --group-directories-first ${colorflag}"           # normal wide
-    alias lsd="ls -1Adh ${colorflag} -- */"                        # dirs only
-    alias l.="ls -lhFAd .* --group-directories-first ${colorflag}" # dotfiles
-    alias la="ls -lhFA --group-directories-first ${colorflag}"     # all files
-    alias lag="ls -lhFAgG --group-directories-first ${colorflag}"  # la - no names
-    alias ll="ls -lhF --group-directories-first ${colorflag}"      # normal list
-    alias lsa="ls -lhFArt ${colorflag}"                            # sort by date
-    alias lss="ls -lhFArs ${colorflag}"                            # sort by size
-    alias lw="ls -hF --group-directories-first ${colorflag}"       # detailed wide
 
 # *###########################################################################
     # change directories (these functions are included in oh-my-zsh)
