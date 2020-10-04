@@ -49,21 +49,24 @@
     #   2 - #1 plus run specific tests
     #   3 - #2 plus display and log everything
 
-    declare -ix SET_DEBUG=2 # ${SET_DEBUG:-0}
+    declare -ix SET_DEBUG=0 # ${SET_DEBUG:-0}
 
     lime "SET_DEBUG: $SET_DEBUG"
     if (( SET_DEBUG>0 )); then
         printf '%b\n' "${WARN:-}Debug Mode for ${CANARY}${SCRIPT_NAME##*/}${RESET:-}"
         dbecho "DEV mode ($SET_DEBUG) activated"
+        # trap 'echo "# $(realpath $0) (line $LINENO) Error Trapped: $?" >>~./.bootlog.log' ERR
+        trap 'echo "# $0: Exit with code: $?"' EXIT
     fi
     if (( SET_DEBUG>1 )); then
         printf '%b\n' "${WARN:-}Debug Test Mode for ${CANARY}${SCRIPT_NAME##*/}${RESET:-}"
-        dbecho "DEV TEST mode ($SET_DEBUG) activated"
+        dbecho "# DEV TEST mode ($SET_DEBUG) activated"
         setopt SOURCE_TRACE
+        # trap 'echo "# $0: Line Number: $LINENO"' DEBUG
     fi
     if (( SET_DEBUG>2 )); then
         printf '%b\n' "${WARN:-}Debug Trace Mode for ${CANARY}${SCRIPT_NAME##*/}${RESET:-}"
-        dbecho "DEV TRACE mode ($SET_DEBUG) activated"
+        dbecho "# DEV TRACE mode ($SET_DEBUG) activated"
         setopt XTRACE
     fi
 
@@ -115,15 +118,6 @@
     # setup system $PATH (and $MANPATH)
     . ${DOTFILES_INC_MANUAL}/zsh_set_path.sh
 
-
-#? -----------------------------> Powerlevel10k
-    # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.dotfiles/.zshrc.
-    # Initialization code that may require console input (password prompts, [y/n]
-    # confirmations, etc.) must go above this block; everything else may go below.
-    if [[ -r ${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh ]]; then
-    source ${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh
-    fi
-
 #? -----------------------------> utilities
     .() { # source with debugging info and file read check
         source "$1"
@@ -162,36 +156,34 @@
     #     fi
     #     }
 #? -----------------------------> logging
-    log_setup() {
-        # Setup log file and redirect output
-        # Create a numbered log file from prefix and suffix
+    DEFAULT_BOOT_LOG_PREFIX="$HOME/.bootlog_"
+    DEFAULT_BOOT_LOG_SUFFIX=".log"
+
+    _boot_log_setup() {
+        # todo - something just isn't working out with this ...
         # > log_setup [PREFIX] [SUFFIX]
-        # Force a specific filename
-        # > log_setup -f FILE
+        LOG_PATH_PREFIX=${1:=$DEFAULT_BOOT_LOG_PREFIX}
+        LOG_PATH_SUFFIX=${2:=$DEFAULT_BOOT_LOG_SUFFIX}
 
-        if [[ $1 == '-f' ]]; then
-            LOG_PATH=$2
-        else
-            # Path to log file prefix + ms (timestamp) + suffix
-            #   e.g. ~/.bootlog_xxxxxxx.log
-            LOG_PATH_PREFIX=${1:="$HOME/.bootlog_"}
-            LOG_PATH_SUFFIX=${2:='.log'}
+        # the standard boot logger works when SET_DEBUG is non-zero
+        if (( SET_DEBUG>0 )); then
+            # Setup log file and redirect output
+            # Create a numbered log file from prefix and suffix
             LOG_PATH="${LOG_PATH_PREFIX}$(ms)${LOG_PATH_SUFFIX}"
+
+            touch "$LOG_PATH"
+            dbecho "$0 has setup LOG_PATH to point to this file:\n  $LOG_PATH"
+
+            # Reference: https://unix.stackexchange.com/a/145654/
+            # exec &> >(tee -ap 'warn' $LOG_PATH)
+            # exec &> >(tee -a $LOG_PATH)
+            exec | tee -a $LOG_PATH
+            dbecho "$0 redirects logging to file with this command:\n  exec | tee -a $LOG_PATH)"
+            dbecho ""
         fi
-        echo "LOG_PATH: $LOG_PATH"
-        touch "$LOG_PATH"
-
-        # Reference: https://unix.stackexchange.com/a/145654/
-        # exec &> >(tee -p 'warn' $LOG_PATH)
-        echo # exec &> >(tee -p 'warn' $LOG_PATH)
-        echo "Begin Logging: $(date +%D)"
-
-        # alternate: exec >> $log_file 2>&1 && tail $log_file
     }
 
-    # the standard boot logger works when SET_DEBUG is non-zero
-    DEFAULT_BOOT_LOG_PREFIX="$HOME/.bootlog_"
-    (( SET_DEBUG>0 )) && log_setup "$DEFAULT_BOOT_LOG_PREFIX"
+    # boot_log_setup
 
 #? -----------------------------> load profile settings
     # source all files in this directory
@@ -212,105 +204,92 @@
 
     # Using ZSH shell - http://zsh.sourceforge.net/
 
-    # dotglob lets glob match dotfiles
-    setopt dotglob
-
-    # 'BASH style' non-array word splitting
-    setopt SH_WORD_SPLIT # shwordsplit
-
-    # While waiting for a program to exit, handle signals and run traps immediately.
-    setopt TRAPS_ASYNC
-
     # HISTORY options are set in zshrc_exports 'history' section
-    setopt no_case_glob auto_cd correct correct_all globdots
+        # extendedhistory
+        # histexpiredupsfirst
+        # histfindnodups
+        # histignoredups
+        # histignorespace
+        # histreduceblanks
+        # histverify
+        # sharehistory
 
+    # set automatically at invocation of the shell:
+    # INTERACTIVE SHIN_STDIN MONITOR EXEC ZLE
 
+    # Directory options:
+    setopt AUTO_CD CDABLE_VARS CHASE_DOTS
 
-    setopt   notify  pushdtohome cdablevars autolist
-    setopt    recexact longlistjobs
-    setopt   autoresume pushdsilent noclobber
-    setopt   autopushd pushdminus extendedglob rcquotes mailwarning
-    unsetopt autoparamslash bgnice
+    # Directory stack options:
+    setopt AUTO_PUSHD PUSHD_IGNORE_DUPS PUSHD_SILENT PUSHD_TO_HOME
+    # possibly useful: pushdminus
 
+    # Completions:
+    setopt ALWAYS_TO_END AUTO_LIST AUTO_PARAM_SLASH AUTO_PARAM_KEYS
+    setopt AUTO_REMOVE_SLASH COMPLETE_ALIASES COMPLETE_IN_WORD
+    setopt GLOB_COMPLETE LIST_AMBIGUOUS REC_EXACT
 
-    # allexport
-    # alwaystoend
-    # autocd
-    # noautoparamslash
-    # autopushd
-    # autoresume
-    # nobgnice
-    # nocaseglob
-    # cdablevars
-    # noclobber
-    # combiningchars
-    # completeinword
-    # correct
-    # correctall
-    # extendedglob
-    # extendedhistory
-    # noflowcontrol
-    # globdots
-    # histexpiredupsfirst
-    # histignoredups
-    # histignorespace
-    # histverify
-    # interactive
-    # interactivecomments
-    # login
-    # longlistjobs
-    # mailwarning
-    # monitor
-    # promptsubst
-    # pushdignoredups
-    # pushdminus
-    # pushdsilent
-    # pushdtohome
-    # rcquotes
-    # recexact
-    # sharehistory
-    # shinstdin
-    # zle
+    # Expansion and Globbing
+    setopt NO_CASE_GLOB EXTENDED_GLOB GLOB_DOTS GLOB_STAR_SHORT
+    setopt NULL_GLOB NUMERIC_GLOB_SORT
 
-    # PowerLevel10k Theme
-    ZSH_THEME="powerlevel10k/powerlevel10k"
-    # To customize prompt, run `p10k configure` or edit ~/.dotfiles/.p10k.zsh.
-    [[ ! -f ~/.dotfiles/.p10k.zsh ]] || source ~/.dotfiles/.p10k.zsh
-    # POWERLEVEL9K_MODE="nerdfont-complete"
-    # POWERLEVEL9K_DISABLE_RPROMPT=true
-    # POWERLEVEL9K_PROMPT_ON_NEWLINE=true
-    # POWERLEVEL9K_MULTILINE_LAST_PROMPT_PREFIX="▶ "
-    # POWERLEVEL9K_MULTILINE_FIRST_PROMPT_PREFIX=""
+    # Initialisation
+    setopt ALL_EXPORT GLOBAL_EXPORT GLOBAL_RCS NO_RCS
 
-    # OMZ config
-	CASE_SENSITIVE="false"
-	COMPLETION_WAITING_DOTS="true"
-    # DISABLE_UNTRACKED_FILES_DIRTY="true"
-    ENABLE_CORRECTION="true"
-    DISABLE_MAGIC_FUNCTIONS="true"
-    # ZSH_THEME="spaceship"
-	# ZSH_THEME="robbyrussell"
+    # Input/Output
+    # The shell variable CORRECT_IGNORE may be set to a pattern to match
+    #   words that will never be offered as corrections.
+    setopt CORRECT CORRECT_ALL INTERACTIVE_COMMENTS
+    setopt NO_FLOW_CONTROL MAIL_WARNING PATH_DIRS RC_QUOTES
+    # todo - try these out
+    setopt PRINT_EXIT_VALUE SHORT_LOOPS
+
+    # Job Control
+    setopt AUTO_RESUME NO_BG_NICE CHECK_JOBS CHECK_RUNNING_JOBS
+    setopt LONG_LIST_JOBS NOTIFY
+
+    # Prompting
+    setopt PROMPT_BANG PROMPT_SUBST TRANSIENT_RPROMPT
+
+    # Scripts and Functions
+    setopt NO_ALIAS_FUNC_DEF C_BASES OCTAL_ZEROES C_PRECEDENCES
+    # these can cause issues and are mainly for debugging:
+    # setopt DEBUG_BEFORE_CMD ERR_RETURN EVAL_LINENO FUNCTION_ARGZERO MULTIOS
+
+    # Shell Emulation
+    setopt NO_CLOBBER APPEND_CREATE SH_WORD_SPLIT SH_NULLCMD
+    setopt CONTINUE_ON_ERROR TRAPS_ASYNC
+
+    # ZLE
+    setopt COMBINING_CHARS
+
 
 #? -----------------------------> OMZ plugins
     plugins=(\
 
     # repo management ...
-    git gpg-agent npm \
+    git gpg-agent npm gitignore\
 
     # macOS improvements
-    osx colored-man-pages cp copyfile terminalapp \
+    osx colored-man-pages cp copyfile man iterm2 gnu-utils\
+
+    # old plugins
+    # terminalapp\
 
     # zsh helpers
-    zsh-autosuggestions \
-    zsh-better-npm-completion \
-    zsh-syntax-highlighting \
+    # zsh-autosuggestions \
+    # zsh-better-npm-completion \
+    # zsh-syntax-highlighting \
 
     # go!
-    golang \
+    golang\
     # golang /Users/michaeltreanor/.dotfiles/ohmyzsh/plugins/golang/README.md
 
     # python!
-    django python poetry )
+    django poetry\
+
+    python)
+    # includes pyfind, pyclean, pyuserpaths, pygrep, ipython
 
 #? -----------------------------> per host config
     # per-host
@@ -324,9 +303,16 @@
     fi
 
 #? -----------------------------> load OMZ!
-    . "$ZSH/oh-my-zsh.sh"
+    # OMZ config
+	CASE_SENSITIVE="false"
+	COMPLETION_WAITING_DOTS="true"
+    # DISABLE_UNTRACKED_FILES_DIRTY="true"
+    ENABLE_CORRECTION="true"
+    DISABLE_MAGIC_FUNCTIONS="true"
+    ZSH_THEME="spaceship"
+	# ZSH_THEME="robbyrussell"
 
-    # Customize to your needs...
+    . "$ZSH/oh-my-zsh.sh"
 
 #? -----------------------------> odds and ends
     # Autocorrect exceptions
@@ -386,6 +372,23 @@
 
     # The next line enables shell command completion for gcloud.
     if [ -r ~/apps/google-cloud-sdk/completion.zsh.inc ]; then . ~/apps/google-cloud-sdk/completion.zsh.inc; fi
+#? -----------------------------> Powerlevel10k
+    # PowerLevel10k Theme
+    ZSH_THEME="powerlevel10k/powerlevel10k"
+    # To customize prompt, run `p10k configure` or edit ~/.dotfiles/.p10k.zsh.
+    [[ ! -f ~/.dotfiles/.p10k.zsh ]] || source ~/.dotfiles/.p10k.zsh
+    # POWERLEVEL9K_MODE="nerdfont-complete"
+    # POWERLEVEL9K_DISABLE_RPROMPT=true
+    # POWERLEVEL9K_PROMPT_ON_NEWLINE=true
+    # POWERLEVEL9K_MULTILINE_LAST_PROMPT_PREFIX="▶ "
+    # POWERLEVEL9K_MULTILINE_FIRST_PROMPT_PREFIX=""
+
+    # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.dotfiles/.zshrc.
+    # Initialization code that may require console input (password prompts, [y/n]
+    # confirmations, etc.) must go above this block; everything else may go below.
+    if [[ -r ${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh ]]; then
+    source ${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh
+    fi
 
 #! -----------------------------> Install issues on macOS Big Sur
     # Reference: https://github.com/pyenv/pyenv/issues/1219

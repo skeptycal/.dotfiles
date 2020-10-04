@@ -39,18 +39,18 @@
 	SUN_LOG_FILE="${ZDOTDIR}/.sun_check"
 
 	# default logfile
-	log_setup -f $BOOT_LOGFILE
+	# log_setup -f "$BOOT_LOGFILE"
 
 	# find an available file descriptor for log redirection
-	get_fd(){
-		fd=5
-		while [ -t $fd ]; do (( fd++ )); done;
-		# dbecho "next available file descriptor: $fd"
-		echo $fd
-		# return $fd
-	}
+	# get_fd(){
+	# 	fd=5
+	# 	while [ -t $fd ]; do (( fd++ )); done;
+	# 	# dbecho "next available file descriptor: $fd"
+	# 	echo $fd
+	# 	# return $fd
+	# }
 
-	LOG_FD=$(get_fd)
+	# LOG_FD=$(get_fd)
 
 #? ######################## Shell Utilities
 	echolog() {
@@ -121,7 +121,7 @@
 		} >/dev/null 2>&1
 	is_root() {
 		# complementary function for 'not_root'
-		return $(( EUID > 0 ))
+		return $(( EUID>0 ))
 		} >/dev/null 2>&1
 	userid_not_root(){
 		# Using shell programs (whoami, uname, or id) to get username or userid and could easily be vulnerable to bypassing if they are replaced with a dummy file earlier in the path. Using scutil may be more difficult to fool, but is itself a shell program found on the path ...
@@ -137,9 +137,9 @@
 
 		# 	mv: cannot move 'bin' to 'bin2': Read-only file system
 
-		loggedInUserID="$( scutil <<< "show State:/Users/ConsoleUser"  | awk '/UID : / && ! /loginwindow/ { print $3 }' )"
+		declare ix loggedInUserID="$( scutil <<< "show State:/Users/ConsoleUser"  | awk '/UID : / && ! /loginwindow/ { print $3 }' )"
 
-		return [ $loggedInUserID -gt 0 ]
+		return $(( loggedInUserID=0 ))
 		} >/dev/null 2>&1
 	sudo_env() { # Turn on SUDO for remainder of current script
 		#   requires root authentication, of course
@@ -337,7 +337,6 @@ EOF
 		touch $LOGFILE
 
 		if [ -r $LOGFILE ]; then
-			log_setup -f $LOGFILE
 			log_line=$(tail -1 $LOGFILE)
 			log_check="$nowdate"
 			if [[ $log_line =~ "$log_check" ]]; then
@@ -345,7 +344,7 @@ EOF
 			else
 				rain "It's a new day! Performing daily updates and refreshes..."
 				# TODO -- add daily update functions here ...
-				background_cleanup && printf '%b\n' "Daily tasks completed: $log_check" >>$LOGFILE
+				(background_cleanup && printf '%b\n' "Daily tasks completed: $log_check") >>$LOGFILE
 			fi
 		fi
 	}
@@ -360,7 +359,6 @@ EOF
 		touch $LOGFILE
 
 		if [ -r $LOGFILE ]; then
-			log_setup -f $LOGFILE
 			# check last line of log file to see if this process
 			#   has been completed earlier today...
 			log_line=$(tail -1 $LOGFILE)

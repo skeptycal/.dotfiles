@@ -27,7 +27,7 @@
 
 # *############################################## repo setup
     alias please='sudo '
-    alias gi='cp $HOME/.dotfiles/.gitignore .'
+    alias gig='cp $HOME/.dotfiles/.gitignore .'
 
     alias d="docker "
 
