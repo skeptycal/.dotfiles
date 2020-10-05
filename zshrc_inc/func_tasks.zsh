@@ -7,7 +7,8 @@
 	#* copyright (c) 2019 Michael Treanor     -----     MIT License
 	#* should not be run directly; called from .bash_profile / .bashrc / .zshrc
 #? ######################## https://www.github.com/skeptycal #################
-	SET_DEBUG= ${SET_DEBUG:-0} # set to 1 for verbose testing
+	SET_DEBUG=${SET_DEBUG:-0} # set to 1 for verbose testing
+
 	SCRIPT_NAME=${0##*/}
 	_debug_tests() {
 		if (( SET_DEBUG > 0 )); then
@@ -27,16 +28,14 @@
 	seconds=$(date +%s)      					# 1600377174 s
 	timestamp=$(date +%s%N)  					# 1600377060096604000 ns
 
-    ms() { printf '%i\n' "$(( $(gdate +%s%0N)/1000000 ))" }
-
 	SCRIPT_NAME=${0##*/}
 	ZDOTDIR=${ZDOTDIR:=$HOME/.dotfiles}
 	VERSION_LIST="${ZDOTDIR:-~/.dotfiles}/.VERSION_LIST.md"
 
-	BOOT_LOGFILE="${HOME}/.boot_log_$(ms).log"
-	PERF_TEST_LOGFILE="${HOME}/.perf_test_$(ms).log"
-	DAILY_LOG_FILE="${ZDOTDIR}/.daily_check"
-	SUN_LOG_FILE="${ZDOTDIR}/.sun_check"
+	# BOOT_LOGFILE="${HOME}/.boot_log_$(ms).log"
+	# PERF_TEST_LOGFILE="${HOME}/.perf_test_$(ms).log"
+	# DAILY_LOG_FILE="${ZDOTDIR}/.daily_check"
+	# SUN_LOG_FILE="${ZDOTDIR}/.sun_check"
 
 	# default logfile
 	# log_setup -f "$BOOT_LOGFILE"
@@ -53,61 +52,64 @@
 	# LOG_FD=$(get_fd)
 
 #? ######################## Shell Utilities
-	echolog() {
-		exec &> >(tee -a "$LOGFILE")
-		echo "$*"
-		# echo "$@" >>$LOGFILE
-		} # tee replacement ...
-	perf_test(){
-		LOGFILE=$PERF_TEST_LOGFILE
-		touch $LOGFILE
-		SEARCH_PATH=${1:-~/}
+	# todo WIP
+	# echolog() {
+	# 	exec &> >(tee -a "$LOGFILE")
+	# 	echo "$*"
+	# 	# echo "$@" >>$LOGFILE
+	# 	} # tee replacement ...
 
-		# find $PWD -name "*.pyc" -exec rm -rf {} \;
-		# find $PWD -name "__pycache__" -exec rm -rf {} \;'
+	# todo WIP
+	# perf_test(){
+	# 	LOGFILE=$PERF_TEST_LOGFILE
+	# 	touch $LOGFILE
+	# 	SEARCH_PATH=${1:-~/}
 
-		hr() { echolog "============================================================================="; }
-		sr() { echolog "-----------------------------------------------------------------------------"; }
-		br() { echolog ""; }
+	# 	# find $PWD -name "*.pyc" -exec rm -rf {} \;
+	# 	# find $PWD -name "__pycache__" -exec rm -rf {} \;'
 
-		# initial run example data
-		hr
-		echolog "Test various search, sort, and cleanup routines"
-		sr
-		echolog "Logging performance results to: $LOGFILE"
-		echolog "'time' will print the total time taken for the command to finish"
-		sr
-		echolog "Total space of search area ($SEARCH_PATH)."
-		echolog 'du -hd0 >>LOGFILE'
-		du -hd0 >>$LOGFILE                        # 52G
-		sr
-		echolog '# find -exec \;'
-		echolog "time find $SEARCH_PATH -name \*.pyc -type f -exec grep -Hn 'def' {} \; >>LOGFILE"
-		time find $SEARCH_PATH -name \*.pyc -type f -exec grep -Hn 'def' {} \; >>$LOGFILE
-		sr
-		echolog '# find -exec \+'
-		echolog "find $SEARCH_PATH -name \*.pyc -type f -exec grep -Hn 'def' {} \+ >>LOGFILE"
-		time find $SEARCH_PATH -name \*.pyc -type f -exec grep -Hn 'def' {} \+ >>$LOGFILE
-		sr
-		echolog '# find | xargs -n1'
-		echolog "time find $SEARCH_PATH -name \*.pyc -type f -print0 | xargs -0 -n1 grep -Hn 'def' >>LOGFILE"
-		time find $SEARCH_PATH -name \*.pyc -type f -print0 | xargs -0 -n1 grep -Hn 'def' >>$LOGFILE
-		sr
-		echolog '# find | xargs'
-		echolog "time find $SEARCH_PATH -name \*.pyc -type f -print0 | xargs -0 grep -Hn 'def' >>LOGFILE"
-		time find $SEARCH_PATH -name \*.pyc -type f -print0 | xargs -0 grep -Hn 'def' >>$LOGFILE
-		hr
-		echolog "# find broken symlinks"
-		sr
-		echolog '# find | xargs'
-		echolog "time find -L $SEARCH_PATH -type l -print0 | xargs -0 grep -Hn 'def' >>LOGFILE"
-		time find -L $SEARCH_PATH -type l -print0 | xargs -0 grep -Hn '/' >>$LOGFILE
-		sr
-		echolog '# find -exec'
-		echolog "time find -L $SEARCH_PATH -type l -exec grep -Hn 'def' -- {} + >>LOGFILE"
-		time find -L $SEARCH_PATH -type l -exec grep -Hn '/' -- {} + >>$LOGFILE
-		hr
-		}
+	# 	hr() { echolog "============================================================================="; }
+	# 	sr() { echolog "-----------------------------------------------------------------------------"; }
+	# 	br() { echolog ""; }
+
+	# 	# initial run example data
+	# 	hr
+	# 	echolog "Test various search, sort, and cleanup routines"
+	# 	sr
+	# 	echolog "Logging performance results to: $LOGFILE"
+	# 	echolog "'time' will print the total time taken for the command to finish"
+	# 	sr
+	# 	echolog "Total space of search area ($SEARCH_PATH)."
+	# 	echolog 'du -hd0 >>LOGFILE'
+	# 	du -hd0 >>$LOGFILE                        # 52G
+	# 	sr
+	# 	echolog '# find -exec \;'
+	# 	echolog "time find $SEARCH_PATH -name \*.pyc -type f -exec grep -Hn 'def' {} \; >>LOGFILE"
+	# 	time find $SEARCH_PATH -name \*.pyc -type f -exec grep -Hn 'def' {} \; >>$LOGFILE
+	# 	sr
+	# 	echolog '# find -exec \+'
+	# 	echolog "find $SEARCH_PATH -name \*.pyc -type f -exec grep -Hn 'def' {} \+ >>LOGFILE"
+	# 	time find $SEARCH_PATH -name \*.pyc -type f -exec grep -Hn 'def' {} \+ >>$LOGFILE
+	# 	sr
+	# 	echolog '# find | xargs -n1'
+	# 	echolog "time find $SEARCH_PATH -name \*.pyc -type f -print0 | xargs -0 -n1 grep -Hn 'def' >>LOGFILE"
+	# 	time find $SEARCH_PATH -name \*.pyc -type f -print0 | xargs -0 -n1 grep -Hn 'def' >>$LOGFILE
+	# 	sr
+	# 	echolog '# find | xargs'
+	# 	echolog "time find $SEARCH_PATH -name \*.pyc -type f -print0 | xargs -0 grep -Hn 'def' >>LOGFILE"
+	# 	time find $SEARCH_PATH -name \*.pyc -type f -print0 | xargs -0 grep -Hn 'def' >>$LOGFILE
+	# 	hr
+	# 	echolog "# find broken symlinks"
+	# 	sr
+	# 	echolog '# find | xargs'
+	# 	echolog "time find -L $SEARCH_PATH -type l -print0 | xargs -0 grep -Hn 'def' >>LOGFILE"
+	# 	time find -L $SEARCH_PATH -type l -print0 | xargs -0 grep -Hn '/' >>$LOGFILE
+	# 	sr
+	# 	echolog '# find -exec'
+	# 	echolog "time find -L $SEARCH_PATH -type l -exec grep -Hn 'def' -- {} + >>LOGFILE"
+	# 	time find -L $SEARCH_PATH -type l -exec grep -Hn '/' -- {} + >>$LOGFILE
+	# 	hr
+	# 	}
 
 	not_root(){
 		# the environment variable $EUID contains the 'effective user id'
@@ -210,81 +212,85 @@
 		}
 	versions() { cat $VERSION_LIST ; }
 #? ######################## Maintenance
-	update() { # System software updates (macOS - updated for Big Sur)
-		#? ############################### Close 'System Preferences'
-		# Close any open System Preferences panes, to prevent them from overriding
-		# settings we are about to change
-		osascript -e 'tell application "System Preferences" to quit'
+# todo - moved to crontab for now
+	# update() { # System software updates (macOS - updated for Big Sur)
+	# 	#? ############################### Close 'System Preferences'
+	# 	# Close any open System Preferences panes, to prevent them from overriding
+	# 	# settings we are about to change
+	# 	osascript -e 'tell application "System Preferences" to quit'
 
-		#? ############################### Homebrew updates
-		# Brew does not like 'sudo'
-		brew update
-		brew upgrade
-		brew doctor
-		brew cleanup
+	# 	#? ############################### Homebrew updates
+	# 	# Brew does not like 'sudo'
+	# 	brew update
+	# 	brew upgrade
+	# 	brew doctor
+	# 	brew cleanup
 
-		#? ############################### Use sudo for remainder of the script
-		# Brew does not like 'sudo'
-		sudo_env
+	# 	#? ############################### Use sudo for remainder of the script
+	# 	# Brew does not like 'sudo'
+	# 	sudo_env
 
-		#? ############################### macOS updates
-		/usr/bin/sudo softwareupdate -i -a
+	# 	#? ############################### macOS updates
+	# 	/usr/bin/sudo softwareupdate -i -a
 
-		#? ############################### python updates
-		#   brew upgrade python pyenv pipenv
-		cd ~
-		deactivate || sleep 1 # exit venv ... if needed
-		repip
+	# 	#? ############################### python updates
+	# 	#   brew upgrade python pyenv pipenv
+	# 	cd ~
+	# 	deactivate || sleep 1 # exit venv ... if needed
+	# 	repip
 
-		#? ############################### npm updates
-		# /usr/bin/sudo
-		npm install npm -g
-		# /usr/bin/sudo
-		npm update -g
-		runif brew_fix
+	# 	#? ############################### npm updates
+	# 	# /usr/bin/sudo
+	# 	npm install npm -g
+	# 	# /usr/bin/sudo
+	# 	npm update -g
+	# 	runif brew_fix
 
-		#? ############################### ruby updates
-		# /usr/bin/sudo
-		gem update --system
-		# /usr/bin/sudo
-		gem update
-		# /usr/bin/sudo
-		gem cleanup
-		} # 2>/dev/null &
+	# 	#? ############################### ruby updates
+	# 	# /usr/bin/sudo
+	# 	gem update --system
+	# 	# /usr/bin/sudo
+	# 	gem update
+	# 	# /usr/bin/sudo
+	# 	gem cleanup
+	# 	} # 2>/dev/null &
 
-	cleanup() {
-		# init sudo environment
-		sudo_env
-		# cleanup .DS_Store files
-		find . -type f -name '*.DS_Store' -ls -delete
-		# empty trashes
-		/usr/bin/sudo rm -rfv /Volumes/*/.Trashes; sudo rm -rfv ~/.Trash; sudo rm -rfv /private/var/log/asl/*.asl; sqlite3 ~/Library/Preferences/com.apple.LaunchServices.QuarantineEventsV* 'delete from LSQuarantineEvent'
-		# pycache cleanup
+	# cleanup() {
+	# 	# init sudo environment
+	# 	sudo_env
+	# 	# cleanup .DS_Store files
+	# 	find . -type f -name '*.DS_Store' -ls -delete
+	# 	# empty trashes
+	# 	/usr/bin/sudo rm -rfv /Volumes/*/.Trashes; sudo rm -rfv ~/.Trash; sudo rm -rfv /private/var/log/asl/*.asl; sqlite3 ~/Library/Preferences/com.apple.LaunchServices.QuarantineEventsV* 'delete from LSQuarantineEvent'
+	# 	# pycache cleanup
 
-		# lscleanup
-		/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user && killall Finder
-		true
-		}
+	# 	# lscleanup
+	# 	/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user && killall Finder
+	# 	true
+	# 	}
 
-	maintenance() { cleanup && update; }
-	background_update() { update >/dev/null 2>&1 & ; }
-	background_cleanup() { cleanup >/dev/null 2>&1 & ; }
-	background_maintenance() { background_cleanup && background_update >/dev/null 2>&1 & ; }
+	# maintenance() { cleanup && update; }
+
+	# background_update() { update >/dev/null 2>&1 & ; }
+	# background_cleanup() { cleanup >/dev/null 2>&1 & ; }
+	# background_maintenance() { background_cleanup && background_update >/dev/null 2>&1 & ; }
 
 #? ######################## Session Tasks
 	_login_message() { cat <<- EOF
 		${CHERRY:-}
-		========================================================${MAIN:-}
+		================================================================== ${MAIN:-}
 		os: ${LIME:-}$(uname -i) | $(sw_vers -productName) | $(sw_vers -productVersion)${MAIN:-}
 		shell: ${ATTN:-}$(zsh --version | cut -d '(' -f 1))${MAIN:-}
 		go: ${COOL:-}$(go version | cut -d ' ' -f 3 | cut -d 'o' -f 2)${MAIN:-}
-		python: ${CANARY:-}$(python -V)${CHERRY:-}
-		========================================================
-		${LIME}
-		--------------------------------------------------------${CANARY}
+		python: ${CANARY:-}$(python -V)${MAIN:-}
+
+		CPU: ${LIME:-}${CPU} ${MAIN:-}-> ${CANARY:-}${number_of_cores}${MAIN:-} cores.${MAIN:-}
+		LOCAL IP: ${COOL:-}${LOCAL_IP}  ${MAIN:-}SHLVL: ${WARN:-}${SHLVL}  ${MAIN:-}LANG: ${RAIN:-}${LANG}${CHERRY:-}
+		==================================================================
+		${CANARY}
 		Selected recently added utilities:${RESET}${ITALIC}${DIM}
 			# Reminders to try out the latest features ...${RESET}
-			${ATTN}
+			${LIME}
 			recent              - see *more* utility additions / changes.${DARKGREEN}
 			preman              - open man pages nicely formatted in Preview
 			zsh_stats           - (from oh-my-zsh) list cli stats
@@ -293,9 +299,10 @@
 			ldoc [FILES]        - local docs (move FILES out of iCloud)
 			do_over [target]    - repeat something over and over ... and over
 			log_urls            - logs urls from chrome constantly${RED}
-			update_git_dirs     - update all git repos (!! I mean ALL !!)${RESET}
-EOF
-	}
+			update_git_dirs     - update all git repos (!! I mean ALL !!)${CHERRY:-}
+		================================================================== ${RESET}
+		EOF
+		}
 
 	recent () { cat <<- EOF
 		${LIME}
@@ -324,104 +331,12 @@ EOF
 			sysctl -a           - display a ton of system settings
 			update_git_dirs     - update all git repos ${WARN}${REVERSED}DANGER${RESET}${LIME}
 			versions            - to display program versions
-EOF
-	}
-#? ######################## Daily Tasks
-	daily_chores() {
-		# TODO - really, this should be a cron job ... but, eh ...
+		EOF
+		}
 
-		# set default log file name if not set
-		ZDOTDIR=${ZDOTDIR:=$HOME/.dotfiles}
-		DAILY_LOG_FILE=${ZDOTDIR}/.daily_check
-		LOGFILE=$DAILY_LOG_FILE
-		touch $LOGFILE
-
-		if [ -r $LOGFILE ]; then
-			log_line=$(tail -1 $LOGFILE)
-			log_check="$nowdate"
-			if [[ $log_line =~ "$log_check" ]]; then
-				rain 'Your daily chores are done...'
-			else
-				rain "It's a new day! Performing daily updates and refreshes..."
-				# TODO -- add daily update functions here ...
-				(background_cleanup && printf '%b\n' "Daily tasks completed: $log_check") >>$LOGFILE
-			fi
-		fi
-	}
-#? ######################## Weekly Tasks
-	sunday() {
-		# TODO - really, this should be a cron job ... but, eh ...
-
-		# set default log file name if not set
-		ZDOTDIR=${ZDOTDIR:=$HOME/.dotfiles}
-		SUN_LOG_FILE=${ZDOTDIR}/.sun_check
-		LOGFILE=$SUN_LOG_FILE
-		touch $LOGFILE
-
-		if [ -r $LOGFILE ]; then
-			# check last line of log file to see if this process
-			#   has been completed earlier today...
-			log_line=$(tail -1 $LOGFILE)
-
-			log_check="${weekday}, ${nowdate}"
-			if [[ $log_line =~ "$log_check" ]]; then
-				rain 'Your Sunday chores are done...' >&6
-			else
-				loggedInUserID="$( scutil <<< "show State:/Users/ConsoleUser" | awk '/UID : / && ! /loginwindow/ { print $3 }' )"
-
-				# Double check that the logged in user is NOT 'root' ...
-				# this could lead to unexpected file permission errors ...
-				if not_root && userid_not_root; then
-					#! not allowed to run as root
-
-					rain "It's Sunday! Performing weekly chores, updates, and refreshes..." >&6
-
-					read -p "Are you sure you want to continue? <y/N> " prompt >&6
-					if [[ "$prompt" =~ [yY](es)* ]]; then
-
-						loggedInUser="$( scutil <<< "show State:/Users/ConsoleUser" | awk '/Name :/ && ! /loginwindow/ { print $3 }' )"
-
-						# add weekly update functions here ...
-						cd $HOME
-
-						# Find and delete all broken symbolic links in User Home
-						blue "Pruning broken symlinks ..." >&6
-						find_broken -d "$HOME"
-
-						blue "Pruning empty directories in ${loggedInUser}'s home folder." >&6
-						find "$HOME" -type d -uid ${loggedInUserID} -empty -exec rmdir --ignore-fail-on-non-empty -- {} +
-
-						# Delete repo temp and cache files in User Home
-						blue "Running RepoClean chores ..." >&6
-						rc
-
-						blue "Running python chores ..." >&6
-						# python -m ${DOTFILES_INC}/sunday.py
-
-						blue "Updating program version list <versions> ..." >&6
-						save_versions
-
-						#! .................................................................
-						#! ....................begin root user portions ....................
-
-						blue "Running system cleanup and update chores ..." >&6
-						update
-
-						#! .................................................................
-						printf '%b\n' "Sunday chores completed: $log_check" >>$LOGFILE
-					fi
-				else
-					echo "You cannot run $SCRIPT_NAME as a root user." >&6
-					return 1;
-				fi
-			fi
-		fi
-	} 6>&1 >/dev/null 2>&1
 #? ######################## MAIN LOOP
 	_main_() {
 		_login_message
-		daily_chores
-		[ $weekday='Sun' ] && sunday
 		_debug_tests
 	}
 #? ######################## ENTRY POINT

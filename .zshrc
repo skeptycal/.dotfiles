@@ -16,8 +16,6 @@
     # use root defaults (they match most web server defaults)
     umask 022   #          !! possible security issue !!
 
-    set -a        # export all (zsh default)
-
     # By default, zsh does not do word splitting for unquoted parameter
         # expansions. You can enable "normal" word splitting by setting the
         # SH_WORD_SPLIT option or by using the = flag on an individual expansion.
@@ -25,10 +23,7 @@
 
 	if [[ "${SHELL##*/}" == 'zsh' ]]; then
 
-        # Allow comments even in interactive shells.
-    	setopt interactivecomments
-
-        # 'BASH style' word splitting
+        # 'SH style' word splitting
         setopt SH_WORD_SPLIT
 
         # Emulate some form of compatibility
@@ -39,37 +34,38 @@
         BASH_SOURCE="${BASH_SOURCE:=$0}"
     fi
 
-#? -----------------------------> constants
     # ANSI colors and cli functions
-    . ~/bin/ssm || . ${ZDOTDIR:-~/.dotfiles}/zshrc_inc_manual/ansi_colors.sh
+    . $(which ssm) >/dev/null 2>&1 || . ${ZDOTDIR:-~/.dotfiles}/zshrc_inc/ansi_colors.sh
 
+#? -----------------------------> debug (Dev / Production modes)
     # SET_DEBUG is set to zero for production mode
     # SET_DEBUG is set to non-zero for dev mode
     #   1 - Show debug info and log to $LOGFILE
-    #   2 - #1 plus run specific tests
+    #   2 - #1 plus trace and run specific tests
     #   3 - #2 plus display and log everything
 
     declare -ix SET_DEBUG=0 # ${SET_DEBUG:-0}
 
-    lime "SET_DEBUG: $SET_DEBUG"
+    dbecho "SET_DEBUG: $SET_DEBUG" #! debug
     if (( SET_DEBUG>0 )); then
         printf '%b\n' "${WARN:-}Debug Mode for ${CANARY}${SCRIPT_NAME##*/}${RESET:-}"
         dbecho "DEV mode ($SET_DEBUG) activated"
-        # trap 'echo "# $(realpath $0) (line $LINENO) Error Trapped: $?" >>~./.bootlog.log' ERR
+        trap 'echo "# $(realpath $0) (line $LINENO) Error Trapped: $?"' ERR
         trap 'echo "# $0: Exit with code: $?"' EXIT
     fi
     if (( SET_DEBUG>1 )); then
         printf '%b\n' "${WARN:-}Debug Test Mode for ${CANARY}${SCRIPT_NAME##*/}${RESET:-}"
         dbecho "# DEV TEST mode ($SET_DEBUG) activated"
         setopt SOURCE_TRACE
-        # trap 'echo "# $0: Line Number: $LINENO"' DEBUG
+        trap 'echo "# $0: Line Number: $LINENO"' DEBUG
     fi
     if (( SET_DEBUG>2 )); then
         printf '%b\n' "${WARN:-}Debug Trace Mode for ${CANARY}${SCRIPT_NAME##*/}${RESET:-}"
         dbecho "# DEV TRACE mode ($SET_DEBUG) activated"
-        setopt XTRACE
+        setopt XTRACE # VERBOSE
     fi
 
+#? -----------------------------> user and paths
     # Apple User Identification Reference:
         # https://developer.apple.com/library/archive/qa/qa1133/_index.html
 
@@ -109,16 +105,13 @@
     # Older dotfiles path directory (for compatibility)
     DOTFILES_PATH=$ZDOTDIR
 
-    # Path to files that are automatically sourced
+    # Path to include files
     DOTFILES_INC=${ZDOTDIR}/zshrc_inc
 
-    # Path to other files that are available to source
-    DOTFILES_INC_MANUAL=${ZDOTDIR}/zshrc_inc_manual
-
     # setup system $PATH (and $MANPATH)
-    . ${DOTFILES_INC_MANUAL}/zsh_set_path.sh
+    . ${DOTFILES_INC}/zsh_set_path.sh
 
-#? -----------------------------> utilities
+#? -----------------------------> source utilities
     .() { # source with debugging info and file read check
         source "$1"
         if (( $? )); then
@@ -128,172 +121,104 @@
         fi
         }
     source_dir() { # 'source' all files in directories
+        # echo "$(find . -type f -print | sort -f)"
         for f in $(find "$@" -type f -print; ); do
+        # for f in "$(find "$@" -type f -print | sort -f)"; do
             [[ -r "$f" ]] && . "$f"
         done;
         }
 
 #? -----------------------------> script timers
-    ms() { printf '%i\n' "$(( $(gdate +%s%0N)/1000000 ))" }
-    t0=$(ms)
-    lap() {
-        # report time (ns) since last 'lap' call
-        dt=$(( $(ms) - t0 ))
-        t0=$(ms)
-        printf '%i\n' "$dt"
+    ms() { printf '%i\n' "$(( $(gdate +%s%N) * 0.001 ))"; } # microseconds
+    t0=$(ms) # initial timer mark
+    lap() { # time milliseconds since last 'lap' call
+        if [[ $1 = 'reset' ]]; then
+            # reset the lap timer initial value
+            t0=$(ms)
+            return 0
+        else
+            t1=$(ms)
+            dt=$(( t1 - t0 ))
+            t0=$(ms)
+            printf '%i\n' "$dt"
+        fi
         }
-    lap_ms() { printf '%i\n' "$(( $(lap)/1000000 ))"; } # report time (ms) since last 'lap' call
-    lap_sec() { printf '%i\n' "$(( $(lap)/1000000000 ))"; } # report time (s) since last 'lap' call
+    lap_ms() { printf '%i\n' "$(( $(lap) / 1000 ))"; }
+    lap_sec() { printf '%i\n' "$(( $(lap) / 1000000 ))"; }
 
+    timer_test(){
+        blue "timer_test - test timer functions"
+        blue "Increasing time delays are measured and posted."
+        blue "Press <ctrl>-C to end the timer test early..."
+        t0=$(ms)
+        for i in {1..10}; do
+            sleep 1
+            green "Assigned time: ${i}       actual time: $(lap) µs."
+            t0=$(ms)
+        done;
+        for i in {1..10}; do
+            sleep 1
+            green "Assigned time: ${i}       actual time: $(lap_ms) ms."
+            t0=$(ms)
+        done;
+        for i in {1..10}; do
+            sleep 1
+            green "Assigned time: ${i}       actual time: $(lap_sec) s."
+            t0=$(ms)
+        done;
+    }
 #? -----------------------------> timer in CLI prompt
-    # function preexec() { timer=$(ms); }
+    # function preexec() { pre_timer=$(ms); }
     # function precmd() {
     #     if [ $timer ]; then
-    #         elapsed=$(($(ms)-$timer))
+    #         elapsed=$(($(ms)-$pre_timer))
 
     #         RPROMPT="%F{cyan}${elapsed}ms %{$reset_color%}"
     #         unset timer
     #     fi
     #     }
-#? -----------------------------> logging
-    DEFAULT_BOOT_LOG_PREFIX="$HOME/.bootlog_"
-    DEFAULT_BOOT_LOG_SUFFIX=".log"
 
-    _boot_log_setup() {
-        # todo - something just isn't working out with this ...
-        # > log_setup [PREFIX] [SUFFIX]
-        LOG_PATH_PREFIX=${1:=$DEFAULT_BOOT_LOG_PREFIX}
-        LOG_PATH_SUFFIX=${2:=$DEFAULT_BOOT_LOG_SUFFIX}
+#? -----------------------------> load profile settingss
+    # tokens and password functions
+    . "${DOTFILES_INC}/.tokens_private.sh"
 
-        # the standard boot logger works when SET_DEBUG is non-zero
-        if (( SET_DEBUG>0 )); then
-            # Setup log file and redirect output
-            # Create a numbered log file from prefix and suffix
-            LOG_PATH="${LOG_PATH_PREFIX}$(ms)${LOG_PATH_SUFFIX}"
+    # setup shell logging
+    # todo - wip ... still some work to do ...
+    # . "${DOTFILES_INC}/zsh_logging.zsh"
 
-            touch "$LOG_PATH"
-            dbecho "$0 has setup LOG_PATH to point to this file:\n  $LOG_PATH"
+    # zsh gpg setup
+    . "${DOTFILES_INC}/zshrc_gpg.zsh"
 
-            # Reference: https://unix.stackexchange.com/a/145654/
-            # exec &> >(tee -ap 'warn' $LOG_PATH)
-            # exec &> >(tee -a $LOG_PATH)
-            exec | tee -a $LOG_PATH
-            dbecho "$0 redirects logging to file with this command:\n  exec | tee -a $LOG_PATH)"
-            dbecho ""
-        fi
-    }
+    # git functions and options
+    . "${DOTFILES_INC}/func_git.zsh"
 
-    # boot_log_setup
+    # ansi colors and formatting
+    . "${DOTFILES_INC}/ansi_colors.sh"
 
-#? -----------------------------> load profile settings
-    # source all files in this directory
-    source_dir "$DOTFILES_INC"
+    # zsh shell aliases
+    . "${DOTFILES_INC}/a_directories.zsh"
+    . "${DOTFILES_INC}/a_init.zsh"
+    . "${DOTFILES_INC}/a_network.zsh"
 
+    # zsh environment variable exports
+    . "${DOTFILES_INC}/zshrc_exports.zsh"
 
-    # if type brew &>/dev/null; then
-    #     FPATH=$(brew --prefix)/share/zsh-completions:$FPATH
+    # zsh functions and options
+    . "${DOTFILES_INC}/func_sys.zsh"
+    . "${DOTFILES_INC}/zsh_big_sur_hacks.zsh"
+    . "${DOTFILES_INC}/func_tasks.zsh"
 
-    #     autoload -Uz compinit
-    #     compinit
-    # fi
+    # python settings and utilities
+    . "${DOTFILES_INC}/zshrc_python.zsh"
 
-    # . /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-    #   test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
-
-#? -----------------------------> oh-my-zsh config
-
-    # Using ZSH shell - http://zsh.sourceforge.net/
-
-    # HISTORY options are set in zshrc_exports 'history' section
-        # extendedhistory
-        # histexpiredupsfirst
-        # histfindnodups
-        # histignoredups
-        # histignorespace
-        # histreduceblanks
-        # histverify
-        # sharehistory
-
-    # set automatically at invocation of the shell:
-    # INTERACTIVE SHIN_STDIN MONITOR EXEC ZLE
-
-    # Directory options:
-    setopt AUTO_CD CDABLE_VARS CHASE_DOTS
-
-    # Directory stack options:
-    setopt AUTO_PUSHD PUSHD_IGNORE_DUPS PUSHD_SILENT PUSHD_TO_HOME
-    # possibly useful: pushdminus
-
-    # Completions:
-    setopt ALWAYS_TO_END AUTO_LIST AUTO_PARAM_SLASH AUTO_PARAM_KEYS
-    setopt AUTO_REMOVE_SLASH COMPLETE_ALIASES COMPLETE_IN_WORD
-    setopt GLOB_COMPLETE LIST_AMBIGUOUS REC_EXACT
-
-    # Expansion and Globbing
-    setopt NO_CASE_GLOB EXTENDED_GLOB GLOB_DOTS GLOB_STAR_SHORT
-    setopt NULL_GLOB NUMERIC_GLOB_SORT
-
-    # Initialisation
-    setopt ALL_EXPORT GLOBAL_EXPORT GLOBAL_RCS NO_RCS
-
-    # Input/Output
-    # The shell variable CORRECT_IGNORE may be set to a pattern to match
-    #   words that will never be offered as corrections.
-    setopt CORRECT CORRECT_ALL INTERACTIVE_COMMENTS
-    setopt NO_FLOW_CONTROL MAIL_WARNING PATH_DIRS RC_QUOTES
-    # todo - try these out
-    setopt PRINT_EXIT_VALUE SHORT_LOOPS
-
-    # Job Control
-    setopt AUTO_RESUME NO_BG_NICE CHECK_JOBS CHECK_RUNNING_JOBS
-    setopt LONG_LIST_JOBS NOTIFY
-
-    # Prompting
-    setopt PROMPT_BANG PROMPT_SUBST TRANSIENT_RPROMPT
-
-    # Scripts and Functions
-    setopt NO_ALIAS_FUNC_DEF C_BASES OCTAL_ZEROES C_PRECEDENCES
-    # these can cause issues and are mainly for debugging:
-    # setopt DEBUG_BEFORE_CMD ERR_RETURN EVAL_LINENO FUNCTION_ARGZERO MULTIOS
-
-    # Shell Emulation
-    setopt NO_CLOBBER APPEND_CREATE SH_WORD_SPLIT SH_NULLCMD
-    setopt CONTINUE_ON_ERROR TRAPS_ASYNC
-
-    # ZLE
-    setopt COMBINING_CHARS
-
-
-#? -----------------------------> OMZ plugins
-    plugins=(\
-
-    # repo management ...
-    git gpg-agent npm gitignore\
-
-    # macOS improvements
-    osx colored-man-pages cp copyfile man iterm2 gnu-utils\
-
-    # old plugins
-    # terminalapp\
-
-    # zsh helpers
-    # zsh-autosuggestions \
-    # zsh-better-npm-completion \
-    # zsh-syntax-highlighting \
-
-    # go!
-    golang\
-    # golang /Users/michaeltreanor/.dotfiles/ohmyzsh/plugins/golang/README.md
-
-    # python!
-    django poetry\
-
-    python)
-    # includes pyfind, pyclean, pyuserpaths, pygrep, ipython
+    # set zsh and OMZ options
+    . "${DOTFILES_INC}/zsh_options.zsh"
+    . "${DOTFILES_INC}/omz_plugins.zsh"
+    . "${DOTFILES_INC}/zsh_modules.zsh"
 
 #? -----------------------------> per host config
     # per-host
-    _HOSTNAME=hostname
+    _HOSTNAME=$(hostname)
     HOSTRC="~/.dotfiles/zshrc.${_HOSTNAME}"
     if [ -r "$HOSTRC" ]; then
         source "$HOSTRC"
@@ -315,10 +240,6 @@
     . "$ZSH/oh-my-zsh.sh"
 
 #? -----------------------------> odds and ends
-    # Autocorrect exceptions
-    #alias vim='nocorrect vim '
-    alias cp='nocorrect cp '
-    alias mv='nocorrect mv '
 
     if [ -x dircolors ]; then
         eval `dircolors ~/.dotfiles/dircolors-solarized/dircolors.ansi-dark`
@@ -341,28 +262,6 @@
     # alias ls="ls --color=tty --group-directories-first"
     colorflag="--color=tty"
     alias ls="ls $colorflag --group-directories-first"
-
-#? -----------------------------> ZSH odds and ends
-    autoload -U up-line-or-beginning-search
-    autoload -U down-line-or-beginning-search
-    zle -N up-line-or-beginning-search
-    zle -N down-line-or-beginning-search
-    bindkey "^[[A" up-line-or-beginning-search # Up
-    bindkey "^[[B" down-line-or-beginning-search # Down
-
-    # SHIFT-TAB
-    bindkey '^[[Z' reverse-menu-complete
-
-    # Autoload zsh modules when they are referenced
-    zmodload -a zsh/stat stat
-    zmodload -a zsh/zpty zpty
-    zmodload -a zsh/zprof zprof
-    zmodload -a zsh/mapfile mapfile
-
-    zstyle ':completion:*' menu select
-    fpath+="$HOME/.zfunc"
-
-	autoload -Uz compinit && compinit
 
 #? -----------------------------> important utilities
     test -e "${HOME}/.iterm2_shell_integration.zsh" && . "${HOME}/.iterm2_shell_integration.zsh"
@@ -390,26 +289,13 @@
     source ${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh
     fi
 
-#! -----------------------------> Install issues on macOS Big Sur
-    # Reference: https://github.com/pyenv/pyenv/issues/1219
-
-    BPO="${BREW_PREFIX}/opt/"
-    LDFLAGS="-L${BPO}readline/lib -L${BPO}openssl/lib -L${BPO}zlib/lib"
-    CFLAGS="-I${BPO}readline/include -I${BPO}openssl/include -I${BPO}zlib/include -I$(xcrun --show-sdk-path)/usr/include"
-    CPPFLAGS=${CFLAGS}
-
 #? -----------------------------> script cleanup
-    script_exit_cleanup() {
-        # cleanup and exit script
-        printf "${MAIN:-}CPU: ${LIME:-}${CPU} ${MAIN:-}-> ${CANARY:-}${number_of_cores}${MAIN:-} cores. \n"
-        printf "${MAIN:-}LOCAL IP: ${COOL:-}${LOCAL_IP}  ${MAIN:-}SHLVL: ${WARN:-}${SHLVL}  ${MAIN:-}LANG: ${RAIN:-}${LANG}${RESET:-}\n"
-        # calculate and display script time
-		# sleep 1 # timer test for ~ 1 second (1000 ms)
-        SCRIPT_TIME=$(lap_ms)
-        printf "${GREEN:-}Script ${SCRIPT_NAME} took ${BOLD:-}${ATTN:-}${SCRIPT_TIME}${RESET:-}${GREEN:-} ms to load.${RESET:-}\n\n"
-        unset t0 t1 dt SCRIPT_NAME SCRIPT_TIME
-        }
-    trap script_exit_cleanup EXIT
+    # cleanup and exit script
+    echo ''
+
+    # calculate and display script time
+    printf "${GREEN:-}Script ${SCRIPT_NAME} took ${BOLD:-}${ATTN:-}$(lap_ms)${RESET:-}${GREEN:-} ms to load.${RESET:-}\n\n"
+
 
     #? -----------------------------> zsh notes
     # ALL_EXPORT (-a, ksh: -a)

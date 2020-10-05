@@ -23,8 +23,6 @@
 	export PYTHONHASHSEED="$(shuf -i1-4294967295 -n1)"
 	export PYTHONIOENCODING='UTF-8'
 
-    # export PYTHON_CONFIGURE_OPTS="--enable-unicode=ucs2"
-
 # *############################################## repo setup
     alias please='sudo '
     alias gig='cp $HOME/.dotfiles/.gitignore .'
@@ -82,11 +80,14 @@
     [[ $(command -v pyenv-virtualenv-init >/dev/null) ]] && eval "$(pyenv virtualenv-init -)"
 
 # *############################################## python virtual environment
-    # DEFAULT_ENVIRONMENT_FOLDER_NAME=./.venv/
+    # DEFAULT_ENVIRONMENT_FOLDER_NAME='.venv'
     # older path was 'venv'
 
+	# create a venv
 	alias pyv='python -m venv .venv'
+	# the ubiquitous "source bin activate"s ...
 	alias sba='. .venv/bin/activate'
+	# turn off the venv
 	alias sda='deactivate'
 
 	# ! these hide configuration errors where aliases are ignored in poetry

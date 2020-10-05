@@ -63,22 +63,25 @@
 		# OVERLINED=$(printf '\033[53m') # not available on macOS
 
 		# ANSI colors
+		# BLUE=$(printf '\033[34m') # too dark
 		ATTN=$(printf '\033[38;5;178m')
-		BLUE=$(printf '\033[34m')
-		BOLD=$(printf '\033[1m')
+		BLUE=$(printf '\033[38;5;27m')
 		CANARY=$(printf '\033[38;5;226m')
 		CHERRY=$(printf '\033[38;5;124m')
-		COOL=$(printf '\033[38;5;38m')
+		COOL=$(printf '\033[38;5;27m')
 		CYAN=$(printf '\033[38;5;51m')
 		DARKGREEN=$(printf '\033[38;5;28m')
+		DBLUE=$(printf '\033[38;5;20m')
 		GREEN=$(printf '\033[32m')
-		MAGENTA=$(printf '\033[38;5;201m')
 		LIME=$(printf '\033[32;1m')
+		MAGENTA=$(printf '\033[38;5;201m')
 		MAIN=$(printf '\033[38;5;229m')
-		ORANGE=$(printf '\033[38;5;202m')
+		ORANGE=$(printf '\033[38;5;208m')
+		PINK=$(printf '\033[38;5;213m')
 		PURPLE=$(printf '\033[38;5;93m')
 		RAIN=$(printf '\033[38;5;93m')
 		RED=$(printf '\033[31m')
+		TANGERINE=$(printf '\033[38;5;202m')
 		WARN=$(printf '\033[38;5;203m')
 		WHITE=$(printf '\033[37m')
 		YELLOW=$(printf '\033[33m')
@@ -102,7 +105,7 @@
 		eprint() { printf "%b" "${*:-}" ; }
 		me() { ce "${MAIN:-}${*:-}" ; }
 		warn() { ce "${WARN:-}${*:-}" ; }
-		blue() { ce "${COOL:-}${*:-}" ; }
+		blue() { ce "${BLUE:-}${*:-}" ; }
 		cool() { ce "${COOL:-}${*:-}" ; }
 		green() { ce "${DARKGREEN:-}${*:-}" ; }
 		lime() { ce "${LIME:-}${*:-}" ; }
@@ -158,6 +161,16 @@
 		user1Style=
 	fi
 
+	# todo - wip automatic coloring of output based on previous return code
+	# colors used in tf color function
+	TRUE_COLOR="$GREEN"
+	FALSE_COLOR="$ATTN"
+
+	# todo - not working ... probably because of variable scopes in functions?
+	# colors output based on previous command
+	tfcolor() {
+		[ "$?" ] && ce "${TRUE_COLOR}$*"  || ce "${FALSE_COLOR}$*"
+	}
 #? -----------------------------> color testing
 	color_sample() {
 		echo "${MAIN:-}C  ${WARN:-}O  ${COOL:-}L  ${LIME:-}O  ${GO:-}R  ${CHERRY:-}S  ${CANARY:-}A  ${ATTN:-}M  ${RAIN:-}P  ${WHITE:-}L  ${RESET:-}E"
@@ -165,9 +178,22 @@
 		}
 
 	color_test() {
-		for i in {0..255}; do printf "\033[38;5;${i}m $i "; done;
-		echo ''
-		for i in {0..255}; do printf "\033[48;5;${i}m $i "; done;
+		(( color_width = int($COLUMNS / 4) ))
+		for j in {3..4}; do
+			for i in {0..255};
+				do printf '%b%03s ' "\033[${j}8;5;${i}m" "$i";
+				(( (i+1) % color_width )) || echo "$RESET"
+			done;
+			echo "$RESET"
+			br
+			br
+		done;
+		# echo ''
+		# for i in {0..255};
+		# 	do printf '%b%03d ' "\033[48;5;${i}m" "$i";
+		# 	do printf "\033[48;5;${i}m $i ";
+		# 	(( (i+1) % color_width )) || echo $RESET
+		# done;
 		}
 
 	default_dircolors() {cat <<- EOF
@@ -179,5 +205,5 @@
 		${MAGENTA}${REVERSED}Magenta (Pink):${RESET} Graphic image file
 		${RED}${REVERSED}Red:${RESET} Archive file
 		${RED}Red with black background:${RESET} Broken link
-EOF
+		EOF
 	}

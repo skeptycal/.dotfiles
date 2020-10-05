@@ -32,8 +32,15 @@
 #? ----------------------------->## zsh history
     # HISTORY options reference:
     # https://scriptingosx.com/2019/06/moving-to-zsh-part-3-shell-options/
-    setopt extended_history no_share_history hist_expire_dups_first
-    setopt hist_ignore_dups hist_find_no_dups hist_reduce_blanks hist_verify
+
+        setopt extendedhistory
+        setopt histexpiredupsfirst
+        setopt histfindnodups
+        setopt histignoredups
+        setopt histignorespace
+        setopt histreduceblanks
+        setopt histverify
+        setopt sharehistory
 
     export HISTFILE=${ZDOTDIR:-$HOME}/.zsh_history
     export HISTSIZE=524288 # 32768
