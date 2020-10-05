@@ -55,7 +55,7 @@ function encode_ansi_color() {
         fi;
         # optional formatting
         case "$3" in
-            "1457") 
+            "1457")
                 fc = "$3"
                 ;;
             *)
@@ -79,7 +79,7 @@ function encode_ansi_color() {
 #    $1 is escaped text to print
 #    $2 is optional foreground color name (from $text_colors)
 #    $3 is optional background color name (from $text_colors)
-#    $4 (int) is optional formatting (1) bold, (4) underline, (5) blink, (7) invert     
+#    $4 (int) is optional formatting (1) bold, (4) underline, (5) blink, (7) invert
 #       TODO italic (not implemented)
 #    $5 (boolean) True: do not reset color (default is to reset)
 #    $6 (boolean) True: do not add newline (default is to add \n)
@@ -89,7 +89,7 @@ function encode_ansi_color() {
 
 
 function ec() {
-	if [ -n "$1" ] 
+	if [ -n "$1" ]
 	then
 		encode_ansi_color($1, $2, $3)
         if [ -n "$4" ];
@@ -111,24 +111,24 @@ function ec() {
 	else
         echo ""
 	fi
-	
+
 #################################################################################
 # * Terminals compatibility  https://misc.flogisoft.com/bash/tip_colors_and_formatting
-#   
+#
 #   Terminal	    Formatting	                                        Colors	        Comment
 #                   Bold   Dim	  Underlined Blink	invert	  Hidden	8  16  88  256
 #   aTerm	        ok	    -	      ok	  -	      ok        -	    ok	~	-	-	Lighter background instead of blink.
 #   Eterm	        ~	    -	      ok	  -	      ok        -	    ok	~	-	ok	Lighter color instead of Bold. Lighter background instead of blink. Can overline a text with the “^[[6m” sequence.
 #   GNOME 	        ok	    ok    	  ok	  ok	  ok	    ok	    ok	ok	-	ok	Strikeout with the “^[[9m” sequence.
 #   Guake	        ok	    ok    	  ok	  ok	  ok	    ok	    ok	ok	-	ok	Strikeout with the “^[[9m” sequence.
-#   Konsole	        ok	    -	      ok	  ok      ok	    -	    ok	ok	-	ok	
+#   Konsole	        ok	    -	      ok	  ok      ok	    -	    ok	ok	-	ok
 #   Nautilus 	    ok	    ok    	  ok	  ok	  ok	    ok	    ok	ok	-	ok	Strikeout with the “^[[9m” sequence.
 #   rxvt	        ok	    -	      ok	  ~	      ok        -	    ok	ok	ok	-	If the background is not set to the default color, Blink make it lighter instead of blinking. Support of italic text with the “^[[3m” sequence.
 #   Terminator	    ok	    ok    	  ok	  -       ok	    ok	    ok	ok	-	ok	Strikeout with the “^[[9m” sequence.
 #   Tilda	        ok	    -	      ok	  ok      ok	    -	    ok	ok	-	-	Underline instead of Dim. Convert 256-colors in 16-colors.
 #   XFCE4 Terminal	ok	    ok    	  ok	  ok	  ok	    ok	    ok	ok	-	ok	Strikeout with the “^[[9m” sequence.
-#   XTerm	        ok	    -	      ok	  ok      ok	    ok	    ok	ok	-	ok	
-#   xvt	            ok	    -	      ok	  -	      ok        -	    -	-	-	-	
+#   XTerm	        ok	    -	      ok	  ok      ok	    ok	    ok	ok	-	ok
+#   xvt	            ok	    -	      ok	  -	      ok        -	    -	-	-	-
 #   Linux  TTY	    ok	    -	      -	      - 	  ok	    -	    ok	~	-	-	Specials colors instead of Dim and Underlined. Lighter background instead of Blink, Bug with 88/256 colors.
 #   VTE Terminal 3)	ok	    ok    	  ok	  ok	  ok	    ok	    ok	ok	-	ok	Strikeout with the “^[[9m” sequence.
 
@@ -140,7 +140,7 @@ function ec() {
 # and/or modify it under the terms of the Do What The Fuck You Want
 # To Public License, Version 2, as published by Sam Hocevar. See
 # http://sam.zoy.org/wtfpl/COPYING for more details.
- 
+
 function show_bash_colors() {
 	if [[ $TERM == xterm* ]]
 	then

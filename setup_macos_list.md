@@ -4,19 +4,19 @@
 
 ### Steps to Install
 
-- Install / Update Ruby and Gem
-- Install / Update Homebrew
-- Install / Update PHP and Composer
-- Install latest Python
-- Install Git
-- Install Docker
-- Install Xcode (plus App Store Utilities as needed)
-- -**Sign in to Xcode and accept terms of use NOW!**
-- Install VScode (or choice of editor)
-  - Sign in and download basics: -[Sara's Drasner's Night Owl](https://marketplace.visualstudio.com/items?itemName=sdras.night-owl) -[Don Jayamanne's Python Extension Pack](https://marketplace.visualstudio.com/items?itemName=donjayamanne.python-extension-pack) -[Dunstontc's Vim File Highlighter](https://marketplace.visualstudio.com/items?itemName=dunstontc.viml)
-- Install Firacode Font
-- Install Hack Font
-- Install Java SDK and VM (availability questionable as of Jan. 2019)
+-   Install / Update Ruby and Gem
+-   Install / Update Homebrew
+-   Install / Update PHP and Composer
+-   Install latest Python
+-   Install Git
+-   Install Docker
+-   Install Xcode (plus App Store Utilities as needed)
+-   -**Sign in to Xcode and accept terms of use NOW!**
+-   Install VScode (or choice of editor)
+    -   Sign in and download basics: -[Sara's Drasner's Night Owl](https://marketplace.visualstudio.com/items?itemName=sdras.night-owl) -[Don Jayamanne's Python Extension Pack](https://marketplace.visualstudio.com/items?itemName=donjayamanne.python-extension-pack) -[Dunstontc's Vim File Highlighter](https://marketplace.visualstudio.com/items?itemName=dunstontc.viml)
+-   Install Firacode Font
+-   Install Hack Font
+-   Install Java SDK and VM (availability questionable as of Jan. 2019)
 
 ---
 

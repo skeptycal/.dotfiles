@@ -102,13 +102,13 @@ Suggestions/improvements
 
 ## Author
 
-[![twitter/skeptycal](https://s.gravatar.com/avatar/b939916e40df04f870b03e0b5cff4807?s=80)](http://twitter.com/skeptycal "Follow @skeptycal on Twitter")
+[![twitter/skeptycal](https://s.gravatar.com/avatar/b939916e40df04f870b03e0b5cff4807?s=80)](http://twitter.com/skeptycal 'Follow @skeptycal on Twitter')
 
 [**Michael Treanor**](https://www.skeptycal.com)
 
 ## Based primarily on the open source work of:
 
-[![twitter/mathias](http://gravatar.com/avatar/24e08a9ea84deb17ae121074d0f17125?s=70)](http://twitter.com/mathias "Follow @mathias on Twitter")
+[![twitter/mathias](http://gravatar.com/avatar/24e08a9ea84deb17ae121074d0f17125?s=70)](http://twitter.com/mathias 'Follow @mathias on Twitter')
 
 [Mathias Bynens](https://mathiasbynens.be/)
 

@@ -3,18 +3,13 @@
 #     copyright 2019 (c) Michael Treanor <https://www.github.com/skeptycal>
 #     MIT License <https://opensource.org/licenses/MIT>
 
-# Please do not make changes directly to the "config" file. The "config" file:
-#     .pre-commit-config.yaml
-# is created and updated by the pc.sh script found in the same directory
-# in order to maintain the correct, current versioning from git (master sha)
-
 default_language_version:
     python: python3.7
 exclude: '^$'
 fail_fast: false
 repos:
     - repo: git://github.com/pre-commit/pre-commit-hooks
-      sha: master
+      rev: v3.2.0
       hooks:
           - id: check-added-large-files
           - id: check-byte-order-marker
@@ -27,11 +22,11 @@ repos:
           #    -   id: detect-aws-credentials
           - id: detect-private-key
           - id: end-of-file-fixer
-          - id: flake8
+          #   - id: flake8
           # -   id: pretty-format-json
           - id: requirements-txt-fixer
           - id: trailing-whitespace
-# -   repo: git://github.com/pre-commit/mirrors-pylint
-#     sha: master
-#     hooks:
-#     -   id: pylint
+    - repo: git://github.com/pre-commit/mirrors-pylint
+      rev: v2.6.0
+      hooks:
+          - id: pylint

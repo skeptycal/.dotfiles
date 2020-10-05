@@ -971,7 +971,7 @@ Source: <URL:http://www.itscj.ipsj.or.jp/ISO-IR/2-8-1.htm>
 Status: standard
 -------------------------------------------------------------------------------
 Sequence: ESC % C
-Description: switch to Data Syntax I of CCITT Rec.T.101 
+Description: switch to Data Syntax I of CCITT Rec.T.101
 
 Source: <URL:http://www.itscj.ipsj.or.jp/ISO-IR/2-8-1.htm>
 Status: standard
@@ -1203,7 +1203,7 @@ Source: <URL:http://www.itscj.ipsj.or.jp/ISO-IR/2-1.htm>
 Status: standard
 -------------------------------------------------------------------------------
 Sequence: ESC ( D
-Description: G0-designate NATS additional Finnish/Swedish graphic set 
+Description: G0-designate NATS additional Finnish/Swedish graphic set
 
 (IANA name NATS-SEFI-ADD)
 
@@ -2120,7 +2120,7 @@ Mnemonic: DECBI
  * This control function moves the cursor backward one column.  If the cursor
  * is at the left margin, then all screen data within the margin moves one
  * column to the right.  The column that shifted past the right margin is lost.
- * 
+ *
  * Format:  ESC 6
  * Description:
  * DECBI adds a new column at the left margin with no visual attributes.  DECBI
@@ -2136,12 +2136,12 @@ Mnemonic: DECSC
 Description: Save cursor
 
 Saves in terminal memory the:
-        cursor position 
-        graphic rendition 
-        character set shift state 
-        state of wrap flag 
-        state of origin mode 
-        state of selective erase 
+        cursor position
+        graphic rendition
+        character set shift state
+        state of wrap flag
+        state of origin mode
+        state of selective erase
 
 Source: <URL:http://vt100.net/docs/vt220-rm/chapter4.html>
 Status: DEC private; VT100
@@ -2169,10 +2169,10 @@ Description: Forward index
  * This control function moves the column forward one column.  If the cursor is
  * at the right margin, then all screen data within the margins moves one
  * column to the left.  The column shifted past the left margin is lost.
- * 
+ *
  * Format: ESC 9
  * Description:
- * DECFI adds a new column at the right margin with no visual attributes. 
+ * DECFI adds a new column at the right margin with no visual attributes.
  * DECFI is not affected by the margins.  If the cursor is at the right border
  * of the page when the terminal receives DECFI, then the terminal ignores
  * DECFI.
@@ -2366,7 +2366,7 @@ Description: Transmit a file
 Ps is the file name
 
 Source: <URL:http://www.cs.utk.edu/~shuford/terminal/villanova-vt100-esc-codes.txt>
-Status: unknown private; clashes with ECMA-48 
+Status: unknown private; clashes with ECMA-48
 -------------------------------------------------------------------------------
 Sequence: ESC |
 Mnemonic: LS3R
@@ -3236,7 +3236,7 @@ Sequence: DCS Pc $ w Ky1 / Std1 / Stu1 ; ... ; Kyn / Stnd / Stnu ST
 Mnemonic: DECLKD (also DECLBD)
 Description: Locator key definition
 
-Pc - Clear parameter 
+Pc - Clear parameter
 
 0 (or omitted) Clear all LKDs before loading new values. All button
   definition strings are empty (not the default).
@@ -3259,17 +3259,17 @@ Device control string. Ps is a single ansi string (character codes in
 the range of octal 040 to 0176 inclusive). The following defines what
 the string is used for.
 
-1   Set the window title. 
-3   Set the icon title. 
+1   Set the window title.
+3   Set the icon title.
 4   Set the text color by string. See the -C command for a description
     of how the string will be interpreted.
-5   Set the page color by string. 
-6   Set the selection text color by string. 
-7   Set the selection page color by string. 
-8   Set the cursor text color by string. 
-9   Set the cursor page color by string. 
-10  Set the half intensity color by string. 
-11  Set the bold intensity color by string. 
+5   Set the page color by string.
+6   Set the selection text color by string.
+7   Set the selection page color by string.
+8   Set the cursor text color by string.
+9   Set the cursor page color by string.
+10  Set the half intensity color by string.
+11  Set the bold intensity color by string.
 101 Bind the string to the key named by Pn+1. The key numbers are the
     same as the numbers defined in <device.h>. The string can contain
     C style backslashed characters to get control characters into the
@@ -3636,7 +3636,7 @@ Sets normal foreground color according to Pc:
 Source: UnixWare 7 display(7)
 
 Csi =<n>F Set the default normal foreground color to <n>.
-This sequence also sets the current color to <n>. 
+This sequence also sets the current color to <n>.
 
 Source: <URL:http://www.cs.utk.edu/~shuford/terminal/color_control_news.txt>
 Status: SCO private
@@ -5020,7 +5020,7 @@ characters received at locator port are transferred to the host port
 without interpretation. The host assumes full responsibility for the
 locator device.
 
-Locator controller mode is desirable for two reasons: 
+Locator controller mode is desirable for two reasons:
 
 1. It allows the host to explicitly initialize or configure locator
    devices. A foriegn locator device might not wake up in DEC format
@@ -5031,9 +5031,9 @@ Locator controller mode is desirable for two reasons:
    for example, allowing the terminal to support a bar code reader
    without pre-empting the printer port.
 
-Turn off locator controller mode (MC) CSI 6 i 
+Turn off locator controller mode (MC) CSI 6 i
 
-Turn on locator controller mode (MC) CSI 7 i 
+Turn on locator controller mode (MC) CSI 7 i
 
 Source: <URL:http://www.cs.utk.edu/~shuford/terminal/dec_vt_mouse.html>
 Status: standard; DEC modifications
@@ -5044,7 +5044,7 @@ Sequence: CSI ? Ps i
 
       ?1 copy the cursor line to
       the auxilary(printer)Port
-   
+
       ?2 Select computer port for ReGIS hardcopy output.
 
       ?3 copy the cursor line to
@@ -5052,7 +5052,7 @@ Sequence: CSI ? Ps i
 
       ?4 diaable the copy passthru
       print mode
-      
+
       ?5 enable the copy passthru
       print mode
 
@@ -5353,7 +5353,7 @@ parameter value 5 or MESSAGE WAITING (MW).
 Source: ECMA-48 5th Ed 8.3.35
 Status: standard
 
-100-107 
+100-107
 
 Report the rgb value (#rrggbb) for a given color using a DCS Pn .y Ps
 ST escape sequence (see DCS below for the values that xwsh will use
@@ -5497,7 +5497,7 @@ Sequence: CSI Ps p
 Description: Begin field attribute
 
 Ps is a variable representing
-   
+
 Ps  =0 normal
      1 dim
      2 blink
@@ -5577,9 +5577,9 @@ Mnemonic: DECSTBM
 Description: Set top and bottom margins
 
                 Pt is the number of the top line of the scrolling region;
-                Pb is the number of the bottom line of the scrolling region 
+                Pb is the number of the bottom line of the scrolling region
                 and must be greater than  Pt.
-                (The default for Pt is line 1, the default for Pb is the end 
+                (The default for Pt is line 1, the default for Pb is the end
                  of the screen)
 
 Source: <URL:http://www.cs.utk.edu/~shuford/terminal/vt100_reference_card.txt>
@@ -5601,7 +5601,7 @@ margin), then this command is ignored and no scrolling region or
 window will be active. If all of the parameters are correct, then the
 cursor is moved to the top left hand corner of the newly-created
 region. The new region will now define the bounds of all scroll and
-cursor motion operations. 
+cursor motion operations.
 
 [ If only two parameters are specified, this behaves as DECSTBM ]
 
@@ -5653,7 +5653,7 @@ Description: Restore DEC Private Mode
                 Ps = 41 -> Off/On curses(5) fix
                 Ps = 44 -> Turn Off/On Margin Bell
                 Ps = 45 -> No Reverse-wraparound/Reverse-wraparound
-                           Mode 
+                           Mode
                 Ps = 46 -> Stop/Start Logging
                 Ps = 47 -> Use Normal/Alternate Screen Buffer
                 Ps = 1000 -> mouse bogus sequence (???)
@@ -5707,7 +5707,7 @@ Description: Save DEC Private Mode
                 Ps = 41 -> Off/On curses(5) fix
                 Ps = 44 -> Turn Off/On Margin Bell
                 Ps = 45 -> No Reverse-wraparound/Reverse-wraparound
-                           Mode 
+                           Mode
                 Ps = 46 -> Stop/Start Logging
                 Ps = 47 -> Use Normal/Alternate Screen Buffer
                 Ps = 1000 -> mouse bogus sequence (???)
@@ -5743,7 +5743,7 @@ Description: Define non-normal (enhance) attribute
 
 Defines the enhance attribute
 (see SGR,Non-0)
-       
+
  Ps  = 0 dim
        1 inverse
        2 underline
@@ -5950,7 +5950,7 @@ Sequence: CSI Ps z
 Mnemonic: DECVERP
 Description: Set vertical pitch
 
-Ps = 
+Ps =
 0   6 lpi,  63 lpp
 1   6 lpi,  63 lpp
 2   8 lpi,  84 lpp
@@ -6008,7 +6008,7 @@ Ps  Meaning
 4   underline protection
 5   blink protection
 7   reverse video protection
-254 all attributes off protection   
+254 all attributes off protection
 
 Source: DEC Terminals and Printers Handbook 1985 EB 26291-56 pC27
 Status: DEC private; VT131 only
@@ -7565,7 +7565,7 @@ Sequence: CSI Pn ; Ps $ y
 Mnemonic: DECRPM
 Description: Report mode settings
 
-You can query setting of this with 
+You can query setting of this with
   CSI ? 67 $ p
 response CSI ? 67 ; Ps $ y
  where Ps : 0 = unkown mode
@@ -7622,16 +7622,16 @@ Sequence: CSI Ps $ |
 Mnemonic: DECSCPP
 Description: Set columns per page
         The VT330 also implements the DECSCPP (set columns per page) as the
-	preferred new way; it does not reset the scrolling regions or clear   
+	preferred new way; it does not reset the scrolling regions or clear
 	page memory as DECCOLM does.
 
     Esc [ $ |           sets each page to  80 columns
     Esc [ 0 $ |         sets each page to  80 columns
-    Esc [ 8 0 $ |       sets each page to  80 columns      
+    Esc [ 8 0 $ |       sets each page to  80 columns
     Esc [ 1 3 2 $ |     sets each page to 132 columns
 
 Source: <URL:http://www.cs.utk.edu/~shuford/terminal/dec_vt220_codes.txt>
-Status: DEC private; VT330 
+Status: DEC private; VT330
 -------------------------------------------------------------------------------
 Sequence: CSI Ps $ }
 Mnemonic: DECSASD
@@ -7680,38 +7680,38 @@ Description: Locator report
 When a selected trigger event occurs such as a button press or
 release, the terminal transmits a locator position report as follows.
 
-Pe is the event code 
-Pb is the button code 
-Pr is the row coordinate 
-Pc is the column coordinate 
-Pp is the third coordinate (page number) 
+Pe is the event code
+Pb is the button code
+Pr is the row coordinate
+Pc is the column coordinate
+Pp is the third coordinate (page number)
 
 Pe, the event code indicates what event caused this report to be
 generated. The following event codes are defined:
 
-0 - request, the terminal received an explicit request 
-    for a locator report, but the locator is unavailable 
-1 - request, the terminal received an explicit 
-    request for a locator report 
-2 - left button down 
-3 - left button up 
-4 - middle button down 
-5 - middle button up 
-6 - right button down 
-7 - right button up 
-8 - fourth button down 
-9 - fourth button up 
-10 - locator outside filter rectangle 
+0 - request, the terminal received an explicit request
+    for a locator report, but the locator is unavailable
+1 - request, the terminal received an explicit
+    request for a locator report
+2 - left button down
+3 - left button up
+4 - middle button down
+5 - middle button up
+6 - right button down
+7 - right button up
+8 - fourth button down
+9 - fourth button up
+10 - locator outside filter rectangle
 
 Pb is the button code, ASCII decimal 0-15 indicating which buttons are
 down if any. The state of the four buttons on the locator correspond
 to the low four bits of the decimal value, "1" means button depressed
 
-0 - no buttons down 
-1 - right 
-2 - middle 
-4 - left 
-8 - fourth 
+0 - no buttons down
+1 - right
+2 - middle
+4 - left
+8 - fourth
 
 Pr is the row coordinate of the locator position in the page, encoded
 as an ASCII decimal value. If Pr is omitted, the locator position is
@@ -7780,7 +7780,7 @@ reporting independently. The following cases describe the locator
 interaction with session viewports and scroll regions.
 
 1. The input cursor is within the active session's viewport. Pressing
-   a button on the locator sends alocator report when enabled. 
+   a button on the locator sends alocator report when enabled.
 
 2. The input cursor is inside the active session's viewport, but
    outside the range of defined coordinates for that session. Pressing
@@ -7831,10 +7831,10 @@ Description: Enable filter rectangle
 Filter Rectangles add filtered movement events to the list of locator
 transitions that can generate reports.
 
-Pt - Top boundary of filter rectangle 
-Pl - Left boundary of filter rectangle 
-Pb - Bottom boundary of filter rectangle 
-Pr - Right boundary of filter rectangle 
+Pt - Top boundary of filter rectangle
+Pl - Left boundary of filter rectangle
+Pb - Bottom boundary of filter rectangle
+Pr - Right boundary of filter rectangle
 
 The DECEFR control sequence defines the coordinates of a filter
 rectangle, and activates it.  Anytime the locator is detected to be
@@ -7898,21 +7898,21 @@ intervention. Individual locator events such as locator button
 transitions or movement may be programmed to send locator reports to
 the host.
 
-Ps may assume the following values 
+Ps may assume the following values
 
-0 locator disabled (default) 
+0 locator disabled (default)
 
-1 locator reports enabled 
+1 locator reports enabled
 
-2 one shot (allow one report, then disable) 
+2 one shot (allow one report, then disable)
 
-Pu specifies the coordinate units for locator reports 
+Pu specifies the coordinate units for locator reports
 
-0 (or omitted) default to character cells 
+0 (or omitted) default to character cells
 
-1 device physical pixels 
+1 device physical pixels
 
-2 character cells 
+2 character cells
 
 One shot mode is provided for applications that desire simple graphics
 input similar to Tektronix GIN mode (no unsolicited reports). If
@@ -7943,12 +7943,12 @@ to select which events it wants reported.
 P...P is one or more selective parameters which may assume the
 following values:
 
-0 respond only to explicit host requests 
-  (default, also cancels any pending filter rectangle) 
-1 report button down transitions 
-2 do not report button down transitions 
-3 report button up transitions 
-4 do not report button up transitions 
+0 respond only to explicit host requests
+  (default, also cancels any pending filter rectangle)
+1 report button down transitions
+2 do not report button down transitions
+3 report button up transitions
+4 do not report button up transitions
 
 Source: <URL:http://www.cs.utk.edu/~shuford/terminal/dec_vt_mouse.html>
 Status: DEC private; VT340?
@@ -7975,9 +7975,9 @@ session should not be made available to inactive sessions.
 If the locator is disabled (DECELR), the terminal should still respond
 with event code 0 (to avoid timing out the application).
 
-Ps: 
-0 (or omitted) default to 1 
-1 transmit a single DECLRP locator report all others ignored 
+Ps:
+0 (or omitted) default to 1
+1 transmit a single DECLRP locator report all others ignored
 
 Source: <URL:http://www.cs.utk.edu/~shuford/terminal/dec_vt_mouse.html>
 Status: DEC private; VT340?
@@ -8137,15 +8137,15 @@ has different numbers of arguments which are described below.
 
 16 Reset bindable function keys.
 
-15 Initialize bindable function keys to defaults. 
+15 Initialize bindable function keys to defaults.
 
-101 Set the text color by using a 3.3 compatible index. 
+101 Set the text color by using a 3.3 compatible index.
 
-102 Set the page color by using a 3.3 compatible index. 
+102 Set the page color by using a 3.3 compatible index.
 
-103 Set the bold color by using a 3.3 compatible index. 
+103 Set the bold color by using a 3.3 compatible index.
 
-104 Set the cursor page color by using a 3.3 compatible index. 
+104 Set the cursor page color by using a 3.3 compatible index.
 
 111 Set the selection colors by using 3.3 compatible indices. This
     sequence takes three parameters. The first is 111. The second

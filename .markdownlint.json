@@ -1,16 +1,16 @@
 {
-  "extends": "../.markdownlint.json",
-  "default": true,
-  "MD003": {
-    "style": "atx_closed"
-  },
-  "MD007": {
-    "indent": 4
-  },
-  "no-hard-tabs": true,
-  "MD041": false,
-  "single-trailing-newline": true,
-  "whitespace": true,
-  "MD010": true,
-  "MD033": false
+    "extends": "../.markdownlint.json",
+    "default": true,
+    "MD003": {
+        "style": "atx_closed"
+    },
+    "MD007": {
+        "indent": 4
+    },
+    "no-hard-tabs": true,
+    "MD041": false,
+    "single-trailing-newline": true,
+    "whitespace": true,
+    "MD010": true,
+    "MD033": false
 }

@@ -1,6 +1,5 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env bash
 # -*- coding: utf-8 -*-
-  # shellcheck shell=bash
-  # shellcheck source=/dev/null
+# shellcheck source=/dev/null
 
 [ -f ~/.zshrc ] && . ~/.zshrc
