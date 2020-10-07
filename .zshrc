@@ -12,7 +12,7 @@
 #? -----------------------------> Shell Settings
     # Remove all aliases from unexpected places
     unalias -a
-
+    SOURCE_TRACE
     # use root defaults (they match most web server defaults)
     umask 022   #          !! possible security issue !!
 
@@ -44,13 +44,13 @@
     #   2 - #1 plus trace and run specific tests
     #   3 - #2 plus display and log everything
 
-    declare -ix SET_DEBUG=0 # ${SET_DEBUG:-0}
+    declare -ix SET_DEBUG=1 # ${SET_DEBUG:-0}
 
     dbecho "SET_DEBUG: $SET_DEBUG" #! debug
     if (( SET_DEBUG>0 )); then
         printf '%b\n' "${WARN:-}Debug Mode for ${CANARY}${SCRIPT_NAME##*/}${RESET:-}"
         dbecho "DEV mode ($SET_DEBUG) activated"
-        trap 'echo "# $(realpath $0) (line $LINENO) Error Trapped: $?"' ERR
+        # trap 'echo "# $(realpath $0) (line $LINENO) Error Trapped: $?"' ERR
         trap 'echo "# $0: Exit with code: $?"' EXIT
     fi
     if (( SET_DEBUG>1 )); then
@@ -65,6 +65,20 @@
         setopt XTRACE # VERBOSE
     fi
 
+
+function noyes() {
+    read "a?$1 [y/N] "
+    if [[ $a == "N" || $a == "n" || $a = "" ]]; then
+        return 0
+    fi
+    return 1
+}
+
+function breather() {
+    local stuff
+    read "stuff?${1:-'Continue? '} [Enter] "
+    return 0
+}
 #? -----------------------------> user and paths
     # Apple User Identification Reference:
         # https://developer.apple.com/library/archive/qa/qa1133/_index.html
@@ -179,6 +193,11 @@
     #     }
 
 #? -----------------------------> load profile settingss
+
+    if [ -x dircolors ]; then
+        eval `dircolors ~/.dotfiles/dircolors-solarized/dircolors.ansi-dark`
+    fi
+
     # tokens and password functions
     . "${DOTFILES_INC}/.tokens_private.sh"
 
@@ -218,20 +237,21 @@
 
 #? -----------------------------> per host config
     # per-host
-    _HOSTNAME=$(hostname)
-    HOSTRC="~/.dotfiles/zshrc.${_HOSTNAME}"
-    if [ -r "$HOSTRC" ]; then
-        source "$HOSTRC"
-    fi
-    if [ -r ~/.zshrc.host ]; then
-        source ~/.zshrc.host
-    fi
+    # _HOSTNAME=$(hostname)
+    # HOSTRC="~/.dotfiles/zshrc.${_HOSTNAME}"
+    # if [ -r "$HOSTRC" ]; then
+    #     source "$HOSTRC"
+    # fi
+    # if [ -r ~/.zshrc.host ]; then
+    #     source ~/.zshrc.host
+    # fi
 
 #? -----------------------------> load OMZ!
     # OMZ config
+    DISABLE_AUTO_TITLE="true"
 	CASE_SENSITIVE="false"
 	COMPLETION_WAITING_DOTS="true"
-    # DISABLE_UNTRACKED_FILES_DIRTY="true"
+    DISABLE_UNTRACKED_FILES_DIRTY="true"
     ENABLE_CORRECTION="true"
     DISABLE_MAGIC_FUNCTIONS="true"
     ZSH_THEME="spaceship"
@@ -240,15 +260,10 @@
     . "$ZSH/oh-my-zsh.sh"
 
 #? -----------------------------> odds and ends
-
-    if [ -x dircolors ]; then
-        eval `dircolors ~/.dotfiles/dircolors-solarized/dircolors.ansi-dark`
-    fi
-
     # common shell config
-    if [ -r ~/.commonshrc ]; then
-        source ~/.commonshrc
-    fi
+    # if [ -r ~/.commonshrc ]; then
+    #     source ~/.commonshrc
+    # fi
 
     # export FPATH="$HOME/.dotfiles/docked-node/zfuncs:$FPATH"
     # autoload docked-node
@@ -260,34 +275,17 @@
 
     # reset the colorflag ... it seems to get lost somewhere ...
     # alias ls="ls --color=tty --group-directories-first"
-    colorflag="--color=tty"
-    alias ls="ls $colorflag --group-directories-first"
+    # colorflag="--color=tty"
+    # alias ls="ls $colorflag --group-directories-first"
 
 #? -----------------------------> important utilities
-    test -e "${HOME}/.iterm2_shell_integration.zsh" && . "${HOME}/.iterm2_shell_integration.zsh"
+    # test -e "${HOME}/.iterm2_shell_integration.zsh" && . "${HOME}/.iterm2_shell_integration.zsh"
 
     # The next line updates PATH for the Google Cloud SDK.
-    if [ -r ~/apps/google-cloud-sdk/path.zsh.inc ]; then . ~/apps/google-cloud-sdk/path.zsh.inc; fi
+    # if [ -r ~/apps/google-cloud-sdk/path.zsh.inc ]; then . ~/apps/google-cloud-sdk/path.zsh.inc; fi
 
     # The next line enables shell command completion for gcloud.
-    if [ -r ~/apps/google-cloud-sdk/completion.zsh.inc ]; then . ~/apps/google-cloud-sdk/completion.zsh.inc; fi
-#? -----------------------------> Powerlevel10k
-    # PowerLevel10k Theme
-    ZSH_THEME="powerlevel10k/powerlevel10k"
-    # To customize prompt, run `p10k configure` or edit ~/.dotfiles/.p10k.zsh.
-    [[ ! -f ~/.dotfiles/.p10k.zsh ]] || source ~/.dotfiles/.p10k.zsh
-    # POWERLEVEL9K_MODE="nerdfont-complete"
-    # POWERLEVEL9K_DISABLE_RPROMPT=true
-    # POWERLEVEL9K_PROMPT_ON_NEWLINE=true
-    # POWERLEVEL9K_MULTILINE_LAST_PROMPT_PREFIX="▶ "
-    # POWERLEVEL9K_MULTILINE_FIRST_PROMPT_PREFIX=""
-
-    # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.dotfiles/.zshrc.
-    # Initialization code that may require console input (password prompts, [y/n]
-    # confirmations, etc.) must go above this block; everything else may go below.
-    if [[ -r ${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh ]]; then
-    source ${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh
-    fi
+    # if [ -r ~/apps/google-cloud-sdk/completion.zsh.inc ]; then . ~/apps/google-cloud-sdk/completion.zsh.inc; fi
 
 #? -----------------------------> script cleanup
     # cleanup and exit script
@@ -297,7 +295,7 @@
     printf "${GREEN:-}Script ${SCRIPT_NAME} took ${BOLD:-}${ATTN:-}$(lap_ms)${RESET:-}${GREEN:-} ms to load.${RESET:-}\n\n"
 
 
-    #? -----------------------------> zsh notes
+#? -----------------------------> zsh notes
     # ALL_EXPORT (-a, ksh: -a)
     # All parameters subsequently defined are automatically exported.
     # GLOBAL_EXPORT (<Z>)

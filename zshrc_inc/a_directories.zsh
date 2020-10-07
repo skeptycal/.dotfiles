@@ -18,25 +18,24 @@
 	}
 #? ###################### copyright (c) 2019 Michael Treanor #################
 
-
 # *############################################## directories
     alias icloud="cd $HOME/Library/Mobile\ Documents/com~apple~CloudDocs/"
-    alias cdc="cd $HOME/Documents/coding"
+    alias cdc="cd $HOME/local_coding"
     alias cdw="cd $HOME/Documents/work"
     alias cdd="cd $HOME/Sites"
     alias cdb="cd $HOME/Dropbox"
     alias dl="cd $HOME/Downloads"
     alias dt="cd $HOME/Desktop"
 
-    alias ls="ls --group-directories-first ${colorflag}"           # normal wide
+    # alias ls="ls --group-directories-first ${colorflag}"           # normal wide
     alias lsd="ls -1Adh ${colorflag} -- */"                        # dirs only
     alias l.="ls -lhFAd .* --group-directories-first ${colorflag}" # dotfiles
     alias la="ls -lhFA --group-directories-first ${colorflag}"     # all files
     alias lag="ls -lhFAgG --group-directories-first ${colorflag}"  # la - no names
     alias ll="ls -lhF --group-directories-first ${colorflag}"      # normal list
+    alias lw="ls -hF --group-directories-first ${colorflag}"       # detailed wide
     alias lsa="ls -lhFArt ${colorflag}"                            # sort by date
     alias lss="ls -lhFArs ${colorflag}"                            # sort by size
-    alias lw="ls -hF --group-directories-first ${colorflag}"       # detailed wide
 
 	# directory LS
     # lsd () { ls -la | grep "^d" | awk '{ print $9 }' | tr -d "/"; }

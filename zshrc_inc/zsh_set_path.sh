@@ -30,6 +30,7 @@
         }
 
     declare -x PATH="\
+        /Library/Frameworks/Python.framework/Versions/3.9/bin:\
         /usr/local/Cellar/gnupg/2.2.23/bin:\
         /usr/local/opt/coreutils/libexec/gnubin:\
         $HOME/bin:\
@@ -37,8 +38,8 @@
         /usr/local/opt:\
         $HOME/.dotfiles/.oh-my-zsh:\
         $HOME/.poetry/bin:\
-        $HOME/Library/Python/3.8/bin:\
         /usr/local/lib/node_modules/bin:\
+        /usr/local/opt/ruby/bin:\
         /usr/local/Cellar/ruby/2.7.1_2/bin:\
         /usr/local/opt/cython/bin:\
         /bin:\

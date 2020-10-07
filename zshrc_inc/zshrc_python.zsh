@@ -40,21 +40,25 @@
 	# alias pip='pip --use-feature=2020-resolver || pip ' # causes errors
 	# alias piu='pip install -U --use-feature=2020-resolver '
 
+	# TODO - some conflicts with venv ... python environments alway suck
+	pip_int() { $(which pip3) --version | awk '{ print $2 }' | tr -d '.'; }
+	pip_2020() { (( $(pip_int) > 2021 )) && echo '--use-feature=2020-resolver ' || echo ''; }
+	pip20()  { "$(which pip3) ${*} $(pip_2020) "; }
+
+	pip() { $(which pip3) "$@" --use-feature=2020-resolver; }
+    piu() { $(which pip3) install -U "$@" --use-feature=2020-resolver; }
+    alias pipup="piplist | xargs pip3 install -U ;"
+
 	# 'piplist' is not part of the normal python installation. It returns a
 	# list of names of installed packages suitable for process and piping,
 	# without the header and extra fields. The function recreates the list on
 	# demand so it is always current.
-	piplist() { pip3 list | sed 's/  */ /g' | cut -d ' ' -f 1 | tail -n +3; }
+	# piplist() { pip3 list | sed 's/  */ /g' | cut -d ' ' -f 1 | tail -n +3; }
 
+	piplist () { $(which pip3) list | tail -n +3 | awk '{ print $1 }'; }
 	# This constant version is precalculated once at boot time and will always
 	# contain the global pip list from shell start time.
-	PIPLIST="$(pip3 list | sed 's/  */ /g' | cut -d ' ' -f 1 | tail -n +3; )"
-
-
-	# TODO - conflicts with venv ... python environments alway suck
-    pip4() { pip3 --use-feature=2020-resolver "$@"; }
-    piu() { pip3 install -U --use-feature=2020-resolver "$@"; }
-    alias pipup="piplist | xargs pip3 install -U ;"
+	PIPLIST="$(piplist)"
 
 # *############################################## python related
 	alias py="python3 -m "
@@ -80,7 +84,7 @@
     [[ $(command -v pyenv-virtualenv-init >/dev/null) ]] && eval "$(pyenv virtualenv-init -)"
 
 # *############################################## python virtual environment
-    # DEFAULT_ENVIRONMENT_FOLDER_NAME='.venv'
+    DEFAULT_ENVIRONMENT_FOLDER_NAME='.venv'
     # older path was 'venv'
 
 	# create a venv
@@ -122,11 +126,11 @@
 	#   someone should find a better way to do this ... it's so stupid
 	#   'poetry' is the best alternative for now
 	export POETRY_REPOSITORIES_TESTPYPI_URL="https://test.pypi.org/legacy/"
-	export POETRY_PYPI_TOKEN_TESTPYPI='<token>'
+	export POETRY_PYPI_TOKEN_TESTPYPI="$PYPI_TOKEN"
 
 	export POETRY_CACHE_DIR="$HOME/Library/Caches/pypoetry"
 	export POETRY_VIRTUALENVS_PATH="${POETRY_CACHE_DIR}/virtualenvs"
-	export POETRY_PYPI_TOKEN_PYPI=my-token
+	export POETRY_PYPI_TOKEN_PYPI="$PYPI_TOKEN"
 
 # *############################################## pipenv
 	# * I use Poetry instead of PipEnv for now

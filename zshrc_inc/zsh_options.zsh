@@ -19,8 +19,7 @@
     setopt AUTO_CD CDABLE_VARS CHASE_DOTS
 
     # Directory stack options:
-    setopt AUTO_PUSHD PUSHD_IGNORE_DUPS PUSHD_SILENT PUSHD_TO_HOME
-    # possibly useful: pushdminus
+    setopt AUTO_PUSHD PUSHD_IGNORE_DUPS PUSHD_SILENT PUSHD_TO_HOME PUSHD_MINUS
 
     # Completions:
     setopt ALWAYS_TO_END AUTO_LIST AUTO_PARAM_SLASH AUTO_PARAM_KEYS
@@ -39,6 +38,7 @@
     #   words that will never be offered as corrections.
     setopt CORRECT CORRECT_ALL INTERACTIVE_COMMENTS
     setopt NO_FLOW_CONTROL MAIL_WARNING PATH_DIRS RC_QUOTES
+    setopt AUTO_MENU NO_MENU_COMPLETE
     # todo - try these out
     setopt PRINT_EXIT_VALUE SHORT_LOOPS
 
@@ -50,9 +50,9 @@
     setopt PROMPT_BANG PROMPT_SUBST TRANSIENT_RPROMPT
 
     # Scripts and Functions
-    setopt NO_ALIAS_FUNC_DEF C_BASES OCTAL_ZEROES C_PRECEDENCES
+    setopt NO_ALIAS_FUNC_DEF C_BASES OCTAL_ZEROES C_PRECEDENCES MULTIOS
     # these can cause issues and are mainly for debugging:
-    # setopt DEBUG_BEFORE_CMD ERR_RETURN EVAL_LINENO FUNCTION_ARGZERO MULTIOS
+    # setopt DEBUG_BEFORE_CMD ERR_RETURN EVAL_LINENO FUNCTION_ARGZERO
 
     # Shell Emulation
     setopt NO_CLOBBER APPEND_CREATE SH_WORD_SPLIT SH_NULLCMD

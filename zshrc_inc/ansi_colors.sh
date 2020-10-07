@@ -32,9 +32,10 @@
 	# }
 
 #? -----------------------------> terminal setup
-	# I use GNU core_utils; no need to test '-G'
 	export CLICOLOR=1
-	export colorflag='--color=always'
+
+	# I use GNU core_utils; no need to test '-G'x
+	# export colorflag='--color=always'
 
 	# terminal identification
 	if [[ $COLORTERM = gnome-* && $TERM = xterm ]] && infocmp gnome-256color >/dev/null 2>&1; then
