@@ -8,11 +8,10 @@
   #   modem would take to transmit a movie: 42.251651342415241
   #   this is very nearly the time since I wrote my first program
   #   I'm glad I didn't watch that movie instead ...
-
 #? -----------------------------> Shell Settings
     # Remove all aliases from unexpected places
     unalias -a
-    SOURCE_TRACE
+
     # use root defaults (they match most web server defaults)
     umask 022   #          !! possible security issue !!
 
@@ -44,7 +43,7 @@
     #   2 - #1 plus trace and run specific tests
     #   3 - #2 plus display and log everything
 
-    declare -ix SET_DEBUG=1 # ${SET_DEBUG:-0}
+    declare -ix SET_DEBUG=0 # ${SET_DEBUG:-0}
 
     dbecho "SET_DEBUG: $SET_DEBUG" #! debug
     if (( SET_DEBUG>0 )); then
@@ -65,39 +64,21 @@
         setopt XTRACE # VERBOSE
     fi
 
+    function noyes() {
+        read "a?$1 [y/N] "
+        if [[ $a == "N" || $a == "n" || $a = "" ]]; then
+            return 0
+        fi
+        return 1
+    }
 
-function noyes() {
-    read "a?$1 [y/N] "
-    if [[ $a == "N" || $a == "n" || $a = "" ]]; then
+    function breather() {
+        local stuff
+        read "stuff?${1:-'Continue? '} [Enter] "
         return 0
-    fi
-    return 1
-}
+    }
 
-function breather() {
-    local stuff
-    read "stuff?${1:-'Continue? '} [Enter] "
-    return 0
-}
 #? -----------------------------> user and paths
-    # Apple User Identification Reference:
-        # https://developer.apple.com/library/archive/qa/qa1133/_index.html
-
-        # Warning: The System Configuration framework mechanism for determining the
-        # current console user has a number of important caveats:
-
-        # - It assumes that the computer has a single GUI console. While that's true
-        #   currently, it may not be true forever. If you use this technique you
-        #   will have to change your code if this situation changes.
-        # - It has no way of indicating that multiple users are logged in.
-        # - It has no way of indicating that a user is logged in but has switched to
-        #   the login window.
-
-        # See 'Design Considerations' of Apple Daemons and Agents Technotes:
-        # https://developer.apple.com/library/archive/technotes/tn2083/_index.html
-
-        # Ref: https://erikberglund.github.io/2018/Get-the-currently-logged-in-user,-in-Bash/
-
     # UserID of currently logged in user
     loggedInUserID="$( scutil <<< "show State:/Users/ConsoleUser"  | awk '/UID : / && ! /loginwindow/ { print $3 }' )"
 
@@ -122,8 +103,19 @@ function breather() {
     # Path to include files
     DOTFILES_INC=${ZDOTDIR}/zshrc_inc
 
+    # Path to template files
+    DOTFILES_TEMPLATE="${ZDOTDIR}/template"
+
+    # Path to template files that should be linked
+    DOTFILES_TEMPLATE_LN=${DOTFILES_TEMPLATE}/ln
+
+    # Path to template files that should be copied
+    DOTFILES_TEMPLATE_CP=${DOTFILES_TEMPLATE}/cp
+
     # setup system $PATH (and $MANPATH)
     . ${DOTFILES_INC}/zsh_set_path.sh
+
+	autoload -Uz compinit && compinit
 
 #? -----------------------------> source utilities
     .() { # source with debugging info and file read check
@@ -181,19 +173,8 @@ function breather() {
             t0=$(ms)
         done;
     }
-#? -----------------------------> timer in CLI prompt
-    # function preexec() { pre_timer=$(ms); }
-    # function precmd() {
-    #     if [ $timer ]; then
-    #         elapsed=$(($(ms)-$pre_timer))
-
-    #         RPROMPT="%F{cyan}${elapsed}ms %{$reset_color%}"
-    #         unset timer
-    #     fi
-    #     }
 
 #? -----------------------------> load profile settingss
-
     if [ -x dircolors ]; then
         eval `dircolors ~/.dotfiles/dircolors-solarized/dircolors.ansi-dark`
     fi
@@ -224,7 +205,6 @@ function breather() {
 
     # zsh functions and options
     . "${DOTFILES_INC}/func_sys.zsh"
-    . "${DOTFILES_INC}/zsh_big_sur_hacks.zsh"
     . "${DOTFILES_INC}/func_tasks.zsh"
 
     # python settings and utilities
@@ -234,17 +214,6 @@ function breather() {
     . "${DOTFILES_INC}/zsh_options.zsh"
     . "${DOTFILES_INC}/omz_plugins.zsh"
     . "${DOTFILES_INC}/zsh_modules.zsh"
-
-#? -----------------------------> per host config
-    # per-host
-    # _HOSTNAME=$(hostname)
-    # HOSTRC="~/.dotfiles/zshrc.${_HOSTNAME}"
-    # if [ -r "$HOSTRC" ]; then
-    #     source "$HOSTRC"
-    # fi
-    # if [ -r ~/.zshrc.host ]; then
-    #     source ~/.zshrc.host
-    # fi
 
 #? -----------------------------> load OMZ!
     # OMZ config
@@ -260,32 +229,17 @@ function breather() {
     . "$ZSH/oh-my-zsh.sh"
 
 #? -----------------------------> odds and ends
-    # common shell config
-    # if [ -r ~/.commonshrc ]; then
-    #     source ~/.commonshrc
-    # fi
-
-    # export FPATH="$HOME/.dotfiles/docked-node/zfuncs:$FPATH"
-    # autoload docked-node
-
     # Helper to lookup commands from the zsh git plugin cheatsheet
     function gx () {
         `fzf < ~/.dotfiles/zsh-git-plugin-cheatsheet.txt | cut -f3 -d'|' | tr _ ' '`
     }
 
     # reset the colorflag ... it seems to get lost somewhere ...
+    colorflag="--color=tty"
     # alias ls="ls --color=tty --group-directories-first"
-    # colorflag="--color=tty"
-    # alias ls="ls $colorflag --group-directories-first"
+    alias ls="ls $colorflag --group-directories-first"
 
-#? -----------------------------> important utilities
-    # test -e "${HOME}/.iterm2_shell_integration.zsh" && . "${HOME}/.iterm2_shell_integration.zsh"
-
-    # The next line updates PATH for the Google Cloud SDK.
-    # if [ -r ~/apps/google-cloud-sdk/path.zsh.inc ]; then . ~/apps/google-cloud-sdk/path.zsh.inc; fi
-
-    # The next line enables shell command completion for gcloud.
-    # if [ -r ~/apps/google-cloud-sdk/completion.zsh.inc ]; then . ~/apps/google-cloud-sdk/completion.zsh.inc; fi
+    . "${DOTFILES_INC}/zsh_big_sur_hacks.zsh"
 
 #? -----------------------------> script cleanup
     # cleanup and exit script
@@ -293,7 +247,6 @@ function breather() {
 
     # calculate and display script time
     printf "${GREEN:-}Script ${SCRIPT_NAME} took ${BOLD:-}${ATTN:-}$(lap_ms)${RESET:-}${GREEN:-} ms to load.${RESET:-}\n\n"
-
 
 #? -----------------------------> zsh notes
     # ALL_EXPORT (-a, ksh: -a)

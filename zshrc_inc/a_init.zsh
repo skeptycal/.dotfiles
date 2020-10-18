@@ -27,6 +27,12 @@
     # alias lsln='ls -AF | grep '@' | cut -d '@' -f 1 ' # will include
     # directories
 
+
+	# charmap() { "$(perl -wE "print map chr, ${1:-0} .. ${2:-255}")" | xxd }
+	# echo -n "$var" | xxd
+
+	# ref: https://unix.stackexchange.com/a/417794/
+	alias abs='cat -Abs '
     # ref: https://scriptingosx.com/2017/04/on-viewing-man-pages/
     preman() { man -t "$@" | open -f -a "Preview" ;}
     alias c='code .'

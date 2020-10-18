@@ -1,8 +1,4 @@
 #? -----------------------------> ZSH modules
-
-
-
-
     # zsh module descriptions:
     # http://zsh.sourceforge.net/Doc/Release/Zsh-Modules.html
 
@@ -40,6 +36,7 @@
 
   	. /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 	[[ -r $BREW_PREFIX/share/zsh-completions ]] && FPATH=$BREW_PREFIX/share/zsh-completions:$FPATH
+
 	# You may also need to force rebuild `zcompdump`:
 	# rm -f ~/.zcompdump; compinit
 	autoload -Uz compinit && compinit

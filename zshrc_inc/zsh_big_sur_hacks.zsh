@@ -2,6 +2,21 @@
     # Reference: https://github.com/pyenv/pyenv/issues/1219
 
     BPO="${BREW_PREFIX}/opt/"
-    LDFLAGS="-L${BPO}readline/lib -L${BPO}openssl/lib -L${BPO}zlib/lib"
-    CFLAGS="-I${BPO}readline/include -I${BPO}openssl/include -I${BPO}zlib/include -I$(xcrun --show-sdk-path)/usr/include"
-    CPPFLAGS=${CFLAGS}
+
+	addflagfrombrew() {
+		LDFLAGS="$LDFLAGS -L${BPO}${1}/lib"
+		CFLAGS="$CFLAGS -I${BPO}${1}/include"
+		CPPFLAGS="$CPPFLAGS -I${BPO}${1}/include"
+		PKG_CONFIG_PATH="$PKG_CONFIG_PATH ${BPO}${1}/lib/pkgconfig"
+	}
+
+	libs=( 'readline' 'openssl' 'zlib' 'libxml2' )
+	for lib in $libs; do addflagfrombrew $lib; done;
+
+	# xcode
+    CFLAGS="$CFLAGS -I$(xcrun --show-sdk-path)/usr/include"
+
+	# llvm
+	LDFLAGS="$LDFLAGS -L${BPO}llvm/lib -Wl,-rpath,${BPO}llvm/lib"
+
+    CPPFLAGS="${CFLAGS}${CPPFLAGS}"

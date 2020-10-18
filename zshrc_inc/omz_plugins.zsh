@@ -2,19 +2,17 @@
     plugins=(\
 
     # repo management ...
-    git gpg-agent npm gitignore\
+    git gpg-agent\
+	# npm\
+	gitignore\
 
     # macOS improvements
-    # osx cp copyfile man\
-    # siterm2\
-    # gnu-utils\
-
-    # shell improvements
-    colored-man-pages\
-    # colorize\
-    # perms\
-    # rsync\
-    # ripgrep\
+    # osx\
+	# cp\
+	# copyfile\
+	man\
+    # iterm2\
+    gnu-utils\
 
     # alias rsync-copy="rsync -avz --progress -h"
     # alias rsync-move="rsync -avz --progress -h --remove-source-files"
@@ -33,5 +31,11 @@
     # poetry\
     # python\
     # pylint\
-    # pyenv\s
-    )
+    # pyenv\
+
+    # shell improvements
+    colorize\
+    # perms\
+    # rsync\
+    # ripgrep\
+    colored-man-pages)

@@ -11,10 +11,8 @@
 
 echo "every month counts ..."
 
-USERDIR=/Users/skeptycal
-
-cd $USERDIR
-
 # purge node_modules folders from all User directories
 find /Users -type d -name "node_modules" -exec rm -rfv {} +
+
+# purge 'cache' folders from all User directories
 find /Users -type d -name "cache" -exec rm -rfv {} +
