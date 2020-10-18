@@ -10,7 +10,7 @@
 		PKG_CONFIG_PATH="$PKG_CONFIG_PATH ${BPO}${1}/lib/pkgconfig"
 	}
 
-	libs=( 'readline' 'openssl' 'zlib' 'libxml2' )
+	libs=( 'readline' 'openssl' 'zlib' 'libxml2' 'llvm')
 	for lib in $libs; do addflagfrombrew $lib; done;
 
 	# xcode

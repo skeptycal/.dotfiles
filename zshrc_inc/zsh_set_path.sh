@@ -1,24 +1,23 @@
 #!/usr/bin/env false zsh
 # -*- coding: utf-8 -*-
-# shellcheck shell=bash
-# shellcheck source=/dev/null
-# shellcheck disable=2178,2128,2206,2034
+	# shellcheck shell=bash
+	# shellcheck source=/dev/null
+	# shellcheck disable=2178,2128,2206,2034
 #? ################# .functions - functions for macOS with zsh ###############
-#* copyright (c) 2019 Michael Treanor     -----     MIT License
-#* should not be run directly; called from .bash_profile / .bashrc / .zshrc
-#? ######################## https://www.github.com/skeptycal #################
-# SET_DEBUG=${SET_DEBUG:-0} # set to 1 for verbose testing
+ #* copyright (c) 2019 Michael Treanor     -----     MIT License
+ #* should not be run directly; called from .bash_profile / .bashrc / .zshrc
+ #? ###################### https://www.github.com/skeptycal ##################
+ # SET_DEBUG=${SET_DEBUG:-0} # set to 1 for verbose testing
 
 #? ###################### copyright (c) 2019 Michael Treanor #################
-
 # ?########################################## parameter expansion tips
-#? ${PATH//:/\\n}    - replace all colons with newlines
-#? ${PATH// /}       - strip all spaces
-#? ${VAR##*/}        - return only final element in path (program name)
-#? ${VAR%/*}         - return only path (without program name)
+ #? ${PATH//:/\\n}    - replace all colons with newlines
+ #? ${PATH// /}       - strip all spaces
+ #? ${VAR##*/}        - return only final element in path (program name)
+ #? ${VAR%/*}         - return only path (without program name)
 
 functionn path_usage() {
-	cat <<EOF
+	cat <<-EOF
 PATH(1)                            March 2020                          PATH(1)
 
 
@@ -91,14 +90,8 @@ EOF
 # single quotes force expansionn of PATH at use time instead of creation time
 alias npath='echo ${PATH//:/\\n}'
 
-function red_wrap() {
-    echo "${RED:-}$@${RESET:-}"
-}
-
-function lime_wrap {
-    echo "${LIME:-}$@${RESET:-}"
-}
-
+function red_wrap() { echo "${RED:-}$@${RESET:-}"; }
+function lime_wrap { echo "${LIME:-}$@${RESET:-}"; }
 function path() { # just messing around ... color coded path list
     setopt SH_WORD_SPLIT
     local version='0.1.0'
@@ -165,14 +158,14 @@ function path() { # just messing around ... color coded path list
         [ -d $p ] && lime $p || attn $p
     done
     IFS=
-}
+	}
 # list path elements with color coded (green is ok, orange is broken)
-checkpath() {
+function checkpath() {
     IFS=':'
     for p in ${PATH[*]}; do
         [ -d $p ] && lime $p || attn $p
     done
-}
+	}
 
 # /usr/local/lib/node_modules/bin:\
 
