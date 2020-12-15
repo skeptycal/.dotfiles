@@ -3,11 +3,23 @@
   # shellcheck shell=bash
   # shellcheck source=/dev/null
   # shellcheck disable=2178,2128,2206,2034
+#? ################# .zshrc - main config for macOS with zsh ###############
+ #* copyright (c) 2019 Michael Treanor     -----     MIT License
+ #? ###################### https://www.github.com/skeptycal ##################
 
-  # number of years the first commercial
-  #   modem would take to transmit a movie: 42.251651342415241
-  #   this is very nearly the time since I wrote my first program
-  #   I'm glad I didn't watch that movie instead ...
+ #* number of years the first commercial
+ #*   modem would take to transmit a movie: 42.251651342415241
+ #*   this is very nearly the time since I wrote my first program
+ #*   I'm glad I didn't watch that movie instead ...
+
+#? ###################### copyright (c) 2019 Michael Treanor #################
+
+#? -----------------------------> parameter expansion tips
+ #? ${PATH//:/\\n}    - replace all colons with newlines
+ #? ${PATH// /}       - strip all spaces
+ #? ${VAR##*/}        - return only final element in path (program name)
+ #? ${VAR%/*}         - return only path (without program name)
+
 #? -----------------------------> Shell Settings
     # Remove all aliases from unexpected places
     unalias -a
@@ -33,8 +45,28 @@
         BASH_SOURCE="${BASH_SOURCE:=$0}"
     fi
 
+    # this file ...
+	SCRIPT_NAME=${0##*/}
+    SCRIPT_PATH=${0%/*}
+
+    # Path to oh-my-zsh configuration.
+    ZSH=$HOME/.dotfiles/.oh-my-zsh
+
+    # Path to ZSH dotfiles directory
+    ZDOTDIR=$HOME/.dotfiles
+
+    # Older dotfiles path directory (for compatibility)
+    DOTFILES_PATH=$ZDOTDIR
+
+    # Path to include files
+    DOTFILES_INC=${ZDOTDIR}/zshrc_inc
+
+    # setup system $PATH (and $MANPATH)
+    . ${DOTFILES_INC}/zsh_set_path.sh
+
     # ANSI colors and cli functions
-    . $(which ssm) >/dev/null 2>&1 || . ${ZDOTDIR:-~/.dotfiles}/zshrc_inc/ansi_colors.sh
+    . $(which ssm) >/dev/null 2>&1 || . $(which ansi_colors.sh) # >/dev/null 2>&1
+    # /Users/skeptycal/.dotfiles/zshrc_inc/ansi_colors.sh
 
 #? -----------------------------> debug (Dev / Production modes)
     # SET_DEBUG is set to zero for production mode
@@ -49,7 +81,7 @@
     if (( SET_DEBUG>0 )); then
         printf '%b\n' "${WARN:-}Debug Mode for ${CANARY}${SCRIPT_NAME##*/}${RESET:-}"
         dbecho "DEV mode ($SET_DEBUG) activated"
-        # trap 'echo "# $(realpath $0) (line $LINENO) Error Trapped: $?"' ERR
+        trap 'echo "# $(realpath $0) (line $LINENO) Error Trapped: $?"' ERR
         trap 'echo "# $0: Exit with code: $?"' EXIT
     fi
     if (( SET_DEBUG>1 )); then
@@ -91,18 +123,6 @@
     # HomeBrew path prefix (manually set - auto is slow)
     BREW_PREFIX=/usr/local      # BREW_PREFIX=$(brew --prefix)  #! too slow...
 
-    # Path to oh-my-zsh configuration.
-    ZSH=$HOME/.dotfiles/.oh-my-zsh
-
-    # Path to ZSH dotfiles directory
-    ZDOTDIR=$HOME/.dotfiles
-
-    # Older dotfiles path directory (for compatibility)
-    DOTFILES_PATH=$ZDOTDIR
-
-    # Path to include files
-    DOTFILES_INC=${ZDOTDIR}/zshrc_inc
-
     # Path to template files
     DOTFILES_TEMPLATE="${ZDOTDIR}/template"
 
@@ -111,9 +131,6 @@
 
     # Path to template files that should be copied
     DOTFILES_TEMPLATE_CP=${DOTFILES_TEMPLATE}/cp
-
-    # setup system $PATH (and $MANPATH)
-    . ${DOTFILES_INC}/zsh_set_path.sh
 
 	autoload -Uz compinit && compinit
 
@@ -134,50 +151,11 @@
         done;
         }
 
-#? -----------------------------> script timers
-    ms() { printf '%i\n' "$(( $(gdate +%s%N) * 0.001 ))"; } # microseconds
-    t0=$(ms) # initial timer mark
-    lap() { # time milliseconds since last 'lap' call
-        if [[ $1 = 'reset' ]]; then
-            # reset the lap timer initial value
-            t0=$(ms)
-            return 0
-        else
-            t1=$(ms)
-            dt=$(( t1 - t0 ))
-            t0=$(ms)
-            printf '%i\n' "$dt"
-        fi
-        }
-    lap_ms() { printf '%i\n' "$(( $(lap) / 1000 ))"; }
-    lap_sec() { printf '%i\n' "$(( $(lap) / 1000000 ))"; }
 
-    timer_test(){
-        blue "timer_test - test timer functions"
-        blue "Increasing time delays are measured and posted."
-        blue "Press <ctrl>-C to end the timer test early..."
-        t0=$(ms)
-        for i in {1..10}; do
-            sleep 1
-            green "Assigned time: ${i}       actual time: $(lap) µs."
-            t0=$(ms)
-        done;
-        for i in {1..10}; do
-            sleep 1
-            green "Assigned time: ${i}       actual time: $(lap_ms) ms."
-            t0=$(ms)
-        done;
-        for i in {1..10}; do
-            sleep 1
-            green "Assigned time: ${i}       actual time: $(lap_sec) s."
-            t0=$(ms)
-        done;
-    }
-
-#? -----------------------------> load profile settingss
-    if [ -x dircolors ]; then
-        eval `dircolors ~/.dotfiles/dircolors-solarized/dircolors.ansi-dark`
-    fi
+#? -----------------------------> load profile settings
+    # if [ -x dircolors ]; then
+    #     eval `dircolors ~/.dotfiles/dircolors-solarized/dircolors.ansi-dark`
+    # fi
 
     # tokens and password functions
     . "${DOTFILES_INC}/.tokens_private.sh"
@@ -191,9 +169,6 @@
 
     # git functions and options
     . "${DOTFILES_INC}/func_git.zsh"
-
-    # ansi colors and formatting
-    . "${DOTFILES_INC}/ansi_colors.sh"
 
     # zsh shell aliases
     . "${DOTFILES_INC}/a_directories.zsh"
@@ -229,17 +204,33 @@
     . "$ZSH/oh-my-zsh.sh"
 
 #? -----------------------------> odds and ends
+    # These seem to get lost somewhere ...
+
     # Helper to lookup commands from the zsh git plugin cheatsheet
     function gx () {
         `fzf < ~/.dotfiles/zsh-git-plugin-cheatsheet.txt | cut -f3 -d'|' | tr _ ' '`
     }
 
-    # reset the colorflag ... it seems to get lost somewhere ...
+    # reset the colorflag ...
     colorflag="--color=tty"
-    # alias ls="ls --color=tty --group-directories-first"
+
     alias ls="ls $colorflag --group-directories-first"
 
     . "${DOTFILES_INC}/zsh_big_sur_hacks.zsh"
+
+    # overide earlier git commit alias
+    # TODO - wip ...
+    # unalias gc
+    # function gc() {
+    #     git commit -S -m "${@:-~/.dotfiles/.stCommitMsg}"
+    #     git status
+    # }
+    # unalias gca
+    # function gca() {
+    #     git add --all
+    #     git commit -S -m "${@:-~/.dotfiles/.stCommitMsg}"
+    #     git status
+    # }
 
 #? -----------------------------> script cleanup
     # cleanup and exit script

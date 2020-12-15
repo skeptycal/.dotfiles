@@ -3,17 +3,17 @@
 	# shellcheck shell=bash
 	# shellcheck source=/dev/null
 	# shellcheck disable=2178,2128,2206,2034
-#? ################# cron_sunday - sunday system updates ###############
-#* copyright (c) 2019 Michael Treanor     -----     MIT License
-#* should not be run directly; called from crontab or .zshrc, etc.
+#? ---------------------------------------> crontab script
+	#* copyright (c) 2019 Michael Treanor     -----     MIT License
+	#* should not be run directly; called from crontab or .zshrc, etc.
 
 echo "every version bump counts ..."
 
-ZDOTDIR=${ZDOTDIR:=$HOME/.dotfiles}
-VERSION_LIST="${ZDOTDIR}/.VERSION_LIST.md"
-
 # colors and formatting utilities
-. ${ZDOTDIR}/zshrc_inc/ansi_colors.sh
+. ~/.dotfiles/zshrc_inc/ansi_colors.sh
+
+ZDOTDIR=${ZDOTDIR:=$HOME/.dotfiles}
+VERSION_LIST="${ZDOTDIR:-~/.dotfiles}/.VERSION_LIST.md"
 
 write_versions_file() {
 	br
@@ -52,13 +52,10 @@ write_versions_file() {
 	# attn "  $(lein --version | sed 's/Leiningen/lein version/g' | sed 's/version /       v/g')"
 
 	# me "Travis CI   v$(travis version)"
-	} >|"$VERSION_LIST"
+	} >"$VERSION_LIST"
 save_versions() {
-	# rm -rf "$VERSION_LIST" >/dev/null 2>&1
+	rm -rf "$VERSION_LIST" >/dev/null 2>&1
 	write_versions_file
 	}
 
-# start in 'easycron' folder
-cd "${HOME}/.dotfiles/easycron/"
 save_versions
-cd -

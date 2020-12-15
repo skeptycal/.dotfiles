@@ -11,9 +11,18 @@
 
 echo "every day counts ..."
 
+
+function zargit () {
+	zargs -e.. "$1" .. rm -rf --
+}
 # empty trashes
-rm -rfv /Volumes/*/.Trashes;
-rm -rfv /private/var/log/asl/*.asl;
+# rm -rfv /Volumes/*/.Trashes;
+zargit /Volumes/*/.Trashes
+# zargs -e.. -- **/* .. ls -ld --
+
+# rm -rfv /private/var/log/asl/*.asl;
+# rm -rfv /private/var/log/asl/*.asl;
+zargit /private/var/log/asl/*.asl
 
 # lscleanup
 /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user && killall Finder

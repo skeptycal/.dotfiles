@@ -21,6 +21,8 @@
 # *############################################## directories
     alias icloud="cd $HOME/Library/Mobile\ Documents/com~apple~CloudDocs/"
     alias cdc="cd $HOME/local_coding"
+    alias cdgo="cd ${GOPATH:-~/go}/src/github.com/skeptycal"
+
     alias cdw="cd $HOME/Documents/work"
     alias cdd="cd $HOME/Sites"
     alias cdb="cd $HOME/Dropbox"

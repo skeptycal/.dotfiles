@@ -4,6 +4,36 @@
     # shellcheck source=/dev/null
     # shellcheck disable=2178,2128,2206,2034
 #? ###################### copyright (c) 2019 Michael Treanor #################
+#? -----------------------------> table of contents ...
+	#* timing functions available
+		# ms, lap, lap_ms, lap_sec, lap_reset, timer_test, testdir
+
+		# todo - make a script that puts a TOC at the end of the script and can print it out
+
+	#* functions and constants available:
+		# is_empty
+		# exists
+		# hr & br
+		# CLICOLOR
+		# TERM
+
+	#* ANSI formatting styles
+		# 		NORMAL, BOLD, DIM, ITALIC, UNDERLINE, REVERSED, STRIKEOUT
+
+	#* ANSI foreground codes (use REVERSED for background)
+		# 		ATTN, BLUE, GOLANG, CANARY, CHERRY, COOL, CYAN, DARKGREEN, DBLUE,
+		#       GREEN, LIME, MAGENTA, MAIN, ORANGE, PINK, PURPLE, RAIN, RED,
+		#       TANGERINE, WARN, WHITE, YELLOW, RESTORE, RESET1
+		# 	   TRUE_COLOR & FALSE_COLOR
+
+	#* functions for color terminal output
+		# ce, eprint, me
+		# warn, blue, cool, green, lime, cherry, canary, attn, purple, rain, white
+		# dbecho, die
+
+	#* color testing functions
+		# color_sample, color_test, default_dircolors
+
 #? -----------------------------> constants & utilities
 	is_empty() { [ -z "$(ls -A $1)" ]; }
 	exists() { command -v $1 > /dev/null 2>&1 ; }
@@ -67,13 +97,16 @@
 		# BLUE=$(printf '\033[34m') # too dark
 		ATTN=$(printf '\033[38;5;178m')
 		BLUE=$(printf '\033[38;5;27m')
+		GOLANG=$(printf '\033[38;5;51m')
 		CANARY=$(printf '\033[38;5;226m')
 		CHERRY=$(printf '\033[38;5;124m')
 		COOL=$(printf '\033[38;5;27m')
 		CYAN=$(printf '\033[38;5;51m')
 		DARKGREEN=$(printf '\033[38;5;28m')
 		DBLUE=$(printf '\033[38;5;20m')
-		GREEN=$(printf '\033[32m')
+		# GREEN=$(printf '\033[32m') # too bright ...
+		# GREEN=$(printf '\033[38;5;22m') # too dim ...
+		GREEN=$(printf '\033[38;5;46m') # too bright ...
 		LIME=$(printf '\033[32;1m')
 		MAGENTA=$(printf '\033[38;5;201m')
 		MAIN=$(printf '\033[38;5;229m')
@@ -94,34 +127,13 @@
 		RESET="$(git config --get-color "" "reset")"
 
 		# Highlight the user name when logged in as root.
-		if [[ "loggedInUserID" ]]; then
+		if [[ "$loggedInUserID" ]]; then
 			userStyle="\${RED}"
 		else
-			user1Style="\${ATTN}"
+			userStyle="\${ATTN}"
 		fi
 
-		# color echo
-		ce() { printf "%b\n" "${*:-}${RESET:-}" ; }
-		# color echo with no reset or newline
-		eprint() { printf "%b" "${*:-}" ; }
-		me() { ce "${MAIN:-}${*:-}" ; }
-		warn() { ce "${WARN:-}${*:-}" ; }
-		blue() { ce "${BLUE:-}${*:-}" ; }
-		cool() { ce "${COOL:-}${*:-}" ; }
-		green() { ce "${DARKGREEN:-}${*:-}" ; }
-		lime() { ce "${LIME:-}${*:-}" ; }
-		cherry() { ce "${CHERRY:-}${*:-}" ; }
-		canary() { ce "${CANARY:-}${*:-}" ; }
-		attn() { ce "${ATTN:-}${*:-}" ; }
-		purple() { ce "${PURPLE:-}${*:-}" ; }
-		rain() { ce "${RAIN:-}${*:-}" ; }
-		white() { ce "${WHITE:-}${*:-}" ; }
-
-		dbecho(){ (( SET_DEBUG>0 )) && printf '%b\n' "${WARN:-}${REVERSED:-}${*}${RESET:-}"; }
-		die() { dbecho ${*:-"die (pid = $$)"} && exit 1; }
 	else
-		NL=
-
 		NORMAL=
 		BOLD=
 		DIM=
@@ -159,8 +171,27 @@
 		WS=
 		RESET=
 		userStyle=
-		user1Style=
 	fi
+
+	# color echo
+	ce() { printf "%b\n" "${*:-}${RESET:-}" ; }
+	# color echo with no reset or newline
+	eprint() { printf "%b" "${*:-}" ; }
+	me() { ce "${MAIN:-}${*:-}" ; }
+	warn() { ce "${WARN:-}${*:-}" ; }
+	blue() { ce "${BLUE:-}${*:-}" ; }
+	cool() { ce "${COOL:-}${*:-}" ; }
+	green() { ce "${DARKGREEN:-}${*:-}" ; }
+	lime() { ce "${LIME:-}${*:-}" ; }
+	cherry() { ce "${CHERRY:-}${*:-}" ; }
+	canary() { ce "${CANARY:-}${*:-}" ; }
+	attn() { ce "${ATTN:-}${*:-}" ; }
+	purple() { ce "${PURPLE:-}${*:-}" ; }
+	rain() { ce "${RAIN:-}${*:-}" ; }
+	white() { ce "${WHITE:-}${*:-}" ; }
+
+	dbecho(){ (( SET_DEBUG>0 )) && printf '%b\n' "${WARN:-}${REVERSED:-}${*}${RESET:-}"; }
+	die() { dbecho ${*:-"die (pid = $$)"} && exit 1; }
 
 	# todo - wip automatic coloring of output based on previous return code
 	# colors used in tf color function
@@ -169,9 +200,9 @@
 
 	# todo - not working ... probably because of variable scopes in functions?
 	# colors output based on previous command
-	tfcolor() {
-		[ "$?" ] && ce "${TRUE_COLOR}$*"  || ce "${FALSE_COLOR}$*"
-	}
+	# tfcolor() {
+	# 	[ "$?" ] && ce "${TRUE_COLOR}$@"  || ce "${FALSE_COLOR}$@"
+	# }
 #? -----------------------------> color testing
 	color_sample() {
 		echo "${MAIN:-}C  ${WARN:-}O  ${COOL:-}L  ${LIME:-}O  ${GO:-}R  ${CHERRY:-}S  ${CANARY:-}A  ${ATTN:-}M  ${RAIN:-}P  ${WHITE:-}L  ${RESET:-}E"
@@ -208,3 +239,63 @@
 		${RED}Red with black background:${RESET} Broken link
 		EOF
 	}
+#? -----------------------------> script timers
+    ms() { printf '%i\n' "$(( $(gdate +%s%N) * 0.001 ))"; } # microseconds
+    t0=$(ms) # initial timer mark
+    lap() { # time milliseconds since last 'lap' call
+        t1=$(ms)
+        dt=$(( t1 - t0 ))
+        t0="$t1"
+        printf '%i\n' "$dt"
+        }
+    lap_ms() { printf '%i\n' "$(( $(lap) / 1000 ))"; }
+    lap_sec() { printf '%i\n' "$(( $(lap) / 1000000 ))"; }
+    lap_reset() { t0=$(ms); }
+    lap_reset
+
+    timer_test(){
+        blue "timer_test - test timer functions"
+        blue "  time delays are measured and posted with different levels of precision."
+        blue "Press <ctrl>-C to end the timer test early..."
+        t0=$(ms)
+        for i in {1..10}; do
+            sleep 1
+            green "Assigned time: ${i}       actual time: $(lap) µs."
+            t0=$(ms)
+        done;
+        for i in {1..10}; do
+            sleep 1
+            green "Assigned time: ${i}       actual time: $(lap_ms) ms."
+            t0=$(ms)
+        done;
+        for i in {1..10}; do
+            sleep 1
+            green "Assigned time: ${i}       actual time: $(lap_sec) s."
+            t0=$(ms)
+        done;
+    }
+    testdir () {
+        if (( $# > 0 )); then
+            count="$1"
+            shift
+        else
+            count=1000
+        fi
+        echo "count: $count"
+
+        if (( $# > 0 )); then
+            args="$@"
+        else
+            args="ls >/dev/null"
+        fi
+        echo "args: $args"
+
+        $(lap_reset) # reset timer
+
+        #stuff to time ...
+        for i in {1..$count}
+            do eval "$args"
+        done
+
+        printf "${GREEN:-}Script took ${BOLD:-}${ATTN:-}$(lap)${RESET:-}${GREEN:-} µs to run.${RESET:-}\n\n"
+    }

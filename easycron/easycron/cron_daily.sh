@@ -9,21 +9,50 @@
 
 echo "every day counts ..."
 
+# source 'versions.sh' to update '.VERSION_LIST.md' file
+# ~/.dotfiles/easycron/easycron/cron_versions.sh
+
 cd $HOME
+
+# prevent access to any version of python in virtual environment
+VENV_PATH="lib/python"
+
+COMMAND="rm -rfv {}"
+
+clean(){ # usage: clean NAME [TYPE (default d)]
+    find . \! -path "*${VENV_PATH}*" -name "$1" -type ${2:-d} -print0 | xargs -0n1 -P8 echo
+	# zargs -e.. "$1" .. echo --
+}
+
+# todo - use zargs from zsh
+# function zargit () {
+# }
+
+# cleanup .DS_Store files
+# find $HOME -type f -name "*.DS_Store" -exec rm -rfv {} +
+clean '*.DS_Store' 'f'
+
+# python build and pypa
+clean build
+clean dist
+
+# python cache files
+clean .mypy_cache
+clean .pytest_cache
+clean __pycache__
+
+# python builds
+clean '*.egg-info'
+
+# tox environments
+clean .tox
+
+# python bytecode files
+clean '*.py[co]' 'f'
+
+# pre-commit cache cleanup
+rm -rf ${HOME}/.cache/pre-commit/*
 
 # empty trashes
 rm -rfv $HOME/.Trash;
 sqlite3 $HOME/Library/Preferences/com.apple.LaunchServices.QuarantineEventsV* 'delete from LSQuarantineEvent'
-
-# cleanup .DS_Store files
-find $HOME -type f -name "*.DS_Store" -exec rm -rfv {} +
-
-# user python and pycache cleanup
-find $HOME -type d -name "build" -exec rm -rfv {} +
-find $HOME -type d -name "dist" -exec rm -rfv {} +
-find $HOME -type d -name ".mypy_cache" -exec rm -rfv {} +
-find $HOME -type d -name ".pytest_cache" -exec rm -rfv {} +
-find $HOME -type d -name "__pycache__" -exec rm -rfv {} +
-find $HOME -type d -name "*.egg-info" -exec rm -rfv {} +
-find $HOME -type d -name ".tox" -exec rm -rfv {} +
-find $HOME -type f -name "*.py[co]" -exec rm -rfv {} +

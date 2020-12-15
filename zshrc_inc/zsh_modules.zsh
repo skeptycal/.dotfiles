@@ -1,4 +1,9 @@
 #? -----------------------------> ZSH modules
+
+	# handy zsh stuff !!
+	# Reference: https://neg-serg.github.io/2017/03/zargs-howto/
+	autoload -U zargs
+
     # zsh module descriptions:
     # http://zsh.sourceforge.net/Doc/Release/Zsh-Modules.html
 

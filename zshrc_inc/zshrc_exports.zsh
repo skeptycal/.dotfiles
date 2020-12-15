@@ -56,11 +56,13 @@
 
     export SH_KEY_PATH="${HOME}/.ssh/rsa_id"
 
+	export CLASH_PATH=/Users/skeptycal/local_coding/user_bin_dir_repo
     export LOCAL_IP="$(ipconfig getifaddr en0)"
     export LANG="en_US.UTF-8"
     export ARCHFLAGS="-arch x86_64"
-    export CPU=$(sysctl -n machdep.cpu.brand_string)
+    export CPU_STRING=$(sysctl -n machdep.cpu.brand_string)
     export number_of_cores=$(sysctl -n hw.ncpu)
+	export MEMORY_CAP=$(system_profiler SPHardwareDataType | grep "  Memory:" | cut -d ':' -f 2)
 
     # support colors in less
     export LESS_TERMCAP_mb && LESS_TERMCAP_mb=$'\E[01;31m'
@@ -132,5 +134,6 @@
 #? ----------------------------->## Postgres setup
     #   export DATABASE_URL="postgres://$(whoami)"
 
-
+#? ----------------------------->## Ruby setup
+export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl@1.1)"
 true

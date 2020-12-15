@@ -165,51 +165,7 @@
 			done 2>/dev/null &
 		fi
 		}
-#? ######################## Program Versions Reporting
-	write_versions_file() {
-		br
-		me "# Program Versions List"
-		me "-------------------------------------------------------------"
-		# green "## VERSION_LIST path: $VERSION_LIST"
-		blue "**os: $(uname -i) | $(sw_vers -productName) | $(sw_vers -productVersion)**"
-		me "### shell:"
-		lime "- zsh:            $(zsh --version)"
-		# green "- current shell:  $ZSH_VERSION"
-		rain "- VSCode:         $(code --version | head -n 1)"
-		br
-		me "### utilities:"
-		warn   "- $(clang --version | grep version | sed 's/version //g')"
-		attn   "- $(git --version | sed 's/version //g') with $(hub --version | grep hub | sed 's/version //g')"
-		canary "- $(bash --version | grep bash | cut -d ',' -f 1)  ($(bash --version | grep bash | cut -d ' ' -f 4 | cut -d '(' -f 1))${WHITE} with ${GO}GNU grep ($(grep --version | head -n 1 | cut -d ' ' -f 4))${WHITE} and ${CHERRY}GNU coreutils ($(brew list coreutils --versions | cut -d ' ' -f 2))"
-		# lime "- homebrew ($(brew --version | tail -n 3 | head -n 1 | cut -d ' ' -f 2))" # and conda ($(conda -V | cut -d ' ' -f 2))"
-		canary "- prettier ($(prettier --version))"
-		# purple "- stack ($(stack --version | cut -d ',' -f 1 | cut -d ' ' -f 2))"
-		blue "- mkdocs ($(mkdocs --version | cut -d ' ' -f 3))"
-		# green "- TeXLive(tlmgr)  v$(tlmgr --version | head -n 1 | cut -d ' ' -f 3-4))"
-		br
 
-		me "### languages:"
-		blue   "- GO      ($(go version | cut -d ' ' -f 3 | sed 's/go//g'))"
-		# attn   "- rustc   ($(rustc --version | cut -d ' ' -f 2)) with rustup ($(rustup --version | cut -d ' ' -f 2))"
-		warn   "- ruby    ($(ruby -v 2>/dev/null | cut -d ' ' -f 2 | cut -d 'p' -f 1)) with gem ($(gem -v))"
-		# purple "- php     ($(php -v 2>/dev/null | grep '(cli)' | cut -d ' ' -f 2)) with composer ($(composer --version | cut -d ' ' -f 3))"
-		printf "%b\n" "${COOL}- python  ($(python --version | cut -d ' ' -f 2)) with pip ($(pip --version | cut -d ' ' -f 2)) and pipenv ($(pipenv --version | cut -d ' ' -f 3)) ${RESET_FG}"
-		canary "- node    ($(node -v | sed 's/v//g')) with npm ($(npm -v))"
-		cherry "- Xcode   ($(/Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -version | grep Xcode | sed 's/Xcode //g'))"
-		# attn   "- Clojure ($(clojure -Sdescribe | grep version | sed 's/{://g' | sed 's/"//g' | sed 's/version //g')) with lein"
-		br
-
-		# attn "- cargo ($(cargo --version | cut -d ' ' -f 2))"
-		# attn "  $(lein --version | sed 's/Leiningen/lein version/g' | sed 's/version /       v/g')"
-
-		# me "Travis CI   v$(travis version)"
-		} >"$VERSION_LIST"
-	save_versions() {
-		# echo "VERSION_LIST: $VERSION_LIST"
-		rm -rf "$VERSION_LIST" >/dev/null 2>&1
-		# touch $VERSION_LIST
-		write_versions_file
-		}
 	versions() { cat $VERSION_LIST ; }
 #? ######################## Maintenance
 # todo - moved to crontab for now
@@ -280,8 +236,8 @@
 		${CHERRY:-}
 		================================================================== ${MAIN:-}
 		os: ${LIME:-}$(uname -i) | $(sw_vers -productName) | $(sw_vers -productVersion)${MAIN:-}
-		shell: ${ATTN:-}$(zsh --version | cut -d '(' -f 1))${MAIN:-}
-		go: ${COOL:-}$(go version | cut -d ' ' -f 3 | cut -d 'o' -f 2)${MAIN:-}
+		shell: ${ATTN:-}$(zsh --version | cut -d '(' -f 1)${MAIN:-}
+		go: ${GOLANG:-}$(go version | cut -d ' ' -f 3 | cut -d 'o' -f 2)${MAIN:-}
 		python: ${CANARY:-}$(python -V)${MAIN:-}
 
 		CPU: ${LIME:-}${CPU} ${MAIN:-}-> ${CANARY:-}${number_of_cores}${MAIN:-} cores.${MAIN:-}
@@ -292,6 +248,8 @@
 			# Reminders to try out the latest features ...${RESET}
 			${LIME}
 			recent              - see *more* utility additions / changes.${DARKGREEN}
+			ftxinstalledfonts   - Apple utility to list and analyze fonts (very detailed!)
+				(e.g. ftxinstalledfonts -fiMls -U 'U+0041, $0042, 0x43' 2>/dev/null | grep 'YES\tYES')
 			preman              - open man pages nicely formatted in Preview
 			zsh_stats           - (from oh-my-zsh) list cli stats
 			perf_test           - performance tests logged to ~/.perf_test_xxx.log
@@ -322,9 +280,12 @@
 			log_urls            - logs urls from chrome constantly
 			login_message       - this message!!
 			ping_avg            - average of ping times over COUNT attempts
+			pm 						- colorize files with pygmentize
 			preman              - open man pages nicely formatted in Preview
+			pret 					- format all possible files with Prettier
 			quickpret           - prettier (write, ignore unknown, hide errors)
 			rc                  - repo clean (cache and temp files)
+			rebrew			- upgrade all brew packages
 			repip               - repair and update pip packages in current env
 			space [DEVICE]      - space remaining on drive
 			sunday              - weekly maintenance scripts

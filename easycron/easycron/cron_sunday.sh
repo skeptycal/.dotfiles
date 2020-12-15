@@ -12,9 +12,6 @@ echo "every Sunday counts"
 # start in 'easycron' folder
 cd "${HOME}/.dotfiles/easycron/"
 
-# souce 'versions.sh' to update '.VERSION_LIST.md' file
-. ~/.dotfiles/easycron/versions.sh
-
 # update and repair user HomeBrew repos
 brew update
 brew upgrade
