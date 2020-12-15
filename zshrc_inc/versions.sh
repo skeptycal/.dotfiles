@@ -3,39 +3,17 @@
 	# shellcheck shell=bash
 	# shellcheck source=/dev/null
 	# shellcheck disable=2178,2128,2206,2034
-#? ################# cron_sunday - sunday system updates ###############
+#? ---------------------------------------> crontab script
 	#* copyright (c) 2019 Michael Treanor     -----     MIT License
 	#* should not be run directly; called from crontab or .zshrc, etc.
 
-#! -- root crontab script -- use caution --
+echo "every version bump counts ..."
 
-echo "every Sunday counts"
+# colors and formatting utilities
+. ~/.dotfiles/zshrc_inc/ansi_colors.sh
 
-USERDIR=/Users/skeptycal
-
-cd $USERDIR
-
-. $USERDIR/.dotfiles/zshrc_inc/ansi_colors.sh
-
-# Close any open System Preferences panes
-osascript -e 'tell application "System Preferences" to quit'
-
-# Find and delete all broken symbolic links
-find -L / -type l -exec rm -- {} +
-
-# Removing all empty directories
-find / -type d -empty -exec rmdir --ignore-fail-on-non-empty -- {} +
-
-softwareupdate -i -a
-
-npm install npm -g
-npm update -g
-
-gem update --system
-gem update
-gem cleanup
-
-pip3 list | sed 's/  */ /g' | cut -d ' ' -f 1 | tail -n +3 | xargs pip3 install -U
+ZDOTDIR=${ZDOTDIR:=$HOME/.dotfiles}
+VERSION_LIST="${ZDOTDIR:-~/.dotfiles}/.VERSION_LIST.md"
 
 write_versions_file() {
 	br
@@ -52,7 +30,7 @@ write_versions_file() {
 	warn   "- $(clang --version | grep version | sed 's/version //g')"
 	attn   "- $(git --version | sed 's/version //g') with $(hub --version | grep hub | sed 's/version //g')"
 	canary "- $(bash --version | grep bash | cut -d ',' -f 1)  ($(bash --version | grep bash | cut -d ' ' -f 4 | cut -d '(' -f 1))${WHITE} with ${GO}GNU grep ($(grep --version | head -n 1 | cut -d ' ' -f 4))${WHITE} and ${CHERRY}GNU coreutils ($(brew list coreutils --versions | cut -d ' ' -f 2))"
-	# lime "- homebrew ($(brew --version | tail -n 3 | head -n 1 | cut -d ' ' -f 2))" # and conda ($(conda -V | cut -d ' ' -f 2))"
+	lime "- homebrew ($(brew --version | tail -n 3 | head -n 1 | cut -d ' ' -f 2))" # and conda ($(conda -V | cut -d ' ' -f 2))"
 	canary "- prettier ($(prettier --version))"
 	# purple "- stack ($(stack --version | cut -d ',' -f 1 | cut -d ' ' -f 2))"
 	blue "- mkdocs ($(mkdocs --version | cut -d ' ' -f 3))"
@@ -60,10 +38,10 @@ write_versions_file() {
 	br
 
 	me "### languages:"
-	blue   "- GO      ($(go version | cut -d ' ' -f 3 | sed 's/go//g'))"
+	ce   "${GOLANG:-}- GO      ($(go version | cut -d ' ' -f 3 | sed 's/go//g'))"
 	# attn   "- rustc   ($(rustc --version | cut -d ' ' -f 2)) with rustup ($(rustup --version | cut -d ' ' -f 2))"
 	warn   "- ruby    ($(ruby -v 2>/dev/null | cut -d ' ' -f 2 | cut -d 'p' -f 1)) with gem ($(gem -v))"
-	# purple "- php     ($(php -v 2>/dev/null | grep '(cli)' | cut -d ' ' -f 2)) with composer ($(composer --version | cut -d ' ' -f 3))"
+	purple "- php     ($(php -v 2>/dev/null | grep '(cli)' | cut -d ' ' -f 2)) with composer ($(composer --version | cut -d ' ' -f 3))"
 	printf "%b\n" "${COOL}- python  ($(python --version | cut -d ' ' -f 2)) with pip ($(pip --version | cut -d ' ' -f 2)) and pipenv ($(pipenv --version | cut -d ' ' -f 3)) ${RESET_FG}"
 	canary "- node    ($(node -v | sed 's/v//g')) with npm ($(npm -v))"
 	cherry "- Xcode   ($(/Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -version | grep Xcode | sed 's/Xcode //g'))"
@@ -74,9 +52,10 @@ write_versions_file() {
 	# attn "  $(lein --version | sed 's/Leiningen/lein version/g' | sed 's/version /       v/g')"
 
 	# me "Travis CI   v$(travis version)"
-} >"$VERSION_LIST"
+	} >"$VERSION_LIST"
+save_versions() {
+	rm -rf "$VERSION_LIST" >/dev/null 2>&1
+	write_versions_file
+	}
 
-# "Updating version list
-VERSION_LIST="${USERDIR}/.dotfiles/.VERSION_LIST.md"
-rm -rf "$VERSION_LIST" >/dev/null 2>&1
-write_versions_file
+save_versions

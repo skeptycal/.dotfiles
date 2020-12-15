@@ -52,7 +52,7 @@
 #? -----------------------------> git housekeeping (TODO)
     #TODO - wip ...
     _housekeeping () {
-        git fetch -p && git branch -vv | awk '/: gone]/ {print $1}' | xargs git branch -d
+        echo "git fetch -p && git branch -vv | awk '/: gone]/ {print $1}' | xargs git branch -d"
         }
 
 #? -----------------------------> cli utilities
@@ -66,7 +66,9 @@
 #? -----------------------------> stdout & stderr
 	2echo() { ce "$*" >&2; }
 	error() { warn ${RED}"Error: $*"${RESET} >&2; }
+
 #? -----------------------------> Strings and arrays
+
     dict() { grep "$*" /usr/share/dict/words; }
     colon_list() { echo -e "${1//:/\\n}"; }
     in_str() { string=${*:2}; return $([ -z "${string##*$1*}" ]); }

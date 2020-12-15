@@ -17,7 +17,6 @@
 	}
 #? ###################### copyright (c) 2019 Michael Treanor #################
 
-
 # ------------------------- gitit -------------------------
 #   Automatic repo pre-commit, commit, and push
 #

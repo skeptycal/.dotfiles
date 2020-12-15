@@ -1,17 +1,23 @@
 # Files to ignore in main document tree (from .ignore)
 
+*[Bb]ak*
+*[Pp]rivate*
+*[Ss]ecret*
+**/.ssh*
+**/*/node_modules/
+*history*
 *hst*
+*ssh*
+*temp
+temp/
+
 .*rc*
 *.conf
 *.save
 .TWINE_USERNAME
 .stCommitMsg
 goobook_client_secret.json
-*secret*
-*private*
 .git*
-
-**/*/node_modules/
 myagent/
 Pictures/
 Public/
@@ -38,9 +44,39 @@ __pycache__
 .zprofile
 .zsh_history
 'Google Drive'
-**/.ssh*
-*ssh*
 Downloads
+
+# general ignore files
+.oh-my-zsh/
+coding/
+extras/
+py_ssm/
+snippets/
+
+medium_token
+.lesshst
+.pypirc
+.dircolors
+.coveralls.yml
+.wakatime*
+.wakatime.cfg
+*wakatime*
+*goobook*
+.gitconfig
+py_ssm/
+/unused/
+extras/*
+.viminfo*
+*phive*
+*/test/
+.npmrc
+.vsce
+*bak*
+.netrc
+.vuerc
+.ibm-project
+.wgetrc
+phive.phar.asc
 
 # Project-specific files
 **/.wakatime*
@@ -81,43 +117,6 @@ build/
 dist/
 env/
 
-# general ignore files
-*temp
-temp/
-*[Pp]rivate*
-*bak*
-bak/
-.oh-my-zsh/
-coding/
-extras/
-py_ssm/
-snippets/
-
-medium_token
-.lesshst
-.pypirc
-.dircolors
-.coveralls.yml
-.wakatime*
-.wakatime.cfg
-*wakatime*
-*goobook*
-.gitconfig
-py_ssm/
-/unused/
-extras/*
-.viminfo*
-*phive*
-*/test/
-.npmrc
-.vsce
-*bak*
-.netrc
-.vuerc
-.ibm-project
-.wgetrc
-phive.phar.asc
-
 # Home Directory Folders
 *Trash*
 /Devel*
@@ -127,7 +126,6 @@ phive.phar.asc
 
 # Home directory files
 .archey*
-*history*
 .rainbow*
 .sqltools-setup
 .v8flags.*
@@ -169,8 +167,6 @@ database_connect.py
 db_connect.py
 */.extra
 /setup/
-*/[Pp]rivate/*
-*[Pp]rivate*
 crypto.*
 
 #######################################  @sortit: sort_alpha, nodupes

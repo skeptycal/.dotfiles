@@ -2,25 +2,40 @@
     plugins=(\
 
     # repo management ...
-    git gpg-agent npm gitignore\
+    git gpg-agent\
+	# npm\
+	gitignore\
 
     # macOS improvements
-    osx colored-man-pages cp copyfile man iterm2 gnu-utils\
+    # osx\
+	# cp\
+	# copyfile\
+	man\
+    # iterm2\
+    gnu-utils\
 
-    # old plugins
-    # terminalapp\
-
-    # zsh helpers
-    # zsh-autosuggestions \
-    # zsh-better-npm-completion \
-    # zsh-syntax-highlighting \
+    # alias rsync-copy="rsync -avz --progress -h"
+    # alias rsync-move="rsync -avz --progress -h --remove-source-files"
+    # alias rsync-update="rsync -avzu --progress -h"
+    # alias rsync-synchronize="rsync -avzu --delete --progress -h"
 
     # go!
-    golang\
+    # golang\
     # golang /Users/michaeltreanor/.dotfiles/ohmyzsh/plugins/golang/README.md
 
     # python!
-    django poetry\
-
-    python)
     # includes pyfind, pyclean, pyuserpaths, pygrep, ipython
+    # django\
+    # pep8\
+    # pip\
+    # poetry\
+    # python\
+    # pylint\
+    # pyenv\
+
+    # shell improvements
+    colorize\
+    # perms\
+    # rsync\
+    # ripgrep\
+    colored-man-pages)

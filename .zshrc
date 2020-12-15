@@ -3,11 +3,22 @@
   # shellcheck shell=bash
   # shellcheck source=/dev/null
   # shellcheck disable=2178,2128,2206,2034
+#? ################# .zshrc - main config for macOS with zsh ###############
+ #* copyright (c) 2019 Michael Treanor     -----     MIT License
+ #? ###################### https://www.github.com/skeptycal ##################
 
-  # number of years the first commercial
-  #   modem would take to transmit a movie: 42.251651342415241
-  #   this is very nearly the time since I wrote my first program
-  #   I'm glad I didn't watch that movie instead ...
+ #* number of years the first commercial
+ #*   modem would take to transmit a movie: 42.251651342415241
+ #*   this is very nearly the time since I wrote my first program
+ #*   I'm glad I didn't watch that movie instead ...
+
+#? ###################### copyright (c) 2019 Michael Treanor #################
+
+#? -----------------------------> parameter expansion tips
+ #? ${PATH//:/\\n}    - replace all colons with newlines
+ #? ${PATH// /}       - strip all spaces
+ #? ${VAR##*/}        - return only final element in path (program name)
+ #? ${VAR%/*}         - return only path (without program name)
 
 #? -----------------------------> Shell Settings
     # Remove all aliases from unexpected places
@@ -34,8 +45,28 @@
         BASH_SOURCE="${BASH_SOURCE:=$0}"
     fi
 
+    # this file ...
+	SCRIPT_NAME=${0##*/}
+    SCRIPT_PATH=${0%/*}
+
+    # Path to oh-my-zsh configuration.
+    ZSH=$HOME/.dotfiles/.oh-my-zsh
+
+    # Path to ZSH dotfiles directory
+    ZDOTDIR=$HOME/.dotfiles
+
+    # Older dotfiles path directory (for compatibility)
+    DOTFILES_PATH=$ZDOTDIR
+
+    # Path to include files
+    DOTFILES_INC=${ZDOTDIR}/zshrc_inc
+
+    # setup system $PATH (and $MANPATH)
+    . ${DOTFILES_INC}/zsh_set_path.sh
+
     # ANSI colors and cli functions
-    . $(which ssm) >/dev/null 2>&1 || . ${ZDOTDIR:-~/.dotfiles}/zshrc_inc/ansi_colors.sh
+    . $(which ssm) >/dev/null 2>&1 || . $(which ansi_colors.sh) # >/dev/null 2>&1
+    # /Users/skeptycal/.dotfiles/zshrc_inc/ansi_colors.sh
 
 #? -----------------------------> debug (Dev / Production modes)
     # SET_DEBUG is set to zero for production mode
@@ -65,25 +96,21 @@
         setopt XTRACE # VERBOSE
     fi
 
+    function noyes() {
+        read "a?$1 [y/N] "
+        if [[ $a == "N" || $a == "n" || $a = "" ]]; then
+            return 0
+        fi
+        return 1
+    }
+
+    function breather() {
+        local stuff
+        read "stuff?${1:-'Continue? '} [Enter] "
+        return 0
+    }
+
 #? -----------------------------> user and paths
-    # Apple User Identification Reference:
-        # https://developer.apple.com/library/archive/qa/qa1133/_index.html
-
-        # Warning: The System Configuration framework mechanism for determining the
-        # current console user has a number of important caveats:
-
-        # - It assumes that the computer has a single GUI console. While that's true
-        #   currently, it may not be true forever. If you use this technique you
-        #   will have to change your code if this situation changes.
-        # - It has no way of indicating that multiple users are logged in.
-        # - It has no way of indicating that a user is logged in but has switched to
-        #   the login window.
-
-        # See 'Design Considerations' of Apple Daemons and Agents Technotes:
-        # https://developer.apple.com/library/archive/technotes/tn2083/_index.html
-
-        # Ref: https://erikberglund.github.io/2018/Get-the-currently-logged-in-user,-in-Bash/
-
     # UserID of currently logged in user
     loggedInUserID="$( scutil <<< "show State:/Users/ConsoleUser"  | awk '/UID : / && ! /loginwindow/ { print $3 }' )"
 
@@ -96,20 +123,16 @@
     # HomeBrew path prefix (manually set - auto is slow)
     BREW_PREFIX=/usr/local      # BREW_PREFIX=$(brew --prefix)  #! too slow...
 
-    # Path to oh-my-zsh configuration.
-    ZSH=$HOME/.dotfiles/.oh-my-zsh
+    # Path to template files
+    DOTFILES_TEMPLATE="${ZDOTDIR}/template"
 
-    # Path to ZSH dotfiles directory
-    ZDOTDIR=$HOME/.dotfiles
+    # Path to template files that should be linked
+    DOTFILES_TEMPLATE_LN=${DOTFILES_TEMPLATE}/ln
 
-    # Older dotfiles path directory (for compatibility)
-    DOTFILES_PATH=$ZDOTDIR
+    # Path to template files that should be copied
+    DOTFILES_TEMPLATE_CP=${DOTFILES_TEMPLATE}/cp
 
-    # Path to include files
-    DOTFILES_INC=${ZDOTDIR}/zshrc_inc
-
-    # setup system $PATH (and $MANPATH)
-    . ${DOTFILES_INC}/zsh_set_path.sh
+	autoload -Uz compinit && compinit
 
 #? -----------------------------> source utilities
     .() { # source with debugging info and file read check
@@ -128,57 +151,12 @@
         done;
         }
 
-#? -----------------------------> script timers
-    ms() { printf '%i\n' "$(( $(gdate +%s%N) * 0.001 ))"; } # microseconds
-    t0=$(ms) # initial timer mark
-    lap() { # time milliseconds since last 'lap' call
-        if [[ $1 = 'reset' ]]; then
-            # reset the lap timer initial value
-            t0=$(ms)
-            return 0
-        else
-            t1=$(ms)
-            dt=$(( t1 - t0 ))
-            t0=$(ms)
-            printf '%i\n' "$dt"
-        fi
-        }
-    lap_ms() { printf '%i\n' "$(( $(lap) / 1000 ))"; }
-    lap_sec() { printf '%i\n' "$(( $(lap) / 1000000 ))"; }
 
-    timer_test(){
-        blue "timer_test - test timer functions"
-        blue "Increasing time delays are measured and posted."
-        blue "Press <ctrl>-C to end the timer test early..."
-        t0=$(ms)
-        for i in {1..10}; do
-            sleep 1
-            green "Assigned time: ${i}       actual time: $(lap) µs."
-            t0=$(ms)
-        done;
-        for i in {1..10}; do
-            sleep 1
-            green "Assigned time: ${i}       actual time: $(lap_ms) ms."
-            t0=$(ms)
-        done;
-        for i in {1..10}; do
-            sleep 1
-            green "Assigned time: ${i}       actual time: $(lap_sec) s."
-            t0=$(ms)
-        done;
-    }
-#? -----------------------------> timer in CLI prompt
-    # function preexec() { pre_timer=$(ms); }
-    # function precmd() {
-    #     if [ $timer ]; then
-    #         elapsed=$(($(ms)-$pre_timer))
+#? -----------------------------> load profile settings
+    # if [ -x dircolors ]; then
+    #     eval `dircolors ~/.dotfiles/dircolors-solarized/dircolors.ansi-dark`
+    # fi
 
-    #         RPROMPT="%F{cyan}${elapsed}ms %{$reset_color%}"
-    #         unset timer
-    #     fi
-    #     }
-
-#? -----------------------------> load profile settingss
     # tokens and password functions
     . "${DOTFILES_INC}/.tokens_private.sh"
 
@@ -192,9 +170,6 @@
     # git functions and options
     . "${DOTFILES_INC}/func_git.zsh"
 
-    # ansi colors and formatting
-    . "${DOTFILES_INC}/ansi_colors.sh"
-
     # zsh shell aliases
     . "${DOTFILES_INC}/a_directories.zsh"
     . "${DOTFILES_INC}/a_init.zsh"
@@ -205,7 +180,6 @@
 
     # zsh functions and options
     . "${DOTFILES_INC}/func_sys.zsh"
-    . "${DOTFILES_INC}/zsh_big_sur_hacks.zsh"
     . "${DOTFILES_INC}/func_tasks.zsh"
 
     # python settings and utilities
@@ -216,22 +190,12 @@
     . "${DOTFILES_INC}/omz_plugins.zsh"
     . "${DOTFILES_INC}/zsh_modules.zsh"
 
-#? -----------------------------> per host config
-    # per-host
-    _HOSTNAME=$(hostname)
-    HOSTRC="~/.dotfiles/zshrc.${_HOSTNAME}"
-    if [ -r "$HOSTRC" ]; then
-        source "$HOSTRC"
-    fi
-    if [ -r ~/.zshrc.host ]; then
-        source ~/.zshrc.host
-    fi
-
 #? -----------------------------> load OMZ!
     # OMZ config
+    DISABLE_AUTO_TITLE="true"
 	CASE_SENSITIVE="false"
 	COMPLETION_WAITING_DOTS="true"
-    # DISABLE_UNTRACKED_FILES_DIRTY="true"
+    DISABLE_UNTRACKED_FILES_DIRTY="true"
     ENABLE_CORRECTION="true"
     DISABLE_MAGIC_FUNCTIONS="true"
     ZSH_THEME="spaceship"
@@ -240,54 +204,33 @@
     . "$ZSH/oh-my-zsh.sh"
 
 #? -----------------------------> odds and ends
-
-    if [ -x dircolors ]; then
-        eval `dircolors ~/.dotfiles/dircolors-solarized/dircolors.ansi-dark`
-    fi
-
-    # common shell config
-    if [ -r ~/.commonshrc ]; then
-        source ~/.commonshrc
-    fi
-
-    # export FPATH="$HOME/.dotfiles/docked-node/zfuncs:$FPATH"
-    # autoload docked-node
+    # These seem to get lost somewhere ...
 
     # Helper to lookup commands from the zsh git plugin cheatsheet
     function gx () {
         `fzf < ~/.dotfiles/zsh-git-plugin-cheatsheet.txt | cut -f3 -d'|' | tr _ ' '`
     }
 
-    # reset the colorflag ... it seems to get lost somewhere ...
-    # alias ls="ls --color=tty --group-directories-first"
+    # reset the colorflag ...
     colorflag="--color=tty"
+
     alias ls="ls $colorflag --group-directories-first"
 
-#? -----------------------------> important utilities
-    test -e "${HOME}/.iterm2_shell_integration.zsh" && . "${HOME}/.iterm2_shell_integration.zsh"
+    . "${DOTFILES_INC}/zsh_big_sur_hacks.zsh"
 
-    # The next line updates PATH for the Google Cloud SDK.
-    if [ -r ~/apps/google-cloud-sdk/path.zsh.inc ]; then . ~/apps/google-cloud-sdk/path.zsh.inc; fi
-
-    # The next line enables shell command completion for gcloud.
-    if [ -r ~/apps/google-cloud-sdk/completion.zsh.inc ]; then . ~/apps/google-cloud-sdk/completion.zsh.inc; fi
-#? -----------------------------> Powerlevel10k
-    # PowerLevel10k Theme
-    ZSH_THEME="powerlevel10k/powerlevel10k"
-    # To customize prompt, run `p10k configure` or edit ~/.dotfiles/.p10k.zsh.
-    [[ ! -f ~/.dotfiles/.p10k.zsh ]] || source ~/.dotfiles/.p10k.zsh
-    # POWERLEVEL9K_MODE="nerdfont-complete"
-    # POWERLEVEL9K_DISABLE_RPROMPT=true
-    # POWERLEVEL9K_PROMPT_ON_NEWLINE=true
-    # POWERLEVEL9K_MULTILINE_LAST_PROMPT_PREFIX="▶ "
-    # POWERLEVEL9K_MULTILINE_FIRST_PROMPT_PREFIX=""
-
-    # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.dotfiles/.zshrc.
-    # Initialization code that may require console input (password prompts, [y/n]
-    # confirmations, etc.) must go above this block; everything else may go below.
-    if [[ -r ${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh ]]; then
-    source ${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh
-    fi
+    # overide earlier git commit alias
+    # TODO - wip ...
+    # unalias gc
+    # function gc() {
+    #     git commit -S -m "${@:-~/.dotfiles/.stCommitMsg}"
+    #     git status
+    # }
+    # unalias gca
+    # function gca() {
+    #     git add --all
+    #     git commit -S -m "${@:-~/.dotfiles/.stCommitMsg}"
+    #     git status
+    # }
 
 #? -----------------------------> script cleanup
     # cleanup and exit script
@@ -296,8 +239,7 @@
     # calculate and display script time
     printf "${GREEN:-}Script ${SCRIPT_NAME} took ${BOLD:-}${ATTN:-}$(lap_ms)${RESET:-}${GREEN:-} ms to load.${RESET:-}\n\n"
 
-
-    #? -----------------------------> zsh notes
+#? -----------------------------> zsh notes
     # ALL_EXPORT (-a, ksh: -a)
     # All parameters subsequently defined are automatically exported.
     # GLOBAL_EXPORT (<Z>)

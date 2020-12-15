@@ -1,13 +1,8 @@
 #? -----------------------------> ZSH modules
 
-    # if type brew &>/dev/null; then
-    #     FPATH=$(brew --prefix)/share/zsh-completions:$FPATH
-
-    #     autoload -Uz compinit
-    #     compinit
-    # fi
-
-    # . /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+	# handy zsh stuff !!
+	# Reference: https://neg-serg.github.io/2017/03/zargs-howto/
+	autoload -U zargs
 
     # zsh module descriptions:
     # http://zsh.sourceforge.net/Doc/Release/Zsh-Modules.html
@@ -44,4 +39,9 @@
     zstyle ':completion:*' menu select
     fpath+="$HOME/.zfunc"
 
+  	. /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+	[[ -r $BREW_PREFIX/share/zsh-completions ]] && FPATH=$BREW_PREFIX/share/zsh-completions:$FPATH
+
+	# You may also need to force rebuild `zcompdump`:
+	# rm -f ~/.zcompdump; compinit
 	autoload -Uz compinit && compinit

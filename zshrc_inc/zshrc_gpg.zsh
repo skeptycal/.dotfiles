@@ -18,6 +18,16 @@
 		}
 #? ###################### copyright (c) 2019 Michael Treanor #################
 
+# Enable gpg-agent if it is not running-
+# --use-standard-socket will work from version 2 upwards
+
+AGENT_SOCK=$(gpgconf --list-dirs | grep agent-socket | cut -d : -f 2)
+
+if [[ ! -S $AGENT_SOCK ]]; then
+  gpg-agent --daemon --use-standard-socket &>/dev/null
+fi
+export GPG_TTY=$(tty)
+
 
 # Avoid init unless gpg commands are available.
   if (( ! $+commands[gpgconf] )) || (( ! $+commands[gpg-connect-agent] )); then
@@ -26,9 +36,10 @@
 
 # This will launch a new gpg-agent if one isn't running, unless a gpg-agent
 # extra-socket has been remote-forwarded.
-export GPG_TTY=$TTY
 gpgconf --launch gpg-agent
 gpg-connect-agent updatestartuptty /bye &>/dev/null
+
+
 
 set_sock() {
 	# Change the SSH_AUTH_SOCK if enable-ssh-support is on for gpg-agent.
