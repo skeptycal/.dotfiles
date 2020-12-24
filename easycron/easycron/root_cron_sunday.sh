@@ -11,7 +11,7 @@
 
 echo "every Sunday counts"
 
-. /Users/skeptycal/.dotfiles/zshrc_inc/ansi_colors.sh
+. /Users/skeptycal/bin/ansi_colors
 
 # Close any open System Preferences panes
 osascript -e 'tell application "System Preferences" to quit'

@@ -67,9 +67,20 @@
 	2echo() { ce "$*" >&2; }
 	error() { warn ${RED}"Error: $*"${RESET} >&2; }
 
+	# lowercase all the things
+	lc(){ echo "$@" | sed "y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/"; }
+
+	# uname ... in lowercase
+	un() { [ -z "$1" ] && lc $(uname) || lc $(uname "$@"); }
+
 #? -----------------------------> Strings and arrays
 
-    dict() { grep "$*" /usr/share/dict/words; }
+    dict() {
+		result=$( grep "$*" /usr/share/dict/words; )
+		echo $result
+		count=$( echo $result | wc -w; )
+		printf '%bFound %b%s%b words.%b\n' $MAIN $CANARY "$count" $MAIN $RESET
+		}
     colon_list() { echo -e "${1//:/\\n}"; }
     in_str() { string=${*:2}; return $([ -z "${string##*$1*}" ]); }
     is_instr() { return $([[ "${*:2}" == *"$1"* ]]); }

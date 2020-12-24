@@ -75,3 +75,5 @@ true
     #       executable	            a	            b
     #       directory	            a	            c
     #       directory	            a	            d
+
+alias slsof='sudo lsof -i -n -P | grep $@'

@@ -13,7 +13,7 @@ ZDOTDIR=${ZDOTDIR:=$HOME/.dotfiles}
 VERSION_LIST="${ZDOTDIR}/.VERSION_LIST.md"
 
 # colors and formatting utilities
-. ${ZDOTDIR}/zshrc_inc/ansi_colors.sh
+. ${HOME}/bin/ansi_colors
 
 write_versions_file() {
 	br

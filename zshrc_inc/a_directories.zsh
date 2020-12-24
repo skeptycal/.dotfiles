@@ -91,3 +91,4 @@
 
 _debug_tests
 true
+alias campoy='cd /Users/skeptycal/go/src/campoy'

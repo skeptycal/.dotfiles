@@ -7,32 +7,20 @@
   #* copyright (c) 2019 Michael Treanor     -----     MIT License
   #* should not be run directly; called from .bash_profile / .bashrc / .zshrc
 #*-------------------------------> https://www.github.com/skeptycal
+	# . $(which ansi_colors)
 	SET_DEBUG=${SET_DEBUG:-0} # set to 1 for verbose testing
-	SCRIPT_NAME=${0#*/}
+	SCRIPT_NAME=${0##*/}
 	_debug_tests() {
 		if (( SET_DEBUG == 1 )); then
-			printf '%b\n' "${WARN:-}Debug Mode Details for ${CANARY}${SCRIPT_NAME#*/}${RESET:-}"
+			printf '%b\n' "${WARN:-}Debug Mode Details for ${CANARY}${SCRIPT_NAME}${RESET:-}"
 			green "DEFAULT_ENVIRONMENT_FOLDER_NAME: $DEFAULT_ENVIRONMENT_FOLDER_NAME"
 		fi
 		}
-#*-------------------------------> Python
-	#   set hash seed to different random number every session
-	unset PYTHONDONTWRITEBYTECODE
-	export PYTHONHASHSEED="$(shuf -i1-4294967295 -n1)"
-	export PYTHONIOENCODING='UTF-8'
 
 #*-------------------------------> repo setup
 	alias please='sudo '
 
-	function gig () {
-		# local template version if available
-		[ -f "$DOTFILES_TEMPLATE/.gitignore" ]
-		# cp $HOME/.dotfiles/.gitignore .
-
-		gi python vscode nuxt django
-	}
-
-	alias d="docker "
+	# alias d="docker "
 
 	# upgrade all Homebrew repos that are installed
 	alias rebrew='brew upgrade $(brew list --formula)'
@@ -47,60 +35,65 @@
 
 #*-------------------------------> template management
 	# Path to template files
-	DOTFILES_TEMPLATE="${ZDOTDIR}/template"
+	# DOTFILES_TEMPLATE="${ZDOTDIR}/template"
+	DOTFILES_TEMPLATE="${HOME}/go/src/github.com/skeptycal/util/http/gorepo/template"
 
 	# Path to template files that should be linked
 	# Symlinked to ../ so links are copied instead of files
-	DOTFILES_TEMPLATE_LN=${DOTFILES_TEMPLATE}/ln
+	# DOTFILES_TEMPLATE_LN=${DOTFILES_TEMPLATE}/ln
 
 	function get_template_file () {
 		local resource
 		local target
-		echo $1
-		echo $DOTFILES_TEMPLATE
-		if [ -d ${DOTFILES_TEMPLATE} ]; then # templates available?
-			local resource="{DOTFILES_TEMPLATE}/${1}"
-			local target="${PWD}/${resource#*/}"
+		if ! [ -d ${DOTFILES_TEMPLATE} ]; then # template path unavailable?
+			attn "Template path unavailable."
+			exit 1
+		else
+			resource="${DOTFILES_TEMPLATE}/${1}"
+			target="${PWD}/${resource##*/}"
 
-			echo $resource
-			echo $target
-
-			echo "$DOTFILES_TEMPLATE is the available template path."
 			# is the requested resource a symlink?
 			if [ -h "$resource" ]; then
-				echo "$resource is a symlink. Resource will be linked."
-				echo "command: ln -s $resource $target"
-				# ln -s $resource $target
-			# is the requested resource a symlink?
+				resource=$(readlink -m "$resource")
+				cyan "${resource##*/}"
+				ln -s $resource $target >/dev/null 2>&1
 			elif [ -f "$resource" ]; then
-				echo "$resource is a file. Resource will be copied."
-				echo "command: cp -au $resource $target"
-				# command: cp -au $resource $target
+				resource=$(realpath -m "$resource")
+				green "${resource##*/}"
+				cp -au $resource $target >/dev/null 2>&1
 			fi
 		fi
 	}
 
+	function gt () {
+		get_template_file "$@"
+	}
+
+	function gig () {
+		# local template version if available
+		[ -f "$DOTFILES_TEMPLATE/.gitignore" ] && get_template_file .gitignore
+		# cp $HOME/.dotfiles/.gitignore .
+
+		# gi macos linux windows ssh vscode go zsh node vue nuxt python django
+	}
+
+#*-------------------------------> Python
+	#   set hash seed to different random number every session
+	unset PYTHONDONTWRITEBYTECODE
+	export PYTHONHASHSEED="$(shuf -i1-4294967295 -n1)"
+	export PYTHONIOENCODING="UTF-8"
 #*-------------------------------> pip
 	# As of pip 20.2.2, this is a new option to resolve dependencies
 	# 	--use-feature=2020-resolver
-
 	# TODO - some conflicts with venv ... python environments alway suck
-	# pip_version_int() { pip3 --version | cut -d ' ' -f 2 || echo 0; }
-	# pip_2020() { (( $(pip_version_int) > 20.21 )) && echo '--use-feature=2020-resolver ' || echo ""; }
-	# pip20()  { "pip3 ${*} $(pip_2020) "; }
 
+	# alias pip="python3 -m pip "
 
-	# alias pip="python3 -m pip $(pip_2020) "
-	alias pip="python3 -m pip "
-	# alias piu="python3 -m pip  install -U $(pip_2020) "
-	alias piu="python3 -m pip install -U "
-	alias pipup="piplist | xargs pip3 install -U ;"
-
-	piplist () { pip list | sed 's/  */ /g' | awk {'print $1'} | tail -n +3; }
-
-	# This constant version is precalculated once at boot time and will always
-	# contain the global pip list from shell start time.
+	piplist () { python3 -m pip list | sed 's/  */ /g' | awk {'print $1'} | tail -n +3; }
 	PIPLIST="$(piplist)"
+
+	alias piu='python3 -m pip install -U '
+	alias pipup='piplist | xargs pip install -U ;'
 
 #*-------------------------------> python related
 	alias py='python3 -m '
@@ -112,7 +105,7 @@
 	alias pypath='python3 -c "import sys; print(sys.path)" | tr "," "\n" | grep -v "egg"'
 
 	# clean out stale pycache files
-	alias pycclean='find $PWD -name "*.pyc" -exec rm -rf {} \; && find $PWD -name "__pycache__" -exec rm -rf {} \;'
+	alias pyclean='find $PWD -name "*.pyc" -exec rm -rf {} +\; && find $PWD -name "__pycache__" -exec rm -rf {} +\;'
 
 	# format all possible files with Prettier
 	# alias pret='prettier -w *'
@@ -124,7 +117,7 @@
 	alias pm="pygmentize"
 
 	alias dj="python3 manage.py runserver"
-	alias servethis="python -c 'import SimpleHTTPServer; SimpleHTTPServer.test()'"
+	# alias servethis="python -c 'import SimpleHTTPServer; SimpleHTTPServer.test()'"
 
 #*-------------------------------> python virtual environment
 	DEFAULT_ENVIRONMENT_FOLDER_NAME='.venv'
@@ -140,10 +133,6 @@
 	alias sba='. ${DEFAULT_ENVIRONMENT_FOLDER_NAME}/bin/activate'
 	# turn off the venv
 	alias sda='deactivate'
-
-	# ! these hide configuration errors where aliases are ignored in poetry
-	# alias python='python3 '
-	# alias pip='pip3 '
 
 #*-------------------------------> pyenv setup
 	[[ $(command -v pyenv >/dev/null) ]] && eval "$(pyenv init -)"
@@ -172,13 +161,6 @@
 	alias pos='poetry show'
 	alias pst="poetry show --tree"
 	alias prr='poetry export -f requirements.txt >requirements.txt'
-
-#*-------------------------------> Python Exports
-	unset PYTHONDONTWRITEBYTECODE
-
-	#   set hash seed to different random number every session
-	PYTHONHASHSEED=$(shuf -i1-4294967295 -n1)
-	PYTHONIOENCODING='UTF-8' # default ...
 
 	#   python sucks ... virtual environments suck ...
 	#   someone should find a better way to do this ... it's so stupid

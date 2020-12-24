@@ -10,7 +10,7 @@
 echo "every version bump counts ..."
 
 # colors and formatting utilities
-. ~/.dotfiles/zshrc_inc/ansi_colors.sh
+. ~/bin/ansi_colors
 
 ZDOTDIR=${ZDOTDIR:=$HOME/.dotfiles}
 VERSION_LIST="${ZDOTDIR:-~/.dotfiles}/.VERSION_LIST.md"

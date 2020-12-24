@@ -65,8 +65,11 @@
     . ${DOTFILES_INC}/zsh_set_path.sh
 
     # ANSI colors and cli functions
-    . $(which ssm) >/dev/null 2>&1 || . $(which ansi_colors.sh) # >/dev/null 2>&1
-    # /Users/skeptycal/.dotfiles/zshrc_inc/ansi_colors.sh
+#    . $(which ansi_colors) # >/dev/null 2>&1
+    . $HOME/bin/ansi_colors
+
+    # Git Utilities
+    . $(which gitutils)
 
 #? -----------------------------> debug (Dev / Production modes)
     # SET_DEBUG is set to zero for production mode
@@ -234,7 +237,6 @@
 
 #? -----------------------------> script cleanup
     # cleanup and exit script
-    echo ''
 
     # calculate and display script time
     printf "${GREEN:-}Script ${SCRIPT_NAME} took ${BOLD:-}${ATTN:-}$(lap_ms)${RESET:-}${GREEN:-} ms to load.${RESET:-}\n\n"
