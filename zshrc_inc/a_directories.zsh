@@ -92,3 +92,4 @@
 _debug_tests
 true
 alias campoy='cd /Users/skeptycal/go/src/campoy'
+alias crt='grt; code .' # cd to git root; open dir in VSCode

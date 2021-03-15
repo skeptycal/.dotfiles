@@ -4,13 +4,13 @@
     # repo management ...
     git gpg-agent\
 	# npm\
-	gitignore\
+	# gitignore\
 
     # macOS improvements
     # osx\
 	# cp\
 	# copyfile\
-	man\
+	# man\
     # iterm2\
     gnu-utils\
 
@@ -34,8 +34,9 @@
     # pyenv\
 
     # shell improvements
-    colorize\
+    # colorize\
     # perms\
     # rsync\
     # ripgrep\
-    colored-man-pages)
+    # colored-man-pages\
+	)

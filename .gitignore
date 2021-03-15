@@ -115,7 +115,7 @@ toxcov.ini
 __pycache__/
 build/
 dist/
-env/
+2env/
 
 # Home Directory Folders
 *Trash*
@@ -143,7 +143,7 @@ env/
 .references/*
 /public/hot/
 /public/storage/
-**/.env/
+**/.2env/
 **/*/temp/*
 # already on github
 **/.git/
@@ -716,8 +716,8 @@ $tf/
 .DS_Store?
 .dynamodb/
 .eggs/
-.env
-.env.test
+.2env
+.2env.test
 .eslintcache
 .expo
 .externalNativeBuild
@@ -726,14 +726,14 @@ $tf/
 .fseventsd
 .fuse_hidden*
 .fusebox/
-.ghc.environment.*
+.ghc.2environment.*
 .gradle
 .gradle/
 .gradletasknamecache
 .grunt
 .history
 .hpc
-.hsenv
+.hs2env
 .HTF/
 .httr-oauth
 .hypothesis/
@@ -817,7 +817,7 @@ $tf/
 .paket/paket.exe
 .pdf
 .phpunit.result.cache
-.powenv
+.pow2env
 .project
 .projectile
 .pydevproject
@@ -851,8 +851,8 @@ $tf/
 .tox/
 .Trash-*
 .Trashes
-.venv
-.venv/
+.v2env
+.v2env/
 .VolumeIcon.icns
 .vs/
 .vscode/
@@ -881,7 +881,7 @@ $tf/
 /.pow*
 /.qmake.cache
 /.qmake.stash
-/.rbenv-version
+/.rb2env-version
 /.rvmrc
 /.sass-cache
 /.vagrant
@@ -1111,9 +1111,9 @@ ecf/
 eggs/
 ehthumbs.db
 ehthumbs_vista.db
-env.bak/
-ENV/
-env/
+2env.bak/
+2env/
+2env/
 ExportedObj/
 extras/documentation
 fabric.properties
@@ -1223,7 +1223,7 @@ public/storage
 publish/
 PublishScripts/
 pythontex-files-*/
-pyvenv.cfg
+pyv2env.cfg
 qrc_*.cpp
 rcf/
 rerun.txt
@@ -1263,8 +1263,8 @@ UpgradeLog*.XML
 var/
 vcs.xml
 vendor/
-venv.bak/
-venv/
+v2env.bak/
+v2env/
 vignettes/*.html
 vignettes/*.pdf
 wheels/

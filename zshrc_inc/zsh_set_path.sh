@@ -177,9 +177,9 @@ function checkpath() {
 # /Library/Frameworks/Python.framework/Versions/3.9/bin:\
 
 declare -x PATH="\
-/usr/local/go/bin:\
 $GOPATH/bin:\
 $HOME/bin:\
+/usr/local/go/bin:\
 /Library/Frameworks/Python.framework/Versions/Current/bin:\
 /usr/local/opt/libxml2/bin:\
 /usr/local/opt/libxml2/lib:\

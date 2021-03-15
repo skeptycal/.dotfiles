@@ -24,9 +24,14 @@
     alias mine="sudo chown -R \$(id -un):\$(id -gn) "
 
 # TODO ########################################## works in progress
+
+
     # alias lsln='ls -AF | grep '@' | cut -d '@' -f 1 ' # will include
     # directories
 
+	# postgres (brew)
+	alias pg_start="launchctl load ~/Library/LaunchAgents/homebrew.mxcl.postgresql.plist"
+	alias pg_stop="launchctl unload ~/Library/LaunchAgents/homebrew.mxcl.postgresql.plist"
 
 	# charmap() { "$(perl -wE "print map chr, ${1:-0} .. ${2:-255}")" | xxd }
 	# echo -n "$var" | xxd

@@ -20,6 +20,12 @@
  #? ${VAR##*/}        - return only final element in path (program name)
  #? ${VAR%/*}         - return only path (without program name)
 
+    # ANSI colors and cli functions
+    . ${HOME}/bin/ansi_colors
+
+    # Dev Mode Settings
+    . ~/.dotfiles/zshrc_inc/dev_mode.zsh
+
 #? -----------------------------> Shell Settings
     # Remove all aliases from unexpected places
     unalias -a
@@ -64,40 +70,10 @@
     # setup system $PATH (and $MANPATH)
     . ${DOTFILES_INC}/zsh_set_path.sh
 
-    # ANSI colors and cli functions
-#    . $(which ansi_colors) # >/dev/null 2>&1
-    . $HOME/bin/ansi_colors
-
     # Git Utilities
-    . $(which gitutils)
+    . ${DOTFILES_INC}/git_utils.zsh
 
-#? -----------------------------> debug (Dev / Production modes)
-    # SET_DEBUG is set to zero for production mode
-    # SET_DEBUG is set to non-zero for dev mode
-    #   1 - Show debug info and log to $LOGFILE
-    #   2 - #1 plus trace and run specific tests
-    #   3 - #2 plus display and log everything
 
-    declare -ix SET_DEBUG=0 # ${SET_DEBUG:-0}
-
-    dbecho "SET_DEBUG: $SET_DEBUG" #! debug
-    if (( SET_DEBUG>0 )); then
-        printf '%b\n' "${WARN:-}Debug Mode for ${CANARY}${SCRIPT_NAME##*/}${RESET:-}"
-        dbecho "DEV mode ($SET_DEBUG) activated"
-        trap 'echo "# $(realpath $0) (line $LINENO) Error Trapped: $?"' ERR
-        trap 'echo "# $0: Exit with code: $?"' EXIT
-    fi
-    if (( SET_DEBUG>1 )); then
-        printf '%b\n' "${WARN:-}Debug Test Mode for ${CANARY}${SCRIPT_NAME##*/}${RESET:-}"
-        dbecho "# DEV TEST mode ($SET_DEBUG) activated"
-        setopt SOURCE_TRACE
-        trap 'echo "# $0: Line Number: $LINENO"' DEBUG
-    fi
-    if (( SET_DEBUG>2 )); then
-        printf '%b\n' "${WARN:-}Debug Trace Mode for ${CANARY}${SCRIPT_NAME##*/}${RESET:-}"
-        dbecho "# DEV TRACE mode ($SET_DEBUG) activated"
-        setopt XTRACE # VERBOSE
-    fi
 
     function noyes() {
         read "a?$1 [y/N] "
@@ -135,7 +111,7 @@
     # Path to template files that should be copied
     DOTFILES_TEMPLATE_CP=${DOTFILES_TEMPLATE}/cp
 
-	autoload -Uz compinit && compinit
+	# autoload -Uz compinit && compinit
 
 #? -----------------------------> source utilities
     .() { # source with debugging info and file read check
@@ -196,6 +172,7 @@
 #? -----------------------------> load OMZ!
     # OMZ config
     DISABLE_AUTO_TITLE="true"
+    DISABLE_AUTO_UPDATE="true"
 	CASE_SENSITIVE="false"
 	COMPLETION_WAITING_DOTS="true"
     DISABLE_UNTRACKED_FILES_DIRTY="true"
@@ -210,9 +187,9 @@
     # These seem to get lost somewhere ...
 
     # Helper to lookup commands from the zsh git plugin cheatsheet
-    function gx () {
-        `fzf < ~/.dotfiles/zsh-git-plugin-cheatsheet.txt | cut -f3 -d'|' | tr _ ' '`
-    }
+    # function gx () {
+    #     `fzf < ~/.dotfiles/zsh-git-plugin-cheatsheet.txt | cut -f3 -d'|' | tr _ ' '`
+    # }
 
     # reset the colorflag ...
     colorflag="--color=tty"
@@ -267,4 +244,20 @@
     # system, management tools, and in installers, but may be very useful for
     # testing purposes.
 
+goconda() {
+    # >>> conda initialize >>>
+    # !! Contents within this block are managed by 'conda init' !!
+    __conda_setup="$('/Users/skeptycal/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+    if [ $? -eq 0 ]; then
+        eval "$__conda_setup"
+    else
+        if [ -f "/Users/skeptycal/miniconda3/etc/profile.d/conda.sh" ]; then
+            . "/Users/skeptycal/miniconda3/etc/profile.d/conda.sh"
+        else
+            export PATH="/Users/skeptycal/miniconda3/bin:$PATH"
+        fi
+    fi
+    unset __conda_setup
+    # <<< conda initialize <<<
+}
 #? -----------------------------> END OF .ZSHRC

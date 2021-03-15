@@ -7,7 +7,6 @@
   #* copyright (c) 2019 Michael Treanor     -----     MIT License
   #* should not be run directly; called from .bash_profile / .bashrc / .zshrc
 #*-------------------------------> https://www.github.com/skeptycal
-	# . $(which ansi_colors)
 	SET_DEBUG=${SET_DEBUG:-0} # set to 1 for verbose testing
 	SCRIPT_NAME=${0##*/}
 	_debug_tests() {
@@ -36,7 +35,7 @@
 #*-------------------------------> template management
 	# Path to template files
 	# DOTFILES_TEMPLATE="${ZDOTDIR}/template"
-	DOTFILES_TEMPLATE="${HOME}/go/src/github.com/skeptycal/util/http/gorepo/template"
+	# DOTFILES_TEMPLATE="${HOME}/go/src/github.com/skeptycal/util/http/gorepo/template"
 
 	# Path to template files that should be linked
 	# Symlinked to ../ so links are copied instead of files
@@ -77,10 +76,84 @@
 		# gi macos linux windows ssh vscode go zsh node vue nuxt python django
 	}
 
+	# Usage: githubinit [NAME VERSION] (defaults are PWD and v0.1.0)
+	function githubinit () {
+		if [ -z $1 ]; then
+			REPO_NAME=${PWD##*/}
+			# REPO_PATH=${0%/*}
+		else
+			REPO_NAME=$1
+		fi
+
+		if [ -z $2 ]; then
+			REPO_VERSION='v0.1.0'
+		else
+			REPO_VERSION="$2"
+		fi
+
+		blue "Initializing GitHub repo ${REPO_NAME} version ${REPO_VERSION}..."
+		git init
+		gig
+		git tag $REPO_VERSION
+		git add --all
+		git commit -m "Initial Commit (automated - default v0.1.0)"
+		gh repo create ${REPO_NAME} -y --public -d "${REPO_NAME} version ${REPO_VERSION}- software for macOS (https://skeptycal.github.io/${REPO_NAME})" -p "https://github.com/skeptycal/gorepotemplate"
+		if [ $? ]; then
+			warn "Failed to create github repository. Make sure you have used:"
+			me "gh auth login"
+			warn "to authenticate with your GitHub account. gh will respect tokens set using GITHUB_TOKEN."
+		fi
+		git remote -v
+		git push --set-upstream origin $(git_current_branch)
+		git push --tags
+		git status
+	}
+
+
+	function repotemp() {
+		case "$1" in
+			init)
+				shift
+				githubinit "$@"
+				;;
+
+			list)
+				shift
+				ls -1 "$DOTFILES_TEMPLATE $@"
+				;;
+
+			copy)
+				get_template_file "$@"
+				;;
+
+			*)
+				main <<EOF
+Usage: ${MAIN}repotemp ${GREEN}COMMAND [options]${RESET}
+
+	Setup a git and github repository based on a default template directory.
+
+	list [FILES]	- list all files matching FILES in template directory
+	copy [FILES]	- copy all files matching FILES in current directory
+	init [NAME] 	- setup git (and github) repo (default name is folder name)
+EOF
+				;;
+		esac
+
+
+	}
 #*-------------------------------> Python
+
+
+
 	#   set hash seed to different random number every session
 	unset PYTHONDONTWRITEBYTECODE
-	export PYTHONHASHSEED="$(shuf -i1-4294967295 -n1)"
+	export PYTHONHASHSEED=random
+
+	# todo - not working recently (1/22/2021)
+	# $(shuf -i1-4294967295 -n1)
+
+	# Fatal Python error: config_init_hash_seed: PYTHONHASHSEED must be "random" or an integer in range [0; 4294967295]
+	# Python runtime state: preinitialized
 	export PYTHONIOENCODING="UTF-8"
 #*-------------------------------> pip
 	# As of pip 20.2.2, this is a new option to resolve dependencies
@@ -135,8 +208,8 @@
 	alias sda='deactivate'
 
 #*-------------------------------> pyenv setup
-	[[ $(command -v pyenv >/dev/null) ]] && eval "$(pyenv init -)"
-	[[ $(command -v pyenv-virtualenv-init >/dev/null) ]] && eval "$(pyenv virtualenv-init -)"
+	# [[ $(command -v pyenv >/dev/null) ]] && eval "$(pyenv init -)"
+	# [[ $(command -v pyenv-virtualenv-init >/dev/null) ]] && eval "$(pyenv virtualenv-init -)"
 
 #*-------------------------------> poetry
 	#   python environments suck ... a lot ... virtual environments suck ...
@@ -177,7 +250,7 @@
 	export MAX_CONCURRENCY=8
 
 	# Raqm
-    export XML_CATALOG_FILES="/usr/local/etc/xml/catalog" # for the docs
+    # export XML_CATALOG_FILES="/usr/local/etc/xml/catalog" # for the docs
 
 	# then:
 	# 	xcode-select --install

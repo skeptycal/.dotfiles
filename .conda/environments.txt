@@ -1,0 +1,2 @@
+/usr/local/Caskroom/miniconda/base
+/Users/skeptycal/miniconda3
