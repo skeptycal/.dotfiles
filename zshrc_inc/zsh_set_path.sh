@@ -32,7 +32,7 @@ $(red_wrap DESCRIPTION)
 
 	The defaults are:
 		- use color if available
-		- use the colon ':' as the initial delimiterr
+		- use the colon ':' as the initial delimiter
 		- use NEWLINE '\n' as the new delimiter
 		- print the entire path names
 
@@ -173,18 +173,13 @@ function checkpath() {
 	done
 	}
 
-# /usr/local/lib/node_modules/bin:\
-# /Library/Frameworks/Python.framework/Versions/3.9/bin:\
-
 declare -x PATH="\
+/usr/local/opt/coreutils/libexec/gnubin:\
 /usr/local/go/bin:\
+/usr/local/opt/openssl@1.1/bin:\
 $GOPATH/bin:\
 $HOME/bin:\
-/Library/Frameworks/Python.framework/Versions/Current/bin:\
-/usr/local/opt/libxml2/bin:\
-/usr/local/opt/libxml2/lib:\
-/usr/local/MacGPG2/bin:\
-/usr/local/opt/coreutils/libexec/gnubin:\
+$HOME/opt/anaconda3/bin/:\
 /usr/local/bin:\
 /usr/local/opt:\
 /usr/local:\
@@ -194,14 +189,10 @@ $HOME/bin:\
 /usr/sbin:\
 /sbin:\
 /usr/libexec:\
-/usr/local/opt/sphinx-doc/bin:\
-/Library/Apple/usr/bin:\
 $HOME/.dotfiles/git-achievements:\
 $ZDOTDIR:\
 $ZSH:\
 $DOTFILES_INC:"
-
-# $PWD:
 
 PATH=$(echo "${=PATH// /}")
 
