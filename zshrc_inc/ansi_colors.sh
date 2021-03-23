@@ -174,10 +174,13 @@
 	fi
 
 	# color echo
+	# (works without colors set for compatibility)
 	ce() { printf "%b\n" "${*:-}${RESET:-}" ; }
-	# color echo with no reset or newline
+	# color echo with no reset or newline (for chaining prints)
 	eprint() { printf "%b" "${*:-}" ; }
-	me() { ce "${MAIN:-}${*:-}" ; }
+
+	# color printing with specific color 
+	me() { ce "${MAIN:-}${*:-}" ; } # for color MAIN ... because main is too common as a command
 	warn() { ce "${WARN:-}${*:-}" ; }
 	blue() { ce "${BLUE:-}${*:-}" ; }
 	cool() { ce "${COOL:-}${*:-}" ; }
@@ -190,19 +193,28 @@
 	rain() { ce "${RAIN:-}${*:-}" ; }
 	white() { ce "${WHITE:-}${*:-}" ; }
 
-	dbecho(){ (( SET_DEBUG>0 )) && printf '%b\n' "${WARN:-}${REVERSED:-}${*}${RESET:-}"; }
+	# args tester ...
+	_test_args(){ 
+		echo "\$$: $$"
+		echo "\$#: $#"
+		echo "\$0: $0"
+		echo "\$@: $@"
+		echo "\$*: $*"
+		false; echo "\$?: $? (false)"; 
+		true;  echo "\$?: $? (true)"; 
+	}
+
+
+	# echo debug (in DEV mode only)
+	dbecho() { 
+		if (( SET_DEBUG>0 )); then 
+			printf "${WARN:-}${REVERSED:-}%s${RESET:-}\n" "${*}"
+		fi 
+	}
+
+	# echo debug (in DEV mode only) message and exit with errorcode
 	die() { dbecho ${*:-"die (pid = $$)"} && exit 1; }
 
-	# todo - wip automatic coloring of output based on previous return code
-	# colors used in tf color function
-	TRUE_COLOR="$GREEN"
-	FALSE_COLOR="$ATTN"
-
-	# todo - not working ... probably because of variable scopes in functions?
-	# colors output based on previous command
-	# tfcolor() {
-	# 	[ "$?" ] && ce "${TRUE_COLOR}$@"  || ce "${FALSE_COLOR}$@"
-	# }
 #? -----------------------------> color testing
 	color_sample() {
 		echo "${MAIN:-}C  ${WARN:-}O  ${COOL:-}L  ${LIME:-}O  ${GO:-}R  ${CHERRY:-}S  ${CANARY:-}A  ${ATTN:-}M  ${RAIN:-}P  ${WHITE:-}L  ${RESET:-}E"

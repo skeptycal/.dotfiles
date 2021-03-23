@@ -61,12 +61,11 @@
     # Path to include files
     DOTFILES_INC=${ZDOTDIR}/zshrc_inc
 
-    # setup system $PATH (and $MANPATH)
+    # set up system $PATH (and $MANPATH)
     . ${DOTFILES_INC}/zsh_set_path.sh
 
     # ANSI colors and cli functions
-    . $(which ssm) >/dev/null 2>&1 || . $(which ansi_colors.sh) # >/dev/null 2>&1
-    # /Users/skeptycal/.dotfiles/zshrc_inc/ansi_colors.sh
+    . ${DOTFILES_INC}/ansi_colors.sh
 
 #? -----------------------------> debug (Dev / Production modes)
     # SET_DEBUG is set to zero for production mode
@@ -229,8 +228,8 @@
     DISABLE_UNTRACKED_FILES_DIRTY="true"
     ENABLE_CORRECTION="true"
     DISABLE_MAGIC_FUNCTIONS="true"
-    ZSH_THEME="spaceship"
-	# ZSH_THEME="robbyrussell"
+    # ZSH_THEME="spaceship"
+	ZSH_THEME="robbyrussell"
 
     . "$ZSH/oh-my-zsh.sh"
 
@@ -245,23 +244,9 @@
     # reset the colorflag ...
     colorflag="--color=tty"
 
-    alias ls="ls $colorflag --group-directories-first"
+    alias ls="ls ${colorflag:-} --group-directories-first"
 
     . "${DOTFILES_INC}/zsh_big_sur_hacks.zsh"
-
-    # overide earlier git commit alias
-    # TODO - wip ...
-    # unalias gc
-    # function gc() {
-    #     git commit -S -m "${@:-~/.dotfiles/.stCommitMsg}"
-    #     git status
-    # }
-    # unalias gca
-    # function gca() {
-    #     git add --all
-    #     git commit -S -m "${@:-~/.dotfiles/.stCommitMsg}"
-    #     git status
-    # }
 
 #? -----------------------------> script cleanup
     # cleanup and exit script

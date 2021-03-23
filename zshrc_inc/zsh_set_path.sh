@@ -16,7 +16,7 @@
  #? ${VAR##*/}        - return only final element in path (program name)
  #? ${VAR%/*}         - return only path (without program name)
 
-functionn path_usage() {
+function path_usage() {
 	less <<EOF
 PATH(1)                           March 2019                           PATH(1)
 
@@ -179,7 +179,6 @@ declare -x PATH="\
 /usr/local/opt/openssl@1.1/bin:\
 $GOPATH/bin:\
 $HOME/bin:\
-$HOME/opt/anaconda3/bin/:\
 /usr/local/bin:\
 /usr/local/opt:\
 /usr/local:\
@@ -189,15 +188,15 @@ $HOME/opt/anaconda3/bin/:\
 /usr/sbin:\
 /sbin:\
 /usr/libexec:\
-$HOME/.dotfiles/git-achievements:\
+${ZDOTDIR}/git-achievements:\
 $ZDOTDIR:\
 $ZSH:\
 $DOTFILES_INC:"
 
 PATH=$(echo "${=PATH// /}")
 
-PATH="${PATH// /}" # remove spaces ... before adding VSCode path ...
-PATH="${PATH//::/:}" # remove double colons ... you know you've done it, too
+PATH="${PATH// /}" 		# remove spaces ... before adding VSCode path ...
+PATH="${PATH//::/:}" 	# remove double colons ... you know you've done it, too
 
 export PATH
 #? ######################## MANPATH
