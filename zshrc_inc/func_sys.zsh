@@ -13,14 +13,6 @@
     SCRIPT_NAME=${0##*/}
 	declare -ix SET_DEBUG=${SET_DEBUG:-0}  		# set to 1 for verbose testing
 
-#? -----------------------------> BASH compatibility
-	if [[ ${SHELL##*/} == 'zsh' ]]; then
-    	setopt interactivecomments
-        setopt SH_WORD_SPLIT # 'BASH style' word splitting
-        BASH_SOURCE=${(%):-%N}
-    else
-        BASH_SOURCE=${BASH_SOURCE:=$0}
-    fi
 #? -----------------------------> debug
 	_debug_tests() {
         printf '%b\n' "${WARN:-}Debug Mode Details for ${CANARY}${SCRIPT_NAME##*/}${RESET:-}"
@@ -51,9 +43,9 @@
 
 #? -----------------------------> git housekeeping (TODO)
     #TODO - wip ...
-    _housekeeping () {
-        echo "git fetch -p && git branch -vv | awk '/: gone]/ {print $1}' | xargs git branch -d"
-        }
+    # _housekeeping () {
+    #     echo "git fetch -p && git branch -vv | awk '/: gone]/ {print $1}' | xargs git branch -d"
+    #     }
 
 #? -----------------------------> cli utilities
     # Some References:
@@ -66,6 +58,67 @@
 #? -----------------------------> stdout & stderr
 	2echo() { ce "$*" >&2; }
 	error() { warn ${RED}"Error: $*"${RESET} >&2; }
+
+#? -----------------------------> file management
+
+	is_dir() {
+		[[ -d "$1" ]]
+	}
+
+	is_int () { echo ${1:-" "} | grep -q "^-\?[0-9]*$"; }
+
+	_usage_FMT="${RESET:-}usage: ${MAIN:-}%s ${DARKGREEN:-}%s %s %s${RESET:-}\n"
+
+	usage() {
+		printf "$_usage_FMT" "$0" "$1""" "$2""" "$3"""
+	}
+
+	benchtime() {
+		usage='timeit [N] <command> [options]'
+		if [[ -z "$1" -o ]]; then
+			white "usage: ${MAIN:-}bench ${GREEN:-}<COMMAND> [OPTIONS]"
+			return
+		fi
+
+		is_int "$1" && N="$1"
+		N=${N:=10000}
+
+		t0=$(ms)
+
+
+
+	}
+
+	bench() {
+		if [[ -z "$1" -o ]]; then
+			white "usage: ${MAIN:-}bench ${GREEN:-}<COMMAND> [OPTIONS]"
+			return
+		fi
+		command="$@"
+
+
+
+		# ( time date ) 2>&1 | awk -F "cpu" '{print $2}' | tail -n 1 | awk '{print $1}'
+		( time date ) 2>&1 | awk -F "cpu" '{print $2}' | tail -n 1 | awk '{print $1}'
+
+		time (repeat $N { typeset -p "SOME_VARIABLE" > /dev/null 2>&1 })
+
+	}
+
+	filesort() {
+
+		is_dir "$1" && dir="$1"
+		dir=${dir:="$PWD"}
+
+		for file in $dir/*; do
+			mime=$(file --brief --mime-type "$file" | tr '/' '_')
+			[[ $mime == "inode_directory" ]] && continue
+			attn ".. mkdir -p \"$mime\""
+			# mkdir -p "$mime"
+			green ".. mv \"$file\" \"$mime/\$file\""
+			# mv "$file" "$mime/$file"
+		done
+	}
 
 #? -----------------------------> Strings and arrays
 

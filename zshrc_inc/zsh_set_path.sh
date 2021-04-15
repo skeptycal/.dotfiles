@@ -179,6 +179,7 @@ declare -x PATH="\
 /usr/local/opt/openssl@1.1/bin:\
 $GOPATH/bin:\
 $HOME/bin:\
+$HOME/bin/scripts:\
 /usr/local/bin:\
 /usr/local/opt:\
 /usr/local:\

@@ -21,13 +21,17 @@
 # *############################################## directories
     alias icloud="cd $HOME/Library/Mobile\ Documents/com~apple~CloudDocs/"
     alias cdc="cd $HOME/local_coding"
-    alias cdgo="cd ${GOPATH:-~/go}/src/github.com/skeptycal"
+
+	export GOPROJECTS="${GOPATH:=~/go}/src/github.com/${GITHUB_USER:-$(whoami)}"
+
+    alias cdgo="cd ${GOPROJECTS}"
 
     alias cdw="cd $HOME/Documents/work"
-    alias cdd="cd $HOME/Sites"
-    alias cdb="cd $HOME/Dropbox"
+    alias sites="cd $HOME/Sites"
+    alias db="cd $HOME/Dropbox"
     alias dl="cd $HOME/Downloads"
     alias dt="cd $HOME/Desktop"
+    alias mp='multipass ' # Ubuntu multipass https://github.com/canonical/multipass
 
     # alias ls="ls --group-directories-first ${colorflag}"           # normal wide
     alias lsd="ls -1Adh ${colorflag} -- */"                        # dirs only
@@ -47,6 +51,8 @@
 
 # *############################################## search, filter, list
     alias ducks='du -ck * | sort -rn | head -20'
+	alias gitsizecheck='fd .git | xargs du -chs'
+	alias _gitfolderDEL='fd .git | xargs rm -rfv'
     alias toomuch='du -sh ~'
     alias howmuch='du -sh '
     alias treetotal='tree | tail -1' # needs 'brew install tree'

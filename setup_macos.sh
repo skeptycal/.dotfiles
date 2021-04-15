@@ -281,11 +281,6 @@ printf "java_version=`java --version`\n"
 npm install -g nodemon
 
 
-
-exit
-
-
-
 # Locate Database Information
 # * locate database location: /var/db/locate.database
 # * Script to update the locate database: /usr/libexec/locate.updatedb

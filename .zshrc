@@ -27,12 +27,14 @@
     # use root defaults (they match most web server defaults)
     umask 022   #          !! possible security issue !!
 
+#? -----------------------------> BASH compatibility
     # By default, zsh does not do word splitting for unquoted parameter
         # expansions. You can enable "normal" word splitting by setting the
         # SH_WORD_SPLIT option or by using the = flag on an individual expansion.
         # e.g. ls ${=args}
 
-	if [[ "${SHELL##*/}" == 'zsh' ]]; then
+	if [[ ${SHELL##*/} == 'zsh' ]]; then
+    	setopt interactivecomments
 
         # 'SH style' word splitting
         setopt SH_WORD_SPLIT
@@ -40,8 +42,6 @@
         # Emulate some form of compatibility
         BASH_SOURCE="${(%):-%N}"
     else
-
-        # as a last resort, just use $0
         BASH_SOURCE="${BASH_SOURCE:=$0}"
     fi
 
@@ -109,7 +109,7 @@
         return 0
     }
 
-#? -----------------------------> gpg install 
+#? -----------------------------> gpg install
     # recommendations from 'brew install gpg2'
     # ${PKG_CONFIG_PATH:-}
     export PKG_CONFIG_PATH="${PKG_CONFIG_PATH:-}/usr/local/opt/libffi/lib/pkgconfig"
@@ -167,7 +167,7 @@
 
 #? -----------------------------> source utilities
     .() { # source with debugging info and file read check
-        source "$1"
+        source "$1" || warn "cannot source '$1'"
         if (( $? )); then
             dbecho "ERROR: cannot source ${1##*/}"
         else
@@ -241,12 +241,16 @@
         `fzf < ~/.dotfiles/zsh-git-plugin-cheatsheet.txt | cut -f3 -d'|' | tr _ ' '`
     }
 
+    # oh-my-zsh sets this to "gg: aliased to git gui citool" but ... don't need it
+    alias gg='go get -u '
+
     # reset the colorflag ...
     colorflag="--color=tty"
 
     alias ls="ls ${colorflag:-} --group-directories-first"
 
     . "${DOTFILES_INC}/zsh_big_sur_hacks.zsh"
+    . "${DOTFILES_INC}/repo_tools.sh"
 
 #? -----------------------------> script cleanup
     # cleanup and exit script

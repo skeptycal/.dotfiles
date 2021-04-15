@@ -37,6 +37,7 @@
 #? -----------------------------> constants & utilities
 	is_empty() { [ -z "$(ls -A $1)" ]; }
 	exists() { command -v $1 > /dev/null 2>&1 ; }
+	is_int () { echo ${1:-" "} | grep -q "^-\?[0-9]*$"; }
 
 #? -----------------------------> lines and borders
 	NL='\n'
@@ -64,18 +65,24 @@
 #? -----------------------------> terminal setup
 	export CLICOLOR=1
 
-	# I use GNU core_utils; no need to test '-G'x
+	# I use GNU core_utils; no need to test '-G'
 	# export colorflag='--color=always'
 
 	# terminal identification
-	if [[ $COLORTERM = gnome-* && $TERM = xterm ]] && infocmp gnome-256color >/dev/null 2>&1; then
-		declare -x TERM='gnome-256color';
-	elif infocmp xterm-256color >/dev/null 2>&1; then
-		declare -x TERM='xterm-256color';
-	fi;
+	_set_terminal_env_variable() {
+		if [[ $COLORTERM = gnome-* && $TERM = xterm ]] && infocmp gnome-256color >/dev/null 2>&1; then
+			declare -x TERM='gnome-256color';
+		elif infocmp xterm-256color >/dev/null 2>&1; then
+			declare -x TERM='xterm-256color';
+		fi;
+		}
+
+	#/ $TERM == xterm-256color on macOS Big Sur; if using Linux, perhaps turn this back on
+	# _set_terminal_env_variable
+
 
 #? -----------------------------> ANSI colors
-	# Only use colors if connected to a terminal
+	# Only sets up color constants if connected to a color terminal
 	if [ -t 1 ]; then
 		# commented codes are poorly supported
 		# and generally not on ZSH
@@ -173,13 +180,15 @@
 		userStyle=
 	fi
 
-	# color echo
-	# (works without colors set for compatibility)
+#? -----------------------------> color echo
+	# all of these functions work even if color output is not available.
+	# if the color constants are not set, they are skipped so no
+	# corrupted output will be generated.
 	ce() { printf "%b\n" "${*:-}${RESET:-}" ; }
 	# color echo with no reset or newline (for chaining prints)
 	eprint() { printf "%b" "${*:-}" ; }
 
-	# color printing with specific color 
+#? -----------------------------> color printing with specific color
 	me() { ce "${MAIN:-}${*:-}" ; } # for color MAIN ... because main is too common as a command
 	warn() { ce "${WARN:-}${*:-}" ; }
 	blue() { ce "${BLUE:-}${*:-}" ; }
@@ -193,27 +202,70 @@
 	rain() { ce "${RAIN:-}${*:-}" ; }
 	white() { ce "${WHITE:-}${*:-}" ; }
 
-	# args tester ...
-	_test_args(){ 
-		echo "\$$: $$"
-		echo "\$#: $#"
-		echo "\$0: $0"
-		echo "\$@: $@"
-		echo "\$*: $*"
-		false; echo "\$?: $? (false)"; 
-		true;  echo "\$?: $? (true)"; 
+#? -----------------------------> formatting for entire lines
+	# ANSI formatting styles:
+		# NORMAL=$(printf '\033[0m')
+		# BOLD=$(printf '\033[1m')
+		# DIM=$(printf '\033[2m')
+		# ITALIC=$(printf '\033[3m')
+		# UNDERLINE=$(printf '\033[4m')
+		# REVERSED=$(printf '\033[7m')
+	# examples:
+		#   $ bold this is bold							# prints 'this is bold' in a bold style
+
+		# combinations are possible, but see below for a better way
+		# e.g.
+		# 	$ italic $( bold "this is both" )			# prints 'this is both' in a bold and italic style
+		#   $ bold $( blue this is bold )				# prints 'this is bold' in a bold blue text
+		#   $ canary "this is green but only $(bold this is bold.)"
+		#   $ blue this gets your $( attn $(bold attention))!
+	_bold() { ce "${BOLD:-}${*:-}" ; }					# "\e[1m"
+	_dim() { ce "${DIM:-}${*:-}" ; }					# "\e[2m"
+	_italic() { ce "${ITALIC:-}${*:-}" ; }				# "\e[3m"
+	_underline() { ce "${UNDERLINE:-}${*:-}" ; }		# "\e[4m"
+	_reverse() { ce "${REVERSED:-}${*:-}" ; }			# "\e[7m"
+
+
+
+#? -----------------------------> inline formatting commands
+	# ANSI text formatting
+		# examples:
+		# 	$ _b; echo "stuff"
+		#   $ echo "$(_i)stuff"
+		# ... and together ...
+		# 	$ _b; _u; echo "stuff"
+		#   $ echo "$(_i)$(_b)stuff"
+	_b() { printf "%b" "${BOLD:-}"; }
+	_d() { printf "%d" "${DIM:-}"; }
+	_i() { printf "%b" "${ITALIC:-}"; }
+	_u() { printf "%b" "${UNDERLINE:-}"; }
+	_r() { printf "%r" "${REVERSED:-}"; }
+
+#? -----------------------------> args tester ...
+	_test_args(){
+		if (( SET_DEBUG > 0 )); then
+			hr
+			attn "args tester - all arguments are displayed (there is no other functionality.)"
+			canary "\$$: $$"
+			canary "\$#: $#"
+			canary "\$0: $0"
+			canary "\$@: $@"
+			canary "\$*: $*"
+			false; canary "\$?: $? (should be false)";
+			true;  canary "\$?: $? (should be true)";
+			hr
+		fi
 	}
 
-
 	# echo debug (in DEV mode only)
-	dbecho() { 
-		if (( SET_DEBUG>0 )); then 
-			printf "${WARN:-}${REVERSED:-}%s${RESET:-}\n" "${*}"
-		fi 
+	dbecho() {
+		if (( SET_DEBUG>0 )); then
+			printf "${WARN:-}${REVERSED:-}DEV:${NORMAL:-}${ATTN:-} %s${RESET:-}\n" "${*}"
+		fi
 	}
 
 	# echo debug (in DEV mode only) message and exit with errorcode
-	die() { dbecho ${*:-"die (pid = $$)"} && exit 1; }
+	die() { dbecho ${*:-"die (pid = $$)"} && return 1; }
 
 #? -----------------------------> color testing
 	color_sample() {
@@ -265,7 +317,7 @@
     lap_reset() { t0=$(ms); }
     lap_reset
 
-    timer_test(){
+    _timer_test(){
         blue "timer_test - test timer functions"
         blue "  time delays are measured and posted with different levels of precision."
         blue "Press <ctrl>-C to end the timer test early..."

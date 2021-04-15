@@ -31,6 +31,7 @@
 #       https://www.github.com/skeptycal
 # ---------------------------------------------------------
 
+
 if [[ "$(git-achievements --help >/dev/null 2>&1 )" -ne 0 ]]; then
     alias git='git-achievements '
 fi
@@ -39,12 +40,63 @@ if [[ "$(hash git &>/dev/null)" -eq 0 ]]; then
     # use git diff if available
 	diff() { git diff --no-index --color-words "$@"; }
 
+	# git repo root: git rev-parse --show-toplevel
+	# Reference: https://stackoverflow.com/a/957978
+	# add alias for 'git root':
+	git config --global alias.root 'rev-parse --show-toplevel'
+
+	# most recent git tag
+	git config --global alias.latest 'describe --tags $(git rev-list --tags --max-count=1)'
+
     # check for a git repo
     gs() { git status >/dev/null 2>&1; }
     # check for git status 'nothing to commit'
-    gsok() { git status | grep 'nothing to commit'; }
+    gsok() { git status | grep -q 'nothing to commit'; }
     # check git status of directory $1
-    gstdir() { [[ -d $1 ]] && ( cd $1; gs ); }
+    gstdir() {
+		_gstdir=${1:-$PWD}
+		[[ -d "$_gstdir" ]] || return 1
+
+		cd "$1"
+		git status >/dev/null 2>&1
+		retval=$?
+		cd -
+		return $retval
+
+		}
+
+	# Usage: tag [version]
+	tag() {
+
+		_TAG_VERSION='v0.1.1'
+
+		case "$1" in
+
+			-h|--help)
+				echo "Usage: tag [version]"
+				return 0
+				;;
+
+			-v|--version)
+				echo "Version: $_TAG_VERSION"
+				return 0
+				;;
+
+			-a|--all)
+				git tag | sort -v
+				return
+				;;
+
+		esac
+
+		if [[ -z "$1" ]]; then
+			git describe --tags $(git rev-list --tags --max-count=1)
+		else
+			git tag "$1"
+			git push origin --all
+			git push origin --tags
+		fi
+	}
 
     gitit_f() {
         if ! [ -r "$PWD/.git" ]; then
@@ -83,13 +135,13 @@ if [[ "$(hash git &>/dev/null)" -eq 0 ]]; then
         }
 
     # ghget () {
-    # 	# input: rails/rails
-    # 	USER=$(echo "$@" | tr "/" " " | awk '{print $1}')
-    # 	REPO=$(echo "$@" | tr "/" " " | awk '{print $2}')
-    # 	cd "$HOME/src/github.com/$USER" || return
-    # 	hub clone "$@" || return
-    # 	cd "$REPO" || return
-    # 	}
+		# 	# input: rails/rails
+		# 	USER=$(echo "$@" | tr "/" " " | awk '{print $1}')
+		# 	REPO=$(echo "$@" | tr "/" " " | awk '{print $2}')
+		# 	cd "$HOME/src/github.com/$USER" || return
+		# 	hub clone "$@" || return
+		# 	cd "$REPO" || return
+		# 	}
     update_git_dirs() { #! careful ...
         #! this function does a lot of automated git updates!
         # - finds all git repos in user's home directory
@@ -127,16 +179,16 @@ if [[ "$(hash git &>/dev/null)" -eq 0 ]]; then
         done
         cd "$OLD_DIR"
         } 6>&1 >/dev/null 2>&1
-    git_one() {
-        # TODO work in progress
-        # to keep from delaying a commit due to one file that won't pass pre-commit
-        FILES=$(gaa -n)
-        FILES="${FILES[*]/5/-1}"
-        for file in $FILES; do
-            fixed_file=${file/5/-1}
-            echo "$fixed_file"
-        done
-        }
+    # git_one() {
+    	#     # TODO work in progress
+		#     # to keep from delaying a commit due to one file that won't pass pre-commit
+		#     FILES=$(gaa -n)
+		#     FILES="${FILES[*]/5/-1}"
+		#     for file in $FILES; do
+		#         fixed_file=${file/5/-1}
+		#         echo "$fixed_file"
+		#     done
+		#     }
     parse_git_branch(){
         git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/[\1] /';
         }

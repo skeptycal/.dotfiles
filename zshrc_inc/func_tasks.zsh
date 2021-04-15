@@ -232,6 +232,16 @@
 	# background_maintenance() { background_cleanup && background_update >/dev/null 2>&1 & ; }
 
 #? ######################## Session Tasks
+
+	# items that are out of action right now...
+		# perf_test           - performance tests logged to ~/.perf_test_xxx.log
+		# repip               - reinstall updated pip and update all dependencies
+		# ldoc [FILES]        - local docs (move FILES out of iCloud)
+		# do_over [target]    - repeat something over and over ... and over
+		# ftxinstalledfonts   - Apple utility to list and analyze fonts (very detailed!)
+		# 	(e.g. ftxinstalledfonts -fiMls -U 'U+0041, $0042, 0x43' 2>/dev/null | grep 'YES\tYES')
+		# log_urls            - logs urls from chrome constantly${LIME}
+
 	_login_message() { cat <<- EOF
 		${CHERRY:-}
 		================================================================== ${MAIN:-}
@@ -248,16 +258,11 @@
 			# Reminders to try out the latest features ...${RESET}
 			${LIME}
 			recent              - see *more* utility additions / changes.${DARKGREEN}
-			ftxinstalledfonts   - Apple utility to list and analyze fonts (very detailed!)
-				(e.g. ftxinstalledfonts -fiMls -U 'U+0041, $0042, 0x43' 2>/dev/null | grep 'YES\tYES')
 			preman              - open man pages nicely formatted in Preview
 			zsh_stats           - (from oh-my-zsh) list cli stats
-			perf_test           - performance tests logged to ~/.perf_test_xxx.log
-			repip               - reinstall updated pip and update all dependencies
-			ldoc [FILES]        - local docs (move FILES out of iCloud)
-			do_over [target]    - repeat something over and over ... and over
-			log_urls            - logs urls from chrome constantly${RED}
-			update_git_dirs     - update all git repos (!! I mean ALL !!)${CHERRY:-}
+			pipup               - update all global dependencies
+			rebrew 				- update all brew modules
+			mp 					- multipass${CHERRY:-}
 		================================================================== ${RESET}
 		EOF
 		}
