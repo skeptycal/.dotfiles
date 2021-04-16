@@ -3,8 +3,14 @@
 # top-most EditorConfig file
 root = true
 
-# indentation defaults
 [*]
+# ************** defaults
+    # These are the most common defaults for developers working with the majority of code bases on a UNIX, Linux, or macOS based system.
+
+    # Windows only differs in a few small places, but they can still cause headaches: the standard end_of_line on Windows was historically CRLF. Some legacy file formats maintain this CRLF standard. on Unix, it was LF, while on a Mac you would expect CR alone. Earlier Apple platforms did not play well with others, but most modern applications convert output seemlessly to the Unix style LF endings. The most common issues now, which aren't common at all, are variations between CRLF and LF.
+
+    # The use of the TAB character specifically, as opposed to 'whitespace' in general, is required or will cause problems with some legacy file formats.
+
 charset = utf-8
 end_of_line = lf
 indent_size = 4
@@ -12,26 +18,56 @@ indent_style = space
 insert_final_newline = true
 trim_trailing_whitespace = true
 
-[{.gitattributes,.gitignore,.gitmodules}]
-indent_style = tab
+# ************** All of the myriad exceptions ...
+    # Personally, I don't care much. While it is VERY important to have consistent standards across code bases when people are working together, and we are increasingly working in a global and remote environment, I do not particularly have a 'favorite' way of doing things.
 
-[*.bat]
-indent_style = tab
-end_of_line = crlf
+    # I don't have a dog in this fight. I just want to make sure I am consistent  with the evolving global standards and the code base I am working with.  Modern IDE's and .editorconfig files eliminate any problems. I just wants  to know the rules so I can put them in here. Then, it will be consistent.
 
-# The indent size used in the `package.json` file cannot be changed
-# https://github.com/npm/npm/pull/3180#issuecomment-16336516
-[{.travis.yml,npm-shrinkwrap.json,package.json}]
+    # If I do some work for a client who prefers tabs over spaces in their  Python code base, I will put an .editorconfig file in that repo and  change that python line from 'spaces' to 'tabs' easily. Life is too  short to worry about it.
+
+    # FYI, Using spaces instead of tabs is associated with an 8.6% higher salary.
+    # https://stackoverflow.blog/2017/06/15/developers-use-spaces-make-money-use-tabs/
+
+    # Serious Bizzness here ...
+
+# ************** exceptions
+[*.py]
+    # This is not an exception to the above, I just want to have a python section to experiment with. (but Guido says spaces ... )
+indent_size = 4
 indent_style = space
-indent_size = 2
 
-# shell script HEREDOCS work better with tabs
-# makefiles *require* tabs
-[{*.*sh, Makefile}]
-indent_style = tab
+[*.php]
+    # Funny! ... from the PHP PSR-12 specification. The sentence explains all of the ways to express relative desire for things to be a certain way ... in great detail ... and fails to use one in the sentence! They chose to use "are to be interpreted" instead of MUST or SHALL or any other such thing.
 
-[LICENSE]
-insert_final_newline = false
+    # Beautiful irony:
+    #   The key words “MUST”, “MUST NOT”, “REQUIRED”, “SHALL”, “SHALL NOT”, “SHOULD”, “SHOULD NOT”, “RECOMMENDED”, “MAY”, and “OPTIONAL” in this document are to be interpreted as described in RFC 2119.
+    # Reference: https://tools.ietf.org/html/rfc2119
+
+    #   - PSR-2 says spaces ... https://www.php-fig.org/psr/psr-2/#24-indenting
+    #   - some discussion ... https://stackoverflow.com/a/35649925
+
+# PSR-12 is the current specification
+    # Reference: https://www.php-fig.org/psr/psr-12/
+    # PSR-12:2.1
+    #   - Follow PSR-1 (and ‘StudlyCaps’ means PascalCase ...)
+    # PSR-12:2.2
+    #   - All PHP files MUST use the Unix LF (linefeed) line ending only.
+end_of_line = lf
+    #   - All PHP files MUST end with a non-blank line, terminated with a single LF.
+insert_final_newline = true
+    #   The closing ?> tag MUST be omitted from files containing only PHP.
+    # PSR-12:2.3
+    #   - There MUST NOT be a hard limit on line length.
+    #   - The soft limit on line length MUST be 120 characters.
+    #   - Lines SHOULD NOT be longer than 80 characters; lines longer than that SHOULD be split into multiple subsequent lines of no more than 80 characters each.
+    #   - There MUST NOT be trailing whitespace at the end of lines.
+trim_trailing_whitespace = true
+    #   - Blank lines MAY be added to improve readability and to indicate related blocks of code except where explicitly forbidden.
+    #   - There MUST NOT be more than one statement per line.
+    # PSR-12:2.4
+    #   - Code MUST use an indent of 4 spaces for each indent level, and MUST NOT use tabs for indenting.
+indent_size = 4
+indent_style = space
 
 [*.{js,css}, *.json, *.jsonc]
 indent_size = 2
@@ -42,12 +78,65 @@ charset = utf-8
 indent_style = space
 indent_size = 2
 
-[*.py]
-indent_style = space
-indent_size = 4
+# ************** tabs
+[*.go]
+# Go does it for us. So we do not have to care about it. I like this way best.
+    # from https://golang.org/doc/effective_go#formatting
+    # Formatting issues are the most contentious but the least consequential. People can adapt to different formatting styles but it's better if they don't have to, and less time is devoted to the topic if everyone adheres to the same style. The problem is how to approach this Utopia without a long prescriptive style guide. With Go we take an unusual approach and let the machine take care of most formatting issues.
+    # Indentation
+    # - We use tabs for indentation and gofmt emits them by default. Use spaces only if you must.
+    # Line length
+    # - Go has no line length limit. Don't worry about overflowing a punched card. If a line feels too long, wrap it and indent with an extra tab.
+
+    # I suppose if I put 'space' here I would cause a neverending race condition between VSCode's editorconfig plugin and gofmt. I'm probably reducing global warming somewhat by not trying it ...
+indent_style = tab
+
+[{*.*sh, Makefile}]
+    # shell script HEREDOCS work better with tabs
+    # (increased readability of leading tabs that do not appear in the output)
+    # makefiles *require* tabs
+indent_style = tab
+
+[{.gitattributes,.gitignore,.gitmodules}]
+indent_style = tab
+
+[*.bat]
+    # obviously, .bat is only for DOS/Windows
+end_of_line = crlf
+indent_style = tab
+
+# ************** a few edge cases
+[**.md]
+    # I have seen both true and false used for trim_trailing_whitespace
+    # I have not found a definitive answer yet...
+trim_trailing_whitespace = true
+x-soft-wrap-text = true
+
+[LICENSE]
+    # don't change my LICENSE file!
+insert_final_newline = false
+
+[{Library/Homebrew/**.rb,.simplecov}]
+trim_trailing_whitespace = true
+
+[Library/Taps/**.rb]
+    # trailing whitespace is crucial for patches
+trim_trailing_whitespace = false
 
 [*.{diff,patch}]
+    # trailing whitespace is crucial for patches
 trim_trailing_whitespace = false
+
+[**.drawio.svg]
+indent_size = unset
+indent_style = unset
+insert_final_newline = false
+
+[{.travis.yml,npm-shrinkwrap.json,package.json}]
+    # The indent size used in the `package.json` file cannot be changed
+    # https://github.com/npm/npm/pull/3180#issuecomment-16336516
+indent_size = 2
+indent_style = space
 
 [.editorconfig]
 charset = utf-8
