@@ -44,8 +44,70 @@
 			}
 	DISABLED
 
+	git_current_branch () {
+		local ref
+		ref=$(__git_prompt_git symbolic-ref --quiet HEAD 2> /dev/null)
+		local ret=$?
+		if [[ $ret != 0 ]]
+		then
+			[[ $ret == 128 ]] && return
+			ref=$(__git_prompt_git rev-parse --short HEAD 2> /dev/null)  || return
+		fi
+		echo ${ref#refs/heads/}
+	}
+
 	is_empty_dir() {
 		[ -z "$(ls -A ${1:-$PWD})" ]
+	}
+
+	get_timestamp() { printf "%16.16s\n" $(date +"%s%N"); }
+
+	ip_lookup() {
+		# www.example.com
+		nslookup "$1" | tail -n 2 | cut -d ' ' -f 2
+	}
+
+	ping_log() {
+		#/ ######### Example:
+		# PING www.example.com (93.184.216.34): 56 data bytes
+		# --- www.example.com ping statistics ---
+		# 1 packets transmitted, 1 packets received, 0.0% packet loss
+		# round-trip min/avg/max/stddev = 30.113/30.113/30.113/0.000 ms
+		_max_trials=100000
+		_SLEEP_DELAY=60
+		_counter=0
+		_quiet=
+		_datestamp=$(date +'%m%Y')
+
+		# Usage ping_log [n] [url] [quiet?]
+		_N=${1:=5}
+		_URL="${2:='http://www.example.com'}"
+		[[ -n "$3" ]] && _quiet="shhh"
+		_pinglog=~/.pinglog_$_datestamp
+
+		# file format: CSV
+		# timestamp, packet-loss, min, avg, max, stddev, n, url
+		[ ! -f $_pinglog ] && echo "timestamp, packet-loss, min, avg, max, stddev, n, url" >$_pinglog
+
+		while (( $_counter < $_max_trials )); do
+
+			_timestamp=$(get_timestamp)
+			p_run=$(ping -q -c 3 www.example.com)
+			p_loss=$( echo $p_run | grep 'round-trip' | cut -d ' ' -f 18; )
+			p_nums=$( echo $p_run | grep 'round-trip' | cut -d ' ' -f 24; )
+			p_min=$(echo $p_nums | cut -d '/' -f 1; )
+			p_avg=$(echo $p_nums | cut -d '/' -f 2; )
+			p_max=$(echo $p_nums | cut -d '/' -f 3; )
+			p_sd=$(echo $p_nums | cut -d '/' -f 4; )
+
+			printf "%s, %s, %s, %s, %s, %s, %s, %s\n" $_timestamp $p_loss $p_min $p_avg $p_max $p_sd $_N $_URL >>$_pinglog
+
+			 [[ -z $_quiet ]]  && printf "%s, %s, %s, %s, %s, %s, %s, %s\n" $_timestamp $p_loss $p_min $p_avg $p_max $p_sd $_N $_URL
+
+			_counter=$(( $_counter + 1 ))
+
+			sleep $_SLEEP_DELAY
+		done
 	}
 
 	#* custom file header for Go, Python, etc.
@@ -54,11 +116,14 @@
 		# if a different comment string is desired, pass as $1
 		# The default // is used for Go
 		_comment=${1:='//'}
-		_shebang=
-		exists "$2" && _shebang='#!/usr/bin/env '"${2}\n"
+		# _shebang=
+		# echo "\$2: $2"
+		# exists "$2" && _shebang='#!/usr/bin/env '"${2}\\n"
+		# echo "\$_shebang: $_shebang"
+		# echo ""
 
 		cat <<-EOF
-			${_shebang}${_comment} Copyright (c) $( date +"%Y" ) ${AUTHOR}
+			${_comment} Copyright (c) $( date +"%Y" ) ${AUTHOR}
 			${_comment} ${AUTHOR_URL}
 			${_comment} ${LICENSE} License
 
@@ -93,7 +158,7 @@
 		gi macos linux windows ssh vscode go zsh node vue nuxt python django flask yarn laravel git >>.gitignore
 	}
 
-	gac() { # git add and commit; message is $1 or default
+	gac() { # Usage: gac [message] # git add, commit, push
 		_message=${1:=$_default_commit_message}
 
 		git add --all
@@ -102,38 +167,6 @@
 		git push origin --all
 		git push origin --tags
 	}
-	_gh_auth_username() {
-		_gh_user=$( gh auth status 2>&1 | grep "Logged in to github.com as" | awk '{ print $7 }'; )
-	}
-
-		is_empty_dir() {
-		[ -z "$(ls -A ${1:-$PWD})" ]
-	}
-	_file_blurb() {
-		# if a different comment string is desired, pass as $1
-		# The default // is used for Go
-		default_comment='//'
-
-		_comment=${1:=$default_comment}
-
-		cat <<-EOF
-			${_comment} Copyright (c) $( date +"%Y" ) ${AUTHOR}
-			${_comment} ${AUTHOR_URL}
-			${_comment} ${LICENSE} License
-
-		EOF
-	}
-
-	gac() { # git add and commit; message is $1 or default
-		_message=${1:=$_default_commit_message}
-
-		git add --all
-		git commit -m "${_message}"
-		git push --set-upstream origin $(git_current_branch)
-		git push origin --all
-		git push origin --tags
-	}
-
 	_gh_auth_username() {
 		_gh_user=$( gh auth status 2>&1 | grep "Logged in to github.com as" | awk '{ print $7 }'; )
 	}

@@ -26,7 +26,7 @@
 	nowdate=$(date +%m-%d-%Y)					# 09-12-2020
 	week=$(date +%V)         					# 37
 	seconds=$(date +%s)      					# 1600377174 s
-	timestamp=$(date +%s%N)  					# 1600377060096604000 ns
+	get_timestamp=$(date +%s%N)  				# 1600377060096604000 ns
 
 	SCRIPT_NAME=${0##*/}
 	ZDOTDIR=${ZDOTDIR:=$HOME/.dotfiles}

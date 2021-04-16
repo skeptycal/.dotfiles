@@ -18,7 +18,7 @@
         printf '%b\n' "${WARN:-}Debug Mode Details for ${CANARY}${SCRIPT_NAME##*/}${RESET:-}"
 
         # script specific debug info and tests
-        green "timestamp: $(timestamp)"
+        green "get_timestamp: $(get_timestamp)"
         }
 #? -----------------------------> copyright (c) 2019 Michael Treanor
     main() {
@@ -130,7 +130,7 @@
     upper() { ce "${*:u}"; } # return all args as uppercase (zsh only)
 #? -----------------------------> Functions
 	a() { alias | grep "$1"; }
-    timestamp() { printf "%s\n" $(date +"%D %T"); }
+    get_timestamp() { printf "%16.16s\n" $(date +"%s%N"); }
     # log internet speedtest results over time (runs until stopped)
 	speedlog() { while true; do speedtest --format=csv >>${1:-~/.speedtest.csv}; done; }
     anybar_message() { echo -n "$1" | nc -4u -w0 localhost "${2:-1738}"; }
