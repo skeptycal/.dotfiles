@@ -250,7 +250,7 @@
     alias ls="ls ${colorflag:-} --group-directories-first"
 
     . "${DOTFILES_INC}/zsh_big_sur_hacks.zsh"
-    . "${DOTFILES_INC}/repo_tools.sh"
+    . "${DOTFILES_INC}/gomake"
 
 #? -----------------------------> script cleanup
     # cleanup and exit script

@@ -35,6 +35,8 @@
  #? ${VAR%/*}         - return only path (without program name)
 
 #? -----------------------------> repo management
+
+
 	: <<-'DISABLED'
 		#/ gi() is defined in the zsh .gitignore plugin as:
 		# function gi() { curl -fLw '\n' https://www.gitignore.io/api/"${(j:,:)@}" }
@@ -43,6 +45,54 @@
 			curl -fLw '\n' https://www.gitignore.io/api/"${(j:,:)@}"
 			}
 	DISABLED
+
+	gi () { curl -fLw '\n' https://www.gitignore.io/api/"${(j:,:)@}"; }
+
+
+	# File test operators
+		# The test command includes the following FILE operators that allow you to test for particular types of files:
+
+		# -b FILE - True if the FILE exists and is a special block file.
+		# -c FILE - True if the FILE exists and is a special character file.
+		# -d FILE - True if the FILE exists and is a directory.
+		# -e FILE - True if the FILE exists and is a file, regardless of type (node, directory, socket, etc.).
+		# -f FILE - True if the FILE exists and is a regular file (not a directory or device).
+		# -G FILE - True if the FILE exists and has the same group as the user running the command.
+		# -h FILE - True if the FILE exists and is a symbolic link.
+		# -g FILE - True if the FILE exists and has set-group-id (sgid) flag set.
+		# -k FILE - True if the FILE exists and has a sticky bit flag set.
+		# -L FILE - True if the FILE exists and is a symbolic link.
+		# -O FILE - True if the FILE exists and is owned by the user running the command.
+		# CANARY -p FILE - True if the FILE exists and is a pipe.
+		# -r FILE - True if the FILE exists and is readable.
+		# PURPLE -S FILE - True if the FILE exists and is a socket.
+		# -s FILE - True if the FILE exists and has nonzero size.
+		# -u FILE - True if the FILE exists, and set-user-id (suid) flag is set.
+		# -w FILE - True if the FILE exists and is writable.
+		# -x FILE - True if the FILE exists and is executable.
+
+	checkdir() {
+		OFS=$IFS
+		IFS=$'\n'
+		local files=$(ls -1A ${1:-.});
+		local file=
+		for file in $files; do
+			_color="${ATTN:-}"
+			if [ ! -e "$file" ]; then _color="${WARN:-}";			# does not exist
+			elif [ -h ${file} ]; then _color="${CYAN:-}"; 			# symbolic link
+			# elif [[ -r ${file} && -w ${file} && -x ${file} ]]; then _color="${DARKGREEN:-}${REVERSED:-}"; 		# unprotectedd file
+			elif [ -d ${file} ]; then _color="${BLUE:-}"; 			# directory
+			elif [ -p ${file} ]; then _color="${PINK:-}";  			# pipe
+			elif [ -S ${file} ]; then _color="${PURPLE:-}";  		# socket
+			elif [ -c ${file} ]; then _color="${CANARY:-}";  		# special character file
+			elif [ -b ${file} ]; then _color="${ORANGE:-}";  		# special block file
+			elif [ -x ${file} ]; then _color="${GREEN:-}"; 			# executable file
+			elif [ -e ${file} ]; then _color="${WHITE:-}"; 			# exists
+			fi
+			ce "${_color:-}${file}"
+		done;
+		IFS=$OFS
+	}
 
 	git_current_branch () {
 		local ref
@@ -159,13 +209,12 @@
 	}
 
 	gac() { # Usage: gac [message] # git add, commit, push
-		_message=${1:=$_default_commit_message}
-
-		git add --all
-		git commit -m "${_message}"
-		git push --set-upstream origin $(git_current_branch)
-		git push origin --all
-		git push origin --tags
+		local message=${1:=$_default_commit_message}
+		git add --all #>/dev/null 2>&1
+		git commit -m "${message}" #>/dev/null 2>&1
+		# (( $? )) && warn "error with git commit ${message}"
+		git push origin --all #>/dev/null 2>&1
+		# (( $? )) && warn "error with git push"
 	}
 	_gh_auth_username() {
 		_gh_user=$( gh auth status 2>&1 | grep "Logged in to github.com as" | awk '{ print $7 }'; )

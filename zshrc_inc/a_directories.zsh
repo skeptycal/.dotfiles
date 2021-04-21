@@ -30,7 +30,7 @@
     alias sites="cd $HOME/Sites"
     alias db="cd $HOME/Dropbox"
     alias dl="cd $HOME/Downloads"
-    alias dt="cd $HOME/Desktop"
+    # alias dt="cd $HOME/Desktop" # used for devtag now
     alias mp='multipass ' # Ubuntu multipass https://github.com/canonical/multipass
 
     # alias ls="ls --group-directories-first ${colorflag}"           # normal wide
