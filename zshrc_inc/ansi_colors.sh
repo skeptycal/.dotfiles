@@ -264,6 +264,11 @@
 		fi
 	}
 
+	dbinfo() {
+		local _str="${RESET:-}${GREEN:-}${DIM:-}${0}: $@"
+        dbecho $_str
+    }
+
 	# echo debug (in DEV mode only) message and exit with errorcode
 	die() { dbecho ${*:-"die (pid = $$)"} && return 1; }
 

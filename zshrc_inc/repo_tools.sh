@@ -3,7 +3,7 @@
     # shellcheck shell=bash
     # shellcheck source=/dev/null
     # shellcheck disable=2178,2128,2206,2034
-#? -----------------------------> repo_tools - tools for repo management for macOS with zsh
+#? -----------------------------> repo_tools.sh - tools for repo management for macOS with zsh
 	#*	system functions
 	#*  tested on macOS Big Sur and zsh 5.8
 	#*	copyright (c) 2021 Michael Treanor
@@ -21,7 +21,7 @@
 		if (( SET_DEBUG > 0 )); then
 			printf '%b\n' "${WARN:-}Debug Mode Details for ${CANARY}${SCRIPT_NAME##*/}${RESET:-}"
 			green "Today is $today"
-			_test_args "$@"
+			# _test_args "$@"
 			dbecho "DEBUG mode is enabled. Set it to 0 to disable these messages."
 			dbecho ""
 			dbecho "ANSI colors active: $(which ansi_colors.sh)"

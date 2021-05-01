@@ -236,6 +236,10 @@
 #? -----------------------------> odds and ends
     # These seem to get lost somewhere ...
 
+    # GNU time 1.9 (brew install gnu-time)
+    # https://ftp.gnu.org/gnu/time/
+    alias time='gtime '
+
     # Helper to lookup commands from the zsh git plugin cheatsheet
     function gx () {
         `fzf < ~/.dotfiles/zsh-git-plugin-cheatsheet.txt | cut -f3 -d'|' | tr _ ' '`
@@ -250,7 +254,7 @@
     alias ls="ls ${colorflag:-} --group-directories-first"
 
     . "${DOTFILES_INC}/zsh_big_sur_hacks.zsh"
-    . "${DOTFILES_INC}/gomake"
+    . "${DOTFILES_INC}/gomake_main.sh"
 
 #? -----------------------------> script cleanup
     # cleanup and exit script
