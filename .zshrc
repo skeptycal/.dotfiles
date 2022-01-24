@@ -3,23 +3,21 @@
   # shellcheck shell=bash
   # shellcheck source=/dev/null
   # shellcheck disable=2178,2128,2206,2034
-#? ################# .zshrc - main config for macOS with zsh ###############
- #* copyright (c) 2019 Michael Treanor     -----     MIT License
- #? ###################### https://www.github.com/skeptycal ##################
+#? -----------------------------> .zshrc - main config for macOS with zsh
+    #* Copyright (c) 2019 Michael Treanor
+    #* MIT License
+    #* https://www.github.com/skeptycal
 
- #* number of years the first commercial
- #*   modem would take to transmit a movie: 42.251651342415241
- #*   this is very nearly the time since I wrote my first program
- #*   I'm glad I didn't watch that movie instead ...
-
-#? ###################### copyright (c) 2019 Michael Treanor #################
+    #* number of years the first commercial
+    #*   modem would take to transmit a movie: 42.251651342415241
+    #*   this is very nearly the time since I wrote my first program
+    #*   I'm glad I didn't watch that movie instead ...
 
 #? -----------------------------> parameter expansion tips
- #? ${PATH//:/\\n}    - replace all colons with newlines
- #? ${PATH// /}       - strip all spaces
- #? ${VAR##*/}        - return only final element in path (program name)
- #? ${VAR%/*}         - return only path (without program name)
-
+    #? ${PATH//:/\\n}    - replace all colons with newlines
+    #? ${PATH// /}       - strip all spaces
+    #? ${VAR##*/}        - return only final element in path (program name)
+    #? ${VAR%/*}         - return only path (without program name)
 #? -----------------------------> Shell Settings
     # Remove all aliases from unexpected places
     unalias -a
@@ -27,9 +25,13 @@
     # use root defaults (they match most web server defaults)
     umask 022   #          !! possible security issue !!
 
+    export LANG=en_US.UTF-8
+
+
 #? -----------------------------> BASH compatibility
-    # By default, zsh does not do word splitting for unquoted parameter
-        # expansions. You can enable "normal" word splitting by setting the
+    # By default, zsh does not do word splitting for
+        # unquoted parameter expansions. You can enable
+        # "normal" word splitting by setting the
         # SH_WORD_SPLIT option or by using the = flag on an individual expansion.
         # e.g. ls ${=args}
 
@@ -49,8 +51,24 @@
 	SCRIPT_NAME=${0##*/}
     SCRIPT_PATH=${0%/*}
 
+    #* Disable Sleep Image
+        #Disabling the Safe Sleep feature means that contents in RAM will not be backed up to the drive should your Mac need to hibernate. When you start your machine back up, your Mac will perform a normal reboot without restoring windows, and opened files.
+        # Removing the File:
+        # sudo rm /private/var/vm/sleepimage
+        #
+        # Prevent the File from Being Rebuilt:
+        # pmset -g | grep hibernatemode
+        # sudo pmset -a hibernatemode 0
+        # pmset -g | grep hibernatemode
+
+        # Reference: https://www.techradar.com/how-to/computing/apple/how-to-remove-the-disk-hogging-sleepimage-file-from-your-mac-1305738
+
+
+    #* Go install options and utilities
+    export GOPATH=$HOME/go
+
     # Path to oh-my-zsh configuration.
-    ZSH=$HOME/.dotfiles/.oh-my-zsh
+    export ZSH=$HOME/.oh-my-zsh
 
     # Path to ZSH dotfiles directory
     ZDOTDIR=$HOME/.dotfiles
@@ -137,7 +155,7 @@
     HostName="$( scutil --get LocalHostName )"
 
     # HomeBrew path prefix (manually set - auto is slow)
-    BREW_PREFIX=/usr/local      # BREW_PREFIX=$(brew --prefix)  #! too slow...
+    BREW_PREFIX=/opt/homebrew      # BREW_PREFIX=$(brew --prefix)  #! too slow...
 
     # Path to template files
     DOTFILES_TEMPLATE="${ZDOTDIR}/template"
@@ -150,23 +168,9 @@
 
 	autoload -Uz compinit && compinit
 
-    # >>> conda initialize >>>
-    # !! Contents within this block are managed by 'conda init' !!
-    __conda_setup="$('/Users/skeptycal/opt/anaconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
-    if [ $? -eq 0 ]; then
-        eval "$__conda_setup"
-    else
-        if [ -f "/Users/skeptycal/opt/anaconda3/etc/profile.d/conda.sh" ]; then
-            . "/Users/skeptycal/opt/anaconda3/etc/profile.d/conda.sh"
-        else
-            export PATH="/Users/skeptycal/opt/anaconda3/bin:$PATH"
-        fi
-    fi
-    unset __conda_setup
-    # <<< conda initialize <<<
-
 #? -----------------------------> source utilities
     .() { # source with debugging info and file read check
+        # canary " (source $1)"
         source "$1" || warn "cannot source '$1'"
         if (( $? )); then
             dbecho "ERROR: cannot source ${1##*/}"
@@ -255,6 +259,8 @@
 
     . "${DOTFILES_INC}/zsh_big_sur_hacks.zsh"
     . "${DOTFILES_INC}/gomake_main.sh"
+
+    alias pip="pip-pss"
 
 #? -----------------------------> script cleanup
     # cleanup and exit script

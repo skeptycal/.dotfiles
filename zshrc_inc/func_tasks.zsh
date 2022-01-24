@@ -245,7 +245,7 @@
 	_login_message() { cat <<- EOF
 		${CHERRY:-}
 		================================================================== ${MAIN:-}
-		os: ${LIME:-}$(uname -i) | $(sw_vers -productName) | $(sw_vers -productVersion)${MAIN:-}
+		os: ${LIME:-}$(/opt/homebrew/bin/guname -i) | $(sw_vers -productName) | $(sw_vers -productVersion)${MAIN:-}
 		shell: ${ATTN:-}$(zsh --version | cut -d '(' -f 1)${MAIN:-}
 		go: ${GOLANG:-}$(go version | cut -d ' ' -f 3 | cut -d 'o' -f 2)${MAIN:-}
 		python: ${CANARY:-}$(python -V)${MAIN:-}

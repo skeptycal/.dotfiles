@@ -9,12 +9,14 @@
  #? ###################### https://www.github.com/skeptycal ##################
  # SET_DEBUG=${SET_DEBUG:-0} # set to 1 for verbose testing
 
-#? ###################### copyright (c) 2019 Michael Treanor #################
 # ?########################################## parameter expansion tips
  #? ${PATH//:/\\n}    - replace all colons with newlines
  #? ${PATH// /}       - strip all spaces
  #? ${VAR##*/}        - return only final element in path (program name)
  #? ${VAR%/*}         - return only path (without program name)
+
+#* double check that BREW_PREFIX is set ...
+BREW_PREFIX=${BREW_PREFIX:-`brew --prefix`}
 
 function path_usage() {
 	less <<EOF
@@ -144,6 +146,7 @@ function path() { # just messing around ... color coded path list
 			-w|--width)
 				shift
 				[[ "$1" -gt 0 ]] && path_width=${1:-0} || path_width=0
+				shift
 			;;
 			*)
 				shift
@@ -166,30 +169,30 @@ function path() { # just messing around ... color coded path list
 	IFS=
 	}
 # list path elements with color coded (green is ok, orange is broken)
-function checkpath() {
-	IFS=':'
-	for p in ${PATH[*]}; do
-		[ -d $p ] && lime $p || attn $p
-	done
-	}
+function checkpath() { IFS=':'; for p in ${PATH[*]}; do; [ -d $p ] && lime $p || attn $p; done; }
+
+  export LDFLAGS="-L/opt/homebrew/opt/llvm/lib"
+  export CPPFLAGS="-I/opt/homebrew/opt/llvm/include"
+  export LDFLAGS="-L/opt/homebrew/opt/llvm/lib -Wl,-rpath,/opt/homebrew/opt/llvm/lib"
 
 declare -x PATH="\
-/usr/local/opt/coreutils/libexec/gnubin:\
-/usr/local/go/bin:\
-/usr/local/opt/openssl@1.1/bin:\
 $GOPATH/bin:\
 $HOME/bin:\
 $HOME/bin/scripts:\
+/usr/local/go/bin:\
+/Library/Frameworks/Python.framework/Versions/3.10/bin:\
+$BREW_PREFIX/opt/llvm/bin:\
+$BREW_PREFIX/opt/openssl@1.1/bin:\
+$BREW_PREFIX/opt/ruby/bin:\
+$BREW_PREFIX/bin:\
+$BREW_PREFIX/sbin:\
 /usr/local/bin:\
-/usr/local/opt:\
 /usr/local:\
-/usr/local/sbin:\
 /bin:\
 /usr/bin:\
 /usr/sbin:\
 /sbin:\
 /usr/libexec:\
-${ZDOTDIR}/git-achievements:\
 $ZDOTDIR:\
 $ZSH:\
 $DOTFILES_INC:"
@@ -199,7 +202,6 @@ PATH=$(echo "${=PATH// /}")
 PATH="${PATH// /}" 		# remove spaces ... before adding VSCode path ...
 PATH="${PATH//::/:}" 	# remove double colons ... you know you've done it, too
 
-export PATH
 #? ######################## MANPATH
 # /usr/local/opt/erlang/lib/erlang/man:\
 
@@ -210,11 +212,10 @@ declare -x MANPATH=" \
 	/usr/local/share/man:\
 	/Library/Frameworks/Python.framework/Versions/Current/share/man/man1:\
 	/usr/local/texlive/2020/texmf-dist/doc/man:\
+	$MANPATH\
 	"
 MANPATH=$(echo "${=MANPATH// /}")
 MANPATH="${MANPATH// /}"
-
-export MANPATH
 
 INFOPATH="/usr/local/texlive/2020/texmf-dist/doc/info:$INFOPATH"
 INFOPATH=$(echo "${=INFOPATH// /}")

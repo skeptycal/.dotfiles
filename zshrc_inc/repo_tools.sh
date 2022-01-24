@@ -205,7 +205,10 @@
 
 			############################################
 		EOF
-		gi macos linux windows ssh vscode go zsh node vue nuxt python django flask yarn laravel git >>.gitignore
+		# modified on 1/24/2022 - some endpoints are no longer available:
+		#   VSCODE NUXT
+		# gi macos linux windows ssh vscode go zsh node vue nuxt python django flask yarn laravel git >>.gitignore
+		gi macos linux windows ssh go zsh node vue python django flask yarn laravel git >>.gitignore
 	}
 
 	gac() { # Usage: gac [message] # git add, commit, push

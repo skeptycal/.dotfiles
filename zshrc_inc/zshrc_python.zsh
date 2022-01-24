@@ -89,12 +89,9 @@
 	# pip_2020() { (( $(pip_version_int) > 20.21 )) && echo '--use-feature=2020-resolver ' || echo ""; }
 	# pip20()  { "pip3 ${*} $(pip_2020) "; }
 
-
-	# alias pip="python3 -m pip $(pip_2020) "
-	alias pip="python3 -m pip "
-	# alias piu="python3 -m pip  install -U $(pip_2020) "
-	alias piu="python3 -m pip install -U "
-	alias pipup="piplist | xargs pip3 install -U ;"
+	# alias pip="python3 -m pip "
+	# alias piu="python3 -m pip install -U "
+	# alias pipup="piplist | xargs pip3 install -U ;"
 
 	piplist () { pip list | sed 's/  */ /g' | awk {'print $1'} | tail -n +3; }
 

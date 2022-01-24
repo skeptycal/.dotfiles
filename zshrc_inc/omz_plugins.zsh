@@ -2,9 +2,11 @@
     plugins=(\
 
     # repo management ...
-    git gpg-agent\
+    git\
+	gpg-agent\
 	# npm\
 	gitignore\
+	vscode\
 
     # macOS improvements
     # osx\
@@ -20,7 +22,7 @@
     # alias rsync-synchronize="rsync -avzu --delete --progress -h"
 
     # go!
-    # golang\
+    golang\
     # golang /Users/michaeltreanor/.dotfiles/ohmyzsh/plugins/golang/README.md
 
     # python!
@@ -29,7 +31,7 @@
     # pep8\
     # pip\
     # poetry\
-    # python\
+    python\
     # pylint\
     # pyenv\
 

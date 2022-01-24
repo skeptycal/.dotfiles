@@ -39,7 +39,15 @@
     zstyle ':completion:*' menu select
     fpath+="$HOME/.zfunc"
 
-  	. /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+	if type brew &>/dev/null; then
+		FPATH=$(brew --prefix)/share/zsh-completions:$FPATH
+
+		autoload -Uz compinit
+		compinit
+	fi
+
+	[[ -r $BREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]] && . $BREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+
 	[[ -r $BREW_PREFIX/share/zsh-completions ]] && FPATH=$BREW_PREFIX/share/zsh-completions:$FPATH
 
 	# You may also need to force rebuild `zcompdump`:

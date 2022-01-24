@@ -41,15 +41,12 @@
 		}
     _debug_tests "$@"
 
-	devtoggle() {
-		(( SET_DEBUG )) && SET_DEBUG=0 || SET_DEBUG=1
-	}
+	devtoggle() { (( SET_DEBUG )) && SET_DEBUG=0 || SET_DEBUG=1; }
 
 #? -----------------------------> utilities
     SET_DEBUG=0
     _DEV_GOMAKE=0
-
-
+	default_repo_version='v0.1.0'
 
     is_prod() { [ $SET_DEBUG -eq 0 ]; }
     is_dev() { [ $SET_DEBUG -ne 0 ]; }
@@ -57,9 +54,9 @@
         go version
         }
 
-    version() {
+    export _get_version() {
         # echo $(git describe --tags $(git rev-list --tags --max-count=1))
-        if git tag > /dev/null 2>&1; then
+        if git describe --tags > /dev/null 2>&1; then
             git tag | sort -V | tail -n 1
         else
             echo "$default_repo_version"
@@ -67,9 +64,6 @@
         }
 
     bump() {
-
-		local old=$SET_DEBUG
-        SET_DEBUG=1 # constant dev mode verbosity level
 
         local parsed_options=$(
 		getopt -n "$0" -o hi -- "$@"
@@ -80,7 +74,7 @@
         local vv=
         local dev=
 
-        vv=$(echo $(version) | cut -d '-' -f 1)
+        vv=$(echo $(_get_version) | cut -d '-' -f 1)
         [ -z $vv ] && vv='v0.1.0'
         dbinfo "\$vv: $vv"
 
@@ -127,7 +121,7 @@
                 ;;
 
             *)
-                echo "current version: $(version)"
+                echo "current version: $(_get_version)"
                 usage bump '[major|minor|patch|dev][message]'
                 dbinfo "default case \$version: $version"
                 return 0
@@ -142,7 +136,6 @@
         git tag "$version"
         git push origin --tags
         git push origin --all
-        SET_DEBUG=old # constant dev mode verbosity level
 
         }
 
@@ -161,9 +154,10 @@
         _setup_variables
         #* Tag Dev version
 
-        local vv=$(version)
+        local vv=$(_get_version)
         local version_file=${REPO_PATH}/${REPO_NAME}/.VERSION
         echo $version_file
+		dbinfo "\$version_file: $version_file"
         local dev=
         local message=
 
@@ -173,18 +167,20 @@
             echo "$message"
         fi
 
+		dbinfo "\$message: $message"
+
         vv=${vv%%-*}
         [ -z $vv ] && vv='v0.1.0'
         dbinfo "\$vv: $vv"
 
-        printf -v dev "%16.16s" $(date +'%s%N')
+        printf -v dev "%16.16s" $(/opt/homebrew/bin/gdate +'%s%N')
         dbinfo "\$dev: $dev"
 
         version="${vv}-${dev}"
         dbinfo "\$version: $version"
 
         echo $version >|$version_file
-		go mod tidy
+		go mod tidy > /dev/null 2>&1
 		go doc >|go.doc
 
         git add $version_file
@@ -217,9 +213,6 @@
 
     template() {
 
-		local old=$SET_DEBUG
-        SET_DEBUG=1 # constant dev mode verbosity level
-
 		# i=0
 		# until [ "$((i=$i+1))" -gt "$#" ]
 		# do case "$1"                   in
@@ -243,7 +236,7 @@
 
             -v|--version|version)
 
-				local version=$(version) >/dev/null 2>&1
+				local version=$(_get_version) >/dev/null 2>&1
 				if [ -z "$version" ]; then
 					usage "$0 (no version set)"
 				else
@@ -339,7 +332,6 @@
         done;
 		[ -e gorepotemplate.go ] && mv -b gorepotemplate.go ${REPO_NAME}.go
 
-        SET_DEBUG=$old
         }
 
 	_options() {
@@ -643,8 +635,7 @@
 #!------------------------> main
 #     #! repo testing ...
 #     # alias streamtest='cdgo; del stream; mkd stream; gomake'
-#     default_repo_version='v0.1.0'
-#     version=$(version)
+#     version=$(_get_version)
 #     make_private='public'
 #     _gomake_usage_string="[init [private]|files|devtag|bump|help|version]"
 #     _setup_variables

@@ -15,6 +15,8 @@
 	#*	MIT License - https://www.github.com/skeptycal
 #? -----------------------------> https://www.github.com/skeptycal
 
+export default_repo_version='v0.1.0'
+
 # Fun fact: sysctl is available from the terminal in recovery mode, while
 # many other tools are not.
 

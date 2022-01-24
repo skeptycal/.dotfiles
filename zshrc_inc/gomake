@@ -40,11 +40,11 @@
 
 #!------------------------> main
 
-    default_repo_version='v0.1.0'
-    version=$(version)
+    export default_repo_version='v0.1.0'
+    version=$(_get_version)
     make_private='public'
     _gomake_usage_string="[init [private]|files|devtag|bump|help|version]"
     _setup_variables
-SET_DEBUG=1
+SET_DEBUG=0
 	dbecho "run gomake_menu ..."
     gomake_menu "$@"
