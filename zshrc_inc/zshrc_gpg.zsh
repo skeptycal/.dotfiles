@@ -24,15 +24,16 @@
 AGENT_SOCK=$(gpgconf --list-dirs | grep agent-socket | cut -d : -f 2)
 
 if [[ ! -S $AGENT_SOCK ]]; then
-  gpg-agent --daemon --use-standard-socket &>/dev/null
+#   gpg-agent --daemon --use-standard-socket &>/dev/null # --use-standard-socket is deprecated
+  gpg-agent --daemon &>/dev/null
 fi
 export GPG_TTY=$(tty)
 
 
 # Avoid init unless gpg commands are available.
-  if (( ! $+commands[gpgconf] )) || (( ! $+commands[gpg-connect-agent] )); then
-	return 0
-  fi
+#   if (( ! $+commands[gpgconf] )) || (( ! $+commands[gpg-connect-agent] )); then
+# 	return 0
+#   fi
 
 # This will launch a new gpg-agent if one isn't running, unless a gpg-agent
 # extra-socket has been remote-forwarded.
@@ -51,6 +52,9 @@ set_sock() {
 }
 
 grep -q enable-ssh-support $HOME/.gnupg/gpg-agent.conf 2>/dev/null && set_sock
+
+#! adding this anyway ...
+set_sock
 
 _debug_tests
 true

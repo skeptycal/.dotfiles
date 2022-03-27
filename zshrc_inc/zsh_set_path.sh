@@ -176,14 +176,12 @@ function checkpath() { IFS=':'; for p in ${PATH[*]}; do; [ -d $p ] && lime $p ||
   export LDFLAGS="-L/opt/homebrew/opt/llvm/lib -Wl,-rpath,/opt/homebrew/opt/llvm/lib"
 
 declare -x PATH="\
+/opt/homebrew/opt/coreutils/libexec/gnubin:\
 $GOPATH/bin:\
 $HOME/bin:\
 $HOME/bin/scripts:\
 /usr/local/go/bin:\
 /Library/Frameworks/Python.framework/Versions/3.10/bin:\
-$BREW_PREFIX/opt/llvm/bin:\
-$BREW_PREFIX/opt/openssl@1.1/bin:\
-$BREW_PREFIX/opt/ruby/bin:\
 $BREW_PREFIX/bin:\
 $BREW_PREFIX/sbin:\
 /usr/local/bin:\

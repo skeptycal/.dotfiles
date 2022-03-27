@@ -56,8 +56,8 @@
 
     export SH_KEY_PATH="${HOME}/.ssh/rsa_id"
 
-	export CLASH_PATH=/Users/skeptycal/local_coding/user_bin_dir_repo
-    export LOCAL_IP="$(ipconfig getifaddr en0)"
+	# export CLASH_PATH=/Users/skeptycal/local_coding/user_bin_dir_repo
+    # export LOCAL_IP="$(ipconfig getifaddr en0)"
     export LANG="en_US.UTF-8"
     export ARCHFLAGS="-arch x86_64"
     export CPU_STRING=$(sysctl -n machdep.cpu.brand_string)
@@ -74,7 +74,7 @@
     export LESS_TERMCAP_us && LESS_TERMCAP_us=$'\E[01;32m'
 
 #? ----------------------------->## Go
-    export GOPATH="$HOME/go"
+    # export GOPATH="$HOME/go"
 
 #? ----------------------------->## Program settings
 
@@ -123,9 +123,9 @@
     # M2_HOME="/usr/share/apache-maven-3.6.0"
 
 #? ----------------------------->## Node
-    export NODE_REPL_HISTORY="${HOME}/.node_history"
-    export NODE_REPL_HISTORY_SIZE=32768
-    export NODE_REPL_MODE='sloppy'
+    # export NODE_REPL_HISTORY="${HOME}/.node_history"
+    # export NODE_REPL_HISTORY_SIZE=32768
+    # export NODE_REPL_MODE='sloppy'
 
 #? ----------------------------->## Perl
     #   export PERL_MM_OPT && PERL_MM_OPT="INSTALL_BASE=${HOME}/perl5"
@@ -135,5 +135,5 @@
     #   export DATABASE_URL="postgres://$(whoami)"
 
 #? ----------------------------->## Ruby setup
-export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$BREW_PREFIX/opt/openssl@1.1"
+# export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$BREW_PREFIX/opt/openssl@1.1"
 true

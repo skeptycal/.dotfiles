@@ -54,19 +54,18 @@ if [[ "$(hash git &>/dev/null)" -eq 0 ]]; then
     gsok() { git status | grep -q 'nothing to commit'; }
     # check git status of directory $1
     gstdir() {
-		_gstdir=${1:-$PWD}
+		local _gstdir=${1:-$PWD}
 		[[ -d "$_gstdir" ]] || return 1
 
 		cd "$1"
 		git status >/dev/null 2>&1
-		retval=$?
+		local retval=$?
 		cd -
 		return $retval
-
 		}
 
 	# Usage: tag [version]
-	tag() {
+	tagger() {
 
 		_TAG_VERSION='v0.1.1'
 

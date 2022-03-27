@@ -29,7 +29,7 @@
 		[ -f "$DOTFILES_TEMPLATE/.gitignore" ]
 		# cp $HOME/.dotfiles/.gitignore .
 
-		gi python vscode nuxt django
+		gi python vscode nuxt django macos go
 	}
 
 	alias d="docker "
