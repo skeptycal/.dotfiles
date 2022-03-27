@@ -135,5 +135,5 @@
     #   export DATABASE_URL="postgres://$(whoami)"
 
 #? ----------------------------->## Ruby setup
-export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl@1.1)"
+export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$BREW_PREFIX/opt/openssl@1.1"
 true

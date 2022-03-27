@@ -48,13 +48,13 @@
     _DEV_GOMAKE=0
 	default_repo_version='v0.1.0'
 
+	REPO_TEMPLATE_PATH="/Users/skeptycal/go/src/github.com/skeptycal/gorepotemplate"
+
     is_prod() { [ $SET_DEBUG -eq 0 ]; }
     is_dev() { [ $SET_DEBUG -ne 0 ]; }
-    _go_version() {
-        go version
-        }
+	go_version() { go version |cut -d ' ' -f 3 | cut -d 'o' -f 2; }
 
-    export _get_version() {
+    export repo_version() {
         # echo $(git describe --tags $(git rev-list --tags --max-count=1))
         if git describe --tags > /dev/null 2>&1; then
             git tag | sort -V | tail -n 1
@@ -74,7 +74,7 @@
         local vv=
         local dev=
 
-        vv=$(echo $(_get_version) | cut -d '-' -f 1)
+        vv=$(echo $(repo_version) | cut -d '-' -f 1)
         [ -z $vv ] && vv='v0.1.0'
         dbinfo "\$vv: $vv"
 
@@ -121,7 +121,7 @@
                 ;;
 
             *)
-                echo "current version: $(_get_version)"
+                echo "current version: $(repo_version)"
                 usage bump '[major|minor|patch|dev][message]'
                 dbinfo "default case \$version: $version"
                 return 0
@@ -154,7 +154,7 @@
         _setup_variables
         #* Tag Dev version
 
-        local vv=$(_get_version)
+        local vv=$(repo_version)
         local version_file=${REPO_PATH}/${REPO_NAME}/.VERSION
         echo $version_file
 		dbinfo "\$version_file: $version_file"
@@ -236,7 +236,7 @@
 
             -v|--version|version)
 
-				local version=$(_get_version) >/dev/null 2>&1
+				local version=$(repo_version) >/dev/null 2>&1
 				if [ -z "$version" ]; then
 					usage "$0 (no version set)"
 				else
@@ -332,7 +332,7 @@
         done;
 		[ -e gorepotemplate.go ] && mv -b gorepotemplate.go ${REPO_NAME}.go
 
-        }
+	}
 
 	_options() {
 		parsed_options=$(
@@ -394,8 +394,11 @@
 		#* local repo information
 			REPO_PATH="${PWD%/*}"
 			REPO_NAME="${PWD##*/}"
+
+			# "/Users/skeptycal/go/src/github.com/skeptycal/gorepotemplate"
             LOCAL_USER_PATH="${GOPATH}/src/github.com/$(whoami)"
             LOCAL_TEMPLATE_PATH="${LOCAL_USER_PATH}/gorepotemplate"
+
             EXAMPLE_PATH="cmd/example/${REPO_NAME}"
             EXAMPLE_FILE="${EXAMPLE_PATH}/main.go"
 
@@ -432,6 +435,14 @@
             dbinfo "\${BLURB_INI}: ${BLURB_INI}"
     }
 
+	mkd() {
+		if [[ -n "$1" ]]; then
+            mkdir -p "$1" >/dev/null 2>&1 || ( warn "error creating directory $1"; return 1 )
+            cd "$1" || ( warn "error creating directory $1"; return 1 )
+        fi
+		return 0
+	}
+
     _setup_local() {
         dbecho "Setup local repo"
 
@@ -442,12 +453,16 @@
             cd "$1" || ( warn "error creating directory $1"; return 1 )
         fi
 
+		mkd "$1" || return 1
+
         # directory must be empty (certain parts of this setup can be run on existing repos)
         [ -n "$(ls -A ${PWD})" ] && ( warn "directory not empty"; return 1; )
 
     	#* Initial repo setup
 			git init
             dbinfo "\$?: $? - git init"
+
+		return 0
     }
     _setup_remote() {
         #* create remote repo from template (I use GitHub ... change it if you want)
@@ -518,7 +533,7 @@
     }
     _make_files() {
 		#* GitHub repo files
-        GO_VERSION=$(_go_version)
+        GO_VERSION=$(go_version)
 
         # the default list of files is for template is:
             # files=( .editorconfig .gitignore CODE_OF_CONDUCT.md LICENSE README.md SECURITY.md contributing.md example.go gorepotemplate.go go.test.sh idea.md cmd/example/gorepotemplate/main.go docs/* )
@@ -635,7 +650,7 @@
 #!------------------------> main
 #     #! repo testing ...
 #     # alias streamtest='cdgo; del stream; mkd stream; gomake'
-#     version=$(_get_version)
+#     version=$(repo_version)
 #     make_private='public'
 #     _gomake_usage_string="[init [private]|files|devtag|bump|help|version]"
 #     _setup_variables

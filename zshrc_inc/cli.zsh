@@ -22,27 +22,27 @@ export default_repo_version='v0.1.0'
 
 # ref: https://serverfault.com/questions/112711/how-can-i-get-cpu-count-and-total-ram-from-the-os-x-command-line
 
-function create_system_header_data_file() {
-	# ref: https://serverfault.com/questions/112711/how-can-i-get-cpu-count-and-total-ram-from-the-os-x-command-line
-	# e.g.
-		#   Model Name: MacBook Pro
-		#   Model Identifier: MacBookPro11,4
-		#   Processor Name: Quad-Core Intel Core i7
-		#   Processor Speed: 2.2 GHz
-		#   Number of Processors: 1
-		#   Total Number of Cores: 4
-		#   L2 Cache (per Core): 256 KB
-		#   L3 Cache: 6 MB
-		#   Hyper-Threading Technology: Enabled
-		#   Memory: 16 GB
-	rm -rf ~/local_coding/clash/header_data.txt
-	/usr/sbin/system_profiler SPHardwareDataType | tail -n +5 | head -n -6 >~/local_coding/clash/header_data.txt
-}
+# function create_system_header_data_file() {
+# 	# ref: https://serverfault.com/questions/112711/how-can-i-get-cpu-count-and-total-ram-from-the-os-x-command-line
+# 	# e.g.
+# 		#   Model Name: MacBook Pro
+# 		#   Model Identifier: MacBookPro11,4
+# 		#   Processor Name: Quad-Core Intel Core i7
+# 		#   Processor Speed: 2.2 GHz
+# 		#   Number of Processors: 1
+# 		#   Total Number of Cores: 4
+# 		#   L2 Cache (per Core): 256 KB
+# 		#   L3 Cache: 6 MB
+# 		#   Hyper-Threading Technology: Enabled
+# 		#   Memory: 16 GB
+# 	rm -rf ~/local_coding/clash/header_data.txt
+# 	/usr/sbin/system_profiler SPHardwareDataType | tail -n +5 | head -n -6 >~/.dotfiles/zshrc_inc
+# }
 
-function bcli_trim_whitespace() {
-    # Function courtesy of http://stackoverflow.com/a/3352015
-    local var="$*"
-    var="${var#"${var%%[![:space:]]*}"}"   # remove leading whitespace characters
-    var="${var%"${var##*[![:space:]]}"}"   # remove trailing whitespace characters
-    echo -n "$var"
-}
+# function bcli_trim_whitespace() {
+#     # Function courtesy of http://stackoverflow.com/a/3352015
+#     local var="$*"
+#     var="${var#"${var%%[![:space:]]*}"}"   # remove leading whitespace characters
+#     var="${var%"${var##*[![:space:]]}"}"   # remove trailing whitespace characters
+#     echo -n "$var"
+# }

@@ -40,7 +40,7 @@
 	alias abs='cat -Abs '
     # ref: https://scriptingosx.com/2017/04/on-viewing-man-pages/
     preman() { man -t "$@" | open -f -a "Preview" ;}
-    alias c='code .'
+    # alias c='code .'
 
 #? ############################# handy stuff
     alias cls='clear'   # because 40 year old habits die hard
@@ -63,7 +63,7 @@
 
 	# pip search is deprecated ... using alternate scripts from:
 	# https://github.com/jeffmm/pypi-simple-search
-	alias pip="pip-pss"
+	# alias pip="pip-pss"
 	alias sba='source ./.venv/bin/activate'
 	alias sda='source ./.venv/bin/deactivate'
 
@@ -80,11 +80,11 @@
 
 	alias brewup='brew list |xargs brew upgrade 2>/dev/null'
 
-    alias blog="cd ~/Work/blog && code . || attn 'no blog folder found ...'"
-    alias auto="cd ~/Documents/coding/python/autosys && code . || attn 'no autosys folder found ...'"
+    # alias blog="cd ~/Work/blog && code . || attn 'no blog folder found ...'"
+    # alias auto="cd ~/Documents/coding/python/autosys && code . || attn 'no autosys folder found ...'"
 
     alias nis="npm install --save "
-    alias cgr="composer global require"
+    # alias cgr="composer global require"
 
     alias ssh='ssh -R 10999:localhost:22'
     alias nethack='telnet nethack.alt.org'

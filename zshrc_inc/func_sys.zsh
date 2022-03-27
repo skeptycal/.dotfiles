@@ -48,6 +48,45 @@
     #     }
 
 #? -----------------------------> cli utilities
+
+  	# cd() {
+	# 	# Reference: https://manned.org/command
+	# 	/usr/bin/cd "$@" >/dev/null
+	# 	white $(pwd)
+	# 	}
+
+	runutil () {
+		"/usr/bin/$@"
+	}
+
+	help () {
+		exec "$1 --help"
+	}
+
+	secure () {
+		# Reference: https://manned.org/command
+		# Start off a ``secure shell script'' in which the script avoids being
+        #    spoofed by its parent:
+
+		IFS='
+		 '
+		#    The preceding value should be <space><tab><newline>.
+		#    Set IFS to its default value.
+
+		\unalias -a
+		#    Unset all possible aliases.
+		#    Note that unalias is escaped to prevent an alias
+		#    being used for unalias.
+
+		unset -f command
+		#    Ensure command is not a user function.
+
+		PATH="$(command -p getconf PATH):$PATH"
+		#    Put on a reliable PATH prefix.
+
+		#    ...
+	}
+
     # Some References:
     # - utilities from https://justin.abrah.ms/dotfiles/zsh.html
     # from oh-my-zsh install script (somewhat modified)

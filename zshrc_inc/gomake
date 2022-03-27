@@ -41,7 +41,7 @@
 #!------------------------> main
 
     export default_repo_version='v0.1.0'
-    version=$(_get_version)
+    version=$(repo_version)
     make_private='public'
     _gomake_usage_string="[init [private]|files|devtag|bump|help|version]"
     _setup_variables
