@@ -1,6 +1,6 @@
 	#!/usr/bin/env false sh
 
-	. "${DOTFILES_INC}/repo_tools.sh"
+	. "${DOTFILES_INC}/repo/repo_tools.zsh"
 
 	#* input information
 	# TODO - create and load from config file ...

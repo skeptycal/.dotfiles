@@ -49,6 +49,7 @@ echo "DEFAULT         = ${DEFAULT}"
 
 # test
 SEARCHPATH=/Users/skeptycal/go/src/github.com/skeptycal/zsh
+
 echo "Number files in SEARCH PATH with EXTENSION:" $(ls -1 "${SEARCHPATH}"/*."${EXTENSION}" | wc -l)
 ls -1 "${SEARCHPATH}"/**/*."${EXTENSION}"
 if [[ -n $1 ]]; then

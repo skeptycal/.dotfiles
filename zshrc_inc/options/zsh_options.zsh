@@ -1,5 +1,9 @@
 #? -----------------------------> oh-my-zsh options
 
+    # if [ -x dircolors ]; then
+    #     eval `dircolors ~/.dotfiles/dircolors-solarized/dircolors.ansi-dark`
+    # fi
+
 # Using ZSH shell - http://zsh.sourceforge.net/
 
 # HISTORY options are set in zshrc_exports 'history' section

@@ -15,8 +15,50 @@
  #? ${VAR##*/}        - return only final element in path (program name)
  #? ${VAR%/*}         - return only path (without program name)
 
-#* double check that BREW_PREFIX is set ...
-BREW_PREFIX=${BREW_PREFIX:-`brew --prefix`}
+#? -----------------------------> Critical path environment variables
+    # Path to oh-my-zsh configuration.
+    export ZSH=~/.oh-my-zsh
+
+    # Path to ZSH dotfiles directory
+    export ZDOTDIR=~/.dotfiles
+
+    # Older dotfiles path directory (for compatibility)
+    export DOTFILES_PATH=$ZDOTDIR
+
+    # Path to include files
+    export DOTFILES_INC=${ZDOTDIR}/zshrc_inc
+
+	#* double check that BREW_PREFIX is set ...
+	export BREW_PREFIX=${BREW_PREFIX:=`brew --prefix`}
+	export BREW_PREFIX=${BREW_PREFIX:=/opt/homebrew} #backup ... brew --prefix is bugging out
+
+	#* location of GNU Coreutils UNIX tools
+	local GNUREPLACEMENTS=$BREW_PREFIX/opt/coreutils/libexec/gnubin
+	local GNUCOREUTILS=$BREW_PREFIX/Cellar/coreutils/9.0_1/bin
+
+	#* locations of my custom scripts and programs
+	local MYBINS=~/bin
+	local MYSCRIPTS=$MYBINS/scripts
+
+	#* locations of Go stuff
+	  	#* Go install options and utilities
+	export GOPATH=~/go # $(go env GOPATH) # the main Go path - basis for all Go tooling
+	export GOROOT=/usr/local/go # for older Go packages ...
+	export GOBIN=$GOPATH/bin # path for my own tools (Go Install ...)
+
+	#* location of current version python
+	export PYTHON_PATH=/Library/Frameworks/Python.framework/Versions/3.10/bin
+
+	#* locations of Homebrew packages and symlinks
+	local BREWBIN=$BREW_PREFIX/bin
+	local BREWSBIN=$BREW_PREFIX/sbin
+
+#? -----------------------------> Path utilities
+    _echo() { $BREW_PREFIX/bin/gprintf "%s" "${1}"; }   # gnu printf
+    _rl() { $BREW_PREFIX/opt/coreutils/libexec/gnubin/readlink -en "$(which "${1}")"; }                     # readlink
+    _base() { echo -n ${1##*/}; }                       # base name
+    _dir() { echo -n ${1%/*}; }                         # directory name
+
 
 function path_usage() {
 	less <<EOF
@@ -171,19 +213,26 @@ function path() { # just messing around ... color coded path list
 # list path elements with color coded (green is ok, orange is broken)
 function checkpath() { IFS=':'; for p in ${PATH[*]}; do; [ -d $p ] && lime $p || attn $p; done; }
 
-  export LDFLAGS="-L/opt/homebrew/opt/llvm/lib"
-  export CPPFLAGS="-I/opt/homebrew/opt/llvm/include"
-  export LDFLAGS="-L/opt/homebrew/opt/llvm/lib -Wl,-rpath,/opt/homebrew/opt/llvm/lib"
+export LDFLAGS
+export CPPFLAGS
+
+addLDFLAGS() { for flag in $@; do LDFLAGS="$flag:$LDFLAGS"; done; }
+addCPPFLAGS() { for flag in $@; do CPPFLAGS="$flag:$CPPFLAGS"; done; }
+
+addLDFLAGS "-L/opt/homebrew/opt/llvm/lib"
+addCPPFLAGS "-I/opt/homebrew/opt/llvm/include"
+addLDFLAGS "-L/opt/homebrew/opt/llvm/lib -Wl,-rpath,/opt/homebrew/opt/llvm/lib"
 
 declare -x PATH="\
-/opt/homebrew/opt/coreutils/libexec/gnubin:\
-$GOPATH/bin:\
-$HOME/bin:\
-$HOME/bin/scripts:\
-/usr/local/go/bin:\
-/Library/Frameworks/Python.framework/Versions/3.10/bin:\
-$BREW_PREFIX/bin:\
-$BREW_PREFIX/sbin:\
+$GNUREPLACEMENTS:\
+$GNUCOREUTILS:\
+$MYBINS:\
+$MYSCRIPTS:\
+$GOPATH:\
+$GOBIN:\
+$PYTHON_PATH:\
+$BREWBIN:\
+$BREWSBIN:\
 /usr/local/bin:\
 /usr/local:\
 /bin:\

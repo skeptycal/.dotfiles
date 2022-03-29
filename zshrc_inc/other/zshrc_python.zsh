@@ -29,13 +29,13 @@
 		[ -f "$DOTFILES_TEMPLATE/.gitignore" ]
 		# cp $HOME/.dotfiles/.gitignore .
 
-		gi python vscode nuxt django macos go
+		gi python visualstudiocode macos go
 	}
 
 	alias d="docker "
 
 	# upgrade all Homebrew repos that are installed
-	alias rebrew='brew upgrade $(brew list --formula)'
+	alias rebrew='brew upgrade $(brew list --formula) && brew doctor && brew cleanup'
 
 	# homebrew with big sur issue
 	# https://discourse.brew.sh/t/macos-big-sur-issue/8407
@@ -44,6 +44,9 @@
 	alias pc='pre-commit '
 	alias pci='pre-commit install && pre-commit install-hooks && pre-commit autoupdate'
 	alias pca='pre-commit run --all-files'
+
+	# https://pypi.org/project/pss/
+    alias pip="pip-pss"
 
 #*-------------------------------> template management
 	# Path to template files
@@ -132,19 +135,19 @@
 		python3 -m venv $DEFAULT_ENVIRONMENT_FOLDER_NAME --symlinks
 		. ${DEFAULT_ENVIRONMENT_FOLDER_NAME}/bin/activate
 		python3 -m pip install -U pip setuptools wheel
-	}
+		}
+
 	# the ubiquitous "source bin activate"s ...
 	alias sba='. ${DEFAULT_ENVIRONMENT_FOLDER_NAME}/bin/activate'
 	# turn off the venv
 	alias sda='deactivate'
 
+	# [[ $(command -v pyenv >/dev/null) ]] && eval "$(pyenv init -)"
+	# [[ $(command -v pyenv-virtualenv-init >/dev/null) ]] && eval "$(pyenv virtualenv-init -)"
+
 	# ! these hide configuration errors where aliases are ignored in poetry
 	# alias python='python3 '
 	# alias pip='pip3 '
-
-#*-------------------------------> pyenv setup
-	[[ $(command -v pyenv >/dev/null) ]] && eval "$(pyenv init -)"
-	[[ $(command -v pyenv-virtualenv-init >/dev/null) ]] && eval "$(pyenv virtualenv-init -)"
 
 #*-------------------------------> poetry
 	#   python environments suck ... a lot ... virtual environments suck ...
@@ -189,10 +192,10 @@
 
 #*-------------------------------> PIL Library Support
 	# for building libraries
-	export MAX_CONCURRENCY=8
+	# export MAX_CONCURRENCY=8
 
 	# Raqm
-    export XML_CATALOG_FILES="/usr/local/etc/xml/catalog" # for the docs
+    # export XML_CATALOG_FILES="/usr/local/etc/xml/catalog" # for the docs
 
 	# then:
 	# 	xcode-select --install

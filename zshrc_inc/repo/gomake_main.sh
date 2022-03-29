@@ -3,7 +3,7 @@
     # shellcheck shell=bash
     # shellcheck source=/dev/null
     # shellcheck disable=2178,2128,2206,2034
-#? -----------------------------> gomake_main.sh - tools for repo management for macOS with zsh
+#? -----------------------------> gomake_main.zsh - tools for repo management for macOS with zsh
 	#*	system functions
 	#*  tested on macOS Big Sur and zsh 5.8
 	#*	copyright (c) 2021 Michael Treanor
@@ -19,7 +19,7 @@
     DOTFILES_INC=~/.dotfiles/zshrc_inc # TODO - this is getting lost somewhere in the mix
 
 	# repo_tools.sh includes ansi_colors.sh
-	. ${DOTFILES_INC}/repo_tools.sh || . $(which repo_tools.sh)
+	. ${DOTFILES_INC}/repo/repo_tools.zsh || . $(which repo_tools.zsh)
 
 	declare -ix SET_DEBUG=${SET_DEBUG:-0}  		#! set to 1 for verbose testing
     dbinfo "\${DOTFILES_INC}: ${DOTFILES_INC}"

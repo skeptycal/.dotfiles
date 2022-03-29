@@ -11,7 +11,7 @@
 #? -----------------------------> https://www.github.com/skeptycal
 #? -----------------------------> environment
     . "${DOTFILES_INC}/ansi_colors.sh" || . $(which ansi_colors.sh)
-	. "${DOTFILES_INC}/github_config_secret.sh" || . $(which github_config_secret.sh)
+	. "${DOTFILES_INC}/.secret/github_config_secret.sh" || . $(which github_config_secret.sh)
 
     SCRIPT_NAME=${0##*/}
 #? -----------------------------> debug info

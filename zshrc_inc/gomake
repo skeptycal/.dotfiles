@@ -19,7 +19,7 @@
     DOTFILES_INC=~/.dotfiles/zshrc_inc # TODO - this is getting lost somewhere in the mix
 
 	# repo_tools.sh includes ansi_colors.sh
-	. ${DOTFILES_INC}/gomake_main.sh || . $(which gomake_main.sh)
+	. ${DOTFILES_INC}/repo/gomake_main.zsh || . $(which gomake_main.zsh)
 
 	declare -ix SET_DEBUG=${SET_DEBUG:-0}  		#! set to 1 for verbose testing
     dbinfo "\${DOTFILES_INC}: ${DOTFILES_INC}"
@@ -40,11 +40,12 @@
 
 #!------------------------> main
 
+    # TODO - this is ugly and messy ...
     export default_repo_version='v0.1.0'
     version=$(repo_version)
     make_private='public'
     _gomake_usage_string="[init [private]|files|devtag|bump|help|version]"
     _setup_variables
-SET_DEBUG=0
+# SET_DEBUG=0
 	dbecho "run gomake_menu ..."
     gomake_menu "$@"

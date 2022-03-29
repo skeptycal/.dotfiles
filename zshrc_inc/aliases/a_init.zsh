@@ -3,7 +3,7 @@
     # shellcheck shell=bash
     # shellcheck source=/dev/null
     # shellcheck disable=2178,2128,2206,2034
-#? ################# .functions - functions for macOS with zsh ###############
+#? ################# a_init - aliases for macOS with zsh ###############
 	#* copyright (c) 2019 Michael Treanor     -----     MIT License
 	#* should not be run directly; called from .bash_profile / .bashrc / .zshrc
 #? ######################## https://www.github.com/skeptycal #################
@@ -28,6 +28,18 @@
     type "nvim" >/dev/null && alias vim='nvim '
     # alias git="git-achievements "
     alias mine="sudo chown -R \$(id -un):\$(id -gn) "
+
+	# GNU time 1.9 (brew install gnu-time)
+    # https://ftp.gnu.org/gnu/time/
+    alias time='gtime '
+
+	# oh-my-zsh sets this to "gg: aliased to git gui citool" but ... don't need it
+    alias gg='go get -u '
+
+    # reset the colorflag ...
+    colorflag="--color=tty"
+
+	alias ls="ls ${colorflag:-} --group-directories-first"
 
 # TODO ########################################## works in progress
     # alias lsln='ls -AF | grep '@' | cut -d '@' -f 1 ' # will include

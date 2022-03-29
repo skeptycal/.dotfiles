@@ -73,7 +73,7 @@
 		#    The preceding value should be <space><tab><newline>.
 		#    Set IFS to its default value.
 
-		\unalias -a
+		# \unalias -a
 		#    Unset all possible aliases.
 		#    Note that unalias is escaped to prevent an alias
 		#    being used for unalias.
@@ -100,49 +100,42 @@
 
 #? -----------------------------> file management
 
-	is_dir() {
-		[[ -d "$1" ]]
-	}
+	is_dir() { [[ -d "$1" ]] }
 
 	is_int () { echo ${1:-" "} | grep -q "^-\?[0-9]*$"; }
 
 	_usage_FMT="${RESET:-}usage: ${MAIN:-}%s ${DARKGREEN:-}%s %s %s${RESET:-}\n"
 
-	usage() {
-		printf "$_usage_FMT" "$0" "$1""" "$2""" "$3"""
-	}
+	usage() { printf "$_usage_FMT" "$0" "$1""" "$2""" "$3"""; }
 
-	benchtime() {
-		usage='timeit [N] <command> [options]'
-		if [[ -z "$1" -o ]]; then
-			white "usage: ${MAIN:-}bench ${GREEN:-}<COMMAND> [OPTIONS]"
-			return
-		fi
+	# benchtime() {
+	# 	usage='timeit [N] <command> [options]'
+	# 	if [[ -z "$1" -o ]]; then
+	# 		white "usage: ${MAIN:-}bench ${GREEN:-}<COMMAND> [OPTIONS]"
+	# 		return
+	# 	fi
 
-		is_int "$1" && N="$1"
-		N=${N:=10000}
+	# 	is_int "$1" && N="$1"
+	# 	N=${N:=10000}
 
-		t0=$(ms)
+	# 	t0=$(ms)
+	# }
 
-
-
-	}
-
-	bench() {
-		if [[ -z "$1" -o ]]; then
-			white "usage: ${MAIN:-}bench ${GREEN:-}<COMMAND> [OPTIONS]"
-			return
-		fi
-		command="$@"
+	# bench() {
+	# 	if [[ -z "$1" -o ]]; then
+	# 		white "usage: ${MAIN:-}bench ${GREEN:-}<COMMAND> [OPTIONS]"
+	# 		return
+	# 	fi
+	# 	command="$@"
 
 
 
-		# ( time date ) 2>&1 | awk -F "cpu" '{print $2}' | tail -n 1 | awk '{print $1}'
-		( time date ) 2>&1 | awk -F "cpu" '{print $2}' | tail -n 1 | awk '{print $1}'
+	# 	# ( time date ) 2>&1 | awk -F "cpu" '{print $2}' | tail -n 1 | awk '{print $1}'
+	# 	( time date ) 2>&1 | awk -F "cpu" '{print $2}' | tail -n 1 | awk '{print $1}'
 
-		time (repeat $N { typeset -p "SOME_VARIABLE" > /dev/null 2>&1 })
+	# 	time (repeat $N { typeset -p "SOME_VARIABLE" > /dev/null 2>&1 })
 
-	}
+	# }
 
 	filesort() {
 

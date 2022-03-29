@@ -309,7 +309,7 @@
 		EOF
 	}
 #? -----------------------------> script timers
-    ms() { printf '%i\n' "$(( $(gdate +%s%N) * 0.001 ))"; } # microseconds
+    ms() { printf '%i\n' "$(( $(/opt/homebrew/bin/gdate +%s%N) * 0.001 ))"; } # microseconds
     t0=$(ms) # initial timer mark
     lap() { # time milliseconds since last 'lap' call
         t1=$(ms)
