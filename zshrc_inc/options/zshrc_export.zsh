@@ -9,72 +9,80 @@
     #*	    copyright (c) 2019 Michael Treanor
     #*	    MIT License - https://www.github.com/skeptycal
 #?-----------------------------> .zshrc debug info
-	export SET_DEBUG=${SET_DEBUG:-0}  		# set to 1 for verbose testing
+	# export SET_DEBUG=${SET_DEBUG:-0}  		# set to 1 for verbose testing
 
-	SCRIPT_NAME=${0##*/}
+	# SCRIPT_NAME=${0##*/}
 
-	# compatibility with many 'bash' scripts
-	if [[ ${SHELL##*/} == 'zsh' ]]; then
-        set -o shwordsplit 	# 'BASH style' word splitting
-        BASH_SOURCE=${(%):-%N}
-    else
-        BASH_SOURCE=${BASH_SOURCE:=$0}
-    fi
+	# # compatibility with many 'bash' scripts
+	# if [[ ${SHELL##*/} == 'zsh' ]]; then
+    #     set -o shwordsplit 	# 'BASH style' word splitting
+    #     BASH_SOURCE=${(%):-%N}
+    # else
+    #     BASH_SOURCE=${BASH_SOURCE:=$0}
+    # fi
 
-	_debug_tests() {
-        printf '%b\n' "${WARN:-}Debug Mode Details for ${CANARY}${SCRIPT_NAME##*/}${RESET:-}"
-        green "\$LANG is set to $LANG."
-        green "\$LOCAL_IP is set to and exported as $LOCAL_IP."
-        }
-    (( SET_DEBUG > 0 )) && _debug_tests "$@"
+	# _debug_tests() {
+    #     printf '%b\n' "${WARN:-}Debug Mode Details for ${CANARY}${SCRIPT_NAME##*/}${RESET:-}"
+    #     green "\$LANG is set to $LANG."
+    #     green "\$LOCAL_IP is set to and exported as $LOCAL_IP."
+    #     }
+    # (( SET_DEBUG > 0 )) && _debug_tests "$@"
 
 #? -----------------------------> copyright (c) 2019 Michael Treanor
 #? ----------------------------->## zsh history
     # HISTORY options reference:
     # https://scriptingosx.com/2019/06/moving-to-zsh-part-3-shell-options/
 
-        setopt extendedhistory
-        setopt histexpiredupsfirst
-        setopt histfindnodups
-        setopt histignoredups
-        setopt histignorespace
-        setopt histreduceblanks
-        setopt histverify
-        setopt sharehistory
+    #     setopt extendedhistory
+    #     setopt histexpiredupsfirst
+    #     setopt histfindnodups
+    #     setopt histignoredups
+    #     setopt histignorespace
+    #     setopt histreduceblanks
+    #     setopt histverify
+    #     setopt sharehistory
 
-    export HISTFILE=${ZDOTDIR:-$HOME}/.zsh_history
-    export HISTSIZE=524288 # 32768
-    export HISTFILESIZE="${HISTSIZE}"
-    export HISTCONTROL='ignoreboth'
-    export SAVEHIST=32768
+    # export HISTFILE=${ZDOTDIR:-$HOME.dotfiles}/.zsh_history
+    # export HISTSIZE=524288 # 32768
+    # export HISTFILESIZE="${HISTSIZE}"
+    # export HISTCONTROL='ignoreboth'
+    # export SAVEHIST=32768
 
 #? ----------------------------->## Shell settings
-    export BASH_SILENCE_DEPRECATION_WARNING=1
+    # export BASH_SILENCE_DEPRECATION_WARNING=1
 
     # default shell editor for standard and ssh sessions
-    [[ -n $SSH_CONNECTION ]] && export EDITOR='nano' || export EDITOR='nano'
+    # [[ -n $SSH_CONNECTION ]] && export EDITOR='nano' || export EDITOR='nano'
 
-    export SH_KEY_PATH="${HOME}/.ssh/rsa_id"
+    # export SH_KEY_PATH="${HOME}/.ssh/rsa_id"
 
 	# export CLASH_PATH=/Users/skeptycal/local_coding/user_bin_dir_repo
     # export LOCAL_IP="$(ipconfig getifaddr en0)"
-    export LANG="en_US.UTF-8"
-    export ARCHFLAGS="-arch x86_64"
-    export CPU_STRING=$(sysctl -n machdep.cpu.brand_string)
-    export number_of_cores=$(sysctl -n hw.ncpu)
-	export MEMORY_CAP=$(system_profiler SPHardwareDataType | grep "  Memory:" | cut -d ':' -f 2)
+    # export LANG="en_US.UTF-8"
+    # export ARCHFLAGS="-arch x86_64"
+    # export CPU_STRING=$(sysctl -n machdep.cpu.brand_string)
+    # export number_of_cores=$(sysctl -n hw.ncpu)
+	# export MEMORY_CAP=$(system_profiler SPHardwareDataType | grep "  Memory:" | cut -d ':' -f 2)
 
     # support colors in less
-    export LESS_TERMCAP_mb && LESS_TERMCAP_mb=$'\E[01;31m'
-    export LESS_TERMCAP_md && LESS_TERMCAP_md=$'\E[01;31m'
-    export LESS_TERMCAP_me && LESS_TERMCAP_me=$'\E[0m'
-    export LESS_TERMCAP_se && LESS_TERMCAP_se=$'\E[0m'
-    export LESS_TERMCAP_so && LESS_TERMCAP_so=$'\E[01;44;33m'
-    export LESS_TERMCAP_ue && LESS_TERMCAP_ue=$'\E[0m'
-    export LESS_TERMCAP_us && LESS_TERMCAP_us=$'\E[01;32m'
+    # export LESS_TERMCAP_mb && LESS_TERMCAP_mb=$'\E[01;31m'
+    # export LESS_TERMCAP_md && LESS_TERMCAP_md=$'\E[01;31m'
+    # export LESS_TERMCAP_me && LESS_TERMCAP_me=$'\E[0m'
+    # export LESS_TERMCAP_se && LESS_TERMCAP_se=$'\E[0m'
+    # export LESS_TERMCAP_so && LESS_TERMCAP_so=$'\E[01;44;33m'
+    # export LESS_TERMCAP_ue && LESS_TERMCAP_ue=$'\E[0m'
+    # export LESS_TERMCAP_us && LESS_TERMCAP_us=$'\E[01;32m'
 
-#? ----------------------------->## Go
-    # export GOPATH="$HOME/go"
+#? ----------------------------->## Compiler
+	# export LDFLAGS
+	# export CPPFLAGS
+
+	# addLDFLAGS() { for flag in $@; do LDFLAGS="$flag:$LDFLAGS"; done; }
+	# addCPPFLAGS() { for flag in $@; do CPPFLAGS="$flag:$CPPFLAGS"; done; }
+
+	# addLDFLAGS "-L/opt/homebrew/opt/llvm/lib"
+	# addCPPFLAGS "-I/opt/homebrew/opt/llvm/include"
+	# addLDFLAGS "-L/opt/homebrew/opt/llvm/lib -Wl,-rpath,/opt/homebrew/opt/llvm/lib"
 
 #? ----------------------------->## Program settings
 

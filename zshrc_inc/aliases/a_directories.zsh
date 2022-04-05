@@ -25,6 +25,7 @@
 	export GOPROJECTS="${GOPATH:=~/go}/src/github.com/${GITHUB_USER:-$(whoami)}"
 
     alias cdgo="cd ${GOPROJECTS}"
+    alias c='code .'
 
     alias cdw="cd $HOME/Documents/work"
     alias sites="cd $HOME/Sites"

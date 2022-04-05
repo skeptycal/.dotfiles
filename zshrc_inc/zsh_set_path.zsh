@@ -45,6 +45,7 @@
 	export GOPATH=~/go # $(go env GOPATH) # the main Go path - basis for all Go tooling
 	export GOROOT=/usr/local/go # for older Go packages ...
 	export GOBIN=$GOPATH/bin # path for my own tools (Go Install ...)
+	export GOPROG=/usr/local/go/bin # go binaries install path
 
 	#* location of current version python
 	export PYTHON_PATH=/Library/Frameworks/Python.framework/Versions/3.10/bin
@@ -213,16 +214,6 @@ function path() { # just messing around ... color coded path list
 # list path elements with color coded (green is ok, orange is broken)
 function checkpath() { IFS=':'; for p in ${PATH[*]}; do; [ -d $p ] && lime $p || attn $p; done; }
 
-export LDFLAGS
-export CPPFLAGS
-
-addLDFLAGS() { for flag in $@; do LDFLAGS="$flag:$LDFLAGS"; done; }
-addCPPFLAGS() { for flag in $@; do CPPFLAGS="$flag:$CPPFLAGS"; done; }
-
-addLDFLAGS "-L/opt/homebrew/opt/llvm/lib"
-addCPPFLAGS "-I/opt/homebrew/opt/llvm/include"
-addLDFLAGS "-L/opt/homebrew/opt/llvm/lib -Wl,-rpath,/opt/homebrew/opt/llvm/lib"
-
 declare -x PATH="\
 $GNUREPLACEMENTS:\
 $GNUCOREUTILS:\
@@ -244,7 +235,7 @@ $ZDOTDIR:\
 $ZSH:\
 $DOTFILES_INC:"
 
-PATH=$(echo "${=PATH// /}")
+# PATH=$(echo "${=PATH// /}") # remove spaces ...
 
 PATH="${PATH// /}" 		# remove spaces ... before adding VSCode path ...
 PATH="${PATH//::/:}" 	# remove double colons ... you know you've done it, too

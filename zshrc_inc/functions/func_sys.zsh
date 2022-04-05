@@ -41,19 +41,7 @@
 		}
 		)
 
-#? -----------------------------> git housekeeping (TODO)
-    #TODO - wip ...
-    # _housekeeping () {
-    #     echo "git fetch -p && git branch -vv | awk '/: gone]/ {print $1}' | xargs git branch -d"
-    #     }
-
 #? -----------------------------> cli utilities
-
-  	# cd() {
-	# 	# Reference: https://manned.org/command
-	# 	/usr/bin/cd "$@" >/dev/null
-	# 	white $(pwd)
-	# 	}
 
 	runutil () {
 		"/usr/bin/$@"
@@ -107,35 +95,6 @@
 	_usage_FMT="${RESET:-}usage: ${MAIN:-}%s ${DARKGREEN:-}%s %s %s${RESET:-}\n"
 
 	usage() { printf "$_usage_FMT" "$0" "$1""" "$2""" "$3"""; }
-
-	# benchtime() {
-	# 	usage='timeit [N] <command> [options]'
-	# 	if [[ -z "$1" -o ]]; then
-	# 		white "usage: ${MAIN:-}bench ${GREEN:-}<COMMAND> [OPTIONS]"
-	# 		return
-	# 	fi
-
-	# 	is_int "$1" && N="$1"
-	# 	N=${N:=10000}
-
-	# 	t0=$(ms)
-	# }
-
-	# bench() {
-	# 	if [[ -z "$1" -o ]]; then
-	# 		white "usage: ${MAIN:-}bench ${GREEN:-}<COMMAND> [OPTIONS]"
-	# 		return
-	# 	fi
-	# 	command="$@"
-
-
-
-	# 	# ( time date ) 2>&1 | awk -F "cpu" '{print $2}' | tail -n 1 | awk '{print $1}'
-	# 	( time date ) 2>&1 | awk -F "cpu" '{print $2}' | tail -n 1 | awk '{print $1}'
-
-	# 	time (repeat $N { typeset -p "SOME_VARIABLE" > /dev/null 2>&1 })
-
-	# }
 
 	filesort() {
 
@@ -278,7 +237,8 @@
         }
     # Kills any process that matches a regexp passed to it
     killit() { ps aux | grep -v "grep" | grep "$*" | awk '{print $2}' | xargs sudo kill; }
-    chmod_all() {
+
+	chmod_all() {
         # chmod matching files to given mode
         # $1 is path (default $PWD);
         # $2 is pattern (default '*');

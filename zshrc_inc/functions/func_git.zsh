@@ -17,21 +17,6 @@
 	}
 #? ###################### copyright (c) 2019 Michael Treanor #################
 
-# ------------------------- gitit -------------------------
-#   Automatic repo pre-commit, commit, and push
-#
-#   Usage: gitit [message]
-# ---------------------- Requirements ---------------------
-#
-#   gpg key generator:          git_gpg.php
-#   default status message:     ~/.dotfiles/.stCommitMsg
-#
-#   example .stCommitMsg:
-#       (Gitit Bot): minor updates and formatting.
-#       https://www.github.com/skeptycal
-# ---------------------------------------------------------
-
-
 if [[ "$(git-achievements --help >/dev/null 2>&1 )" -ne 0 ]]; then
     alias git='git-achievements '
 fi

@@ -221,7 +221,7 @@
 
 #? -----------------------------> load profile settings
 
-    source_dir $DOTFILES_INC/_first
+    # source_dir $DOTFILES_INC/_first
     source_dir $DOTFILES_INC/.secret
     # source_dir $DOTFILES_INC/default
     source_dir $DOTFILES_INC/aliases
