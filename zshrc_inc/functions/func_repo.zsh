@@ -12,19 +12,42 @@
 	_debug_tests() {
 		if (( SET_DEBUG == 1 )); then
 			printf '%b\n' "${WARN:-}Debug Mode Details for ${CANARY}${SCRIPT_NAME##*/}${RESET:-}"
-			green $(type -a git)
+			local INPUT="f^kd0@D_FJ\nic  df _ dw084&"
+				green "cleanstring    $INPUT = $(cleanstring "$INPUT")"
+				green "cleanerstring  $INPUT = $(cleanerstring "$INPUT")"
+				green "containerclean $INPUT = $(containerclean "$INPUT")"
 		fi
 	}
 #? ###################### copyright (c) 2019 Michael Treanor #################
 
-gitit() {
-	if $(go mod tidy) ; then
-		go doc >|go.doc
-	fi
-	git add --all
-	git commit -m "${1:-'GitBot: dev progress autosave'}"
-	git push --set-upstream origin $(git_current_branch)
+cleanstring() {
+	# CLEANSTRING=${STRING//[^a-zA-Z0-9]/}
+	echo ${1//[^a-zA-Z0-9]/}
 }
+
+cleanerstring() {
+	# Sanitize $STRING but leave underscores
+	CLEAN="${1//_/}" && \
+	CLEAN="${CLEAN// /_}" && \
+	CLEAN="${CLEAN//[^a-zA-Z0-9]/}" # && \
+	# CLEAN="${CLEAN,,}"
+	echo $CLEAN
+}
+
+containerclean() {
+	# Sanitize $STRING for a container name
+	CLEAN="${1//[^a-zA-Z0-9]/}" # && \
+	#CLEAN="${CLEAN,,}"
+	echo $CLEAN
+}
+
+# replaced with Go utility gitit
+# gitit() {
+# 	go mod tidy && go doc >|go.doc
+# 	git add --all
+# 	git commit -m "${1:-'GitBot: dev progress autosave'}"
+# 	git push --set-upstream origin $(git_current_branch)
+# }
 
 # ------------------------- gitit -------------------------
 #   Automatic repo pre-commit, commit, and push

@@ -1,3 +1,21 @@
+#!/usr/bin/env zsh
+# -*- coding: utf-8 -*-
+    # shellcheck shell=bash
+    # shellcheck source=/dev/null
+    # shellcheck disable=2178,2128,2206,2034
+#? ################# .functions - functions for macOS with zsh ###############
+	#* copyright (c) 2019 Michael Treanor     -----     MIT License
+	#* should not be run directly; called from .bash_profile / .bashrc / .zshrc
+#? ######################## https://www.github.com/skeptycal #################
+	SET_DEBUG=${SET_DEBUG:-0} # set to 1 for verbose testing
+	SCRIPT_NAME=${0##*/}
+	_debug_tests() {
+		if (( SET_DEBUG == 1 )); then
+			printf '%b\n' "${WARN:-}Debug Mode Details for ${CANARY}${SCRIPT_NAME##*/}${RESET:-}"
+			green $(type -a git)
+		fi
+	}
+#? ###################### copyright (c) 2019 Michael Treanor #################
 
 	not_root(){
 		# the environment variable $EUID contains the 'effective user id'
@@ -9,10 +27,12 @@
 		# This is likely a safer method than shell programs such as 'id'
 		return $(( EUID == 0 ));
 		} >/dev/null 2>&1
+
 	is_root() {
 		# complementary function for 'not_root'
 		return $(( EUID>0 ))
 		} >/dev/null 2>&1
+
 	userid_not_root(){
 		# Using shell programs (whoami, uname, or id) to get username or userid and could easily be vulnerable to bypassing if they are replaced with a dummy file earlier in the path. Using scutil may be more difficult to fool, but is itself a shell program found on the path ...
 
@@ -31,6 +51,7 @@
 
 		return $(( loggedInUserID=0 ))
 		} >/dev/null 2>&1
+
 	sudo_env() { # Turn on SUDO for remainder of current script
 		#   requires root authentication, of course
 

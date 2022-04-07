@@ -12,7 +12,7 @@
 	_debug_tests() {
 		if (( SET_DEBUG == 1 )); then
 			printf '%b\n' "${WARN:-}Debug Mode Details for ${CANARY}${SCRIPT_NAME##*/}${RESET:-}"
-			green $(type -a git)
+			green "gsok(): "$( gsok(); )
 		fi
 	}
 #? ###################### copyright (c) 2019 Michael Treanor #################
